@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+.label {
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+    font-size: clamp(0.5rem, 1vw, 1rem);
+}
+
+.label-primary {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.label-secondary {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.label-h1 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(2rem, 4vw, 4rem);
+}
+
+.label-h2 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(1.5rem, 3vw, 3rem);
+}
+
+.label-h3 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(1.25rem, 2.5vw, 2.5rem);
+}
+
+.label-h4 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(1rem, 2vw, 2rem);
+}
+
+.label-h5 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(0.875rem, 1.75vw, 1.75rem);
+}
+
+.label-h6 {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(0.75rem, 1.5vw, 1.5rem);
+}
