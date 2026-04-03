@@ -1,4 +1,3 @@
-// src/services/core/Request.ts
 
 type Primitive = string | number | boolean;
 
@@ -173,4 +172,5 @@ export class Request {
             })
             .join("/");
     }
+
 }

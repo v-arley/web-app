@@ -11,9 +11,9 @@ export function CampCreate() {
 
     return (
         <div>
-            <header className="px-6 py-4 flex items-center justify-center">
+            <header className="">
                 <div>
-                    <h1 className="text-2xl font-bold">CAMPS</h1>
+                    <h1 className="">CAMPS</h1>
                 </div>
             </header>
             <main>

@@ -9,10 +9,10 @@ export class Exploration {
     departure_date!: Date;
     estimated_return_date!: Date;
     duration_days!: number;
-    risk_level!: string; // [!] enum
+    risk_level!: string;
     state!: string;
 
-    camp_id!: number; // primary key real del campamento
+    camp_id!: number;
 
     constructor(data?: Partial<Exploration>) {
         Object.assign(this, data);

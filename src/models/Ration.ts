@@ -3,7 +3,7 @@ export class Ration {
 
     id!: number;
     completed!: boolean;
-    person_id!: number; // [!]    
+    person_id!: number;
 
     constructor(data?: Partial<Ration>) {
         Object.assign(this, data);

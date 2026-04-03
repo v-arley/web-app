@@ -1,4 +1,3 @@
-
 import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
 import { Person, type CreatePerson, type UpdatePerson } from "../models/Person";
