@@ -1,10 +1,37 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/routes";
+import { useDashboardNav, type DashboardSection } from "../../hooks/useDashboardNav";
+import { SidebarButton } from "../components/SidebarButton";
+import { CampCreate } from "./CampCreate";
+
+function DashboardHome() {
+    return <CampCreate />;
+}
+
+function UsuariosPanel() {
+    return <p className="text-[#a0a0a0] font-mono text-xs">Gestión de usuarios (por implementar).</p>;
+}
+
+function InventarioPanel() {
+    return <p className="text-[#a0a0a0] font-mono text-xs">Gestión de inventario (por implementar).</p>;
+}
+
+function AjustesPanel() {
+    return <p className="text-[#a0a0a0] font-mono text-xs">Ajustes del sistema (por implementar).</p>;
+}
+
+const SECTIONS: DashboardSection[] = [
+    { key: "dashboard", label: "Dashboard", component: () => <DashboardHome /> },
+    { key: "usuarios", label: "Usuarios", component: () => <UsuariosPanel /> },
+    { key: "inventario", label: "Inventario", component: () => <InventarioPanel /> },
+    { key: "ajustes", label: "Ajustes", component: () => <AjustesPanel /> },
+];
 
 export function DashboardPage() {
     const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
+    const { activeKey, activeSection, sections, navigate: navTo } = useDashboardNav(SECTIONS);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
@@ -44,9 +71,36 @@ export function DashboardPage() {
                 </div>
             </header>
 
-            <main className="px-2 py-2 flex-1 flex w-full">
+
+            <main className="px-2 py-2 flex-1 flex flex-col sm:flex-row w-full gap-2">
+                {/* Sidebar */}
+                <aside className="w-full sm:w-64 bg-[#272727] rounded-md shadow-lg border border-[#3a3a3a] p-4 flex flex-col gap-4">
+                    <div className="text-[#a0a0a0] font-mono text-xs tracking-widest uppercase mb-2 border-b border-[#3a3a3a] pb-2">
+                        Menu Principal
+                    </div>
+                    <nav className="flex flex-col gap-2">
+                        {
+                        sections.map((section) => (
+                            <SidebarButton
+                                key={section.key}
+                                label={section.label}
+                                active={activeKey === section.key}
+                                onClick={() => navTo(section.key)}
+                            />
+                        ))
+                        }
+                    </nav>
+                </aside>
+
                 {/* Center Main Area */}
-                <div className="flex-1 w-full rounded-lg bg-black/10 border border-black/20 shadow-[inset_2px_2px_8px_rgba(0,0,0,0.2),inset_-1px_-1px_4px_rgba(255,255,255,0.05)]"></div>
+                <div className="flex-1 w-full rounded-md bg-black/10 border border-black/20 shadow-[inset_2px_2px_8px_rgba(0,0,0,0.2),inset_-1px_-1px_4px_rgba(255,255,255,0.05)] p-4 flex flex-col gap-4">
+                    <div className="text-[#a0a0a0] font-mono text-xs tracking-widest uppercase border-b border-black/20 pb-2">
+                        {activeSection?.label ?? ""}
+                    </div>
+                    <div>
+                        {activeSection?.component()}
+                    </div>
+                </div>
             </main>
 
             <footer className="w-full py-2 px-2 flex justify-center">

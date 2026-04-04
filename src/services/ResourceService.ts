@@ -1,19 +1,19 @@
 import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { PermissionRol } from "../models/PermissionRol";
+import { Resource } from "../models/Resource";
 
-export class RolePermissionService {
+export class ResourceService {
     private request: Request;
 
     constructor() {
         this.request = new Request();
     }
 
-    async save(register: PermissionRol): Promise<Respuesta> {
-        const request = new Request("/role-permissions");
+    async save(register: Resource): Promise<Respuesta> {
+        const request = new Request("/resources");
         await request.post(register);
 
-        const data = request.readEntity<PermissionRol>();
+        const data = request.readEntity<Resource>();
 
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
@@ -21,11 +21,11 @@ export class RolePermissionService {
         return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
     }
 
-    async update(id: number, register: PermissionRol): Promise<Respuesta> {
-        const request = new Request("/role-permissions", "{id}", { id });
+    async update(id: number, register: Resource): Promise<Respuesta> {
+        const request = new Request("/resources", "{id}", { id });
         await request.put(register);
 
-        const data = request.readEntity<PermissionRol>();
+        const data = request.readEntity<Resource>();
 
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
@@ -35,7 +35,7 @@ export class RolePermissionService {
     }
 
     async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/role-permissions", "{id}", { id });
+        const request = new Request("/resources", "{id}", { id });
         await request.delete();
 
         if (request.isError()) {
@@ -46,7 +46,7 @@ export class RolePermissionService {
     }
 
     async findAll(): Promise<Respuesta> {
-        const request = new Request("/role-permissions");
+        const request = new Request("/resources");
         await request.get();
 
         const data = request.readEntity<BackendResponse<BackendListPayload>>();
@@ -54,20 +54,20 @@ export class RolePermissionService {
             return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
         }
 
-        const rolePermissions = (data?.resultado?.items ?? []).map((permissionRol) => new PermissionRol(permissionRol));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", rolePermissions);
+        const resources = (data?.resultado?.items ?? []).map((resource) => new Resource(resource));
+        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", resources);
     }
 
     async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/role-permissions", "{id}", { id });
+        const request = new Request("/resources", "{id}", { id });
         await request.get();
 
-        const data = request.readEntity<BackendResponse<{ item: PermissionRol }>>();
+        const data = request.readEntity<BackendResponse<{ item: Resource }>>();
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
         }
 
-        const rolePermissions = data?.resultado?.item ? new PermissionRol(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", rolePermissions);
+        const resources = data?.resultado?.item ? new Resource(data.resultado.item) : null;
+        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", resources);
     }
 }

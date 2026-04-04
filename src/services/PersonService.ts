@@ -1,6 +1,6 @@
 import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Person, type CreatePerson, type UpdatePerson } from "../models/Person";
+import { Person } from "../models/Person";
 
 export class PersonService {
     private request: Request;

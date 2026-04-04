@@ -1,6 +1,6 @@
 import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Camp, type CreateCamp, type UpdateCamp } from "../models/Camp";
+import { Camp } from "../models/Camp";
 
 export class CampService {
     private request: Request;

@@ -1,14 +1,14 @@
 import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { UserResponseDto, type CreateUserDto, type UpdateUserDto } from "../models/User";
+import { type CreateUser, type UpdateUser } from "../models/User";
 
 export class UserService {
 
-    async save(register: CreateUserDto): Promise<Respuesta> {
+    async save(register: CreateUser): Promise<Respuesta> {
         const request = new Request("/users");
         await request.post(register);
 
-        const data = request.readEntity<UserResponseDto>();
+        const data = request.readEntity<UserResponse>();
 
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
@@ -16,11 +16,11 @@ export class UserService {
         return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
     }
 
-    async update(id: number, register: UpdateUserDto): Promise<Respuesta> {
+    async update(id: number, register: UpdateUser): Promise<Respuesta> {
         const request = new Request("/users", "{id}", { id });
         await request.put(register);
 
-        const data = request.readEntity<UserResponseDto>();
+        const data = request.readEntity<UserResponse>();
 
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
@@ -48,7 +48,7 @@ export class UserService {
             return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
         }
 
-        const users = (data?.resultado?.items ?? []).map((u) => new UserResponseDto(u));
+        const users = (data?.resultado?.items ?? []).map((u) => new UserResponse(u));
         return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", users);
     }
 
@@ -57,12 +57,12 @@ export class UserService {
         request.setBearerToken(localStorage.getItem("token") ?? "");
         await request.get();
 
-        const data = request.readEntity<BackendResponse<{ item: UserResponseDto }>>();
+        const data = request.readEntity<BackendResponse<{ item: UserResponse }>>();
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
         }
 
-        const user = data?.resultado?.item ? new UserResponseDto(data.resultado.item) : null;
+        const user = data?.resultado?.item ? new UserResponse(data.resultado.item) : null;
         return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", user);
     }
 }
