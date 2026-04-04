@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/routes";
 import { useDashboardNav, type DashboardSection } from "../../hooks/useDashboardNav";
 import { SidebarButton } from "../components/SidebarButton";
-import { CampCreate } from "./CampCreate";
+import { DashboardView } from "./DashboardView";
 
 function DashboardHome() {
-    return <CampCreate />;
+    return <DashboardView />;
 }
 
 function UsuariosPanel() {
