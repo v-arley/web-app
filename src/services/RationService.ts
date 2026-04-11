@@ -1,73 +1,61 @@
-import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Ration } from "../models/Ration";
+import { Ration, type CreateRation, type UpdateRation } from "../models/Ration";
+import { AxiosBaseService } from "./AxiosBaseService";
 
-export class RationService {
-    private request: Request;
+export class RationService extends AxiosBaseService {
 
-    constructor() {
-        this.request = new Request();
-    }
+	async save(register: CreateRation): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.post<BackendResponse<{ item: Ration }> | Ration>("/rations", register);
+			const ration = this.extractItem<Ration>(data);
 
-    async save(register: Ration): Promise<Respuesta> {
-        const request = new Request("/rations");
-        await request.post(register);
+			return new Respuesta(true, "Registro creado correctamente.", "", "registro", ration);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
+		}
+	}
 
-        const data = request.readEntity<Ration>();
+	async update(id: number, register: UpdateRation): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.put<BackendResponse<{ item: Ration }> | Ration>(`/rations/${id}`, register);
+			const ration = this.extractItem<Ration>(data);
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", ration);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
+		}
+	}
 
-    async update(id: number, register: Ration): Promise<Respuesta> {
-        const request = new Request("/rations", "{id}", { id });
-        await request.put(register);
+	async remove(id: number): Promise<Respuesta> {
+		try {
+			await this.client.delete(`/rations/${id}`);
 
-        const data = request.readEntity<Ration>();
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
+	async findAll(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Ration>> | Ration[]>("/rations");
+			const rations = this.extractItems<Ration>(data).map((ration) => new Ration(ration));
 
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", rations);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/rations", "{id}", { id });
-        await request.delete();
+	async findById(id: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: Ration }> | Ration>(`/rations/${id}`);
+			const rationData = this.extractItem<Ration>(data);
+			const ration = rationData ? new Ration(rationData) : null;
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
-
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/rations");
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-
-        const rations = (data?.resultado?.items ?? []).map((ration) => new Ration(ration));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", rations);
-    }
-
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/rations", "{id}", { id });
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<{ item: Ration }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-
-        const rations = data?.resultado?.item ? new Ration(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", rations);
-    }
+			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", ration);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
 }

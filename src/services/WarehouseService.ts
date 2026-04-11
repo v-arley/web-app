@@ -1,73 +1,73 @@
-import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Warehouse } from "../models/Warehouse";
+import { Warehouse, type CreateWarehouse, type UpdateWarehouse } from "../models/Warehouse";
+import { AxiosBaseService } from "./AxiosBaseService";
 
-export class WarehouseService {
-    private request: Request;
+export class WarehouseService extends AxiosBaseService {
 
-    constructor() {
-        this.request = new Request();
-    }
+	async save(register: CreateWarehouse): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.post<BackendResponse<{ item: Warehouse }> | Warehouse>(
+				"/warehouses",
+				register
+			);
+			const warehouse = this.extractItem<Warehouse>(data);
 
-    async save(register: Warehouse): Promise<Respuesta> {
-        const request = new Request("/warehouses");
-        await request.post(register);
+			return new Respuesta(true, "Registro creado correctamente.", "", "registro", warehouse);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
+		}
+	}
 
-        const data = request.readEntity<Warehouse>();
+	async update(id: number, register: UpdateWarehouse): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.put<BackendResponse<{ item: Warehouse }> | Warehouse>(
+				`/warehouses/${id}`,
+				register
+			);
+			const warehouse = this.extractItem<Warehouse>(data);
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", warehouse);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
+		}
+	}
 
-    async update(id: number, register: Warehouse): Promise<Respuesta> {
-        const request = new Request("/warehouses", "{id}", { id });
-        await request.put(register);
+	async remove(id: number): Promise<Respuesta> {
+		try {
+			await this.client.delete(`/warehouses/${id}`);
 
-        const data = request.readEntity<Warehouse>();
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
+	async findAll(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Warehouse>> | Warehouse[]>(
+				"/warehouses"
+			);
+			const warehouses = this.extractItems<Warehouse>(data).map(
+				(warehouse) => new Warehouse(warehouse)
+			);
 
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", warehouses);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/warehouses", "{id}", { id });
-        await request.delete();
+	async findById(id: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: Warehouse }> | Warehouse>(
+				`/warehouses/${id}`
+			);
+			const warehouseData = this.extractItem<Warehouse>(data);
+			const warehouse = warehouseData ? new Warehouse(warehouseData) : null;
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
-
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/warehouses");
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-
-        const warehouses = (data?.resultado?.items ?? []).map((warehouse) => new Warehouse(warehouse));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", warehouses);
-    }
-
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/warehouses", "{id}", { id });
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<{ item: Warehouse }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-
-        const warehouses = data?.resultado?.item ? new Warehouse(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", warehouses);
-    }
+			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", warehouse);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
 }
