@@ -4,13 +4,14 @@ import { ROUTES } from "../../router/routes";
 import { useDashboardNav, type DashboardSection } from "../../hooks/useDashboardNav";
 import { SidebarButton } from "../components/SidebarButton";
 import { DashboardView } from "./DashboardView";
+import { UsersPanel } from "../sections/UsersPanel";
 
 function DashboardHome() {
     return <DashboardView />;
 }
 
 function UsuariosPanel() {
-    return <p className="text-[#a0a0a0] font-mono text-xs">Gestión de usuarios (por implementar).</p>;
+    return <UsersPanel />;
 }
 
 function InventarioPanel() {
