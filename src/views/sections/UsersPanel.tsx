@@ -3,6 +3,7 @@ import { UserRoundPlus } from "lucide-react";
 import { UserCheck, UserRoundMinus, UsersRound } from "lucide-react";
 import { UserCard } from "../components/UserCard";
 import { UserProfileModal } from "../components/UserProfileModal";
+import { RegistrationPanel } from "./RegistrationPanel";
 import { useState } from "react";
 
 const professionLabels: Record<string, string> = {
@@ -91,7 +92,9 @@ const initialUsers: UserCardData[] = [
 export function UsersPanel() {
   const [users, setUsers] = useState<UserCardData[]>(initialUsers);
   const [selectedUser, setSelectedUser] = useState<UserCardData | null>(null);
+  const [isRegistrationPanelOpen, setIsRegistrationPanelOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("activos");
+  const [isStatusSelectFocused, setIsStatusSelectFocused] = useState(false);
 
   const filteredUsers = users.filter((user) => {
     if (statusFilter === "todos") return true;
@@ -161,13 +164,23 @@ export function UsersPanel() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="w-full rounded-lg border border-black bg-black px-4 py-2 text-white outline-none transition-all duration-200 hover:border-[#FF6600] hover:text-[#FF6600] hover:shadow-[0_10px_20px_rgba(0,0,0,0.35)] focus:border-black focus:bg-black focus:text-white focus:ring-0 sm:w-auto"
+            onFocus={() => setIsStatusSelectFocused(true)}
+            onBlur={() => setIsStatusSelectFocused(false)}
+            className={`w-full rounded-lg border px-4 py-2 outline-none transition-all duration-200 hover:shadow-[0_10px_20px_rgba(0,0,0,0.35)] sm:w-auto ${
+              isStatusSelectFocused
+                ? "border-[#FF6600] bg-[#FF6600] text-black"
+                : "border-black bg-black text-white hover:border-[#FF6600] hover:text-[#FF6600]"
+            }`}
           >
             <option value="activos">Activos</option>
             <option value="inactivos">Inactivos</option>
             <option value="todos">Todos</option>
           </select>
-          <button className="group flex w-full items-center justify-center gap-[10px] rounded-lg border border-black bg-black px-4 py-2 text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black sm:w-auto sm:justify-start">
+          <button
+            type="button"
+            onClick={() => setIsRegistrationPanelOpen(true)}
+            className="group flex w-full items-center justify-center gap-[10px] rounded-lg border border-black bg-black px-4 py-2 text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black sm:w-auto sm:justify-start"
+          >
             <UserRoundPlus className="text-white transition-colors group-hover:text-black" />
             Registrar personal
           </button>
@@ -214,6 +227,9 @@ export function UsersPanel() {
           onChangeProfession={handleChangeProfession}
           onClose={() => setSelectedUser(null)}
         />
+      )}
+      {isRegistrationPanelOpen && (
+        <RegistrationPanel onClose={() => setIsRegistrationPanelOpen(false)} />
       )}
     </>
   );
