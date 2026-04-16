@@ -1,73 +1,63 @@
-import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { ExplorationResource } from "../models/ExplorationResource";
+import { ExplorationResource, type CreateExplorationResource } from "../models/ExplorationResource";
+import { AxiosBaseService } from "./AxiosBaseService";
 
-export class ResourceExplorationService {
-    private request: Request;
+export class ResourceExplorationService extends AxiosBaseService {
 
-    constructor() {
-        this.request = new Request();
-    }
+	async save(register: CreateExplorationResource): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.post<BackendResponse<{ item: ExplorationResource }> | ExplorationResource>("/exploration-resources", register);
+			const explorationResource = this.extractItem<ExplorationResource>(data);
 
-    async save(register: ExplorationResource): Promise<Respuesta> {
-        const request = new Request("/exploration-resources");
-        await request.post(register);
+			return new Respuesta(true, "Registro creado correctamente.", "", "registro", explorationResource);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
+		}
+	}
 
-        const data = request.readEntity<ExplorationResource>();
+	async update(id: number, register: ExplorationResource): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.put<BackendResponse<{ item: ExplorationResource }> | ExplorationResource>(`/exploration-resources/${id}`, register);
+			const explorationResource = this.extractItem<ExplorationResource>(data);
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", explorationResource);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
+		}
+	}
 
-    async update(id: number, register: ExplorationResource): Promise<Respuesta> {
-        const request = new Request("/exploration-resources", "{id}", { id });
-        await request.put(register);
+	async remove(id: number): Promise<Respuesta> {
+		try {
+			await this.client.delete(`/exploration-resources/${id}`);
 
-        const data = request.readEntity<ExplorationResource>();
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
+	async findAll(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<ExplorationResource>> | ExplorationResource[]>("/exploration-resources");
+			const explorationResources = this.extractItems<ExplorationResource>(data).map(
+				(explorationResource) => new ExplorationResource(explorationResource)
+			);
 
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", explorationResources);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/exploration-resources", "{id}", { id });
-        await request.delete();
+	async findById(id: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: ExplorationResource }> | ExplorationResource>(`/exploration-resources/${id}`);
+			const explorationResourceData = this.extractItem<ExplorationResource>(data);
+			const explorationResource = explorationResourceData ? new ExplorationResource(explorationResourceData) : null;
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
-
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/exploration-resources");
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-
-        const explorationResources = (data?.resultado?.items ?? []).map((explorationResource) => new ExplorationResource(explorationResource));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", explorationResources);
-    }
-
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/exploration-resources", "{id}", { id });
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<{ item: ExplorationResource }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-
-        const explorationResources = data?.resultado?.item ? new ExplorationResource(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", explorationResources);
-    }
+			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", explorationResource);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
 }

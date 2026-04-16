@@ -1,69 +1,62 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { type CreateUser, type UpdateUser } from "../models/User";
+import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../utils/Response";
+import {User, type CreateUser, type UpdateUser } from "../models/User";
+import { AxiosBaseService } from "./AxiosBaseService";
 
-export class UserService {
+export class UserService extends AxiosBaseService {
 
     async save(register: CreateUser): Promise<Respuesta> {
-        const request = new Request("/users");
-        await request.post(register);
-
-        const data = request.readEntity<UserResponse>();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
+        try {
+            const { data } = await this.client.post<BackendResponse<{ item: User }> | User>("/users", register);
+            const user = this.extractItem<User>(data);
+                
+            return new Respuesta(true, "Registro creado correctamente.", "", "registro", user);
+        } catch (error) {
+            return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
         }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
     }
 
     async update(id: number, register: UpdateUser): Promise<Respuesta> {
-        const request = new Request("/users", "{id}", { id });
-        await request.put(register);
-
-        const data = request.readEntity<UserResponse>();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
+        try {
+            const { data } = await this.client.put<BackendResponse<{ item: User }> | User>(`/users/${id}`, register);
+            const user = this.extractItem<User>(data);
+                
+            return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", user);
+        } catch (error) {
+            return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
         }
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
     }
 
     async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/users", "{id}", { id });
-        await request.delete();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
+		try {
+			await this.client.delete(`/users/${id}`);
+			
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
     async findAll(): Promise<Respuesta> {
-        const request = new Request("/users");
-        request.setBearerToken(localStorage.getItem("token") ?? "");
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
+        try {
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<User>> | User[]>("/users");
+            const user = this.extractItems<User>(data).map((user) => new User(user));
+                
+            return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", user);
+        } catch (error) {
+            return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
         }
-
-        const users = (data?.resultado?.items ?? []).map((u) => new UserResponse(u));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", users);
     }
 
     async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/users", "{id}", { id });
-        request.setBearerToken(localStorage.getItem("token") ?? "");
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<{ item: UserResponse }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
+            try {
+                const { data } = await this.client.get<BackendResponse<{ item: User }> | User>(`/users/${id}`);
+                const userData = this.extractItem<User>(data);
+                const user = userData ? new User(userData) : null;
+                
+                return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", user);
+            } catch (error) {
+                return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+            }
         }
-
-        const user = data?.resultado?.item ? new UserResponse(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", user);
-    }
 }
 

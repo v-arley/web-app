@@ -1,73 +1,61 @@
-import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Resource } from "../models/Resource";
+import { Resource, type CreateResource, type UpdateResource } from "../models/Resource";
+import { AxiosBaseService } from "./AxiosBaseService";
 
-export class ResourceService {
-    private request: Request;
+export class ResourceService extends AxiosBaseService {
 
-    constructor() {
-        this.request = new Request();
-    }
+	async save(register: CreateResource): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.post<BackendResponse<{ item: Resource }> | Resource>("/resources", register);
+			const resource = this.extractItem<Resource>(data);
 
-    async save(register: Resource): Promise<Respuesta> {
-        const request = new Request("/resources");
-        await request.post(register);
+			return new Respuesta(true, "Registro creado correctamente.", "", "registro", resource);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
+		}
+	}
 
-        const data = request.readEntity<Resource>();
+	async update(id: number, register: UpdateResource): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.put<BackendResponse<{ item: Resource }> | Resource>(`/resources/${id}`, register);
+			const resource = this.extractItem<Resource>(data);
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", resource);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
+		}
+	}
 
-    async update(id: number, register: Resource): Promise<Respuesta> {
-        const request = new Request("/resources", "{id}", { id });
-        await request.put(register);
+	async remove(id: number): Promise<Respuesta> {
+		try {
+			await this.client.delete(`/resources/${id}`);
 
-        const data = request.readEntity<Resource>();
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
+	async findAll(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Resource>> | Resource[]>("/resources");
+			const resources = this.extractItems<Resource>(data).map((resource) => new Resource(resource));
 
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", resources);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/resources", "{id}", { id });
-        await request.delete();
+	async findById(id: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: Resource }> | Resource>(`/resources/${id}`);
+			const resourceData = this.extractItem<Resource>(data);
+			const resource = resourceData ? new Resource(resourceData) : null;
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
-
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/resources");
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-
-        const resources = (data?.resultado?.items ?? []).map((resource) => new Resource(resource));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", resources);
-    }
-
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/resources", "{id}", { id });
-        await request.get();
-
-        const data = request.readEntity<BackendResponse<{ item: Resource }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-
-        const resources = data?.resultado?.item ? new Resource(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", resources);
-    }
+			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", resource);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
 }
