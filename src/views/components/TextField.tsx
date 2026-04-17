@@ -1,4 +1,5 @@
 import React, { useId } from "react";
+import "./TextField.css";
 
 type TextFieldProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, "id"> & {
     label: string;
@@ -23,13 +24,13 @@ export const TextField = ({ label, id: idProp, placeholder = " ", required, type
                 <label htmlFor={id} className="input-label" data-text={label}>
                     {label}
                 </label>
-                {/*<div className="input-border"></div>
+                <div className="input-border"></div>
                 <div className="input-corners">
                     <div className="corner corner-tl"></div>
                     <div className="corner corner-tr"></div>
                     <div className="corner corner-bl"></div>
                     <div className="corner corner-br"></div>
-                </div>*/}
+                </div>
             </div>
         </div>
     );

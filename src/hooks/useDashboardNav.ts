@@ -3,6 +3,7 @@ import { useState, useCallback, type ReactNode } from "react";
 export type DashboardSection = {
     key: string;
     label: string;
+    icon?: ReactNode;
     component: () => ReactNode;
 };
 
