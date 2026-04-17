@@ -39,7 +39,7 @@ export function LoginPage() {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#cfcfcf] px-4">
-            <div className="bg-[#272727] rounded-md px-8 py-10 flex flex-col items-center w-full max-w-sm shadow-lg border border-[#3a3a3a] relative overflow-hidden">
+            <div className="bg-[#272727] px-8 py-10 flex flex-col items-center w-full max-w-sm shadow-lg relative overflow-hidden">
                 <header className="flex flex-col items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="8em" height="8em" viewBox="0 0 48 48">
                         <path fill="none" stroke="#a0a0a0" stroke-linecap="round" stroke-linejoin="round" d="m22.5 2.902l-16.021 9.25a3 3 0 0 0-1.5 2.598v18.5a3 3 0 0 0 1.5 2.598l16.021 9.25a3 3 0 0 0 3 0l16.021-9.25a3 3 0 0 0 1.5-2.598v-18.5a3 3 0 0 0-1.5-2.598L25.5 2.902a3 3 0 0 0-3 0" />
@@ -61,7 +61,7 @@ export function LoginPage() {
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] sm:text-[11px] font-mono text-[#a0a0a0] tracking-widest uppercase" htmlFor="username">USERNAME</label>
                         <input
-                            className="bg-black/20 border border-[#3a3a3a] rounded-md px-4 py-2.5 text-[#d4d4d4] font-mono text-sm focus:outline-none focus:border-[#a0a0a0] transition-colors shadow-inner w-full"
+                            className="bg-black/20 px-4 py-2.5 text-[#d4d4d4] font-mono text-sm focus:outline-none transition-colors shadow-inner w-full"
                             type="text"
                             id="username"
                             value={username}
@@ -73,7 +73,7 @@ export function LoginPage() {
                     <div className="flex flex-col gap-2">
                         <label className="text-[10px] sm:text-[11px] font-mono text-[#a0a0a0] tracking-widest uppercase" htmlFor="password">PASSWORD</label>
                         <input
-                            className="bg-black/20 border border-[#3a3a3a] rounded-md px-4 py-2.5 text-[#d4d4d4] font-mono text-sm focus:outline-none focus:border-[#a0a0a0] transition-colors shadow-inner w-full"
+                            className="bg-black/20 px-4 py-2.5 text-[#d4d4d4] font-mono text-sm focus:outline-none transition-colors shadow-inner w-full"
                             type="password"
                             id="password"
                             value={password}
@@ -90,7 +90,7 @@ export function LoginPage() {
 
                     <div className="flex justify-center mt-3">
                         <button
-                            className="text-[11px] sm:text-xs font-mono uppercase text-[#d4d4d4] hover:text-green-500 transition-colors tracking-widest border-b border-transparent hover:border-green-500 pb-0.5"
+                            className="text-[11px] sm:text-xs font-mono uppercase text-[#d4d4d4] hover:text-green-500 transition-colors tracking-widest pb-0.5"
                             type="submit"
                         >
                             {loading ? "[ AUTHENTICATING... ]" : "[ LOG IN ]"}
