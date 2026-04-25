@@ -1,4 +1,3 @@
-
 export class AiDecision {
 
     id?: number | null;
