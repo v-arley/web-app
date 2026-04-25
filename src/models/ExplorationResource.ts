@@ -1,4 +1,3 @@
-
 export class ExplorationResource {
 
     id?: number;
