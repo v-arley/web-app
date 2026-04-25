@@ -17,4 +17,4 @@ export class CampRule {
 
 export type CreateCampRule = Omit<CampRule, "id" | "created_at">;
 
-export type responseCa
+export type responseCampRule = CampRule;
