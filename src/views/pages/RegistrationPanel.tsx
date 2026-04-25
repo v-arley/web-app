@@ -24,7 +24,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
             className="h-10 w-10 bg-[#FF6600] p-2 text-white"
             strokeWidth={2}
           />
-          <h2>Registro de personal</h2>
+          <h2>Staff Registration</h2>
           <div
             className={`flex items-center gap-3 border-b pb-2 text-[#666666] ${
               step === "personal_data"
@@ -40,7 +40,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
               }`}
               strokeWidth={2.5}
             />
-            <p>Datos Personales</p>
+            <p>Personal Data</p>
           </div>
           <div
             className={`flex items-center gap-3 border-b pb-2 text-[#666666] ${
@@ -57,7 +57,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
               }`}
               strokeWidth={2.5}
             />
-            <p>Evaluación asistida por IA</p>
+            <p>AI-Assisted Assessment</p>
           </div>
         </div>
 
@@ -68,9 +68,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                 {step === "personal_data" ? "STEP 01" : "STEP 02"}
               </p>
               <h3 className="mt-1 text-xl font-semibold text-black">
-                {step === "personal_data"
-                  ? "Datos Personales"
-                  : "Asistencia de IA"}
+                {step === "personal_data" ? "Personal Data" : "AI Assistance"}
               </h3>
             </div>
 
@@ -95,33 +93,33 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                     />
                   </div>
                   <div>
-                    <p className="text-[#808080]">IMANGEN DE LA PERSONA</p>
+                    <p className="text-[#808080]">PERSON IMAGE</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2">
                   <div className="flex flex-col gap-[10px]">
-                    <label className="text-[#808080]">NOMBRE</label>
+                    <label className="text-[#808080]">FIRST NAME</label>
                     <input
                       type="text"
                       className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
                     />
                   </div>
                   <div className="flex flex-col gap-[10px]">
-                    <label className="text-[#808080]">APELLIDO</label>
+                    <label className="text-[#808080]">LAST NAME</label>
                     <input
                       type="text"
                       className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
                     />
                   </div>
                   <div className="flex flex-col gap-[10px]">
-                    <label className="text-[#808080]">DNI</label>
+                    <label className="text-[#808080]">ID</label>
                     <input
                       type="text"
                       className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
                     />
                   </div>
                   <div className="flex flex-col gap-[10px]">
-                    <label className="text-[#808080]">SEXO</label>
+                    <label className="text-[#808080]">SEX</label>
                     <select className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none">
                       <option className="text-[#993D00]" value="male">
                         M
@@ -134,7 +132,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                 </div>
                 <div className="flex flex-col gap-[10px]">
                   <div className="flex flex-col gap-[10px]">
-                    <label className="text-[#808080]">FECHA NACIMIENTO</label>
+                    <label className="text-[#808080]">BIRTH DATE</label>
                     <div>
                       <input
                         type="date"
@@ -143,10 +141,8 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                     </div>
                   </div>
                   <div>
-                    <label className="text-[#808080]">DESCRIPCIÓN</label>
-                    <textarea
-                      className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
-                    />
+                    <label className="text-[#808080]">DESCRIPTION</label>
+                    <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
                   </div>
                 </div>
               </div>
@@ -156,7 +152,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                   onClick={() => setStep("ai_assessment")}
                   className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black sm:w-auto"
                 >
-                  Continuar a la evaluación asistida por IA
+                  Continue to AI-Assisted Assessment
                 </button>
               </div>
             </div>
@@ -166,22 +162,20 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
             <div className="space-y-6">
               <div className="flex flex-col gap-[30px]">
                 <div className="flex flex-col gap-[15px]">
-                  <label className="text-[#808080]">Antecedentes e historia</label>
-                    <textarea
-                      className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
-                    />
+                  <label className="text-[#808080]">
+                    Background and history
+                  </label>
+                  <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
                 </div>
                 <div className="flex flex-col gap-[15px]">
-                  <label className="text-[#808080]">Habilidades especializadas</label>
-                    <textarea
-                      className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
-                    />
+                  <label className="text-[#808080]">Specialized skills</label>
+                  <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
                 </div>
                 <div className="flex flex-col gap-[15px]">
-                  <label className="text-[#808080]">Motivación para ingresar</label>
-                    <textarea
-                      className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
-                    />
+                  <label className="text-[#808080]">
+                    Motivation for joining
+                  </label>
+                  <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
                 </div>
               </div>
 
@@ -191,14 +185,14 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                   onClick={() => setStep("personal_data")}
                   className="w-full rounded-lg border border-black px-4 py-2 text-sm font-medium text-black transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black sm:w-auto"
                 >
-                  Atras
+                  Back
                 </button>
 
                 <button
                   type="button"
                   className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black sm:w-auto"
                 >
-                  Enviar para análisis
+                  Submit for analysis
                 </button>
               </div>
             </div>

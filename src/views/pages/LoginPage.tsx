@@ -32,6 +32,11 @@ export function LoginPage() {
         }
     }
 
+    //temporal
+     /* async function handleSubmit() {
+    navigate(ROUTES.DASHBOARD);
+        }*/
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-bg-app px-4">
             <div className="w-[400px] bg-bg-primary border border-border-default border-t-2 border-t-accent p-10 flex flex-col gap-8">

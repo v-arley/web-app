@@ -1,4 +1,3 @@
-
 export class Camp {
 
     id?: number | null;
@@ -7,9 +6,11 @@ export class Camp {
     capacity!: number;
     location_x!: number;
     location_y!: number;
-    active: boolean = true;
+    active?: boolean;
+    state?: string;
     created_at?: Date;
 
+    admin_id?: number;
     user_admin_id?: number;
 
     constructor(data?: Partial<Camp>) {

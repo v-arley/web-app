@@ -1,4 +1,3 @@
-
 export class PersonExploration {
 
     id?: number;

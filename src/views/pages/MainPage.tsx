@@ -9,7 +9,6 @@ import { SidebarButton } from "../components/SidebarButton";
 import { DashboardView } from "./DashboardView";
 
 import { SettingsView } from "./SettingsView";
-import { CampsView } from "./CampsView";
 import { WarehouseView } from "./WarehouseView";
 import { UsersView } from "./UsersView";
 import { RequestsView } from "./RequestsView";
@@ -58,7 +57,7 @@ const SECTIONS: DashboardSection[] = [
     key: "camp",
     label: "Camp",
     icon: <Tent size={18} strokeWidth={2} />,
-    component: () => <CampsView />,
+    component: () => <CampContainerView />,
   },
   {
     key: "settings",

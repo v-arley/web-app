@@ -1,4 +1,3 @@
-
 export class Shipment {
 
     id?: number | null;

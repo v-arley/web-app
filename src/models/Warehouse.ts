@@ -5,7 +5,7 @@ export class Warehouse {
     location_details!: string;
 
     camp_id!: number;
-    persona_id!: number;
+    admin_id?: number;
 
     constructor(data?: Partial<Warehouse>) {
         Object.assign(this, data);

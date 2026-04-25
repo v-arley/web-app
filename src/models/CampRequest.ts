@@ -1,4 +1,3 @@
-
 export class CampRequest {
 
     id?: number | null;

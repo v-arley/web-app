@@ -94,13 +94,29 @@ export function UserProfileModal({
 
     switch (profession) {
       case "worker":
-        return <Pickaxe className={`user-profile-profession-icon ${iconColorClass}`} />;
+        return (
+          <Pickaxe
+            className={`user-profile-profession-icon ${iconColorClass}`}
+          />
+        );
       case "expedition_leader":
-        return <TentTree className={`user-profile-profession-icon ${iconColorClass}`} />;
+        return (
+          <TentTree
+            className={`user-profile-profession-icon ${iconColorClass}`}
+          />
+        );
       case "system_administrator":
-        return <MonitorCog className={`user-profile-profession-icon ${iconColorClass}`} />;
+        return (
+          <MonitorCog
+            className={`user-profile-profession-icon ${iconColorClass}`}
+          />
+        );
       case "resource_manager":
-        return <ShelvingUnit className={`user-profile-profession-icon ${iconColorClass}`} />;
+        return (
+          <ShelvingUnit
+            className={`user-profile-profession-icon ${iconColorClass}`}
+          />
+        );
       default:
         return null;
     }
@@ -108,14 +124,13 @@ export function UserProfileModal({
 
   return (
     <div className="user-profile-overlay" onClick={onClose}>
-      <div
-        className="user-profile-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="user-profile-modal" onClick={(e) => e.stopPropagation()}>
         <div className="user-profile-left-panel">
           <div
             className={`user-profile-accent-bar ${
-              active ? "user-profile-accent-bar-active" : "user-profile-accent-bar-inactive"
+              active
+                ? "user-profile-accent-bar-active"
+                : "user-profile-accent-bar-inactive"
             }`}
           ></div>
 
@@ -127,14 +142,18 @@ export function UserProfileModal({
                 src={imageUrl}
                 alt="Profile"
                 className={`user-profile-image ${
-                  active ? "user-profile-image-active" : "user-profile-image-inactive"
+                  active
+                    ? "user-profile-image-active"
+                    : "user-profile-image-inactive"
                 }`}
               />
             )}
 
             <p
               className={`user-profile-role ${
-                active ? "user-profile-role-active" : "user-profile-role-inactive"
+                active
+                  ? "user-profile-role-active"
+                  : "user-profile-role-inactive"
               }`}
             >
               {role}
@@ -142,7 +161,9 @@ export function UserProfileModal({
 
             <p
               className={`user-profile-name ${
-                active ? "user-profile-name-active" : "user-profile-name-inactive"
+                active
+                  ? "user-profile-name-active"
+                  : "user-profile-name-inactive"
               }`}
             >
               {name} {lastName}
@@ -156,28 +177,34 @@ export function UserProfileModal({
 
         <div className="user-profile-right-panel">
           <div>
-            <p className="user-profile-label">CEDULA</p>
+            <p className="user-profile-label">ID</p>
             <p className="user-profile-value user-profile-value-black">{id}</p>
           </div>
 
           <div className="user-profile-grid">
             <div>
-              <p className="user-profile-label">NOMBRE</p>
-              <p className="user-profile-value user-profile-value-black">{name}</p>
+              <p className="user-profile-label">FIRST NAME</p>
+              <p className="user-profile-value user-profile-value-black">
+                {name}
+              </p>
             </div>
 
             <div>
-              <p className="user-profile-label">APELLIDO</p>
-              <p className="user-profile-value user-profile-value-black">{lastName}</p>
+              <p className="user-profile-label">LAST NAME</p>
+              <p className="user-profile-value user-profile-value-black">
+                {lastName}
+              </p>
             </div>
 
             <div>
-              <p className="user-profile-label">SEXO</p>
-              <p className="user-profile-value user-profile-value-black">{sex}</p>
+              <p className="user-profile-label">SEX</p>
+              <p className="user-profile-value user-profile-value-black">
+                {sex}
+              </p>
             </div>
 
             <div>
-              <p className="user-profile-label">FECHA NACIMIENTO</p>
+              <p className="user-profile-label">BIRTH DATE</p>
               <p className="user-profile-value user-profile-value-black">
                 {birthdate.toLocaleDateString()}
               </p>
@@ -185,7 +212,7 @@ export function UserProfileModal({
           </div>
 
           <div className="user-profile-profession-section">
-            <p className="user-profile-label">PROFESIÓN</p>
+            <p className="user-profile-label">PROFESSION</p>
 
             <select
               value={profession}
@@ -194,17 +221,15 @@ export function UserProfileModal({
               }
               className="user-profile-select"
             >
-              <option value="system_administrator">
-                Administrador de sistemas
-              </option>
-              <option value="worker">Trabajador</option>
-              <option value="resource_manager">Gestor de recursos</option>
-              <option value="expedition_leader">Líder de expedición</option>
+              <option value="system_administrator">System Administrator</option>
+              <option value="worker">Worker</option>
+              <option value="resource_manager">Resource Manager</option>
+              <option value="expedition_leader">Expedition Leader</option>
             </select>
           </div>
 
           <div>
-            <p className="user-profile-label">FECHA DE REGISTRO</p>
+            <p className="user-profile-label">REGISTRATION DATE</p>
             <p className="user-profile-value user-profile-value-gray">
               {registrationDate.toLocaleDateString()}
             </p>
@@ -214,7 +239,9 @@ export function UserProfileModal({
             <button
               onClick={handleToggleClick}
               className={`user-profile-toggle-button ${
-                isTextWhite ? "user-profile-toggle-text-white" : defaultButtonText
+                isTextWhite
+                  ? "user-profile-toggle-text-white"
+                  : defaultButtonText
               } ${
                 isToggleAnimating
                   ? `${transitionButtonBackground} user-profile-toggle-scale-active`
@@ -226,7 +253,7 @@ export function UserProfileModal({
               ) : (
                 <Power className="user-profile-button-icon" />
               )}
-              {active ? "DESACTIVAR PERFIL" : "ACTIVAR PERFIL"}
+              {active ? "DEACTIVATE PROFILE" : "ACTIVATE PROFILE"}
             </button>
           </div>
         </div>
