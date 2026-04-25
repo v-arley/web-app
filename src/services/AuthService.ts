@@ -1,6 +1,14 @@
 import { Request } from "../utils/Request";
 import { Response as Respuesta, type BackendResponse } from "../utils/Response";
 
+export type RegisterUserPayload = {
+    username: string;
+    password: string;
+    person_id?: number;
+    profession?: string;
+    state?: string;
+};
+
 export class AuthService {
 
     async login(username: string, password: string): Promise<Respuesta> {
@@ -17,9 +25,14 @@ export class AuthService {
         return new Respuesta(true, "Login exitoso", "", "token", token);
     }
 
-    async register(username: string, password: string): Promise<Respuesta> {
+    async register(usernameOrPayload: string | RegisterUserPayload, password?: string): Promise<Respuesta> {
         const request = new Request("/auth/register");
-        await request.post({ username, password });
+        const payload =
+            typeof usernameOrPayload === "string"
+                ? { username: usernameOrPayload, password: password ?? "" }
+                : usernameOrPayload;
+
+        await request.post(payload);
 
         if (request.isError()) {
             return new Respuesta(false, request.getError() ?? "No se pudo registrar", "");
