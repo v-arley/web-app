@@ -1,25 +1,19 @@
-export class Exploration {
+export class ExplorationResource {
 
     id?: number;
-    code!: string;
-    name!: string;
-    objective!: string;
-    notes!: string;
-    departure_date!: Date;
-    estimated_return_date!: Date;
-    duration_days!: number;
-    risk_level!: string;
-    state!: string;
+    amountCollected?: number;
+    amountConsumed?: number;
+    observations?: string;
 
-    camp_id!: number;
+    exploration!: string;
+    resource!: string;
 
-    constructor(data?: Partial<Exploration>) {
+    constructor(data?: Partial<ExplorationResource>) {
         Object.assign(this, data);
     }
 
 }
 
-export type CreateExploration = Omit<Exploration, "id">;
-export type UpdateExploration = Partial<Omit<Exploration, "id">>;
+export type CreateExplorationResource = Omit<ExplorationResource, "id">;
 
-export type responseExploration = Exploration;
+export type responseExplorationResource = ExplorationResource;
