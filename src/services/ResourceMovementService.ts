@@ -58,4 +58,15 @@ export class ResourceMovementService extends AxiosBaseService {
             return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
         }
     }
+
+    async findByResource(resourceId: number): Promise<Respuesta> {
+        try {
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<ResourceMovement>> | ResourceMovement[]>(`/resource-movements?resource_id=${resourceId}`);
+            const resourceMovements = this.extractItems<ResourceMovement>(data).map((item) => new ResourceMovement(item));
+
+            return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", resourceMovements);
+        } catch (error) {
+            return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+        }
+    }
 }

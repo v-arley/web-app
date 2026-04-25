@@ -62,14 +62,14 @@ export function ModalRequest({ isOpen, onClose, onSubmit }: ModalRequestProps) {
             />
 
             {/* Modal */}
-            <div className="relative w-full max-w-md bg-white shadow-2xl flex flex-col overflow-hidden transform transition-all">
-                <div className="flex items-center justify-between px-6 py-4 bg-gray-50">
-                    <h3 className="text-lg font-bold text-gray-900 font-mono uppercase tracking-wider">
+            <div className="relative w-full max-w-md bg-bg-primary border border-border-default flex flex-col overflow-hidden transform transition-all">
+                <div className="flex items-center justify-between px-6 py-4 bg-bg-secondary border-b border-border-default">
+                    <h3 className="text-lg font-bold text-txt-primary font-mono uppercase tracking-wider">
                         New Resource Request
                     </h3>
                     <button 
                         onClick={onClose}
-                        className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+                        className="p-1 text-txt-disabled hover:text-txt-primary hover:bg-bg-tertiary transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -78,13 +78,13 @@ export function ModalRequest({ isOpen, onClose, onSubmit }: ModalRequestProps) {
                 <div className="p-6">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                            <label className="text-xs font-bold text-txt-secondary uppercase tracking-widest font-mono">
                                 Target Camp
                             </label>
                             <select
                                 value={targetCamp}
                                 onChange={(e) => setTargetCamp(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-gray-50 focus:ring-2 focus:ring-[#f05a28] focus:bg-white outline-none transition-all text-sm font-medium"
+                                className="w-full px-4 py-2.5 bg-bg-tertiary border border-border-default focus:border-border-accent outline-none transition-all text-sm font-medium text-txt-primary font-mono"
                                 required
                             >
                                 <option value="" disabled>Select target camp...</option>
@@ -95,13 +95,13 @@ export function ModalRequest({ isOpen, onClose, onSubmit }: ModalRequestProps) {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                            <label className="text-xs font-bold text-txt-secondary uppercase tracking-widest font-mono">
                                 Resource Type
                             </label>
                             <select
                                 value={resourceType}
                                 onChange={(e) => setResourceType(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-gray-50 focus:ring-2 focus:ring-[#f05a28] focus:bg-white outline-none transition-all text-sm font-medium"
+                                className="w-full px-4 py-2.5 bg-bg-tertiary border border-border-default focus:border-border-accent outline-none transition-all text-sm font-medium text-txt-primary font-mono"
                                 required
                             >
                                 <option value="" disabled>Select resource type...</option>
@@ -112,7 +112,7 @@ export function ModalRequest({ isOpen, onClose, onSubmit }: ModalRequestProps) {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                            <label className="text-xs font-bold text-txt-secondary uppercase tracking-widest font-mono">
                                 Amount
                             </label>
                             <input
@@ -121,7 +121,7 @@ export function ModalRequest({ isOpen, onClose, onSubmit }: ModalRequestProps) {
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value ? Number(e.target.value) : "")}
                                 placeholder="Enter amount..."
-                                className="w-full px-4 py-2.5 bg-gray-50 focus:ring-2 focus:ring-[#f05a28] focus:bg-white outline-none transition-all text-sm font-medium"
+                                className="w-full px-4 py-2.5 bg-bg-tertiary border border-border-default focus:border-border-accent outline-none transition-all text-sm font-medium text-txt-primary font-mono placeholder:text-txt-disabled"
                                 required
                             />
                         </div>
@@ -130,13 +130,13 @@ export function ModalRequest({ isOpen, onClose, onSubmit }: ModalRequestProps) {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-5 py-2 font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors uppercase text-xs tracking-wider"
+                                className="px-5 py-2 font-bold text-txt-secondary bg-bg-tertiary border border-border-default hover:bg-bg-selected transition-colors uppercase text-xs tracking-wider font-mono"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="flex items-center gap-2 px-6 py-2 font-bold text-white bg-black hover:bg-[#f05a28] shadow-md hover:shadow-lg transition-all uppercase text-xs tracking-wider"
+                                className="flex items-center gap-2 px-6 py-2 font-bold text-accent-fg bg-accent hover:bg-accent-hover transition-all uppercase text-xs tracking-wider font-mono"
                             >
                                 <Save size={16} />
                                 Submit Request

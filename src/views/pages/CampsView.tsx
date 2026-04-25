@@ -1,16 +1,16 @@
 
 export function CampsView() {
     return (
-        <div className="w-full h-full flex flex-col bg-[#f0f2f5] overflow-y-auto shadow-inner">
+        <div className="w-full h-full flex flex-col bg-bg-app overflow-y-auto">
             {/* Top Bar Navigation */}
-            <div className="w-full bg-[#e5e7eb] px-8 py-3 flex items-center justify-between">
-                <div className="text-[12px] font-mono tracking-[0.2em] text-[#888] uppercase font-bold">
+            <div className="w-full bg-bg-secondary border-b border-border-default px-8 py-3 flex items-center justify-between">
+                <div className="text-[12px] font-mono tracking-[0.2em] text-txt-secondary uppercase font-bold">
                     Camps
                 </div>
-                <div className="flex bg-[#d1d5db] p-1 shadow-inner gap-1">
-                    <button className="px-6 text-[11px] font-bold bg-white text-[#f05a28] shadow-sm uppercase font-mono tracking-widest">Tasks</button>
-                    <button className="px-6 text-[11px] font-bold text-[#666] hover:bg-white/50 uppercase font-mono tracking-widest transition-colors cursor-pointer">Rations</button>
-                    <button className="px-6 text-[11px] font-bold text-[#666] hover:bg-white/50 uppercase font-mono tracking-widest transition-colors cursor-pointer">Explorations</button>
+                <div className="flex bg-bg-tertiary p-1 border border-border-default gap-1">
+                    <button className="px-6 text-[11px] font-bold bg-bg-selected text-accent shadow-sm uppercase font-mono tracking-widest">Tasks</button>
+                    <button className="px-6 text-[11px] font-bold text-txt-secondary hover:bg-bg-selected uppercase font-mono tracking-widest transition-colors cursor-pointer">Rations</button>
+                    <button className="px-6 text-[11px] font-bold text-txt-secondary hover:bg-bg-selected uppercase font-mono tracking-widest transition-colors cursor-pointer">Explorations</button>
                 </div>
             </div>
 

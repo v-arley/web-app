@@ -8,6 +8,9 @@ export class Resource {
     consumable!: boolean;
     category!: string;
     unitOfMeasure!: string;
+    /** C = Critical, M = Moderate, O = Ok */
+    status?: 'C' | 'M' | 'O';
+    state!: 'A' | 'I';
 
     constructor(data?: Partial<Resource> & { unit_of_measure?: string }) {
         if (!data) return;
@@ -17,7 +20,9 @@ export class Resource {
         this.description = data.description ?? "";
         this.consumable = data.consumable ?? false;
         this.category = data.category ?? "";
-        
+        this.status = data.status;
+        this.state = data.state ?? "A";
+
         // El backend envía unit_of_measure; soportamos ambas formas
         this.unitOfMeasure = data.unitOfMeasure ?? data.unit_of_measure ?? "";
     }

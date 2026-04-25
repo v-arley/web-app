@@ -1,7 +1,18 @@
+import { useState } from 'react';
 import { Map, Shield, Search, Power } from 'lucide-react';
+import { ModalSearchPerson } from './ModalSearchPerson';
+import type { Person } from '../../models/Person';
 
 export function CampSettingsView() {
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [admin, setAdmin] = useState<Person | null>(null);
+
+    const handleSelectAdmin = (person: Person) => {
+        setAdmin(person);
+    };
+
     return (
+        <>
         <div className="flex flex-col w-full h-full p-8 relative font-ibmplex overflow-y-auto">
             <div className="flex flex-col md:flex-row gap-12 w-full max-w-5xl mx-auto h-full">
 
@@ -81,11 +92,25 @@ export function CampSettingsView() {
                     <div className="flex flex-col gap-1">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.1em] font-mono">MASTER ADMINISTRATOR</label>
                         <div className="flex bg-[#F4F4F5] p-1 relative items-center">
-                            <input type="text" defaultValue="VARGAS" className="w-full px-4 py-1 bg-transparent text-[13px] font-bold font-mono text-gray-800 outline-none" />
-                            <button className="w-10 h-10 min-w-10 bg-[#1c1c1c] text-white flex items-center justify-center hover:bg-black transition-colors shadow-sm">
+                            <input
+                                type="text"
+                                readOnly
+                                value={admin ? `${admin.name} ${admin.last_name}` : ""}
+                                placeholder="No administrator selected"
+                                className="w-full px-4 py-1 bg-transparent text-[13px] font-bold font-mono text-gray-800 outline-none placeholder:text-gray-400 cursor-default"
+                            />
+                            <button
+                                onClick={() => setIsSearchOpen(true)}
+                                className="w-10 h-10 min-w-10 bg-[#1c1c1c] text-white flex items-center justify-center hover:bg-[#f05a28] transition-colors shadow-sm"
+                            >
                                 <Search size={16} />
                             </button>
                         </div>
+                        {admin && (
+                            <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+                                DNI: {admin.dni}
+                            </span>
+                        )}
                     </div>
 
                     <div className="p-4 flex items-center justify-between bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
@@ -112,5 +137,12 @@ export function CampSettingsView() {
             </div>
 
         </div>
+
+        <ModalSearchPerson
+            isOpen={isSearchOpen}
+            onClose={() => setIsSearchOpen(false)}
+            onSelect={handleSelectAdmin}
+        />
+        </>
     );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/routes";
 import {
@@ -13,14 +13,15 @@ import { CampsView } from "./CampsView";
 import { WarehouseView } from "./WarehouseView";
 import { UsersView } from "./UsersView";
 import { RequestsView } from "./RequestsView";
+import { CampService } from "../../services/CampService";
+import { InventoryView } from "./InventoryView";
+import type { Camp } from "../../models/Camp";
+import { Boxes, LayoutDashboard, Users, Send, Database, Tent, Filter } from "lucide-react";
 import {
-  LayoutDashboard,
-  Users,
-  Send,
-  Database,
-  Tent,
-  Filter,
-} from "lucide-react";
+  getAuthContextFromToken,
+  getAvailableSections,
+  getRoleLabel,
+} from "../../utils/authAccess";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -42,6 +43,12 @@ const SECTIONS: DashboardSection[] = [
     component: () => <RequestsView />,
   },
   {
+    key: "inventory",
+    label: "Resources",
+    icon: <Boxes size={18} strokeWidth={2} />,
+    component: () => <InventoryView />,
+  },
+  {
     key: "warehouse",
     label: "Warehouse",
     icon: <Database size={18} strokeWidth={2} />,
@@ -61,20 +68,34 @@ const SECTIONS: DashboardSection[] = [
   },
 ];
 
-export function DashboardPage() {
-  const navigate = useNavigate();
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const {
-    activeKey,
-    activeSection,
-    sections,
-    navigate: navTo,
-  } = useDashboardNav(SECTIONS);
+const campSvc = new CampService();
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentDate(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+export function DashboardPage() {
+    const navigate = useNavigate();
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [authContext] = useState(getAuthContextFromToken);
+    const roleLabel = useMemo(() => getRoleLabel(authContext), [authContext]);
+    const availableSections = useMemo(
+        () => getAvailableSections(SECTIONS, authContext),
+        [authContext],
+    );
+    const { activeKey, activeSection, sections, navigate: navTo } = useDashboardNav(availableSections);
+    const [activeCamp, setActiveCamp] = useState<Camp | null>(null);
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentDate(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    useEffect(() => {
+        // Fetch active camp for header coordinates
+        campSvc.findAll().then(res => {
+            if (res.getEstado()) {
+                const camps = res.getResultado<Camp[]>("registros") ?? [];
+                setActiveCamp(camps.find(c => c.state === "A" || c.active) ?? camps[0] ?? null);
+            }
+        }).catch(() => { /* ignore */ });
+    }, [authContext.campId]);
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", { hour12: false });
@@ -89,92 +110,86 @@ export function DashboardPage() {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     navigate(ROUTES.LOGIN);
   };
 
-  return (
-    <div className="h-screen flex flex-col">
-      {/* Header */}
-      <header className="h-24 bg-[#141417] flex justify-between items-center px-8 shrink-0">
-        <div className="flex flex-col">
-          <div className="flex items-center gap-4 text-[10px] text-white/40 font-mono tracking-widest uppercase">
-            <span>ADMIN: VARGAS</span>
-            <span className="text-[#444]">|</span>
-            <span>COORDS: -70.000, 10.000</span>
-          </div>
-          <div className="flex items-center gap-4 mt-2">
-            <h1 className="text-4xl font-bold tracking-[0.2em] uppercase flex items-center gap-4">
-              <span className="text-white/50">CAMP</span>
-              <span className="text-white">ALPHA</span>
-            </h1>
-          </div>
-        </div>
+    return (
+        <div className="h-screen flex flex-col bg-bg-app">
+            {/* Header */}
+            <header className="bg-bg-secondary border-b border-border-default flex justify-between items-end px-8 py-3 shrink-0">
+                <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2 text-[11px] text-txt-disabled font-mono tracking-label uppercase">
+                        <span>ADMIN: {authContext.name}</span>
+                        <span className="text-border-default mx-0.5">|</span>
+                        <span>ROLE: {roleLabel}</span>
+                        {authContext.profession && (
+                            <>
+                                <span className="text-border-default mx-0.5">|</span>
+                                <span>PROFILE: {authContext.profession}</span>
+                            </>
+                        )}
+                        {activeCamp && activeCamp.location_x != null && activeCamp.location_y != null && (
+                            <>
+                                <span className="text-border-default mx-0.5">|</span>
+                                <span>COORDS: {activeCamp.location_x.toFixed(3)}, {activeCamp.location_y.toFixed(3)}</span>
+                            </>
+                        )}
+                    </div>
+                    <div className="font-mono tracking-[0.2em] uppercase leading-tight">
+                        <span className="text-[25px] text-txt-secondary font-normal">CAMP </span>
+                        <span className="text-[25px] text-txt-primary font-bold">{activeCamp?.code ?? "ALPHA"}</span>
+                    </div>
+                </div>
+            </header>
 
-        <div className="flex flex-col items-end gap-1.5">
-          <span className="text-[10px] text-[#666] font-mono uppercase tracking-[0.2em]">
-            System Status
-          </span>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-[#00e676] animate-pulse shadow-[0_0_8px_rgba(0,230,118,0.5)]" />
-            <span className="text-[12px] font-mono text-[#00e676] tracking-widest font-semibold">
-              ONLINE
-            </span>
-          </div>
-        </div>
-      </header>
+            <main className="flex-1 flex flex-col sm:flex-row w-full overflow-hidden min-h-0">
+                {/* Sidebar */}
+                <aside className="w-full sm:w-56 bg-bg-primary border-r border-border-default flex flex-col justify-between py-4 shrink-0 overflow-y-auto">
+                    <div className="flex flex-col gap-4">
+                        <div className="text-txt-disabled font-mono text-[11px] font-bold tracking-label uppercase px-6 pt-2">
+                            Navigation
+                        </div>
+                        <nav className="flex flex-col">
+                            {
+                                sections.map((section) => (
+                                    <SidebarButton
+                                        key={section.key}
+                                        label={section.label}
+                                        icon={section.icon}
+                                        active={activeKey === section.key}
+                                        onClick={() => navTo(section.key)}
+                                    />
+                                ))
+                            }
+                        </nav>
+                    </div>
+                </aside>
 
-      <main className="flex-1 flex flex-col sm:flex-row w-full overflow-hidden min-h-0">
-        {/* Sidebar */}
-        <aside className="w-full sm:w-64 bg-[#18181b] flex flex-col justify-between py-6 shrink-0 overflow-y-auto">
-          <div className="flex flex-col gap-6">
-            <div className="text-[#555] font-mono text-[11px] font-bold tracking-[0.3em] uppercase px-8">
-              Menu
-            </div>
-            <nav className="flex flex-col">
-              {sections.map((section) => (
-                <SidebarButton
-                  key={section.key}
-                  label={section.label}
-                  icon={section.icon}
-                  active={activeKey === section.key}
-                  onClick={() => navTo(section.key)}
-                />
-              ))}
-            </nav>
-          </div>
-        </aside>
+                {/* Center Main Area */}
+                <div className="flex-1 w-full h-full relative overflow-hidden bg-bg-app">
+                    {activeSection?.key === "warehouse"
+                        ? <WarehouseView activeCamp={activeCamp} />
+                        : activeSection?.component()}
+                </div>
+            </main>
 
-        {/* Center Main Area */}
-        <div className="flex-1 w-full h-full relative overflow-hidden bg-[#f0f2f5]">
-          {activeSection?.component()}
+            {/* Footer */}
+            <footer className="w-full bg-bg-secondary border-t border-border-default flex flex-col sm:flex-row justify-between items-center px-8 py-3">
+                <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-[11px] text-txt-disabled font-mono tracking-label uppercase">
+                    <div className="flex items-center gap-5">
+                        <span>Time: <span className="text-txt-secondary">{formatTime(currentDate)}</span></span>
+                        <span>Date: <span className="text-txt-secondary">{formatDate(currentDate)}</span></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 bg-status-ok"></div>
+                        <span className="text-status-ok font-bold">Online</span>
+                    </div>
+                </div>
+                <button className="mt-3 sm:mt-0 text-[11px] font-mono uppercase text-txt-disabled hover:text-accent transition-colors tracking-label" onClick={handleLogout}>
+                    [ Log Out ]
+                </button>
+            </footer>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="w-full bg-[#18181b] flex flex-col sm:flex-row justify-between items-center px-8 py-4">
-        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12 text-[11px] text-[#777] font-mono tracking-[0.2em] uppercase">
-          <div className="flex items-center gap-6">
-            <span>
-              TIME:{" "}
-              <span className="text-[#aaa]">{formatTime(currentDate)}</span>
-            </span>
-            <span>
-              DATE:{" "}
-              <span className="text-[#aaa]">{formatDate(currentDate)}</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-[#00e676] shadow-[0_0_8px_rgba(0,230,118,0.5)]"></div>
-            <span className="text-[#00e676] font-semibold">ONLINE</span>
-          </div>
-        </div>
-        <button
-          className="mt-4 sm:mt-0 text-[11px] font-mono uppercase text-[#777] hover:text-white transition-colors tracking-[0.2em]"
-          onClick={handleLogout}
-        >
-          [ LOG OUT ]
-        </button>
-      </footer>
-    </div>
-  );
+    );
 }

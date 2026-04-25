@@ -1177,7 +1177,7 @@ type MapClusterLayerProps<
   clusterMaxZoom?: number;
   /** Radius of each cluster when clustering points in pixels (default: 50) */
   clusterRadius?: number;
-  /** Colors for cluster circles: [small, medium, large] based on point count (default: ["#22c55e", "#eab308", "#ef4444"]) */
+  /** Colors for cluster circles: [small, medium, large] based on point count (default: ["#F59E0B", "#eab308", "#ef4444"]) */
   clusterColors?: [string, string, string];
   /** Point count thresholds for color/size steps: [medium, large] (default: [100, 750]) */
   clusterThresholds?: [number, number];
@@ -1202,7 +1202,7 @@ function MapClusterLayer<
   data,
   clusterMaxZoom = 14,
   clusterRadius = 50,
-  clusterColors = ["#22c55e", "#eab308", "#ef4444"],
+  clusterColors = ["#F59E0B", "#eab308", "#ef4444"],
   clusterThresholds = [100, 750],
   pointColor = "#3b82f6",
   onPointClick,

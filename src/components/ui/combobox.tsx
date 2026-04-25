@@ -57,16 +57,16 @@ export function ComboboxFloat({
                             position="popper"
                             sideOffset={2}
                             style={{ zIndex: 9999, width: "var(--radix-select-trigger-width)" }}
-                            className="overflow-hidden bg-[#1e1e1e] border border-[#3a3a3a] shadow-lg"
+                            className="overflow-hidden bg-bg-primary border border-border-default shadow-lg"
                         >
                             <Select.Viewport>
                                 {options.map((opt) => (
                                     <Select.Item
                                         key={opt}
                                         value={opt}
-                                        className="relative flex items-center justify-between px-4 py-2 text-[11px] font-mono font-bold tracking-[0.15em] uppercase text-gray-300 cursor-pointer select-none
-                                            data-[highlighted]:bg-[#c85a27] data-[highlighted]:text-black
-                                            data-[state=checked]:text-[#c85a27]
+                                        className="relative flex items-center justify-between px-4 py-2 text-[11px] font-mono font-bold tracking-[0.15em] uppercase text-txt-secondary cursor-pointer select-none
+                                            data-[highlighted]:bg-accent data-[highlighted]:text-accent-fg
+                                            data-[state=checked]:text-accent
                                             outline-none"
                                     >
                                         <Select.ItemText>{opt}</Select.ItemText>

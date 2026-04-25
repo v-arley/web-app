@@ -56,4 +56,19 @@ export class ResourceWarehouseService extends AxiosBaseService {
 			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
 		}
 	}
+
+	async findByWarehouse(warehouseId: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<WarehouseResource>> | WarehouseResource[]>(
+				`/warehouse-resources?warehouse_id=${warehouseId}`
+			);
+			const warehouseResources = this.extractItems<WarehouseResource>(data).map(
+				(warehouseResource) => new WarehouseResource(warehouseResource)
+			);
+
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", warehouseResources);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
 }

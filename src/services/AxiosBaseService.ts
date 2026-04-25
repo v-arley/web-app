@@ -1,16 +1,16 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
+import axiosClient from "../api/axiosClient";
 import type { BackendListPayload, BackendResponse } from "../utils/Response";
 
 export abstract class AxiosBaseService {
 	protected client: AxiosInstance;
 
-	constructor() {
-		this.client = axios.create({
-			baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000/api",
-			headers: {
-				"Content-Type": "application/json; charset=UTF-8",
-			},
-		});
+	/**
+	 * @param client Instancia de Axios a utilizar. Por defecto usa el cliente
+	 *               centralizado con interceptores JWT y manejo de 401.
+	 */
+	constructor(client?: AxiosInstance) {
+		this.client = client ?? axiosClient;
 	}
 
 	protected extractItem<T>(data: BackendResponse<{ item: T }> | T): T {
