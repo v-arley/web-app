@@ -3,6 +3,7 @@ export class UserRol {
 
     assignment_date?: Date;
     active?: boolean;
+    status?: string;
     temporal?: boolean;
     expires_in?: Date;
 
