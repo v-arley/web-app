@@ -1,4 +1,3 @@
-
 export class CampRule {
 
     id?: number | null;
@@ -18,4 +17,4 @@ export class CampRule {
 
 export type CreateCampRule = Omit<CampRule, "id" | "created_at">;
 
-export type responseCampRule = CampRule;
+export type responseCa
