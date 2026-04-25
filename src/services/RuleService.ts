@@ -6,7 +6,7 @@ export class RuleService extends AxiosBaseService {
 
 	async save(register: CreateRule): Promise<Respuesta> {
 		try {
-			const { data } = await this.client.post<BackendResponse<{ item: Rule }> | Rule>("/rules", register);
+			const { data } = await this.client.post<BackendResponse<{ item: Rule }> | Rule>("/camp-rules", register);
 			const rule = this.extractItem<Rule>(data);
 
 			return new Respuesta(true, "Regla creada correctamente.", "", "registro", rule);
@@ -17,7 +17,7 @@ export class RuleService extends AxiosBaseService {
 
 	async update(id: number, register: UpdateRule): Promise<Respuesta> {
 		try {
-			const { data } = await this.client.put<BackendResponse<{ item: Rule }> | Rule>(`/rules/${id}`, register);
+			const { data } = await this.client.put<BackendResponse<{ item: Rule }> | Rule>(`/camp-rules/${id}`, register);
 			const rule = this.extractItem<Rule>(data);
 
 			return new Respuesta(true, "Regla actualizada correctamente.", "", "registro", rule);
@@ -28,7 +28,7 @@ export class RuleService extends AxiosBaseService {
 
 	async remove(id: number): Promise<Respuesta> {
 		try {
-			await this.client.delete(`/rules/${id}`);
+			await this.client.delete(`/camp-rules/${id}`);
 
 			return new Respuesta(true, "Regla eliminada correctamente.", "", "registro", null);
 		} catch (error) {
@@ -38,7 +38,7 @@ export class RuleService extends AxiosBaseService {
 
 	async findAll(): Promise<Respuesta> {
 		try {
-			const { data } = await this.client.get<BackendResponse<BackendListPayload<Rule>> | Rule[]>("/rules");
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Rule>> | Rule[]>("/camp-rules");
 			const rules = this.extractItems<Rule>(data).map((rule) => new Rule(rule));
 
 			return new Respuesta(true, "Reglas obtenidas correctamente.", "", "registros", rules);
@@ -49,7 +49,7 @@ export class RuleService extends AxiosBaseService {
 
 	async findById(id: number): Promise<Respuesta> {
 		try {
-			const { data } = await this.client.get<BackendResponse<{ item: Rule }> | Rule>(`/rules/${id}`);
+			const { data } = await this.client.get<BackendResponse<{ item: Rule }> | Rule>(`/camp-rules/${id}`);
 			const ruleData = this.extractItem<Rule>(data);
 			const rule = ruleData ? new Rule(ruleData) : null;
 
