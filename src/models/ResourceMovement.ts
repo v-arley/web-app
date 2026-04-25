@@ -1,4 +1,3 @@
-
 export class ResourceMovement {
 
     id?: number | null;

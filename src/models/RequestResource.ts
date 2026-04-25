@@ -1,4 +1,3 @@
-
 export class RequestResource {
 
     id?: number | null;
