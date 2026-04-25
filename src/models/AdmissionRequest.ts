@@ -1,4 +1,3 @@
-
 export class AdmissionRequest {
 
     id?: number | null;
@@ -15,6 +14,17 @@ export class AdmissionRequest {
 
 }
 
-export type CreateAdmissionRequest = Omit<AdmissionRequest, "id" | "requested_at">;
+export type CreateAdmissionRequest = {
+    person_id: number;
+    camp_id: number;
+    observations?: string;
+};
+
+export type UpdateAdmissionRequest = Partial<{
+    person_id: number;
+    camp_id: number;
+    request_status: string;
+    observations?: string;
+}>;
 
 export type responseAdmissionRequest = AdmissionRequest;
