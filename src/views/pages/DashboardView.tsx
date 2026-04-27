@@ -188,11 +188,11 @@ const EXPLORE_STATE: Record<string, { label: string; color: string }> = {
     C: { label: "Cancelled", color: "text-txt-disabled bg-bg-tertiary" },
 };
 
-const PRIORITY_COLOR: Record<string, string> = {
+/*const PRIORITY_COLOR: Record<string, string> = {
     H: "text-status-critical",
     M: "text-status-warning",
     L: "text-status-ok",
-};
+};*/
 
 export function DashboardView() {
     const [persons, setPersons] = useState<Person[]>([]);

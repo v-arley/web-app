@@ -1,17 +1,6 @@
-import { useMemo, useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  RotateCcw,
-  UserCheck,
-  UserRoundMinus,
-  UserRoundPlus,
-  UserRoundSearch,
-  UsersRound,
-} from "lucide-react";
-import type { CreateUser, User } from "../../models/User";
-import type { Person } from "../../models/Person";
-import { useUsers } from "../../hooks/useUsers";
+import { UserRoundSearch } from "lucide-react";
+import { UserRoundPlus } from "lucide-react";
+import { UserCheck, UserRoundMinus, UsersRound } from "lucide-react";
 import { UserCard } from "../components/UserCard";
 import { UserProfileModal } from "../components/UserProfileModal";
 import { RegistrationPanel } from "./RegistrationPanel";
@@ -32,9 +21,7 @@ type ProfessionKey =
 
 type StatusFilter = "active" | "inactive" | "all";
 
-type EnrichedUserCardData = {
-  userId: number;
-  personId: number | null;
+type UserCardData = {
   id: string;
   name: string;
   lastName: string;
@@ -45,73 +32,66 @@ type EnrichedUserCardData = {
   registrationDate: Date;
   birthdate: Date;
   imageUrl: string;
-  rawUser: User;
 };
 
-const fallbackImageUrl =
-  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format&fit=crop";
-
-function safeText(value: unknown, fallback: string) {
-  const text = String(value ?? "").trim();
-  return text || fallback;
-}
-
-function safeDate(value: unknown, fallback = new Date()) {
-  if (!value) return fallback;
-  const date = new Date(value as string | number | Date);
-  return Number.isNaN(date.getTime()) ? fallback : date;
-}
-
-function getUserPersonId(user: User) {
-  return user.person_id ?? user.person?.id ?? null;
-}
-
-function buildPeopleById(people: Person[]) {
-  return new Map(
-    people
-      .filter((person) => person?.id != null)
-      .map((person) => [person.id as number, person]),
-  );
-}
-
-function enrichUser(user: User, peopleById: Map<number, Person>): EnrichedUserCardData {
-  const personId = getUserPersonId(user);
-  const person = user.person ?? (personId != null ? peopleById.get(personId) : null);
-  const userId = user.id ?? 0;
-  const username = safeText(user.username ?? user.name, `usuario-${userId || "nuevo"}`);
-
-  return {
-    userId,
-    personId,
-    id: safeText(person?.dni, userId ? `USR-${userId}` : username),
-    name: safeText(person?.name, username),
-    lastName: safeText(person?.last_name ?? person?.surname, "Acceso"),
-    role: username,
-    sex: person?.sex === "F" ? "F" : "M",
-    profession: normalizeProfession(user.profession),
-    active: user.state ? user.state === "A" : user.active ?? true,
-    registrationDate: safeDate(user.created_at),
-    birthdate: safeDate(person?.date_birth ?? person?.date_of_birth),
-    imageUrl: safeText(person?.photo, fallbackImageUrl),
-    rawUser: user,
-  };
-}
+const initialUsers: UserCardData[] = [
+  {
+    id: "45.281.902-K",
+    name: "Stephen",
+    lastName: "Cole",
+    role: "Thermal Controls",
+    sex: "M",
+    profession: "system_administrator",
+    active: true,
+    registrationDate: new Date("2023-01-15"),
+    birthdate: new Date("1985-03-20"),
+    imageUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop",
+  },
+  {
+    id: "31.992.188-B",
+    name: "Elena",
+    lastName: "Rodriguez",
+    role: "Aerospace Design",
+    sex: "F",
+    profession: "resource_manager",
+    active: true,
+    registrationDate: new Date("2023-09-08"),
+    birthdate: new Date("1992-11-03"),
+    imageUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop",
+  },
+  {
+    id: "22.881.004-C",
+    name: "Sarah",
+    lastName: "Jenkins",
+    role: "Human Factors",
+    sex: "F",
+    profession: "worker",
+    active: true,
+    registrationDate: new Date("2024-03-21"),
+    birthdate: new Date("1995-07-18"),
+    imageUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=800&auto=format&fit=crop",
+  },
+  {
+    id: "18.330.441-X",
+    name: "Marcus",
+    lastName: "Thorne",
+    role: "Information Defense",
+    sex: "M",
+    profession: "expedition_leader",
+    active: true,
+    registrationDate: new Date("2023-12-01"),
+    birthdate: new Date("1986-02-27"),
+    imageUrl:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop",
+  },
+];
 
 export function UsersView() {
-  const {
-    users,
-    people,
-    isLoading,
-    isLoadingPeople,
-    error,
-    refresh,
-    create,
-    update,
-    remove,
-    clearError,
-  } = useUsers();
-
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [users, setUsers] = useState<UserCardData[]>(initialUsers);
+  const [selectedUser, setSelectedUser] = useState<UserCardData | null>(null);
   const [isRegistrationPanelOpen, setIsRegistrationPanelOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
   const [isStatusSelectFocused, setIsStatusSelectFocused] = useState(false);
@@ -134,73 +114,39 @@ export function UsersView() {
     ) : statusFilter === "inactive" ? (
       <UserRoundMinus className="text-[#343434] bg-[#A6A6A6] rounded-md p-1 w-8 h-8" />
     ) : (
-      <UsersRound className="h-8 w-8 rounded-md bg-bg-tertiary p-1 text-txt-secondary" />
+      <UsersRound className="text-[#343434] bg-[#A6A6A6] rounded-md p-1 w-8 h-8" />
     );
 
-  const viewError = localError ?? error;
+  const handleToggleUserActive = () => {
+    if (!selectedUser) return;
 
-  const handleRefresh = async () => {
-    setLocalError(null);
-    clearError();
-    await refresh();
+    const nextActive = !selectedUser.active;
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === selectedUser.id ? { ...user, active: nextActive } : user,
+      ),
+    );
+    setSelectedUser((prevSelected) =>
+      prevSelected ? { ...prevSelected, active: nextActive } : prevSelected,
+    );
   };
 
-  const handleCreateAccess = async (payload: CreateUser) => {
-    setLocalError(null);
-    clearError();
-    const ok = await create(payload);
-    if (!ok) {
-      setLocalError("No se pudo crear el acceso de usuario.");
-      return false;
-    }
+  const handleChangeProfession = (nextProfession: ProfessionKey) => {
+    if (!selectedUser) return;
 
-    await refresh();
-    return true;
-  };
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === selectedUser.id
+          ? { ...user, profession: nextProfession }
+          : user,
+      ),
+    );
 
-  const handleToggleUserActive = async () => {
-    if (!selectedUser || selectedUser.userId === 0) return;
-
-    setLocalError(null);
-    clearError();
-
-    const ok = await update(selectedUser.userId, {
-      state: selectedUser.active ? "I" : "A",
-    });
-
-    if (!ok) {
-      setLocalError("No se pudo actualizar el estado del usuario.");
-    }
-  };
-
-  const handleChangeProfession = async (nextProfession: ProfessionKey) => {
-    if (!selectedUser || selectedUser.userId === 0) return;
-
-    setLocalError(null);
-    clearError();
-
-    const ok = await update(selectedUser.userId, {
-      profession: toBackendProfession(nextProfession),
-    });
-
-    if (!ok) {
-      setLocalError("No se pudo actualizar el perfil operativo.");
-    }
-  };
-
-  const handleRemoveAccess = async () => {
-    if (!selectedUser || selectedUser.userId === 0) return;
-
-    setLocalError(null);
-    clearError();
-
-    const ok = await remove(selectedUser.userId);
-    if (!ok) {
-      setLocalError("No se pudo eliminar el acceso de usuario.");
-      return;
-    }
-
-    setSelectedUserId(null);
+    setSelectedUser((prevSelected) =>
+      prevSelected
+        ? { ...prevSelected, profession: nextProfession }
+        : prevSelected,
+    );
   };
 
   return (
@@ -264,9 +210,7 @@ export function UsersView() {
             ))}
           </div>
         </div>
-        </div>
       </div>
-
       {selectedUser && (
         <UserProfileModal
           name={selectedUser.name}
@@ -279,32 +223,13 @@ export function UsersView() {
           registrationDate={selectedUser.registrationDate}
           birthdate={selectedUser.birthdate}
           imageUrl={selectedUser.imageUrl}
-          onToggleActive={() => {
-            void handleToggleUserActive();
-          }}
-          onChangeProfession={(profession) => {
-            void handleChangeProfession(profession);
-          }}
-          onRemove={() => {
-            void handleRemoveAccess();
-          }}
-          onClose={() => setSelectedUserId(null)}
+          onToggleActive={handleToggleUserActive}
+          onChangeProfession={handleChangeProfession}
+          onClose={() => setSelectedUser(null)}
         />
       )}
-
       {isRegistrationPanelOpen && (
         <RegistrationPanel onClose={() => setIsRegistrationPanelOpen(false)} />
-      )}
-
-      {isUserAccessModalOpen && (
-        <UserAccessModal
-          people={people}
-          isLoadingPeople={isLoadingPeople}
-          error={error}
-          isSaving={isLoading}
-          onClose={() => setIsUserAccessModalOpen(false)}
-          onCreate={handleCreateAccess}
-        />
       )}
     </>
   );
