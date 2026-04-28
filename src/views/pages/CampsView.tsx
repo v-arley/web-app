@@ -132,8 +132,8 @@ export function CampsView() {
               System record available
             </div>
           </div>
-        </aside>
-      </div>
-    </div>
+    //     </aside>
+    //   </div>
+    // </div>
   );
 }
