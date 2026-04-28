@@ -13,6 +13,7 @@ export class Request {
 
     constructor(target?: string, parametros?: string, valores?: Record<string, Primitive>) {
         this.baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+        console.log("BASE URL:", import.meta.env.VITE_API_URL);
         this.headers = new Headers({
             "Content-Type": "application/json; charset=UTF-8",
         });
