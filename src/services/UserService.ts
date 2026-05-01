@@ -47,6 +47,17 @@ export class UserService extends AxiosBaseService {
         }
     }
 
+    async findProfessions(): Promise<Respuesta> {
+        try {
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<string>> | string[]>("/users/professions");
+            const professions = this.extractItems<string>(data);
+
+            return new Respuesta(true, "Profesiones obtenidas correctamente.", "", "registros", professions);
+        } catch (error) {
+            return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener las profesiones"), "", "registros", []);
+        }
+    }
+
     async findById(id: number): Promise<Respuesta> {
             try {
                 const { data } = await this.client.get<BackendResponse<{ item: User }> | User>(`/users/${id}`);

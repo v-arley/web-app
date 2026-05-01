@@ -4,7 +4,11 @@ import { UserCheck, UserRoundMinus, UsersRound } from "lucide-react";
 import { UserCard } from "../components/UserCard";
 import { UserProfileModal } from "../components/UserProfileModal";
 import { RegistrationPanel } from "./RegistrationPanel";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { UserService } from "../../services/UserService";
+import type { User } from "../../models/User";
+
+const userService = new UserService();
 
 const professionLabels: Record<string, string> = {
   system_administrator: "System Administrator",
@@ -22,6 +26,7 @@ type ProfessionKey =
 type StatusFilter = "active" | "inactive" | "all";
 
 type UserCardData = {
+  idUser: number;
   id: string;
   name: string;
   lastName: string;
@@ -34,72 +39,32 @@ type UserCardData = {
   imageUrl: string;
 };
 
-const initialUsers: UserCardData[] = [
-  {
-    id: "45.281.902-K",
-    name: "Stephen",
-    lastName: "Cole",
-    role: "Thermal Controls",
-    sex: "M",
-    profession: "system_administrator",
-    active: true,
-    registrationDate: new Date("2023-01-15"),
-    birthdate: new Date("1985-03-20"),
-    imageUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    id: "31.992.188-B",
-    name: "Elena",
-    lastName: "Rodriguez",
-    role: "Aerospace Design",
-    sex: "F",
-    profession: "resource_manager",
-    active: true,
-    registrationDate: new Date("2023-09-08"),
-    birthdate: new Date("1992-11-03"),
-    imageUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    id: "22.881.004-C",
-    name: "Sarah",
-    lastName: "Jenkins",
-    role: "Human Factors",
-    sex: "F",
-    profession: "worker",
-    active: true,
-    registrationDate: new Date("2024-03-21"),
-    birthdate: new Date("1995-07-18"),
-    imageUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=800&auto=format&fit=crop",
-  },
-  {
-    id: "18.330.441-X",
-    name: "Marcus",
-    lastName: "Thorne",
-    role: "Information Defense",
-    sex: "M",
-    profession: "expedition_leader",
-    active: true,
-    registrationDate: new Date("2023-12-01"),
-    birthdate: new Date("1986-02-27"),
-    imageUrl:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop",
-  },
-];
-
 export function UsersView() {
-  const [users, setUsers] = useState<UserCardData[]>(initialUsers);
+  const [users, setUsers] = useState<UserCardData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UserCardData | null>(null);
   const [isRegistrationPanelOpen, setIsRegistrationPanelOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
   const [isStatusSelectFocused, setIsStatusSelectFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = users.filter((user) => {
-    if (statusFilter === "all") return true;
-    if (statusFilter === "active") return user.active;
-    return !user.active;
+    const matchesStatus =
+      statusFilter === "all"
+        ? true
+        : statusFilter === "active"
+        ? user.active
+        : !user.active;
+
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      query === "" ||
+      user.name.toLowerCase().includes(query) ||
+      user.lastName.toLowerCase().includes(query) ||
+      user.role.toLowerCase().includes(query) ||
+      professionLabels[user.profession]?.toLowerCase().includes(query);
+
+    return matchesStatus && matchesSearch;
   });
 
   const statusTitleMap: Record<StatusFilter, string> = {
@@ -117,37 +82,70 @@ export function UsersView() {
       <UsersRound className="text-[#343434] bg-[#A6A6A6] rounded-md p-1 w-8 h-8" />
     );
 
-  const handleToggleUserActive = () => {
+  const handleToggleUserActive = async () => {
     if (!selectedUser) return;
-
     const nextActive = !selectedUser.active;
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === selectedUser.id ? { ...user, active: nextActive } : user,
+
+    if (selectedUser.idUser) {
+      await userService.update(selectedUser.idUser, { active: nextActive });
+    }
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === selectedUser.id ? { ...u, active: nextActive } : u,
       ),
     );
-    setSelectedUser((prevSelected) =>
-      prevSelected ? { ...prevSelected, active: nextActive } : prevSelected,
-    );
+    setSelectedUser((prev) => (prev ? { ...prev, active: nextActive } : prev));
   };
 
-  const handleChangeProfession = (nextProfession: ProfessionKey) => {
+  const handleChangeProfession = async (nextProfession: ProfessionKey) => {
     if (!selectedUser) return;
 
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === selectedUser.id
-          ? { ...user, profession: nextProfession }
-          : user,
+    if (selectedUser.idUser) {
+      await userService.update(selectedUser.idUser, {
+        profession: nextProfession,
+      });
+    }
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === selectedUser.id ? { ...u, profession: nextProfession } : u,
       ),
     );
-
-    setSelectedUser((prevSelected) =>
-      prevSelected
-        ? { ...prevSelected, profession: nextProfession }
-        : prevSelected,
+    setSelectedUser((prev) =>
+      prev ? { ...prev, profession: nextProfession } : prev,
     );
   };
+
+  useEffect(() => {
+    let active = true;
+    userService.findAll().then((resp) => {
+      if (!active) return;
+      if (resp.getEstado()) {
+        const apiUsers = resp.getResultado<User[]>("registros") ?? [];
+        const mapped: UserCardData[] = apiUsers.map((u) => ({
+          idUser: u.id ?? 0,
+          id: u.person?.dni ?? String(u.id ?? ""),
+          name: u.person?.name ?? u.name ?? "",
+          lastName: u.person?.last_name ?? u.person?.surname ?? "",
+          role: u.username ?? "",
+          sex: (u.person?.sex ?? "M") as "M" | "F",
+          profession: (u.profession ?? "worker") as ProfessionKey,
+          active: u.active ?? u.state === "A",
+          registrationDate: u.created_at ? new Date(u.created_at) : new Date(),
+          birthdate: u.person?.date_birth
+            ? new Date(u.person.date_birth)
+            : new Date(),
+          imageUrl: u.person?.photo ?? "",
+        }));
+        setUsers(mapped);
+      }
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <>
@@ -157,10 +155,13 @@ export function UsersView() {
             <UserRoundSearch className="self-center text-gray-500 transition-colors group-focus-within:text-[#FF6600]" />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search staff by name or role..."
               className="w-full self-center bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
             />
           </div>
+
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
@@ -176,6 +177,7 @@ export function UsersView() {
             <option value="inactive">Inactive</option>
             <option value="all">All</option>
           </select>
+
           <button
             type="button"
             onClick={() => setIsRegistrationPanelOpen(true)}
@@ -185,32 +187,54 @@ export function UsersView() {
             Register staff
           </button>
         </div>
+
         <div className="flex min-h-0 flex-1 flex-col gap-[5px]">
           <div className="w-full flex items-center gap-[10px] border-b border-[#B8B8B8] shadow-[0_10px_8px_-8px_rgba(0,0,0,0.45)] px-3 py-2 text-[#343434]">
             {statusIcon}
             <p>{statusTitleMap[statusFilter]}</p>
+            {searchQuery && (
+              <span className="ml-auto text-xs text-gray-500">
+                {filteredUsers.length} resultado{filteredUsers.length !== 1 ? "s" : ""}
+              </span>
+            )}
           </div>
+
           <div className="mt-6 grid min-h-0 flex-1 grid-cols-1 content-start gap-6 overflow-y-auto rounded-xl bg-transparent p-[25px] shadow-none md:grid-cols-2 xl:grid-cols-3">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className="relative transition-all duration-250 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_16px_28px_rgba(0,0,0,0.42),0_0_18px_rgba(51,19,1,0.55)]"
-                onClick={() => setSelectedUser(user)}
-              >
-                <UserCard
-                  name={user.name}
-                  lastName={user.lastName}
-                  role={user.role}
-                  id={user.id}
-                  active={user.active}
-                  profession={professionLabels[user.profession]}
-                  imageUrl={user.imageUrl}
-                />
+            {loading ? (
+              <div className="col-span-full flex items-center justify-center py-20">
+                <span className="font-mono text-sm text-gray-500 animate-pulse uppercase tracking-widest">
+                  Loading staff...
+                </span>
               </div>
-            ))}
+            ) : filteredUsers.length === 0 ? (
+              <div className="col-span-full flex items-center justify-center py-20">
+                <span className="font-mono text-sm text-gray-500 uppercase tracking-widest">
+                  No staff found
+                </span>
+              </div>
+            ) : (
+              filteredUsers.map((user) => (
+                <div
+                  key={user.id}
+                  className="relative transition-all duration-250 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_16px_28px_rgba(0,0,0,0.42),0_0_18px_rgba(51,19,1,0.55)]"
+                  onClick={() => setSelectedUser(user)}
+                >
+                  <UserCard
+                    name={user.name}
+                    lastName={user.lastName}
+                    role={user.role}
+                    id={user.id}
+                    active={user.active}
+                    profession={professionLabels[user.profession]}
+                    imageUrl={user.imageUrl}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
+
       {selectedUser && (
         <UserProfileModal
           name={selectedUser.name}
@@ -228,6 +252,7 @@ export function UsersView() {
           onClose={() => setSelectedUser(null)}
         />
       )}
+
       {isRegistrationPanelOpen && (
         <RegistrationPanel onClose={() => setIsRegistrationPanelOpen(false)} />
       )}
