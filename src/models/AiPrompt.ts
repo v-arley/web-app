@@ -1,4 +1,3 @@
-
 export class AiPrompt {
 
     id?: number | null;

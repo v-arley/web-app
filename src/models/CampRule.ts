@@ -1,4 +1,3 @@
-
 export class CampRule {
 
     id?: number | null;

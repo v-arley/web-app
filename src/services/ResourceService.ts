@@ -3,10 +3,18 @@ import { Resource, type CreateResource, type UpdateResource } from "../models/Re
 import { AxiosBaseService } from "./AxiosBaseService";
 
 export class ResourceService extends AxiosBaseService {
+	private toBackendPayload(register: CreateResource | UpdateResource) {
+		const { unitOfMeasure, consumable, ...rest } = register;
+		return {
+			...rest,
+			...(unitOfMeasure !== undefined ? { unit_of_measure: unitOfMeasure } : {}),
+			...(consumable !== undefined ? { consumable: consumable ? "Y" : "N" } : {}),
+		};
+	}
 
 	async save(register: CreateResource): Promise<Respuesta> {
 		try {
-			const { data } = await this.client.post<BackendResponse<{ item: Resource }> | Resource>("/resources", register);
+			const { data } = await this.client.post<BackendResponse<{ item: Resource }> | Resource>("/resources", this.toBackendPayload(register));
 			const resource = this.extractItem<Resource>(data);
 
 			return new Respuesta(true, "Registro creado correctamente.", "", "registro", resource);
@@ -17,7 +25,7 @@ export class ResourceService extends AxiosBaseService {
 
 	async update(id: number, register: UpdateResource): Promise<Respuesta> {
 		try {
-			const { data } = await this.client.put<BackendResponse<{ item: Resource }> | Resource>(`/resources/${id}`, register);
+			const { data } = await this.client.put<BackendResponse<{ item: Resource }> | Resource>(`/resources/${id}`, this.toBackendPayload(register));
 			const resource = this.extractItem<Resource>(data);
 
 			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", resource);
@@ -39,6 +47,18 @@ export class ResourceService extends AxiosBaseService {
 	async findAll(): Promise<Respuesta> {
 		try {
 			const { data } = await this.client.get<BackendResponse<BackendListPayload<Resource>> | Resource[]>("/resources");
+			const resources = this.extractItems<Resource>(data).map((resource) => new Resource(resource));
+
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", resources);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
+
+	async search(query: string): Promise<Respuesta> {
+		try {
+			const params = new URLSearchParams({ search: query });
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Resource>> | Resource[]>(`/resources?${params.toString()}`);
 			const resources = this.extractItems<Resource>(data).map((resource) => new Resource(resource));
 
 			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", resources);

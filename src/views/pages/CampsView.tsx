@@ -79,14 +79,22 @@ export function CampsView() {
   }, [data, search, stateFilter]);
 
   useEffect(() => {
-    if (!selectedCamp && filteredCamps.length > 0) {
+    if (filteredCamps.length === 0) {
+      setSelectedCamp(null);
+      return;
+    }
+
+    if (!selectedCamp) {
       setSelectedCamp(filteredCamps[0]);
       return;
     }
 
-    if (selectedCamp) {
-      const updatedSelected =
-        data.find((camp) => camp.id === selectedCamp.id) ?? null;
+    const updatedSelected =
+      filteredCamps.find((camp) => camp.id === selectedCamp.id) ?? null;
+
+    if (!updatedSelected) {
+      setSelectedCamp(filteredCamps[0]);
+    } else {
       setSelectedCamp(updatedSelected);
     }
   }, [data, filteredCamps, selectedCamp]);
@@ -224,21 +232,21 @@ export function CampsView() {
                         <div
                           key={camp.id}
                           onClick={() => setSelectedCamp(camp)}
-                          className={`mt-4 rounded-xl border px-4 py-5 transition-all duration-250 ease-out cursor-pointer ${
+                          className={`mt-4 cursor-pointer rounded-xl border px-4 py-5 transition-all duration-250 ease-out ${
                             selectedCamp?.id === camp.id
                               ? "border-[#FF6600] bg-[#1f1f1f] text-white shadow-[0_8px_18px_rgba(0,0,0,0.25)]"
                               : "border-[#c7c7c7] bg-[#f7f7f7] text-[#222] hover:-translate-y-[1px] hover:border-[#FF6600]"
                           }`}
                         >
                           <div
-                            className={`hidden xl:grid ${GRID_COLS} gap-4 items-start min-w-0`}
+                            className={`hidden xl:grid ${GRID_COLS} min-w-0 items-start gap-4`}
                           >
                             <div className="text-sm">{camp.id}</div>
 
                             <div className="text-sm font-bold">{camp.code}</div>
 
                             <div className="min-w-0">
-                              <p className="text-sm leading-relaxed break-words">
+                              <p className="break-words text-sm leading-relaxed">
                                 {camp.description || "Sin descripción"}
                               </p>
                             </div>
@@ -271,6 +279,7 @@ export function CampsView() {
                               >
                                 <Eye className="h-4 w-4" />
                               </button>
+
                               <button
                                 type="button"
                                 className={actionButtonClass}
@@ -289,6 +298,7 @@ export function CampsView() {
                                   {camp.description || "Sin descripción"}
                                 </p>
                               </div>
+
                               <span className="text-sm">#{camp.id}</span>
                             </div>
 
@@ -346,6 +356,7 @@ export function CampsView() {
                       <button className="min-w-[150px] bg-[#e5c0ae] px-6 py-3 text-[12px] font-bold uppercase tracking-[0.3em] text-[#9c9c9c]">
                         Previous
                       </button>
+
                       <button className="min-w-[150px] bg-[#ababab] px-6 py-3 text-[12px] font-bold uppercase tracking-[0.3em] text-white">
                         Next
                       </button>
@@ -363,7 +374,9 @@ export function CampsView() {
               <MapPinned className="text-[#FF6600]" />
               <div>
                 <p className={detailLabelClass}>Camp detail</p>
-                <h3 className="mt-1 text-2xl">{selectedCamp?.code ?? "----"}</h3>
+                <h3 className="mt-1 text-2xl">
+                  {selectedCamp?.code ?? "----"}
+                </h3>
               </div>
             </div>
 
@@ -378,7 +391,9 @@ export function CampsView() {
               <div className="grid grid-cols-2 gap-3">
                 <div className={detailCardClass}>
                   <p className={detailLabelClass}>Capacity</p>
-                  <p className="mt-2 text-lg">{selectedCamp?.capacity ?? "--"}</p>
+                  <p className="mt-2 text-lg">
+                    {selectedCamp?.capacity ?? "--"}
+                  </p>
                 </div>
 
                 <div className={detailCardClass}>
@@ -419,6 +434,7 @@ export function CampsView() {
               <button className="flex-1 border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600]">
                 Editar
               </button>
+
               <button className="flex-1 border border-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-[#FF6600] transition-colors hover:bg-[#FF6600] hover:text-black">
                 Ver más
               </button>

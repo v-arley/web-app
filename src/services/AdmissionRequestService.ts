@@ -1,5 +1,5 @@
 import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../utils/Response";
-import { AdmissionRequest, type CreateAdmissionRequest } from "@/models/admissionRequest";
+import { AdmissionRequest, type CreateAdmissionRequest, type UpdateAdmissionRequest } from "../models/AdmissionRequest";
 import { AxiosBaseService } from "./AxiosBaseService";
 
 export class AdmissionRequestService extends AxiosBaseService {
@@ -14,7 +14,7 @@ export class AdmissionRequestService extends AxiosBaseService {
         }
     }
 
-    async update(id: number, register: AdmissionRequest): Promise<Respuesta> {
+    async update(id: number, register: UpdateAdmissionRequest): Promise<Respuesta> {
         try {
             const { data } = await this.client.put<BackendResponse<{ item: AdmissionRequest }> | AdmissionRequest>(`/admission-requests/${id}`, register);
             const admissionRequest = this.extractItem<AdmissionRequest>(data);

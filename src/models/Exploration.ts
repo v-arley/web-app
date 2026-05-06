@@ -1,4 +1,3 @@
-
 export class Exploration {
 
     id?: number;

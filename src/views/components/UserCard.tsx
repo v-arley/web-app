@@ -63,7 +63,7 @@ export function UserCard({
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[#a6a6a6]">Cédula</p>
+            <p className="text-[#a6a6a6]">ID</p>
             <p className="text-[#d9d9d9]">{id}</p>
           </div>
           <div>

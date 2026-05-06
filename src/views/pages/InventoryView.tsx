@@ -42,6 +42,7 @@ type FormState = {
     unitOfMeasure: string;
     description: string;
     consumable: boolean;
+    status: 'C' | 'M' | 'O' | '';
 };
 
 const emptyForm: FormState = {
@@ -51,6 +52,13 @@ const emptyForm: FormState = {
     unitOfMeasure: "",
     description: "",
     consumable: false,
+    status: "",
+};
+
+const STATUS_LABELS: Record<'C' | 'M' | 'O', { label: string; className: string }> = {
+    C: { label: "CRITICAL", className: "text-status-critical" },
+    M: { label: "MODERATE", className: "text-status-warning" },
+    O: { label: "OK",       className: "text-status-ok" },
 };
 
 export function InventoryView() {
@@ -89,6 +97,7 @@ export function InventoryView() {
                 unitOfMeasure: item.unitOfMeasure,
                 description: item.description,
                 consumable: item.consumable,
+                status: item.status ?? "",
             });
         }
     };
@@ -104,6 +113,7 @@ export function InventoryView() {
                     unitOfMeasure: selectedItem.unitOfMeasure,
                     description: selectedItem.description,
                     consumable: selectedItem.consumable,
+                    status: selectedItem.status ?? "",
                 });
             } else {
                 setForm(emptyForm);
@@ -128,10 +138,17 @@ export function InventoryView() {
         if (!editMode) return;
         setIsSaving(true);
         if (selectedId !== null) {
-            const ok = await update(selectedId, form);
+            const ok = await update(selectedId, {
+                ...form,
+                status: (form.status || undefined) as 'C' | 'M' | 'O' | undefined,
+            });
             if (ok) setEditMode(false);
         } else {
-            const ok = await create(form);
+            const ok = await create({
+                ...form,
+                status: (form.status || undefined) as 'C' | 'M' | 'O' | undefined,
+                state: 'A',
+            });
             if (ok) {
                 setEditMode(false);
                 setForm(emptyForm);
@@ -145,42 +162,42 @@ export function InventoryView() {
     };
 
     return (
-        <div className="flex flex-row flex-1 min-h-0 w-full h-full overflow-hidden p-0 border border-gray-300">
+        <div className="flex flex-row flex-1 min-h-0 w-full h-full overflow-hidden p-0 border border-border-default">
 
             {/* ── LEFT PANEL ─────────────────────────────────────────── */}
-            <div className="flex flex-col bg-white shrink-0 p-8 gap-2" style={{ width: "52%" }}>
+            <div className="flex flex-col bg-[#FBFBFB] shrink-0 p-8 gap-2" style={{ width: "52%" }}>
 
                 {/* Search bar */}
                 <div className="relative w-full shrink-0">
-                    <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-txt-secondary" size={16} />
                     <input
                         type="text"
                         placeholder="SEARCH BY ID, CODE OR NAME..."
                         value={searchTerm}
                         onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
-                        className="w-full bg-[#2b2b2b] pl-16 pr-8 py-2 text-[12px] font-mono font-bold tracking-[0.2em] uppercase text-white outline-none transition-colors shadow-sm focus:bg-[#333]"
+                        className="w-full bg-bg-tertiary pl-9 pr-4 py-2 font-mono text-sm font-bold tracking-wide uppercase text-txt-primary border border-border-default rounded-none outline-none focus:border-border-accent transition-colors duration-base placeholder:text-txt-disabled"
                     />
                 </div>
 
                 {/* LIST / Page indicator */}
                 <div className="flex items-stretch h-8 gap-2">
-                    <div className="flex-1 bg-[#2b2b2b] flex items-center px-4">
-                        <span className="text-white font-bold font-ibmplex text-[16px] tracking-[0.2em] uppercase">
+                    <div className="flex-1 bg-bg-secondary border border-border-default flex items-center px-4">
+                        <span className="text-txt-primary font-bold font-mono text-sm tracking-wide uppercase">
                             LIST
                         </span>
                     </div>
-                    <div className="bg-[#c85a27] px-4 flex items-center justify-center">
-                        <span className="text-black font-mono text-[16px] font-bold tracking-[0.2em]">
+                    <div className="bg-[#E85D04] px-4 flex items-center justify-center">
+                        <span className="text-accent-fg font-mono text-sm font-bold tracking-wide">
                             PG&#8209;{String(page + 1).padStart(2, "0")}
                         </span>
                     </div>
                 </div>
 
                 {/* Table header */}
-                <div className="grid grid-cols-[0.6fr_1.2fr_2fr_1.4fr] px-1 py-1 border-b-2 border-black">
-                    {["ID", "CODE", "NAME", "CATEGORY"].map((h) => (
-                        <div key={h} className="text-[12px] font-mono font-bold tracking-[0.1em] text-black uppercase text-center">
-                            {h.split('').join(' ')}
+                <div className="grid grid-cols-[0.5fr_1fr_2fr_1.2fr_0.8fr] px-1 py-1 border-b border-border-default">
+                    {["ID", "CODE", "NAME", "CATEGORY", "STATUS"].map((h) => (
+                        <div key={h} className="text-xs font-mono font-bold tracking-label text-txt-secondary uppercase text-center">
+                            {h}
                         </div>
                     ))}
                 </div>
@@ -188,12 +205,12 @@ export function InventoryView() {
                 {/* Loading / error / empty states */}
                 {isLoading && (
                     <div className="flex-1 flex items-center justify-center">
-                        <span className="text-[11px] font-mono text-[#aaa] tracking-[0.3em] uppercase animate-pulse">Loading...</span>
+                        <div className="w-5 h-5 border-2 border-border-default border-t-accent rounded-full animate-spin" />
                     </div>
                 )}
                 {!isLoading && error && (
                     <div className="flex-1 flex items-center justify-center">
-                        <span className="text-[11px] font-mono text-[#ff4444] tracking-[0.2em] uppercase">{error}</span>
+                        <span className="font-mono text-xs text-status-critical tracking-label uppercase">{error}</span>
                     </div>
                 )}
 
@@ -202,19 +219,29 @@ export function InventoryView() {
                     <div className="flex-1 overflow-y-auto">
                         {pageItems.map((item) => {
                             const isSelected = selectedId === item.id;
+                            const statusInfo = item.status ? STATUS_LABELS[item.status] : null;
                             return (
                                 <div
                                     key={item.id}
                                     onClick={() => handleRowClick(item)}
-                                    className={`grid grid-cols-[0.6fr_1.2fr_2fr_1.4fr] px-1 py-1 cursor-pointer select-none text-center
+                                    className={`grid grid-cols-[0.5fr_1fr_2fr_1.2fr_0.8fr] px-1 py-1.5 cursor-pointer select-none text-center border-b border-border-subtle transition-colors duration-fast
                                         ${isSelected
-                                            ? "bg-[#d4d4d4] border-l-[3px] border-[#c85a27]"
-                                            : "hover:bg-gray-100 border-l-[3px] border-transparent"}`}
+                                            ? "bg-bg-selected border-l-2 border-l-accent"
+                                            : "hover:bg-bg-tertiary border-l-2 border-l-transparent"}`}
                                 >
-                                    <div className="text-[11px] font-mono text-black flex items-center justify-center">{item.id}</div>
-                                    <div className="text-[11px] font-mono text-black flex items-center justify-center">{item.code}</div>
-                                    <div className="text-[11px] font-mono text-black uppercase flex items-center justify-center">{item.name}</div>
-                                    <div className="text-[11px] font-mono text-black flex items-center justify-center">{item.category}</div>
+                                    <div className="font-mono text-xs text-txt-secondary flex items-center justify-center">{item.id}</div>
+                                    <div className="font-mono text-xs text-txt-secondary flex items-center justify-center">{item.code}</div>
+                                    <div className="font-mono text-xs text-txt-secondary uppercase flex items-center justify-center">{item.name}</div>
+                                    <div className="font-mono text-xs text-txt-secondary flex items-center justify-center">{item.category}</div>
+                                    <div className="flex items-center justify-center">
+                                        {statusInfo ? (
+                                            <span className={`font-mono text-xs font-bold uppercase tracking-ui ${statusInfo.className}`}>
+                                                {statusInfo.label}
+                                            </span>
+                                        ) : (
+                                            <span className="font-mono text-xs text-txt-disabled">—</span>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -222,8 +249,8 @@ export function InventoryView() {
                 )}
 
                 {/* Footer stats */}
-                <div className="bg-[#2b2b2b] px-4">
-                    <span className="text-[10px] font-mono text-gray-400 tracking-[0.2em] uppercase">
+                <div className="bg-bg-secondary border-t border-border-default px-4 py-1.5">
+                    <span className="font-mono text-xs text-txt-secondary tracking-wide uppercase">
                         FOUND: {String(filteredResources.length).padStart(4, "0")}
                     </span>
                 </div>
@@ -233,16 +260,14 @@ export function InventoryView() {
                     <button
                         onClick={() => setPage((p) => Math.max(0, p - 1))}
                         disabled={page === 0}
-                        className="flex-1 bg-[#c85a27] text-black text-[15px] font-mono font-bold tracking-[0.35em] uppercase
-                            hover:bg-[#b04a1d] transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-default"
+                        className="flex-1 bg-bg-tertiary border border-border-default text-txt-primary font-mono font-bold text-sm tracking-wide uppercase hover:bg-bg-selected hover:border-accent transition-colors duration-base disabled:opacity-40 cursor-pointer disabled:cursor-default rounded-none"
                     >
-                        PREVIUS
+                        PREV
                     </button>
                     <button
                         onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                         disabled={page >= totalPages - 1}
-                        className="flex-1 bg-[#0f0f0f] text-white text-[15px] font-mono font-bold tracking-[0.35em] uppercase
-                            hover:bg-[#2a2a2e] transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-default"
+                        className="flex-1 bg-accent text-accent-fg font-mono font-bold text-sm tracking-wide uppercase hover:bg-accent-hover transition-colors duration-base disabled:opacity-40 cursor-pointer disabled:cursor-default rounded-none"
                     >
                         NEXT
                     </button>
@@ -250,7 +275,7 @@ export function InventoryView() {
             </div>
 
             {/* ── RIGHT PANEL ────────────────────────────────────────── */}
-            <div className="flex flex-col flex-1 bg-[#2b2b2b] relative min-h-0 border-l border-gray-800">
+            <div className="flex flex-col flex-1 bg-bg-secondary relative min-h-0 border-l border-border-default">
 
                 {/* Top action bar */}
                 <div
@@ -268,8 +293,8 @@ export function InventoryView() {
                         className={`px-10 text-[14px] font-mono font-bold tracking-[0.2em] uppercase transition-colors cursor-pointer
                             disabled:opacity-40 disabled:cursor-default
                             ${editMode
-                                ? "bg-white text-[#c85a27] hover:bg-gray-200"
-                                : "bg-[#c85a27] text-black hover:bg-[#b04a1d]"}`}
+                                ? "bg-bg-tertiary text-accent hover:bg-bg-selected"
+                                : "bg-accent text-accent-fg hover:bg-accent-hover"}`}
                     >
                         {editMode ? "CANCEL" : "EDITAR"}
                     </button>
@@ -330,7 +355,7 @@ export function InventoryView() {
                             disabled={!editMode}
                             onClick={() => setForm(prev => ({ ...prev, consumable: !prev.consumable }))}
                             className={`px-4 py-1 text-[11px] font-mono font-bold tracking-widest uppercase transition-colors
-                                ${form.consumable ? "bg-[#c85a27] text-black" : "bg-[#1e1e1e] text-gray-400 border border-gray-600"}
+                                ${form.consumable ? "bg-accent text-accent-fg" : "bg-bg-primary text-txt-disabled border border-border-default"}
                                 ${!editMode ? "opacity-40 cursor-default" : "cursor-pointer"}`}
                         >
                             {form.consumable ? "YES" : "NO"}
@@ -343,16 +368,16 @@ export function InventoryView() {
                     <button
                         onClick={() => { void handleSave(); }}
                         disabled={!editMode || isSaving}
-                        className="w-full max-w-[400px] bg-[#c85a27] text-black font-ibmplex text-[16px] font-bold tracking-[0.2em] uppercase py-2
-                            hover:bg-[#b04a1d] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default"
+                        className="w-full max-w-[400px] bg-accent text-accent-fg font-ibmplex text-[16px] font-bold tracking-[0.2em] uppercase py-2
+                            hover:bg-accent-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-default"
                     >
                         {isSaving ? "SAVING..." : "SAVE AND SUBMIT"}
                     </button>
                     <button
                         onClick={() => { setForm(emptyForm); setSelectedId(null); setEditMode(false); }}
                         disabled={isSaving}
-                        className="w-full max-w-[400px] bg-transparent text-[#c85a27] border-2 border-[#c85a27] font-ibmplex text-[14px] font-bold tracking-[0.2em] uppercase py-1.5
-                            hover:bg-[#c85a27] hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#c85a27] disabled:cursor-default"
+                        className="w-full max-w-[400px] bg-transparent text-accent border-2 border-accent font-ibmplex text-[14px] font-bold tracking-[0.2em] uppercase py-1.5
+                            hover:bg-accent hover:text-accent-fg transition-colors cursor-pointer disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-accent disabled:cursor-default"
                     >
                         CLEAR FORM
                     </button>

@@ -1,4 +1,3 @@
-
 export class ResourceAlert {
 
     id?: number | null;

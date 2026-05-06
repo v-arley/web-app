@@ -59,22 +59,22 @@ export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {
                 aria-hidden="true"
             />
 
-            <div className="relative w-full max-w-2xl bg-white shadow-2xl flex flex-col overflow-hidden transform transition-all">
-                <div className="flex items-center justify-between px-6 py-4 bg-gray-50">
+            <div className="relative w-full max-w-2xl bg-bg-primary border border-border-default flex flex-col overflow-hidden transform transition-all">
+                <div className="flex items-center justify-between px-6 py-4 bg-bg-secondary border-b border-border-default">
                     <div className="flex items-center gap-3">
-                        <Key size={20} className="text-[#f05a28]" />
+                        <Key size={20} className="text-accent" />
                         <div>
-                            <h3 className="text-[14px] font-bold text-gray-900 font-mono uppercase tracking-[0.1em]">
+                            <h3 className="text-[14px] font-bold text-txt-primary font-mono uppercase tracking-[0.1em]">
                                 Manage Permissions
                             </h3>
                             {roleName && (
-                                <p className="text-xs text-gray-500 font-medium">Role: <span className="font-bold text-gray-700">{roleName}</span></p>
+                                <p className="text-xs text-txt-secondary font-medium">Role: <span className="font-bold text-txt-primary">{roleName}</span></p>
                             )}
                         </div>
                     </div>
                     <button 
                         onClick={onClose}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+                        className="p-1.5 text-txt-disabled hover:text-txt-primary hover:bg-bg-tertiary transition-colors"
                     >
                         <X size={20} />
                     </button>
@@ -82,36 +82,36 @@ export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {
 
                 <div className="flex-1 overflow-y-auto max-h-[60vh] p-0">
                     <table className="w-full text-left">
-                        <thead className="sticky top-0 bg-white shadow-sm z-10">
-                            <tr className="bg-gray-50/80">
+                        <thead className="sticky top-0 bg-bg-primary z-10">
+                            <tr className="bg-bg-secondary">
                                 <th className="px-6 py-3 w-16 text-center">
                                     <input 
                                         type="checkbox" 
-                                        className="w-4 h-4 text-[#f05a28] focus:ring-[#f05a28] cursor-pointer"
+                                        className="w-4 h-4 text-accent focus:ring-accent cursor-pointer"
                                         checked={selectedPerms.length === AVAILABLE_PERMS.length && selectedPerms.length > 0}
                                         onChange={handleToggleAll}
                                     />
                                 </th>
-                                <th className="px-6 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">ID</th>
-                                <th className="px-6 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Resource</th>
-                                <th className="px-6 py-3 text-[11px] font-bold text-gray-500 uppercase tracking-widest">Action</th>
+                                <th className="px-6 py-3 text-[11px] font-bold text-txt-secondary uppercase tracking-widest">ID</th>
+                                <th className="px-6 py-3 text-[11px] font-bold text-txt-secondary uppercase tracking-widest">Resource</th>
+                                <th className="px-6 py-3 text-[11px] font-bold text-txt-secondary uppercase tracking-widest">Action</th>
                             </tr>
                         </thead>
                         <tbody className="">
                             {AVAILABLE_PERMS.map(perm => (
-                                <tr key={perm.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={perm.id} className="hover:bg-bg-tertiary transition-colors border-b border-border-subtle">
                                     <td className="px-6 py-3 text-center">
                                         <input 
                                             type="checkbox" 
-                                            className="w-4 h-4 text-[#f05a28] focus:ring-[#f05a28] cursor-pointer"
+                                            className="w-4 h-4 text-accent focus:ring-accent cursor-pointer"
                                             checked={selectedPerms.includes(perm.id)}
                                             onChange={() => handleTogglePerm(perm.id)}
                                         />
                                     </td>
-                                    <td className="px-6 py-3 font-mono text-xs text-gray-500 font-bold">{perm.id}</td>
-                                    <td className="px-6 py-3 text-sm font-bold text-gray-900">{perm.resource}</td>
+                                    <td className="px-6 py-3 font-mono text-xs text-txt-secondary font-bold">{perm.id}</td>
+                                    <td className="px-6 py-3 text-sm font-bold text-txt-primary">{perm.resource}</td>
                                     <td className="px-6 py-3">
-                                        <span className="font-mono font-bold text-[10px] bg-gray-100 px-2 py-1.5 text-gray-700 uppercase">
+                                        <span className="font-mono font-bold text-[10px] bg-bg-tertiary border border-border-default px-2 py-1.5 text-txt-primary uppercase">
                                             {perm.action}
                                         </span>
                                     </td>
@@ -121,20 +121,20 @@ export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {
                     </table>
                 </div>
 
-                <div className="px-6 py-4 bg-gray-50 flex justify-between items-center">
-                    <span className="text-xs uppercase tracking-widest font-mono font-bold text-gray-400">
+                <div className="px-6 py-4 bg-bg-secondary border-t border-border-default flex justify-between items-center">
+                    <span className="text-xs uppercase tracking-widest font-mono font-bold text-txt-disabled">
                         {selectedPerms.length} Selected
                     </span>
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}
-                            className="px-5 py-2 font-bold text-gray-600 bg-white hover:bg-gray-50 transition-colors uppercase text-[11px] tracking-wider"
+                            className="px-5 py-2 font-bold text-txt-secondary bg-bg-tertiary border border-border-default hover:bg-bg-selected transition-colors uppercase text-[11px] tracking-wider font-mono"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleSave}
-                            className="flex items-center gap-2 px-6 py-2 font-bold text-white bg-black hover:bg-[#f05a28] shadow-md transition-all uppercase text-[11px] tracking-wider"
+                            className="flex items-center gap-2 px-6 py-2 font-bold text-accent-fg bg-accent hover:bg-accent-hover transition-all uppercase text-[11px] tracking-wider font-mono"
                         >
                             <Save size={14} />
                             Save

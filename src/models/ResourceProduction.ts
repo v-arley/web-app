@@ -1,4 +1,3 @@
-
 export class ResourceProduction {
 
     id?: number | null;

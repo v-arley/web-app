@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 type Level = "L" | "M" | "H";
-type Filter = "todas" | "L" | "M" | "H";
+type Filter = "all" | "L" | "M" | "H";
 
 type TaskRow = {
   id: number;
@@ -29,9 +29,9 @@ const tasks: TaskRow[] = [
   {
     id: 1,
     camp_id: 1,
-    name: "Reparación de generador",
-    description: "Revisión y reparación del generador principal del campamento.",
-    type: "Mantenimiento",
+    name: "Generator repair",
+    description: "Inspection and repair of the camp's main generator.",
+    type: "Maintenance",
     priority: "H",
     difficulty: "M",
     estimated_minutes: 180,
@@ -41,9 +41,9 @@ const tasks: TaskRow[] = [
   {
     id: 2,
     camp_id: 2,
-    name: "Clasificación de suministros médicos",
-    description: "Ordenar y registrar suministros médicos prioritarios.",
-    type: "Logística",
+    name: "Medical supply sorting",
+    description: "Sort and record priority medical supplies.",
+    type: "Logistics",
     priority: "M",
     difficulty: "L",
     estimated_minutes: 90,
@@ -53,9 +53,9 @@ const tasks: TaskRow[] = [
   {
     id: 3,
     camp_id: 1,
-    name: "Refuerzo de perímetro norte",
-    description: "Instalación de refuerzos y revisión de puntos vulnerables.",
-    type: "Defensa",
+    name: "North perimeter reinforcement",
+    description: "Install reinforcements and inspect vulnerable points.",
+    type: "Defense",
     priority: "H",
     difficulty: "H",
     estimated_minutes: 240,
@@ -65,9 +65,9 @@ const tasks: TaskRow[] = [
   {
     id: 4,
     camp_id: 3,
-    name: "Conteo de raciones secas",
-    description: "Recuento general de raciones disponibles en bodega.",
-    type: "Inventario",
+    name: "Dry ration count",
+    description: "General count of available rations in storage.",
+    type: "Inventory",
     priority: "L",
     difficulty: "L",
     estimated_minutes: 60,
@@ -98,10 +98,10 @@ const filterSelectClass = (focused: boolean) =>
   }`;
 
 function getLevelLabel(level?: Level) {
-  if (level === "L") return "Baja";
-  if (level === "M") return "Media";
-  if (level === "H") return "Alta";
-  return "N/D";
+  if (level === "L") return "Low";
+  if (level === "M") return "Medium";
+  if (level === "H") return "High";
+  return "N/A";
 }
 
 function getLevelBadge(level?: Level) {
@@ -112,7 +112,7 @@ function getLevelBadge(level?: Level) {
 }
 
 function getEstimatedMinutes(minutes?: number) {
-  return minutes ? `${minutes} min` : "N/D";
+  return minutes ? `${minutes} min` : "N/A";
 }
 
 function getCampLabel(campId?: number) {
@@ -121,9 +121,11 @@ function getCampLabel(campId?: number) {
 
 export function TasksView() {
   const [search, setSearch] = useState("");
-  const [priority, setPriority] = useState<Filter>("todas");
-  const [difficulty, setDifficulty] = useState<Filter>("todas");
-  const [selectedTask, setSelectedTask] = useState<TaskRow | null>(tasks[0] ?? null);
+  const [priority, setPriority] = useState<Filter>("all");
+  const [difficulty, setDifficulty] = useState<Filter>("all");
+  const [selectedTask, setSelectedTask] = useState<TaskRow | null>(
+    tasks[0] ?? null,
+  );
   const [isPriorityFocused, setIsPriorityFocused] = useState(false);
   const [isDifficultyFocused, setIsDifficultyFocused] = useState(false);
 
@@ -137,9 +139,9 @@ export function TasksView() {
         (task.description ?? "").toLowerCase().includes(q) ||
         (task.type ?? "").toLowerCase().includes(q);
 
-      const matchesPriority = priority === "todas" || task.priority === priority;
+      const matchesPriority = priority === "all" || task.priority === priority;
       const matchesDifficulty =
-        difficulty === "todas" || task.difficulty === difficulty;
+        difficulty === "all" || task.difficulty === difficulty;
 
       return matchesSearch && matchesPriority && matchesDifficulty;
     });
@@ -184,7 +186,7 @@ export function TasksView() {
                 <Search className="self-center text-gray-500 transition-colors group-focus-within:text-[#FF6600]" />
                 <input
                   type="text"
-                  placeholder="Buscar tarea por nombre, descripción o tipo..."
+                  placeholder="Search tasks by name, description, or type..."
                   className="w-full self-center bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -198,10 +200,10 @@ export function TasksView() {
                 onBlur={() => setIsPriorityFocused(false)}
                 className={filterSelectClass(isPriorityFocused)}
               >
-                <option value="todas">Prioridad</option>
-                <option value="L">Baja</option>
-                <option value="M">Media</option>
-                <option value="H">Alta</option>
+                <option value="all">Priority</option>
+                <option value="L">Low</option>
+                <option value="M">Medium</option>
+                <option value="H">High</option>
               </select>
 
               <select
@@ -211,10 +213,10 @@ export function TasksView() {
                 onBlur={() => setIsDifficultyFocused(false)}
                 className={filterSelectClass(isDifficultyFocused)}
               >
-                <option value="todas">Dificultad</option>
-                <option value="L">Baja</option>
-                <option value="M">Media</option>
-                <option value="H">Alta</option>
+                <option value="all">Difficulty</option>
+                <option value="L">Low</option>
+                <option value="M">Medium</option>
+                <option value="H">High</option>
               </select>
 
               <button
@@ -222,13 +224,13 @@ export function TasksView() {
                 className="group flex w-full items-center justify-center gap-[10px] rounded-lg border border-black bg-black px-4 py-2 text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black xl:w-auto xl:justify-start"
               >
                 <Plus className="text-white transition-colors group-hover:text-black" />
-                Nueva tarea
+                New task
               </button>
             </div>
 
             <div className="flex w-full items-center gap-[10px] border-b border-[#B8B8B8] px-3 py-2 text-[#343434] shadow-[0_10px_8px_-8px_rgba(0,0,0,0.45)]">
               <ClipboardList className="h-8 w-8 rounded-md bg-[#A6A6A6] p-1 text-[#343434]" />
-              <p>LISTA GENERAL DE TAREAS</p>
+              <p>GENERAL TASK LIST</p>
             </div>
 
             <div className="rounded-xl bg-[#cecece] p-[25px] shadow-[0_0_18px_rgba(0,0,0,0.35),inset_0_0_14px_rgba(115,115,115,0.33)]">
@@ -248,7 +250,7 @@ export function TasksView() {
               <div className="flex flex-col">
                 {filteredTasks.length === 0 ? (
                   <div className="py-16 text-center text-sm uppercase tracking-[0.25em] text-[#f05a28]">
-                    No se encontraron tareas
+                    No tasks found
                   </div>
                 ) : (
                   filteredTasks.map((task) => (
@@ -271,11 +273,11 @@ export function TasksView() {
                             {task.name}
                           </p>
                           <p className="mt-1 text-xs leading-relaxed text-[#8b8b8b] break-words">
-                            {task.description || "Sin descripción"}
+                            {task.description || "No description"}
                           </p>
                         </div>
 
-                        <div className="text-sm">{task.type || "N/D"}</div>
+                        <div className="text-sm">{task.type || "N/A"}</div>
 
                         <div>
                           <span
@@ -301,7 +303,9 @@ export function TasksView() {
                           {getEstimatedMinutes(task.estimated_minutes)}
                         </div>
 
-                        <div className="text-sm">{getCampLabel(task.camp_id)}</div>
+                        <div className="text-sm">
+                          {getCampLabel(task.camp_id)}
+                        </div>
 
                         <div className="flex items-center gap-2">
                           <button
@@ -335,9 +339,9 @@ export function TasksView() {
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div>
                             <p className="text-[10px] uppercase tracking-[0.22em] text-[#7c8794]">
-                              Tipo
+                              Type
                             </p>
-                            <p>{task.type || "N/D"}</p>
+                            <p>{task.type || "N/A"}</p>
                           </div>
 
                           <div>
@@ -349,7 +353,7 @@ export function TasksView() {
 
                           <div>
                             <p className="text-[10px] uppercase tracking-[0.22em] text-[#7c8794]">
-                              Tiempo
+                              Time
                             </p>
                             <p>{getEstimatedMinutes(task.estimated_minutes)}</p>
                           </div>
@@ -401,7 +405,9 @@ export function TasksView() {
               <ClipboardList className="text-[#FF6600]" />
               <div>
                 <p className={detailLabelClass}>Task detail</p>
-                <h3 className="mt-1 text-2xl">{selectedTask?.name ?? "----"}</h3>
+                <h3 className="mt-1 text-2xl">
+                  {selectedTask?.name ?? "----"}
+                </h3>
               </div>
             </div>
 
@@ -409,25 +415,29 @@ export function TasksView() {
               <div className={detailCardClass}>
                 <p className={detailLabelClass}>Description</p>
                 <p className="mt-2 text-white">
-                  {selectedTask?.description || "Sin descripción"}
+                  {selectedTask?.description || "No description"}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className={detailCardClass}>
                   <p className={detailLabelClass}>Priority</p>
-                  <p className="mt-2 text-lg">{getLevelLabel(selectedTask?.priority)}</p>
+                  <p className="mt-2 text-lg">
+                    {getLevelLabel(selectedTask?.priority)}
+                  </p>
                 </div>
 
                 <div className={detailCardClass}>
                   <p className={detailLabelClass}>Difficulty</p>
-                  <p className="mt-2 text-lg">{getLevelLabel(selectedTask?.difficulty)}</p>
+                  <p className="mt-2 text-lg">
+                    {getLevelLabel(selectedTask?.difficulty)}
+                  </p>
                 </div>
               </div>
 
               <div className={detailCardClass}>
                 <p className={detailLabelClass}>Type</p>
-                <p className="mt-2">{selectedTask?.type || "N/D"}</p>
+                <p className="mt-2">{selectedTask?.type || "N/A"}</p>
               </div>
 
               <div className={detailCardClass}>
@@ -450,16 +460,18 @@ export function TasksView() {
                   </p>
                 </div>
                 <p className="mt-2">{selectedTask?.created_at || "--"}</p>
-                <p className="text-[#bdbdbd]">{selectedTask?.updated_at || "--"}</p>
+                <p className="text-[#bdbdbd]">
+                  {selectedTask?.updated_at || "--"}
+                </p>
               </div>
             </div>
 
             <div className="mt-6 flex gap-3">
               <button className="flex-1 border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600]">
-                Editar
+                Edit
               </button>
               <button className="flex-1 border border-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-[#FF6600] transition-colors hover:bg-[#FF6600] hover:text-black">
-                Ver más
+                View more
               </button>
             </div>
 
