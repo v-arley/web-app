@@ -10,18 +10,33 @@ import type { User } from "../../models/User";
 
 const userService = new UserService();
 
-const professionLabels: Record<string, string> = {
-  system_administrator: "System Administrator",
-  worker: "Worker",
-  resource_manager: "Resource Manager",
-  expedition_leader: "Expedition Leader",
+type ProfessionKey = string;
+
+type UserRoleProfile = {
+  id: number;
+  name: string;
+  description?: string | null;
+  state: string;
 };
 
-type ProfessionKey =
-  | "system_administrator"
-  | "worker"
-  | "resource_manager"
-  | "expedition_leader";
+function formatProfession(profession?: string | null): string {
+  if (!profession) return "SIN PROFESIÓN";
+
+  return profession
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getMainRole(user: User): string {
+  const firstRole = user.roles?.[0];
+
+  if (!firstRole) return "NO ROLE";
+
+  if (typeof firstRole === "string") return firstRole;
+
+  return (firstRole as UserRoleProfile).name;
+}
 
 type StatusFilter = "active" | "inactive" | "all";
 
@@ -39,10 +54,9 @@ type UserCardData = {
   imageUrl: string;
 };
 
-
-
 export function UsersView() {
   const [users, setUsers] = useState<UserCardData[]>([]);
+  const [professions, setProfessions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<UserCardData | null>(null);
   const [isRegistrationPanelOpen, setIsRegistrationPanelOpen] = useState(false);
@@ -55,8 +69,8 @@ export function UsersView() {
       statusFilter === "all"
         ? true
         : statusFilter === "active"
-        ? user.active
-        : !user.active;
+          ? user.active
+          : !user.active;
 
     const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
@@ -64,7 +78,7 @@ export function UsersView() {
       user.name.toLowerCase().includes(query) ||
       user.lastName.toLowerCase().includes(query) ||
       user.role.toLowerCase().includes(query) ||
-      professionLabels[user.profession]?.toLowerCase().includes(query);
+      formatProfession(user.profession).toLowerCase().includes(query);
 
     return matchesStatus && matchesSearch;
   });
@@ -86,17 +100,23 @@ export function UsersView() {
 
   const handleToggleUserActive = async () => {
     if (!selectedUser) return;
+
     const nextActive = !selectedUser.active;
 
     if (selectedUser.idUser) {
-      await userService.update(selectedUser.idUser, { active: nextActive });
+      const resp = await userService.update(selectedUser.idUser, {
+        state: nextActive ? "A" : "I",
+      });
+
+      if (!resp.getEstado()) return;
     }
 
     setUsers((prev) =>
       prev.map((u) =>
-        u.id === selectedUser.id ? { ...u, active: nextActive } : u,
+        u.idUser === selectedUser.idUser ? { ...u, active: nextActive } : u,
       ),
     );
+
     setSelectedUser((prev) => (prev ? { ...prev, active: nextActive } : prev));
   };
 
@@ -104,16 +124,21 @@ export function UsersView() {
     if (!selectedUser) return;
 
     if (selectedUser.idUser) {
-      await userService.update(selectedUser.idUser, {
+      const resp = await userService.update(selectedUser.idUser, {
         profession: nextProfession,
       });
+
+      if (!resp.getEstado()) return;
     }
 
     setUsers((prev) =>
       prev.map((u) =>
-        u.id === selectedUser.id ? { ...u, profession: nextProfession } : u,
+        u.idUser === selectedUser.idUser
+          ? { ...u, profession: nextProfession }
+          : u,
       ),
     );
+
     setSelectedUser((prev) =>
       prev ? { ...prev, profession: nextProfession } : prev,
     );
@@ -121,29 +146,53 @@ export function UsersView() {
 
   useEffect(() => {
     let active = true;
-    userService.findAll().then((resp) => {
+
+    async function loadData() {
+      setLoading(true);
+
+      const [usersResp, professionsResp] = await Promise.all([
+        userService.findAllWithProfile(),
+        userService.findProfessions(),
+      ]);
+
       if (!active) return;
-      if (resp.getEstado()) {
-        const apiUsers = resp.getResultado<User[]>("registros") ?? [];
+
+      if (professionsResp.getEstado()) {
+        const apiProfessions =
+          professionsResp.getResultado<string[]>("registros") ?? [];
+
+        setProfessions(apiProfessions);
+      }
+
+      if (usersResp.getEstado()) {
+        const apiUsers = usersResp.getResultado<User[]>("registros") ?? [];
+
         const mapped: UserCardData[] = apiUsers.map((u) => ({
           idUser: u.id ?? 0,
           id: u.person?.dni ?? String(u.id ?? ""),
-          name: u.person?.name ?? u.name ?? "",
-          lastName: u.person?.last_name ?? u.person?.surname ?? "",
-          role: u.username ?? "",
-          sex: (u.person?.sex ?? "M") as "M" | "F",
-          profession: (u.profession ?? "worker") as ProfessionKey,
-          active: u.active ?? u.state === "A",
+          name: u.person?.name ?? u.name ?? u.username ?? "",
+          lastName: u.person?.surname ?? u.person?.last_name ?? "",
+          role: getMainRole(u),
+          sex: u.person?.sex === "F" ? "F" : "M",
+          profession: u.profession ?? "SIN_PROFESION",
+          active: u.state === "A",
           registrationDate: u.created_at ? new Date(u.created_at) : new Date(),
-          birthdate: u.person?.date_birth
-            ? new Date(u.person.date_birth)
-            : new Date(),
+          birthdate: u.person?.date_of_birth
+            ? new Date(u.person.date_of_birth)
+            : u.person?.date_birth
+              ? new Date(u.person.date_birth)
+              : new Date(),
           imageUrl: u.person?.photo ?? "",
         }));
+
         setUsers(mapped);
       }
+
       setLoading(false);
-    });
+    }
+
+    loadData();
+
     return () => {
       active = false;
     };
@@ -196,7 +245,8 @@ export function UsersView() {
             <p>{statusTitleMap[statusFilter]}</p>
             {searchQuery && (
               <span className="ml-auto text-xs text-gray-500">
-                {filteredUsers.length} resultado{filteredUsers.length !== 1 ? "s" : ""}
+                {filteredUsers.length} resultado
+                {filteredUsers.length !== 1 ? "s" : ""}
               </span>
             )}
           </div>
@@ -217,7 +267,7 @@ export function UsersView() {
             ) : (
               filteredUsers.map((user) => (
                 <div
-                  key={user.id}
+                  key={user.idUser}
                   className="relative transition-all duration-250 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_16px_28px_rgba(0,0,0,0.42),0_0_18px_rgba(51,19,1,0.55)]"
                   onClick={() => setSelectedUser(user)}
                 >
@@ -227,7 +277,7 @@ export function UsersView() {
                     role={user.role}
                     id={user.id}
                     active={user.active}
-                    profession={professionLabels[user.profession]}
+                    profession={formatProfession(user.profession)}
                     imageUrl={user.imageUrl}
                   />
                 </div>
@@ -246,6 +296,7 @@ export function UsersView() {
           id={selectedUser.id}
           active={selectedUser.active}
           profession={selectedUser.profession}
+          professions={professions}
           registrationDate={selectedUser.registrationDate}
           birthdate={selectedUser.birthdate}
           imageUrl={selectedUser.imageUrl}

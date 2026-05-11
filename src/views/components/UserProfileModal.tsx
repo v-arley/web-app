@@ -1,19 +1,15 @@
 import {
-  MonitorCog,
-  Pickaxe,
+  BriefcaseBusiness,
+  HeartPulse,
+  Map,
+  Package,
   Power,
   PowerOff,
-  ShelvingUnit,
-  TentTree,
+  Shield,
+  Wrench,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import "./UserProfileModal.css";
-
-type ProfessionKey =
-  | "system_administrator"
-  | "worker"
-  | "resource_manager"
-  | "expedition_leader";
 
 type UserDetailModalProps = {
   name: string;
@@ -22,12 +18,13 @@ type UserDetailModalProps = {
   sex: string;
   id: string;
   active: boolean;
-  profession: ProfessionKey;
+  profession: string;
+  professions: string[];
   registrationDate: Date;
   birthdate: Date;
   imageUrl?: string;
   onToggleActive: () => void;
-  onChangeProfession: (profession: ProfessionKey) => void;
+  onChangeProfession: (profession: string) => void;
   onClose: () => void;
 };
 
@@ -39,6 +36,7 @@ export function UserProfileModal({
   id,
   active,
   profession,
+  professions,
   registrationDate,
   birthdate,
   imageUrl,
@@ -61,6 +59,19 @@ export function UserProfileModal({
       clearToggleTimer();
     };
   }, []);
+
+  const formatProfession = (value?: string | null) => {
+    if (!value) return "SIN PROFESIÓN";
+
+    return value
+      .toLowerCase()
+      .replaceAll("_", " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  };
+
+  const professionOptions = professions.includes(profession)
+    ? professions
+    : [profession, ...professions].filter(Boolean);
 
   const handleToggleClick = () => {
     onToggleActive();
@@ -93,32 +104,52 @@ export function UserProfileModal({
       : "user-profile-icon-inactive";
 
     switch (profession) {
-      case "worker":
+      case "MEDICINA":
         return (
-          <Pickaxe
+          <HeartPulse
             className={`user-profile-profession-icon ${iconColorClass}`}
           />
         );
-      case "expedition_leader":
+
+      case "EXPLORACION":
         return (
-          <TentTree
+          <Map className={`user-profile-profession-icon ${iconColorClass}`} />
+        );
+
+      case "LOGISTICA":
+        return (
+          <Package
             className={`user-profile-profession-icon ${iconColorClass}`}
           />
         );
-      case "system_administrator":
+
+      case "MANTENIMIENTO":
         return (
-          <MonitorCog
+          <Wrench
             className={`user-profile-profession-icon ${iconColorClass}`}
           />
         );
-      case "resource_manager":
+
+      case "SEGURIDAD":
         return (
-          <ShelvingUnit
+          <Shield
             className={`user-profile-profession-icon ${iconColorClass}`}
           />
         );
+
+      case "OPERACIONES":
+        return (
+          <BriefcaseBusiness
+            className={`user-profile-profession-icon ${iconColorClass}`}
+          />
+        );
+
       default:
-        return null;
+        return (
+          <BriefcaseBusiness
+            className={`user-profile-profession-icon ${iconColorClass}`}
+          />
+        );
     }
   })();
 
@@ -213,18 +244,16 @@ export function UserProfileModal({
 
           <div className="user-profile-profession-section">
             <p className="user-profile-label">PROFESSION</p>
-
             <select
               value={profession}
-              onChange={(e) =>
-                onChangeProfession(e.target.value as ProfessionKey)
-              }
+              onChange={(e) => onChangeProfession(e.target.value)}
               className="user-profile-select"
             >
-              <option value="system_administrator">System Administrator</option>
-              <option value="worker">Worker</option>
-              <option value="resource_manager">Resource Manager</option>
-              <option value="expedition_leader">Expedition Leader</option>
+              {professionOptions.map((item) => (
+                <option key={item} value={item}>
+                  {formatProfession(item)}
+                </option>
+              ))}
             </select>
           </div>
 
