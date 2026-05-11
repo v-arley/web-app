@@ -1,14 +1,5 @@
-import {
-  BriefcaseBusiness,
-  HeartPulse,
-  Map,
-  Package,
-  Power,
-  PowerOff,
-  Shield,
-  Wrench,
-} from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Power, PowerOff } from "lucide-react";
+import { useUserProfileModal } from "../../hooks/useUserProfileModal";
 import "./UserProfileModal.css";
 
 type UserDetailModalProps = {
@@ -44,114 +35,23 @@ export function UserProfileModal({
   onChangeProfession,
   onClose,
 }: UserDetailModalProps) {
-  const [isToggleAnimating, setIsToggleAnimating] = useState(false);
-  const toggleAnimationTimerRef = useRef<number | null>(null);
-
-  const clearToggleTimer = () => {
-    if (toggleAnimationTimerRef.current !== null) {
-      window.clearTimeout(toggleAnimationTimerRef.current);
-      toggleAnimationTimerRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      clearToggleTimer();
-    };
-  }, []);
-
-  const formatProfession = (value?: string | null) => {
-    if (!value) return "SIN PROFESIÓN";
-
-    return value
-      .toLowerCase()
-      .replaceAll("_", " ")
-      .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  };
-
-  const professionOptions = professions.includes(profession)
-    ? professions
-    : [profession, ...professions].filter(Boolean);
-
-  const handleToggleClick = () => {
-    onToggleActive();
-    setIsToggleAnimating(true);
-    clearToggleTimer();
-
-    toggleAnimationTimerRef.current = window.setTimeout(() => {
-      setIsToggleAnimating(false);
-      toggleAnimationTimerRef.current = null;
-    }, 1000);
-  };
-
-  const defaultButtonBackground = active
-    ? "user-profile-toggle-bg-off"
-    : "user-profile-toggle-bg-on";
-
-  const defaultButtonText = active
-    ? "user-profile-toggle-text-off"
-    : "user-profile-toggle-text-on";
-
-  const transitionButtonBackground = active
-    ? "user-profile-toggle-bg-off-strong"
-    : "user-profile-toggle-bg-on-strong";
-
-  const isTextWhite = isToggleAnimating;
-
-  const professionIcon = (() => {
-    const iconColorClass = active
-      ? "user-profile-icon-active"
-      : "user-profile-icon-inactive";
-
-    switch (profession) {
-      case "MEDICINA":
-        return (
-          <HeartPulse
-            className={`user-profile-profession-icon ${iconColorClass}`}
-          />
-        );
-
-      case "EXPLORACION":
-        return (
-          <Map className={`user-profile-profession-icon ${iconColorClass}`} />
-        );
-
-      case "LOGISTICA":
-        return (
-          <Package
-            className={`user-profile-profession-icon ${iconColorClass}`}
-          />
-        );
-
-      case "MANTENIMIENTO":
-        return (
-          <Wrench
-            className={`user-profile-profession-icon ${iconColorClass}`}
-          />
-        );
-
-      case "SEGURIDAD":
-        return (
-          <Shield
-            className={`user-profile-profession-icon ${iconColorClass}`}
-          />
-        );
-
-      case "OPERACIONES":
-        return (
-          <BriefcaseBusiness
-            className={`user-profile-profession-icon ${iconColorClass}`}
-          />
-        );
-
-      default:
-        return (
-          <BriefcaseBusiness
-            className={`user-profile-profession-icon ${iconColorClass}`}
-          />
-        );
-    }
-  })();
+  const {
+    isToggleAnimating,
+    professionOptions,
+    handleToggleClick,
+    defaultButtonBackground,
+    defaultButtonText,
+    transitionButtonBackground,
+    isTextWhite,
+    iconColorClass,
+    ProfessionIcon,
+    formatProfession,
+  } = useUserProfileModal({
+    active,
+    profession,
+    professions,
+    onToggleActive,
+  });
 
   return (
     <div className="user-profile-overlay" onClick={onClose}>
@@ -201,7 +101,9 @@ export function UserProfileModal({
             </p>
 
             <div className="user-profile-profession-icon-wrapper">
-              {professionIcon}
+              <ProfessionIcon
+                className={`user-profile-profession-icon ${iconColorClass}`}
+              />
             </div>
           </div>
         </div>
