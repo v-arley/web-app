@@ -1,14 +1,264 @@
-import { useState } from "react";
-import { BrainCircuit, UserRound, UserRoundPlus, X } from "lucide-react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import {
+  BrainCircuit,
+  ImagePlus,
+  UserRound,
+  UserRoundPlus,
+  X,
+} from "lucide-react";
+import { PersonService } from "../../services/PersonService";
+import { AdmissionRequestService } from "../../services/AdmissionRequestService";
+import { AiPromptService } from "../../services/AiPromptService";
 
 type RegistrationPanelProps = {
   onClose: () => void;
 };
 
+type Step = "personal_data" | "ai_assessment";
+
+const personService = new PersonService();
+const admissionRequestService = new AdmissionRequestService();
+const aiPromptService = new AiPromptService();
+
+const DEFAULT_CAMP_ID = 1;
+
+const MIN_BIRTH_DATE = "1924-01-01";
+const MAX_BIRTH_DATE = new Date().toISOString().split("T")[0];
+
+const inputClass =
+  "h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none";
+
+const textAreaClass =
+  "h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none";
+
 export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
-  const [step, setStep] = useState<"personal_data" | "ai_assessment">(
-    "personal_data",
-  );
+  const [step, setStep] = useState<Step>("personal_data");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [photo, setPhoto] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dni, setDni] = useState("");
+  const [sex, setSex] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [background, setBackground] = useState("");
+  const [skills, setSkills] = useState("");
+  const [motivation, setMotivation] = useState("");
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const isBirthDateValid =
+    birthDate.trim() !== "" &&
+    birthDate >= MIN_BIRTH_DATE &&
+    birthDate <= MAX_BIRTH_DATE;
+
+  const isStepOneValid = useMemo(() => {
+    return (
+      photo.trim() !== "" &&
+      firstName.trim() !== "" &&
+      lastName.trim() !== "" &&
+      dni.trim() !== "" &&
+      sex.trim() !== "" &&
+      isBirthDateValid &&
+      description.trim() !== ""
+    );
+  }, [
+    photo,
+    firstName,
+    lastName,
+    dni,
+    sex,
+    isBirthDateValid,
+    description,
+  ]);
+
+  const isStepTwoValid = useMemo(() => {
+    return (
+      background.trim() !== "" &&
+      skills.trim() !== "" &&
+      motivation.trim() !== ""
+    );
+  }, [background, skills, motivation]);
+
+  const handleSelectImage = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Debe seleccionar un archivo de imagen.");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setPhoto(String(reader.result));
+      setErrorMessage("");
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleBirthDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setBirthDate(value);
+
+    if (value && (value < MIN_BIRTH_DATE || value > MAX_BIRTH_DATE)) {
+      setErrorMessage(
+        "La fecha de nacimiento debe estar entre 1924 y el año actual.",
+      );
+      return;
+    }
+
+    setErrorMessage("");
+  };
+
+  const handleGoToAssessment = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!isBirthDateValid) {
+      setErrorMessage(
+        "La fecha de nacimiento debe estar entre 1924 y el año actual.",
+      );
+      return;
+    }
+
+    if (!isStepOneValid) {
+      setErrorMessage(
+        "Complete todos los campos de Personal Data antes de continuar.",
+      );
+      return;
+    }
+
+    setStep("ai_assessment");
+  };
+
+  const buildObservations = () => {
+    return [
+      `Background and history: ${background.trim()}`,
+      `Specialized skills: ${skills.trim()}`,
+      `Motivation for joining: ${motivation.trim()}`,
+    ].join("\n");
+  };
+
+  const buildPrompt = () => {
+    return [
+      "Evaluate the admission of this person according to the following information:",
+      "",
+      `Background and history: ${background.trim()}`,
+      `Specialized skills: ${skills.trim()}`,
+      `Motivation for joining: ${motivation.trim()}`,
+    ].join("\n");
+  };
+
+  const handleSubmit = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!isBirthDateValid) {
+      setStep("personal_data");
+      setErrorMessage(
+        "La fecha de nacimiento debe estar entre 1924 y el año actual.",
+      );
+      return;
+    }
+
+    if (!isStepOneValid) {
+      setStep("personal_data");
+      setErrorMessage("Complete todos los campos de Personal Data.");
+      return;
+    }
+
+    if (!isStepTwoValid) {
+      setErrorMessage("Complete todos los campos de AI Assistance.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const personResp = await personService.save({
+        dni: dni.trim(),
+        name: firstName.trim(),
+        surname: lastName.trim(),
+        date_of_birth: birthDate,
+        sex,
+        photo,
+        description: description.trim(),
+        state: "A",
+      });
+
+      if (!personResp.getEstado()) {
+        setErrorMessage(
+          personResp.getMensaje() || "No se pudo crear la persona.",
+        );
+        return;
+      }
+
+      const createdPerson =
+        personResp.getResultado<{ id?: number }>("registro");
+
+      if (!createdPerson?.id) {
+        setErrorMessage("La persona fue creada, pero no se recibió el ID.");
+        return;
+      }
+
+      const admissionResp = await admissionRequestService.save({
+        person_id: createdPerson.id,
+        camp_id: DEFAULT_CAMP_ID,
+        observations: buildObservations(),
+      });
+
+      if (!admissionResp.getEstado()) {
+        setErrorMessage(
+          admissionResp.getMensaje() ||
+            "No se pudo crear la solicitud de admisión.",
+        );
+        return;
+      }
+
+      const createdAdmissionRequest =
+        admissionResp.getResultado<{ id?: number }>("registro");
+
+      if (!createdAdmissionRequest?.id) {
+        setErrorMessage("La solicitud fue creada, pero no se recibió el ID.");
+        return;
+      }
+
+      const promptResp = await aiPromptService.save({
+        admission_request_id: createdAdmissionRequest.id,
+        prompt: buildPrompt(),
+      });
+
+      if (!promptResp.getEstado()) {
+        setErrorMessage(
+          promptResp.getMensaje() || "No se pudo crear el prompt de IA.",
+        );
+        return;
+      }
+
+      setSuccessMessage("Solicitud enviada para análisis correctamente.");
+
+      setTimeout(() => {
+        onClose();
+      }, 900);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Ocurrió un error inesperado al enviar el análisis.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div
@@ -24,7 +274,9 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
             className="h-10 w-10 bg-[#FF6600] p-2 text-white"
             strokeWidth={2}
           />
+
           <h2>Staff Registration</h2>
+
           <div
             className={`flex items-center gap-3 border-b pb-2 text-[#666666] ${
               step === "personal_data"
@@ -42,6 +294,7 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
             />
             <p>Personal Data</p>
           </div>
+
           <div
             className={`flex items-center gap-3 border-b pb-2 text-[#666666] ${
               step === "ai_assessment"
@@ -81,76 +334,133 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
             </button>
           </div>
 
+          {(errorMessage || successMessage) && (
+            <div
+              className={`mb-4 rounded-md border px-4 py-3 text-sm ${
+                errorMessage
+                  ? "border-red-400 bg-red-50 text-red-700"
+                  : "border-green-400 bg-green-50 text-green-700"
+              }`}
+            >
+              {errorMessage || successMessage}
+            </div>
+          )}
+
           {step === "personal_data" && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-4">
-                <div className="flex w-full items-center gap-[40px] border-b border-[#CCCCCC] p-4 rounded-none shadow-[0_4px_8px_-6px_rgba(0,0,0,0.25)]">
-                  <div>
-                    <img
-                      src="https://i.pinimg.com/474x/82/22/fa/8222fae74f3eff117d9c18d47a2fd703.jpg"
-                      alt="Identity"
-                      className="h-[100px] w-[100px] rounded-xl object-cover object-center"
-                    />
+                <button
+                  type="button"
+                  onClick={handleSelectImage}
+                  className="flex w-full items-center gap-[40px] rounded-none border-b border-[#CCCCCC] p-4 text-left shadow-[0_4px_8px_-6px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#e9e9e9]"
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+
+                  <div className="relative">
+                    {photo ? (
+                      <img
+                        src={photo}
+                        alt="Selected person"
+                        className="h-[100px] w-[100px] rounded-xl object-cover object-center"
+                      />
+                    ) : (
+                      <div className="flex h-[100px] w-[100px] items-center justify-center rounded-xl border border-dashed border-[#999999] bg-[#E6E6E6]">
+                        <ImagePlus className="h-8 w-8 text-[#808080]" />
+                      </div>
+                    )}
                   </div>
+
                   <div>
                     <p className="text-[#808080]">PERSON IMAGE</p>
+                    <p className="mt-1 text-xs text-[#999999]">
+                      Click to select image
+                    </p>
                   </div>
-                </div>
+                </button>
+
                 <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2">
                   <div className="flex flex-col gap-[10px]">
                     <label className="text-[#808080]">FIRST NAME</label>
                     <input
                       type="text"
-                      className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
+                      value={firstName}
+                      onChange={(event) => setFirstName(event.target.value)}
+                      className={inputClass}
                     />
                   </div>
+
                   <div className="flex flex-col gap-[10px]">
                     <label className="text-[#808080]">LAST NAME</label>
                     <input
                       type="text"
-                      className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
+                      value={lastName}
+                      onChange={(event) => setLastName(event.target.value)}
+                      className={inputClass}
                     />
                   </div>
+
                   <div className="flex flex-col gap-[10px]">
                     <label className="text-[#808080]">ID</label>
                     <input
                       type="text"
-                      className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
+                      value={dni}
+                      onChange={(event) => setDni(event.target.value)}
+                      className={inputClass}
                     />
                   </div>
+
                   <div className="flex flex-col gap-[10px]">
                     <label className="text-[#808080]">SEX</label>
-                    <select className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none">
-                      <option className="text-[#993D00]" value="male">
-                        M
-                      </option>
-                      <option className="text-[#993D00]" value="female">
-                        F
-                      </option>
+                    <select
+                      value={sex}
+                      onChange={(event) => setSex(event.target.value)}
+                      className={inputClass}
+                    >
+                      <option value="">Select sex</option>
+                      <option value="M">M</option>
+                      <option value="F">F</option>
+                      <option value="O">O</option>
                     </select>
                   </div>
                 </div>
+
                 <div className="flex flex-col gap-[10px]">
-                  <div className="flex flex-col gap-[10px]">
-                    <label className="text-[#808080]">BIRTH DATE</label>
-                    <div>
-                      <input
-                        type="date"
-                        className="h-[50px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 font-semibold text-[#999999] accent-[#FF6600] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-[#808080]">DESCRIPTION</label>
-                    <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
-                  </div>
+                  <label className="text-[#808080]">BIRTH DATE</label>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    min={MIN_BIRTH_DATE}
+                    max={MAX_BIRTH_DATE}
+                    onChange={handleBirthDateChange}
+                    className={inputClass}
+                  />
+                  <p className="text-xs text-[#999999]">
+                    Fecha permitida: 1924-01-01 hasta {MAX_BIRTH_DATE}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-[#808080]">DESCRIPTION</label>
+                  <textarea
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    className={textAreaClass}
+                  />
                 </div>
               </div>
+
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
-                  onClick={() => setStep("ai_assessment")}
-                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black sm:w-auto"
+                  onClick={handleGoToAssessment}
+                  disabled={!isStepOneValid}
+                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:bg-[#999999] disabled:text-[#E6E6E6] sm:w-auto"
                 >
                   Continue to AI-Assisted Assessment
                 </button>
@@ -165,17 +475,31 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                   <label className="text-[#808080]">
                     Background and history
                   </label>
-                  <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
+                  <textarea
+                    value={background}
+                    onChange={(event) => setBackground(event.target.value)}
+                    className={textAreaClass}
+                  />
                 </div>
+
                 <div className="flex flex-col gap-[15px]">
                   <label className="text-[#808080]">Specialized skills</label>
-                  <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
+                  <textarea
+                    value={skills}
+                    onChange={(event) => setSkills(event.target.value)}
+                    className={textAreaClass}
+                  />
                 </div>
+
                 <div className="flex flex-col gap-[15px]">
                   <label className="text-[#808080]">
                     Motivation for joining
                   </label>
-                  <textarea className="h-[100px] w-full rounded-none border border-[#CCCCCC] bg-[#E6E6E6] px-3 py-2 font-semibold text-[#999999] transition-shadow focus:border-[#FFA366] focus:shadow-[0_0_0_3px_rgba(255,163,102,0.45)] focus:outline-none" />
+                  <textarea
+                    value={motivation}
+                    onChange={(event) => setMotivation(event.target.value)}
+                    className={textAreaClass}
+                  />
                 </div>
               </div>
 
@@ -183,16 +507,19 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                 <button
                   type="button"
                   onClick={() => setStep("personal_data")}
-                  className="w-full rounded-lg border border-black px-4 py-2 text-sm font-medium text-black transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black sm:w-auto"
+                  disabled={submitting}
+                  className="w-full rounded-lg border border-black px-4 py-2 text-sm font-medium text-black transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:border-[#999999] disabled:text-[#999999] sm:w-auto"
                 >
                   Back
                 </button>
 
                 <button
                   type="button"
-                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black sm:w-auto"
+                  onClick={handleSubmit}
+                  disabled={!isStepTwoValid || submitting}
+                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:bg-[#999999] disabled:text-[#E6E6E6] sm:w-auto"
                 >
-                  Submit for analysis
+                  {submitting ? "Submitting..." : "Submit for analysis"}
                 </button>
               </div>
             </div>
