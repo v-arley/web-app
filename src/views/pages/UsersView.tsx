@@ -4,90 +4,31 @@ import { UserCheck, UserRoundMinus, UsersRound } from "lucide-react";
 import { UserCard } from "../components/UserCard";
 import { UserProfileModal } from "../components/UserProfileModal";
 import { RegistrationPanel } from "./RegistrationPanel";
-import { useState, useEffect } from "react";
-import { UserService } from "../../services/UserService";
-import type { User } from "../../models/User";
-
-const userService = new UserService();
-
-type ProfessionKey = string;
-
-type UserRoleProfile = {
-  id: number;
-  name: string;
-  description?: string | null;
-  state: string;
-};
-
-function formatProfession(profession?: string | null): string {
-  if (!profession) return "SIN PROFESIÓN";
-
-  return profession
-    .toLowerCase()
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function getMainRole(user: User): string {
-  const firstRole = user.roles?.[0];
-
-  if (!firstRole) return "NO ROLE";
-
-  if (typeof firstRole === "string") return firstRole;
-
-  return (firstRole as UserRoleProfile).name;
-}
-
-type StatusFilter = "active" | "inactive" | "all";
-
-type UserCardData = {
-  idUser: number;
-  id: string;
-  name: string;
-  lastName: string;
-  role: string;
-  sex: "M" | "F";
-  profession: ProfessionKey;
-  active: boolean;
-  registrationDate: Date;
-  birthdate: Date;
-  imageUrl: string;
-};
+import {
+  useUsersView,
+  type StatusFilter,
+} from "../../hooks/useUsersView";
 
 export function UsersView() {
-  const [users, setUsers] = useState<UserCardData[]>([]);
-  const [professions, setProfessions] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<UserCardData | null>(null);
-  const [isRegistrationPanelOpen, setIsRegistrationPanelOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
-  const [isStatusSelectFocused, setIsStatusSelectFocused] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredUsers = users.filter((user) => {
-    const matchesStatus =
-      statusFilter === "all"
-        ? true
-        : statusFilter === "active"
-          ? user.active
-          : !user.active;
-
-    const query = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      query === "" ||
-      user.name.toLowerCase().includes(query) ||
-      user.lastName.toLowerCase().includes(query) ||
-      user.role.toLowerCase().includes(query) ||
-      formatProfession(user.profession).toLowerCase().includes(query);
-
-    return matchesStatus && matchesSearch;
-  });
-
-  const statusTitleMap: Record<StatusFilter, string> = {
-    active: "ACTIVE STAFF",
-    inactive: "INACTIVE STAFF",
-    all: "ALL STAFF",
-  };
+  const {
+    professions,
+    loading,
+    selectedUser,
+    setSelectedUser,
+    isRegistrationPanelOpen,
+    setIsRegistrationPanelOpen,
+    statusFilter,
+    setStatusFilter,
+    isStatusSelectFocused,
+    setIsStatusSelectFocused,
+    searchQuery,
+    setSearchQuery,
+    filteredUsers,
+    statusTitleMap,
+    handleToggleUserActive,
+    handleChangeProfession,
+    formatProfession,
+  } = useUsersView();
 
   const statusIcon =
     statusFilter === "active" ? (
@@ -98,106 +39,6 @@ export function UsersView() {
       <UsersRound className="text-[#343434] bg-[#A6A6A6] rounded-md p-1 w-8 h-8" />
     );
 
-  const handleToggleUserActive = async () => {
-    if (!selectedUser) return;
-
-    const nextActive = !selectedUser.active;
-
-    if (selectedUser.idUser) {
-      const resp = await userService.update(selectedUser.idUser, {
-        state: nextActive ? "A" : "I",
-      });
-
-      if (!resp.getEstado()) return;
-    }
-
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.idUser === selectedUser.idUser ? { ...u, active: nextActive } : u,
-      ),
-    );
-
-    setSelectedUser((prev) => (prev ? { ...prev, active: nextActive } : prev));
-  };
-
-  const handleChangeProfession = async (nextProfession: ProfessionKey) => {
-    if (!selectedUser) return;
-
-    if (selectedUser.idUser) {
-      const resp = await userService.update(selectedUser.idUser, {
-        profession: nextProfession,
-      });
-
-      if (!resp.getEstado()) return;
-    }
-
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.idUser === selectedUser.idUser
-          ? { ...u, profession: nextProfession }
-          : u,
-      ),
-    );
-
-    setSelectedUser((prev) =>
-      prev ? { ...prev, profession: nextProfession } : prev,
-    );
-  };
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadData() {
-      setLoading(true);
-
-      const [usersResp, professionsResp] = await Promise.all([
-        userService.findAllWithProfile(),
-        userService.findProfessions(),
-      ]);
-
-      if (!active) return;
-
-      if (professionsResp.getEstado()) {
-        const apiProfessions =
-          professionsResp.getResultado<string[]>("registros") ?? [];
-
-        setProfessions(apiProfessions);
-      }
-
-      if (usersResp.getEstado()) {
-        const apiUsers = usersResp.getResultado<User[]>("registros") ?? [];
-
-        const mapped: UserCardData[] = apiUsers.map((u) => ({
-          idUser: u.id ?? 0,
-          id: u.person?.dni ?? String(u.id ?? ""),
-          name: u.person?.name ?? u.name ?? u.username ?? "",
-          lastName: u.person?.surname ?? u.person?.last_name ?? "",
-          role: getMainRole(u),
-          sex: u.person?.sex === "F" ? "F" : "M",
-          profession: u.profession ?? "SIN_PROFESION",
-          active: u.state === "A",
-          registrationDate: u.created_at ? new Date(u.created_at) : new Date(),
-          birthdate: u.person?.date_of_birth
-            ? new Date(u.person.date_of_birth)
-            : u.person?.date_birth
-              ? new Date(u.person.date_birth)
-              : new Date(),
-          imageUrl: u.person?.photo ?? "",
-        }));
-
-        setUsers(mapped);
-      }
-
-      setLoading(false);
-    }
-
-    loadData();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
   return (
     <>
       <div className="flex h-[calc(100vh-120px)] min-h-[calc(100vh-120px)] flex-col gap-6 p-4 font-mono sm:gap-7 sm:p-6 lg:p-[30px]">
@@ -207,7 +48,7 @@ export function UsersView() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search staff by name or role..."
               className="w-full self-center bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
             />
@@ -215,7 +56,9 @@ export function UsersView() {
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as StatusFilter)
+            }
             onFocus={() => setIsStatusSelectFocused(true)}
             onBlur={() => setIsStatusSelectFocused(false)}
             className={`w-full rounded-lg border px-4 py-2 outline-none transition-all duration-200 hover:shadow-[0_10px_20px_rgba(0,0,0,0.35)] sm:w-auto ${
@@ -243,6 +86,7 @@ export function UsersView() {
           <div className="w-full flex items-center gap-[10px] border-b border-[#B8B8B8] shadow-[0_10px_8px_-8px_rgba(0,0,0,0.45)] px-3 py-2 text-[#343434]">
             {statusIcon}
             <p>{statusTitleMap[statusFilter]}</p>
+
             {searchQuery && (
               <span className="ml-auto text-xs text-gray-500">
                 {filteredUsers.length} resultado
