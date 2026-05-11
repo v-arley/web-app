@@ -1,4 +1,3 @@
-import { useMemo, useState } from "react";
 import {
   Calendar,
   ClipboardList,
@@ -8,73 +7,14 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
-
-type Level = "L" | "M" | "H";
-type Filter = "all" | "L" | "M" | "H";
-
-type TaskRow = {
-  id: number;
-  camp_id: number;
-  name: string;
-  description?: string;
-  type?: string;
-  priority?: Level;
-  difficulty?: Level;
-  estimated_minutes?: number;
-  created_at?: string;
-  updated_at?: string;
-};
-
-const tasks: TaskRow[] = [
-  {
-    id: 1,
-    camp_id: 1,
-    name: "Generator repair",
-    description: "Inspection and repair of the camp's main generator.",
-    type: "Maintenance",
-    priority: "H",
-    difficulty: "M",
-    estimated_minutes: 180,
-    created_at: "2026-04-20 08:30",
-    updated_at: "2026-04-21 10:45",
-  },
-  {
-    id: 2,
-    camp_id: 2,
-    name: "Medical supply sorting",
-    description: "Sort and record priority medical supplies.",
-    type: "Logistics",
-    priority: "M",
-    difficulty: "L",
-    estimated_minutes: 90,
-    created_at: "2026-04-19 14:00",
-    updated_at: "2026-04-19 14:00",
-  },
-  {
-    id: 3,
-    camp_id: 1,
-    name: "North perimeter reinforcement",
-    description: "Install reinforcements and inspect vulnerable points.",
-    type: "Defense",
-    priority: "H",
-    difficulty: "H",
-    estimated_minutes: 240,
-    created_at: "2026-04-18 09:15",
-    updated_at: "2026-04-22 07:50",
-  },
-  {
-    id: 4,
-    camp_id: 3,
-    name: "Dry ration count",
-    description: "General count of available rations in storage.",
-    type: "Inventory",
-    priority: "L",
-    difficulty: "L",
-    estimated_minutes: 60,
-    created_at: "2026-04-17 16:20",
-    updated_at: "2026-04-17 16:20",
-  },
-];
+import {
+  getCampLabel,
+  getEstimatedMinutes,
+  getLevelBadge,
+  getLevelLabel,
+  useTasksView,
+  type TaskFilter,
+} from "../../hooks/useTasksView";
 
 const GRID_COLS =
   "grid-cols-[50px_minmax(220px,1.6fr)_120px_100px_100px_90px_80px_90px]";
@@ -97,61 +37,25 @@ const filterSelectClass = (focused: boolean) =>
       : "border-black bg-black text-white hover:border-[#FF6600] hover:text-[#FF6600]"
   }`;
 
-function getLevelLabel(level?: Level) {
-  if (level === "L") return "Low";
-  if (level === "M") return "Medium";
-  if (level === "H") return "High";
-  return "N/A";
-}
-
-function getLevelBadge(level?: Level) {
-  if (level === "L") return "bg-blue-500/15 text-blue-600";
-  if (level === "M") return "bg-orange-500/15 text-orange-600";
-  if (level === "H") return "bg-red-500/15 text-red-500";
-  return "bg-gray-500/15 text-gray-600";
-}
-
-function getEstimatedMinutes(minutes?: number) {
-  return minutes ? `${minutes} min` : "N/A";
-}
-
-function getCampLabel(campId?: number) {
-  return campId ? `Camp #${campId}` : "--";
-}
-
 export function TasksView() {
-  const [search, setSearch] = useState("");
-  const [priority, setPriority] = useState<Filter>("all");
-  const [difficulty, setDifficulty] = useState<Filter>("all");
-  const [selectedTask, setSelectedTask] = useState<TaskRow | null>(
-    tasks[0] ?? null,
-  );
-  const [isPriorityFocused, setIsPriorityFocused] = useState(false);
-  const [isDifficultyFocused, setIsDifficultyFocused] = useState(false);
-
-  const filteredTasks = useMemo(() => {
-    const q = search.trim().toLowerCase();
-
-    return tasks.filter((task) => {
-      const matchesSearch =
-        !q ||
-        task.name.toLowerCase().includes(q) ||
-        (task.description ?? "").toLowerCase().includes(q) ||
-        (task.type ?? "").toLowerCase().includes(q);
-
-      const matchesPriority = priority === "all" || task.priority === priority;
-      const matchesDifficulty =
-        difficulty === "all" || task.difficulty === difficulty;
-
-      return matchesSearch && matchesPriority && matchesDifficulty;
-    });
-  }, [search, priority, difficulty]);
-
-  const totalHigh = tasks.filter((task) => task.priority === "H").length;
-  const totalMinutes = tasks.reduce(
-    (acc, task) => acc + (task.estimated_minutes ?? 0),
-    0,
-  );
+  const {
+    tasks,
+    search,
+    setSearch,
+    priority,
+    setPriority,
+    difficulty,
+    setDifficulty,
+    selectedTask,
+    setSelectedTask,
+    isPriorityFocused,
+    setIsPriorityFocused,
+    isDifficultyFocused,
+    setIsDifficultyFocused,
+    filteredTasks,
+    totalHigh,
+    totalMinutes,
+  } = useTasksView();
 
   return (
     <div className="flex min-h-[calc(100vh-120px)] flex-col gap-6 p-4 font-mono sm:gap-7 sm:p-6 lg:p-[30px]">
@@ -189,13 +93,15 @@ export function TasksView() {
                   placeholder="Search tasks by name, description, or type..."
                   className="w-full self-center bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(event) => setSearch(event.target.value)}
                 />
               </div>
 
               <select
                 value={priority}
-                onChange={(e) => setPriority(e.target.value as Filter)}
+                onChange={(event) =>
+                  setPriority(event.target.value as TaskFilter)
+                }
                 onFocus={() => setIsPriorityFocused(true)}
                 onBlur={() => setIsPriorityFocused(false)}
                 className={filterSelectClass(isPriorityFocused)}
@@ -208,7 +114,9 @@ export function TasksView() {
 
               <select
                 value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value as Filter)}
+                onChange={(event) =>
+                  setDifficulty(event.target.value as TaskFilter)
+                }
                 onFocus={() => setIsDifficultyFocused(true)}
                 onBlur={() => setIsDifficultyFocused(false)}
                 className={filterSelectClass(isDifficultyFocused)}
@@ -311,14 +219,14 @@ export function TasksView() {
                           <button
                             type="button"
                             className={actionButtonClass}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(event) => event.stopPropagation()}
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
                             type="button"
                             className={actionButtonClass}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(event) => event.stopPropagation()}
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
