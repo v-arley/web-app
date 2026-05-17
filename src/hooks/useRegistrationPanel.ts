@@ -2,14 +2,13 @@ import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { PersonService } from "../services/PersonService";
 import { AdmissionRequestService } from "../services/AdmissionRequestService";
 import { AiPromptService } from "../services/AiPromptService";
+import { getAuthContextFromToken } from "../utils/authAccess";
 
 export type RegistrationStep = "personal_data" | "ai_assessment";
 
 const personService = new PersonService();
 const admissionRequestService = new AdmissionRequestService();
 const aiPromptService = new AiPromptService();
-
-const DEFAULT_CAMP_ID = 1;
 
 export const MIN_BIRTH_DATE = "1924-01-01";
 export const MAX_BIRTH_DATE = new Date().toISOString().split("T")[0];
@@ -19,6 +18,7 @@ type UseRegistrationPanelParams = {
 };
 
 export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
+  const authContext = getAuthContextFromToken();
   const [step, setStep] = useState<RegistrationStep>("personal_data");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -87,9 +87,42 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
 
     const reader = new FileReader();
 
-    reader.onloadend = () => {
-      setPhoto(String(reader.result));
-      setErrorMessage("");
+    reader.onload = () => {
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+
+        const maxSize = 400;
+        const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+          setErrorMessage("No se pudo procesar la imagen.");
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const compressedImage = canvas.toDataURL("image/jpeg", 0.55);
+
+        setPhoto(compressedImage);
+        setErrorMessage("");
+      };
+
+      img.onerror = () => {
+        setErrorMessage("No se pudo cargar la imagen seleccionada.");
+      };
+
+      img.src = String(reader.result);
+    };
+
+    reader.onerror = () => {
+      setErrorMessage("No se pudo leer la imagen seleccionada.");
     };
 
     reader.readAsDataURL(file);
@@ -200,9 +233,14 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         return;
       }
 
+      if (authContext.campId == null) {
+  setErrorMessage("No se pudo identificar el campamento del usuario.");
+  return;
+}
+
       const admissionResp = await admissionRequestService.save({
         person_id: createdPerson.id,
-        camp_id: DEFAULT_CAMP_ID,
+        camp_id: authContext.campId,
         observations: buildObservations(),
       });
 
