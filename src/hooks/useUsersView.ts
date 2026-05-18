@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { UserService } from "../services/UserService";
 import type { User } from "../models/User";
 
@@ -57,6 +57,52 @@ export function useUsersView() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
   const [isStatusSelectFocused, setIsStatusSelectFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const loadUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const [usersResp, professionsResp] = await Promise.all([
+        userService.findAllWithProfile(),
+        userService.findProfessions(),
+      ]);
+
+      if (professionsResp.getEstado()) {
+        const apiProfessions =
+          professionsResp.getResultado<string[]>("registros") ?? [];
+
+        setProfessions(apiProfessions);
+      }
+
+      if (usersResp.getEstado()) {
+        const apiUsers = usersResp.getResultado<User[]>("registros") ?? [];
+
+        const mapped: UserCardData[] = apiUsers.map((user) => ({
+          idUser: user.id ?? 0,
+          id: user.person?.dni ?? String(user.id ?? ""),
+          name: user.person?.name ?? user.name ?? user.username ?? "",
+          lastName: user.person?.surname ?? user.person?.last_name ?? "",
+          role: getMainRole(user),
+          sex: user.person?.sex === "F" ? "F" : "M",
+          profession: user.profession ?? "SIN_PROFESION",
+          active: user.state === "A",
+          registrationDate: user.created_at
+            ? new Date(user.created_at)
+            : new Date(),
+          birthdate: user.person?.date_of_birth
+            ? new Date(user.person.date_of_birth)
+            : user.person?.date_birth
+              ? new Date(user.person.date_birth)
+              : new Date(),
+          imageUrl: user.person?.photo ?? "",
+        }));
+
+        setUsers(mapped);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -135,64 +181,8 @@ export function useUsersView() {
   };
 
   useEffect(() => {
-    let active = true;
-
-    async function loadData() {
-      try {
-        setLoading(true);
-
-        const [usersResp, professionsResp] = await Promise.all([
-          userService.findAllWithProfile(),
-          userService.findProfessions(),
-        ]);
-
-        if (!active) return;
-
-        if (professionsResp.getEstado()) {
-          const apiProfessions =
-            professionsResp.getResultado<string[]>("registros") ?? [];
-
-          setProfessions(apiProfessions);
-        }
-
-        if (usersResp.getEstado()) {
-          const apiUsers = usersResp.getResultado<User[]>("registros") ?? [];
-
-          const mapped: UserCardData[] = apiUsers.map((user) => ({
-            idUser: user.id ?? 0,
-            id: user.person?.dni ?? String(user.id ?? ""),
-            name: user.person?.name ?? user.name ?? user.username ?? "",
-            lastName: user.person?.surname ?? user.person?.last_name ?? "",
-            role: getMainRole(user),
-            sex: user.person?.sex === "F" ? "F" : "M",
-            profession: user.profession ?? "SIN_PROFESION",
-            active: user.state === "A",
-            registrationDate: user.created_at
-              ? new Date(user.created_at)
-              : new Date(),
-            birthdate: user.person?.date_of_birth
-              ? new Date(user.person.date_of_birth)
-              : user.person?.date_birth
-                ? new Date(user.person.date_birth)
-                : new Date(),
-            imageUrl: user.person?.photo ?? "",
-          }));
-
-          setUsers(mapped);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadData();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+    void loadUsers();
+  }, [loadUsers]);
 
   return {
     users,
@@ -213,5 +203,6 @@ export function useUsersView() {
     handleToggleUserActive,
     handleChangeProfession,
     formatProfession,
+    loadUsers,
   };
 }
