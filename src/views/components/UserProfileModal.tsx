@@ -1,6 +1,12 @@
+import { useEffect, useState } from "react";
 import { Power, PowerOff } from "lucide-react";
 import { useUserProfileModal } from "../../hooks/useUserProfileModal";
 import "./UserProfileModal.css";
+
+type ChangeProfessionOptions = {
+  isTemporary: boolean;
+  temporaryUntil?: string;
+};
 
 type UserDetailModalProps = {
   name: string;
@@ -15,7 +21,10 @@ type UserDetailModalProps = {
   birthdate: Date;
   imageUrl?: string;
   onToggleActive: () => void;
-  onChangeProfession: (profession: string) => void;
+  onChangeProfession: (
+    profession: string,
+    options?: ChangeProfessionOptions,
+  ) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -35,6 +44,10 @@ export function UserProfileModal({
   onChangeProfession,
   onClose,
 }: UserDetailModalProps) {
+  const [selectedProfession, setSelectedProfession] = useState(profession);
+  const [isTemporary, setIsTemporary] = useState(false);
+  const [temporaryUntil, setTemporaryUntil] = useState("");
+
   const {
     isToggleAnimating,
     professionOptions,
@@ -48,10 +61,25 @@ export function UserProfileModal({
     formatProfession,
   } = useUserProfileModal({
     active,
-    profession,
+    profession: selectedProfession,
     professions,
     onToggleActive,
   });
+
+  useEffect(() => {
+    setSelectedProfession(profession);
+  }, [profession]);
+
+  const handleApplyProfession = async () => {
+    if (isTemporary && !temporaryUntil) return;
+
+    await onChangeProfession(selectedProfession, {
+      isTemporary,
+      temporaryUntil: isTemporary ? temporaryUntil : undefined,
+    });
+  };
+
+  const isApplyDisabled = isTemporary && !temporaryUntil;
 
   return (
     <div className="user-profile-overlay" onClick={onClose}>
@@ -146,9 +174,10 @@ export function UserProfileModal({
 
           <div className="user-profile-profession-section">
             <p className="user-profile-label">PROFESSION</p>
+
             <select
-              value={profession}
-              onChange={(e) => onChangeProfession(e.target.value)}
+              value={selectedProfession}
+              onChange={(e) => setSelectedProfession(e.target.value)}
               className="user-profile-select"
             >
               {professionOptions.map((item) => (
@@ -157,6 +186,48 @@ export function UserProfileModal({
                 </option>
               ))}
             </select>
+
+            <label className="mt-4 flex items-center gap-3 font-mono text-sm text-[#343434]">
+              <input
+                type="checkbox"
+                checked={isTemporary}
+                onChange={(e) => {
+                  setIsTemporary(e.target.checked);
+
+                  if (!e.target.checked) {
+                    setTemporaryUntil("");
+                  }
+                }}
+              />
+              Temporary assignment
+            </label>
+
+            {isTemporary && (
+              <div className="mt-3">
+                <p className="user-profile-label">TEMPORARY UNTIL</p>
+                <input
+                  type="date"
+                  value={temporaryUntil}
+                  onChange={(e) => setTemporaryUntil(e.target.value)}
+                  className="user-profile-select"
+                />
+              </div>
+            )}
+
+         <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            disabled={isApplyDisabled}
+            onClick={handleApplyProfession}
+            className={`border px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
+              isApplyDisabled
+                ? "cursor-not-allowed border-[#cfcfcf] bg-[#e6e6e6] text-[#9a9a9a]"
+                : "border-[#ff6600] bg-transparent text-[#ff6600] hover:bg-[#ff6600] hover:text-black"
+            }`}
+          >
+            Apply assignment
+          </button>
+        </div>
           </div>
 
           <div>

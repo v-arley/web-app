@@ -15,6 +15,17 @@ type UserRoleProfile = {
 
 export type StatusFilter = "active" | "inactive" | "all";
 
+type ChangeProfessionOptions = {
+  isTemporary: boolean;
+  temporaryUntil?: string;
+};
+
+type UpdateUserProfessionPayload = {
+  profession: string;
+  is_temporary?: "Y" | "N";
+  temporary_until?: string;
+};
+
 export type UserCardData = {
   idUser: number;
   id: string;
@@ -156,13 +167,22 @@ export function useUsersView() {
     setSelectedUser((prev) => (prev ? { ...prev, active: nextActive } : prev));
   };
 
-  const handleChangeProfession = async (nextProfession: ProfessionKey) => {
+  const handleChangeProfession = async (
+    nextProfession: ProfessionKey,
+    options?: ChangeProfessionOptions,
+  ) => {
     if (!selectedUser) return;
 
+    const payload: UpdateUserProfessionPayload = {
+      profession: nextProfession,
+      is_temporary: options?.isTemporary ? "Y" : "N",
+      temporary_until: options?.isTemporary
+        ? options.temporaryUntil
+        : undefined,
+    };
+
     if (selectedUser.idUser) {
-      const resp = await userService.update(selectedUser.idUser, {
-        profession: nextProfession,
-      });
+      const resp = await userService.update(selectedUser.idUser, payload);
 
       if (!resp.getEstado()) return;
     }
