@@ -32,6 +32,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
   const [sex, setSex] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [description, setDescription] = useState("");
+  const [conditions, setConditions] = useState("");
 
   const [background, setBackground] = useState("");
   const [skills, setSkills] = useState("");
@@ -183,6 +184,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
       `Sex: ${sex}`,
       `Birth date: ${birthDate}`,
       `Description: ${description.trim()}`,
+      `Conditions: ${conditions.trim() || "Sin condiciones declaradas"}`,
       "",
       `Background and history: ${background.trim()}`,
       `Specialized skills: ${skills.trim()}`,
@@ -231,6 +233,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         sex,
         photo,
         description: description.trim(),
+        conditions: conditions.trim() || undefined,
         state: "A",
       });
 
@@ -325,6 +328,8 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     birthDate,
     description,
     setDescription,
+    conditions,
+    setConditions,
 
     background,
     setBackground,

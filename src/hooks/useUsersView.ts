@@ -28,6 +28,8 @@ type UpdateUserProfessionPayload = {
 
 export type UserCardData = {
   idUser: number;
+  personId?: number;
+  idCardUrl?: string;
   id: string;
   name: string;
   lastName: string;
@@ -90,6 +92,8 @@ export function useUsersView() {
 
         const mapped: UserCardData[] = apiUsers.map((user) => ({
           idUser: user.id ?? 0,
+          personId: user.person?.id,
+          idCardUrl: user.person?.id_card_url,
           id: user.person?.dni ?? String(user.id ?? ""),
           name: user.person?.name ?? user.name ?? user.username ?? "",
           lastName: user.person?.surname ?? user.person?.last_name ?? "",

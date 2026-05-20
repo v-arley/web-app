@@ -191,7 +191,7 @@ export function UsersView() {
       </div>
 
       {selectedUser && (
-        <UserProfileModal
+       <UserProfileModal
           name={selectedUser.name}
           lastName={selectedUser.lastName}
           role={selectedUser.role}
@@ -203,6 +203,8 @@ export function UsersView() {
           registrationDate={selectedUser.registrationDate}
           birthdate={selectedUser.birthdate}
           imageUrl={selectedUser.imageUrl}
+          personId={selectedUser.personId}
+          idCardUrl={selectedUser.idCardUrl}
           onToggleActive={handleToggleUserActive}
           onChangeProfession={handleChangeProfession}
           onClose={() => setSelectedUser(null)}

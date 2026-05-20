@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Power, PowerOff } from "lucide-react";
+import { IdCard, Power, PowerOff } from "lucide-react";
 import { useUserProfileModal } from "../../hooks/useUserProfileModal";
 import "./UserProfileModal.css";
 
@@ -20,6 +20,8 @@ type UserDetailModalProps = {
   registrationDate: Date;
   birthdate: Date;
   imageUrl?: string;
+  personId?: number;
+  idCardUrl?: string;
   onToggleActive: () => void;
   onChangeProfession: (
     profession: string,
@@ -40,6 +42,8 @@ export function UserProfileModal({
   registrationDate,
   birthdate,
   imageUrl,
+  personId,
+  idCardUrl,
   onToggleActive,
   onChangeProfession,
   onClose,
@@ -79,7 +83,18 @@ export function UserProfileModal({
     });
   };
 
+  const handleOpenIdCard = () => {
+    const url =
+      idCardUrl ||
+      (personId ? `http://localhost:3000/api/people/${personId}/id-card` : "");
+
+    if (!url) return;
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const isApplyDisabled = isTemporary && !temporaryUntil;
+  const canOpenIdCard = Boolean(idCardUrl || personId);
 
   return (
     <div className="user-profile-overlay" onClick={onClose}>
@@ -214,20 +229,20 @@ export function UserProfileModal({
               </div>
             )}
 
-         <div className="mt-4 flex justify-end">
-          <button
-            type="button"
-            disabled={isApplyDisabled}
-            onClick={handleApplyProfession}
-            className={`border px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
-              isApplyDisabled
-                ? "cursor-not-allowed border-[#cfcfcf] bg-[#e6e6e6] text-[#9a9a9a]"
-                : "border-[#ff6600] bg-transparent text-[#ff6600] hover:bg-[#ff6600] hover:text-black"
-            }`}
-          >
-            Apply assignment
-          </button>
-        </div>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="button"
+                disabled={isApplyDisabled}
+                onClick={handleApplyProfession}
+                className={`border px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
+                  isApplyDisabled
+                    ? "cursor-not-allowed border-[#cfcfcf] bg-[#e6e6e6] text-[#9a9a9a]"
+                    : "border-[#ff6600] bg-transparent text-[#ff6600] hover:bg-[#ff6600] hover:text-black"
+                }`}
+              >
+                Apply assignment
+              </button>
+            </div>
           </div>
 
           <div>
@@ -235,6 +250,22 @@ export function UserProfileModal({
             <p className="user-profile-value user-profile-value-gray">
               {registrationDate.toLocaleDateString()}
             </p>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              disabled={!canOpenIdCard}
+              onClick={handleOpenIdCard}
+              className={`flex items-center gap-2 border px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
+                canOpenIdCard
+                  ? "border-[#ff6600] bg-transparent text-[#ff6600] hover:bg-[#ff6600] hover:text-black"
+                  : "cursor-not-allowed border-[#cfcfcf] bg-[#e6e6e6] text-[#9a9a9a]"
+              }`}
+            >
+              <IdCard size={16} />
+              View ID Card
+            </button>
           </div>
 
           <div className="user-profile-button-row">

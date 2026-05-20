@@ -39,6 +39,8 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
     birthDate,
     description,
     setDescription,
+    conditions,
+    setConditions,
 
     background,
     setBackground,
@@ -246,11 +248,21 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                   </p>
                 </div>
 
-                <div>
+                <div className="flex flex-col gap-[10px]">
                   <label className="text-[#808080]">DESCRIPTION</label>
                   <textarea
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
+                    className={textAreaClass}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-[10px]">
+                  <label className="text-[#808080]">CONDITIONS</label>
+                  <textarea
+                    value={conditions}
+                    onChange={(event) => setConditions(event.target.value)}
+                    placeholder="Ej: Sano, herida leve, alergia alimentaria, fiebre, mordida..."
                     className={textAreaClass}
                   />
                 </div>
@@ -259,11 +271,19 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
               <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
-                  onClick={handleGoToAssessment}
-                  disabled={!isStepOneValid}
-                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:bg-[#999999] disabled:text-[#E6E6E6] sm:w-auto"
+                  onClick={onClose}
+                  className="rounded-md border border-black px-5 py-3 text-sm font-medium text-black transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black"
                 >
-                  Continue to AI-Assisted Assessment
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  disabled={!isStepOneValid}
+                  onClick={handleGoToAssessment}
+                  className="rounded-md bg-black px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Continue
                 </button>
               </div>
             </div>
@@ -271,10 +291,10 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
 
           {step === "ai_assessment" && (
             <div className="space-y-6">
-              <div className="flex flex-col gap-[30px]">
-                <div className="flex flex-col gap-[15px]">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex flex-col gap-[10px]">
                   <label className="text-[#808080]">
-                    Background and history
+                    BACKGROUND AND HISTORY
                   </label>
                   <textarea
                     value={background}
@@ -283,8 +303,8 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                   />
                 </div>
 
-                <div className="flex flex-col gap-[15px]">
-                  <label className="text-[#808080]">Specialized skills</label>
+                <div className="flex flex-col gap-[10px]">
+                  <label className="text-[#808080]">SPECIALIZED SKILLS</label>
                   <textarea
                     value={skills}
                     onChange={(event) => setSkills(event.target.value)}
@@ -292,9 +312,9 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                   />
                 </div>
 
-                <div className="flex flex-col gap-[15px]">
+                <div className="flex flex-col gap-[10px]">
                   <label className="text-[#808080]">
-                    Motivation for joining
+                    MOTIVATION FOR JOINING
                   </label>
                   <textarea
                     value={motivation}
@@ -304,23 +324,22 @@ export function RegistrationPanel({ onClose }: RegistrationPanelProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setStep("personal_data")}
-                  disabled={submitting}
-                  className="w-full rounded-lg border border-black px-4 py-2 text-sm font-medium text-black transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:border-[#999999] disabled:text-[#999999] sm:w-auto"
+                  className="rounded-md border border-black px-5 py-3 text-sm font-medium text-black transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black"
                 >
                   Back
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleSubmit}
                   disabled={!isStepTwoValid || submitting}
-                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:bg-[#999999] disabled:text-[#E6E6E6] sm:w-auto"
+                  onClick={handleSubmit}
+                  className="rounded-md bg-black px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {submitting ? "Submitting..." : "Submit for analysis"}
+                  {submitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </div>
