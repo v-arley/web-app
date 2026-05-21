@@ -54,6 +54,12 @@ export function AdmissionRequestsPanel({
             ? evaluationsByAdmissionId[admission.id]
             : null;
 
+          const aiDecisionStatus =
+            evaluationResult?.decision?.decision_status === "A" ||
+            evaluationResult?.decision?.decision_status === "R"
+              ? evaluationResult.decision.decision_status
+              : null;
+
           return (
             <div
               key={admission.id}
@@ -143,6 +149,19 @@ export function AdmissionRequestsPanel({
                         {evaluationResult.evaluation.razon}
                       </p>
                     </div>
+
+                    <div className="rounded-md border border-[#CCCCCC] bg-[#F7F7F7] p-3 md:col-span-2">
+                      <p className="font-mono text-xs font-bold uppercase text-gray-500">
+                        AI decision
+                      </p>
+                      <p className="mt-1 font-mono text-sm font-bold text-[#343434]">
+                        {aiDecisionStatus === "A"
+                          ? "ACCEPTED"
+                          : aiDecisionStatus === "R"
+                            ? "REJECTED"
+                            : "NO DECISION"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -162,6 +181,31 @@ export function AdmissionRequestsPanel({
               )}
 
               <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  disabled={
+                    !admission.id ||
+                    !aiDecisionStatus ||
+                    updatingId === admission.id
+                  }
+                  onClick={async () => {
+                    if (!admission.id || !aiDecisionStatus) return;
+
+                    const ok = await updateAdmissionStatus(
+                      admission.id,
+                      aiDecisionStatus,
+                    );
+
+                    if (ok) {
+                      await onAdmissionResolved?.();
+                    }
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg border border-[#FF6600] bg-[#FF6600] px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-[#e65c00] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <BrainCircuit size={16} />
+                  Confirm AI
+                </button>
+
                 <button
                   type="button"
                   disabled={!admission.id || updatingId === admission.id}
