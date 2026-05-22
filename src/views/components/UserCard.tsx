@@ -13,6 +13,23 @@ type UserCardProps = {
   imageUrl: string;
 };
 
+function getProfessionLabel(profession?: string) {
+  const value = profession?.trim();
+
+  if (!value) return "Sin profesión";
+
+  const normalized = value.toUpperCase();
+
+  const labels: Record<string, string> = {
+    "PROF-MED": "Medicina",
+    "PROF-LOG": "Logística",
+    "PROF-AGR": "Agricultura",
+    "PROF-EXP": "Exploración",
+  };
+
+  return labels[normalized] ?? value;
+}
+
 export function UserCard({
   name,
   lastName,
@@ -22,6 +39,8 @@ export function UserCard({
   profession,
   imageUrl,
 }: UserCardProps) {
+  const professionLabel = getProfessionLabel(profession);
+
   return (
     <div className="bg-[#1d1d1d] font-mono">
       <div className="relative overflow-visible">
@@ -31,6 +50,7 @@ export function UserCard({
           ) : (
             <LineDotRightHorizontal className="h-6 w-6 text-[#ff3131] sm:h-7 sm:w-7" />
           )}
+
           <p
             className={
               active ? "text-[#66ff66] text-sm" : "text-[#ff3131] text-sm"
@@ -39,6 +59,7 @@ export function UserCard({
             {active ? "Activo" : "Inactivo"}
           </p>
         </div>
+
         <img
           src={imageUrl}
           alt={name}
@@ -46,8 +67,10 @@ export function UserCard({
             active ? "" : "grayscale"
           }`}
         />
+
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#1d1d1d] via-[rgb(29_29_29_/_0.6)] to-transparent" />
       </div>
+
       <div className="flex flex-col gap-2.5 p-5 sm:p-[30px]">
         <div>
           <h2 className={active ? "text-white" : "text-[#a6a6a6]"}>{name}</h2>
@@ -55,17 +78,21 @@ export function UserCard({
             {lastName}
           </h2>
         </div>
+
         <div className="border-b border-[#737373]">
           <p className={active ? "text-[#ff6600]" : "text-[#a6a6a6]"}>
-            {profession}
+            {professionLabel}
           </p>
+
           <p className="text-[#c0c0c0]">{role}</p>
         </div>
+
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[#a6a6a6]">ID</p>
             <p className="text-[#d9d9d9]">{id}</p>
           </div>
+
           <div>
             {active ? (
               <IdCard
