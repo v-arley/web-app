@@ -48,6 +48,7 @@ export function UsersView() {
     statusTitleMap,
     handleToggleUserActive,
     handleChangeProfession,
+    handleUpdatePersonProfile,
     formatProfession,
     loadUsers,
     resetFilters,
@@ -285,10 +286,12 @@ export function UsersView() {
           imageUrl={selectedUser.imageUrl}
           personId={selectedUser.personId}
           idCardUrl={selectedUser.idCardUrl}
-          conditions={selectedUser.conditions}
-          onToggleActive={handleToggleUserActive}
-          onChangeProfession={handleChangeProfession}
-          onClose={() => setSelectedUser(null)}
+         description={selectedUser.description}
+         conditions={selectedUser.conditions}
+         onToggleActive={handleToggleUserActive}
+         onChangeProfession={handleChangeProfession}
+         onUpdatePersonProfile={handleUpdatePersonProfile}
+         onClose={() => setSelectedUser(null)}
         />
       )}
 

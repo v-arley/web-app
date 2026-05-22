@@ -131,11 +131,16 @@ export function UserProfileModal({
     setIsSavingProfile(true);
 
     try {
-      await onUpdatePersonProfile(personId, {
-        photo: editedPhoto,
+      const payload: UpdatePersonProfilePayload = {
         description: editedDescription,
         conditions: editedConditions,
-      });
+      };
+
+      if (editedPhoto !== (imageUrl ?? "")) {
+        payload.photo = editedPhoto;
+      }
+
+      await onUpdatePersonProfile(personId, payload);
 
       setIsEditingProfile(false);
     } finally {

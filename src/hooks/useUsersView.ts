@@ -36,6 +36,7 @@ export type UserCardData = {
   profession: string;
   imageUrl: string;
 
+  description: string;
   conditions: string;
   age: number | null;
   state: string;
@@ -252,6 +253,7 @@ function mapUser(user: User, peopleById: Map<number, any>): UserCardData {
       raw.photo ??
       getDefaultImage(active),
 
+    description: String(person.description ?? ""),
     conditions: String(person.conditions ?? ""),
     age: calculateAge(birthdate),
     state,
@@ -509,6 +511,43 @@ export function useUsersView() {
     );
   };
 
+  const handleUpdatePersonProfile = async (
+      personId: number,
+      payload: {
+        photo?: string;
+        description?: string;
+        conditions?: string;
+      },
+    ) => {
+      const response = await personService.update(personId, payload as any);
+
+      if (!response.getEstado()) {
+        setError("No se pudo actualizar el perfil de la persona.");
+        return;
+      }
+
+      const patchUser = (user: UserCardData): UserCardData => {
+        if (String(user.personId) !== String(personId)) return user;
+
+        return {
+          ...user,
+          imageUrl: payload.photo !== undefined ? payload.photo : user.imageUrl,
+          description:
+            payload.description !== undefined
+              ? payload.description
+              : user.description,
+          conditions:
+            payload.conditions !== undefined ? payload.conditions : user.conditions,
+        };
+      };
+
+      setUsers((currentUsers) => currentUsers.map(patchUser));
+
+      setSelectedUser((currentUser) =>
+        currentUser ? patchUser(currentUser) : currentUser,
+      );
+    };
+
   const resetFilters = () => {
     setSearchQuery("");
     setStatusFilter("active");
@@ -562,6 +601,7 @@ export function useUsersView() {
 
     handleToggleUserActive,
     handleChangeProfession,
+    handleUpdatePersonProfile,
     formatProfession,
 
     loadUsers,
