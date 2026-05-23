@@ -424,169 +424,183 @@ export function DashboardView() {
 
     const recentActivity = sortRecentActivity(auditLogs).slice(0, 5);
 
-    return (
-        <div className="w-full h-full flex flex-col bg-[#FBFBFB] overflow-hidden">
-            <div className="w-full bg-bg-secondary border-b border-border-default px-6 py-3 flex items-center justify-between shrink-0">
-                <div>
-                    <span className="text-[12px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                        System Overview
-                    </span>
+   return (
+    <div className="w-full h-full flex flex-col bg-[#FBFBFB] overflow-hidden">
+        <div className="w-full bg-bg-secondary border-b border-border-default px-5 py-2.5 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
 
-                    <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                        Administrative dashboard and camp indicators
-                    </p>
-                </div>
+                <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
+                    System Overview
+                </span>
 
-                <button
-                    type="button"
-                    onClick={handleRefresh}
-                    className="flex items-center gap-2 text-[11px] font-mono text-txt-disabled hover:text-accent uppercase tracking-label transition-colors"
-                >
-                    <RefreshCw
-                        size={11}
-                        className={loading ? "animate-spin" : ""}
-                    />
-
-                    {loading
-                        ? "Loading..."
-                        : `Updated ${formatRefresh(lastRefresh)}`}
-                </button>
+                <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                    Dashboard and camp indicators
+                </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-0">
-                <div className="flex flex-col gap-4 p-4 w-full">
-                    <DashboardKpiSection
+            <button
+                type="button"
+                onClick={handleRefresh}
+                className="flex items-center gap-2 text-[10px] font-mono text-txt-disabled hover:text-accent uppercase tracking-label transition-colors"
+            >
+                <RefreshCw
+                    size={10}
+                    className={loading ? "animate-spin" : ""}
+                />
+
+                {loading
+                    ? "Loading..."
+                    : `Updated ${formatRefresh(lastRefresh)}`}
+            </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="flex flex-col gap-4 p-4 w-full">
+                <DashboardKpiSection
+                    loading={loading}
+                    activePersons={activePersons}
+                    inactivePersons={inactivePersons}
+                    totalResources={totalResources}
+                    criticalResources={resourcesByStatus.C.length}
+                    activeExplorations={explorationsByState.A.length}
+                    pendingExplorations={explorationsByState.P.length}
+                    highPriorityTasks={tasksByPriority.H.length}
+                    totalTasks={tasks.length}
+                />
+
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            Population / capacity
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-txt-primary">
+                            {loading ? "..." : populationCapacityText}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            {totalCampCapacity > 0
+                                ? `${capacityPercent}% occupied`
+                                : "capacity not set"}
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            Pending admissions
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-txt-primary">
+                            {loading ? "..." : pendingAdmissions}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            waiting review
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            Accepted this week
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-txt-primary">
+                            {loading ? "..." : acceptedAdmissionsThisWeek}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            approved admissions
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            Rejected this week
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-txt-primary">
+                            {loading ? "..." : rejectedAdmissionsThisWeek}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            denied admissions
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            Temporary assignments
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-txt-primary">
+                            {loading ? "..." : activeTemporaryAssignments}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            active reassignments
+                        </p>
+                    </div>
+
+                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
+                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            Active users
+                        </p>
+
+                        <p className="mt-2 text-2xl font-bold text-txt-primary">
+                            {loading ? "..." : activeUsers}
+                        </p>
+
+                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                            {inactiveUsers} inactive
+                        </p>
+                    </div>
+                </div>
+
+                <DashboardAnalyticsSection
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    professionDistribution={professionDistribution}
+                    healthDistribution={healthDistribution}
+                    staffDeficits={staffDeficits}
+                    averageAge={averageAge}
+                    maleCount={maleCount}
+                    femaleCount={femaleCount}
+                    otherSexCount={otherSexCount}
+                    totalPersons={totalPersons}
+                    activeTemporaryAssignments={activeTemporaryAssignments}
+                />
+
+                <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr_280px] gap-4">
+                    <DashboardLeftPanel
                         loading={loading}
+                        persons={persons}
+                        resourcesByStatus={resourcesByStatus}
+                        totalResources={totalResources}
+                        tasks={tasks}
+                        tasksByPriority={tasksByPriority}
                         activePersons={activePersons}
                         inactivePersons={inactivePersons}
-                        totalResources={totalResources}
-                        criticalResources={resourcesByStatus.C.length}
-                        activeExplorations={explorationsByState.A.length}
-                        pendingExplorations={explorationsByState.P.length}
-                        highPriorityTasks={tasksByPriority.H.length}
-                        totalTasks={tasks.length}
                     />
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                        <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                            <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Population / capacity
-                            </p>
-                            <p className="mt-2 text-2xl font-bold text-txt-primary">
-                                {loading ? "..." : populationCapacityText}
-                            </p>
-                            <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                {totalCampCapacity > 0
-                                    ? `${capacityPercent}% occupied`
-                                    : "capacity not set"}
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                            <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Pending admissions
-                            </p>
-                            <p className="mt-2 text-2xl font-bold text-txt-primary">
-                                {loading ? "..." : pendingAdmissions}
-                            </p>
-                            <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                waiting review
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                            <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Accepted this week
-                            </p>
-                            <p className="mt-2 text-2xl font-bold text-txt-primary">
-                                {loading ? "..." : acceptedAdmissionsThisWeek}
-                            </p>
-                            <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                approved admissions
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                            <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Rejected this week
-                            </p>
-                            <p className="mt-2 text-2xl font-bold text-txt-primary">
-                                {loading ? "..." : rejectedAdmissionsThisWeek}
-                            </p>
-                            <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                denied admissions
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                            <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Temporary assignments
-                            </p>
-                            <p className="mt-2 text-2xl font-bold text-txt-primary">
-                                {loading ? "..." : activeTemporaryAssignments}
-                            </p>
-                            <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                active reassignments
-                            </p>
-                        </div>
-
-                        <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                            <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Active users
-                            </p>
-                            <p className="mt-2 text-2xl font-bold text-txt-primary">
-                                {loading ? "..." : activeUsers}
-                            </p>
-                            <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                {inactiveUsers} inactive
-                            </p>
-                        </div>
-                    </div>
-
-                    <DashboardAnalyticsSection
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        professionDistribution={professionDistribution}
-                        healthDistribution={healthDistribution}
-                        staffDeficits={staffDeficits}
-                        averageAge={averageAge}
-                        maleCount={maleCount}
-                        femaleCount={femaleCount}
-                        otherSexCount={otherSexCount}
-                        totalPersons={totalPersons}
-                        activeTemporaryAssignments={activeTemporaryAssignments}
+                    <DashboardMapSection
+                        loading={loading}
+                        camps={camps}
+                        explorations={explorations}
+                        explorationsByState={explorationsByState}
                     />
 
-                    <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr_280px] gap-4">
-                        <DashboardLeftPanel
-                            loading={loading}
-                            persons={persons}
-                            resourcesByStatus={resourcesByStatus}
-                            totalResources={totalResources}
-                            tasks={tasks}
-                            tasksByPriority={tasksByPriority}
-                            activePersons={activePersons}
-                            inactivePersons={inactivePersons}
-                        />
-
-                        <DashboardMapSection
-                            loading={loading}
-                            camps={camps}
-                            explorations={explorations}
-                            explorationsByState={explorationsByState}
-                        />
-
-                        <DashboardRightPanel
-                            loading={loading}
-                            cancelledExplorations={explorationsByState.C.length}
-                            finishedExplorations={explorationsByState.F.length}
-                            consumableResources={consumableResources}
-                            inactiveResources={inactiveResources}
-                            recentActivity={recentActivity}
-                        />
-                    </div>
+                    <DashboardRightPanel
+                        loading={loading}
+                        cancelledExplorations={explorationsByState.C.length}
+                        finishedExplorations={explorationsByState.F.length}
+                        consumableResources={consumableResources}
+                        inactiveResources={inactiveResources}
+                        recentActivity={recentActivity}
+                    />
                 </div>
             </div>
         </div>
-    );
+    </div>
+);
 }
