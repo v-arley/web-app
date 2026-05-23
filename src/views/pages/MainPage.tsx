@@ -25,6 +25,7 @@ import {
   Filter,
   UserRound,
   Trophy,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   getAuthContextFromToken,
@@ -34,6 +35,7 @@ import {
 import { CampsView } from "./CampsView";
 import { WorkerProfileView } from "./WorkerProfileView";
 import { WorkerAchievementsView } from "./WorkerAchievementsView";
+import { WorkerTasksView } from "./WorkerTasksView";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -89,6 +91,12 @@ const SECTIONS: DashboardSection[] = [
     label: "Logros y puntos",
     icon: <Trophy size={18} strokeWidth={2} />,
     component: () => <WorkerAchievementsView />,
+  },
+  {
+    key: "worker-tasks",
+    label: "Mis tareas",
+    icon: <ClipboardCheck size={18} strokeWidth={2} />,
+    component: () => <WorkerTasksView />,
   },
 ];
 
