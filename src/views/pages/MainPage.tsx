@@ -36,6 +36,7 @@ import { CampsView } from "./CampsView";
 import { WorkerProfileView } from "./WorkerProfileView";
 import { WorkerAchievementsView } from "./WorkerAchievementsView";
 import { WorkerTasksView } from "./WorkerTasksView";
+import { WorkerProductionView } from "./WorkerProductionView";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -97,6 +98,12 @@ const SECTIONS: DashboardSection[] = [
     label: "Mis tareas",
     icon: <ClipboardCheck size={18} strokeWidth={2} />,
     component: () => <WorkerTasksView />,
+  },
+  {
+    key: "worker-production",
+    label: "Producción diaria",
+    icon: <Database size={18} strokeWidth={2} />,
+    component: () => <WorkerProductionView />,
   },
 ];
 
