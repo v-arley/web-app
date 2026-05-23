@@ -4,10 +4,8 @@ import {
     Briefcase,
     Calendar,
     HeartPulse,
-    IdCard,
     MapPin,
     RefreshCw,
-    Shield,
     User,
 } from "lucide-react";
 import { useWorkerProfile } from "../../hooks/useWorkerProfile";
@@ -117,7 +115,12 @@ export function WorkerProfileView() {
                                                         className="w-full h-full object-cover grayscale"
                                                     />
                                                 ) : (
-                                                    <User size={58} className="text-accent" />
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <User size={50} className="text-accent" />
+                                                        <span className="text-[9px] font-mono text-txt-disabled uppercase tracking-label">
+                                                            No photo
+                                                        </span>
+                                                    </div>
                                                 )}
 
                                                 <div className="absolute bottom-0 left-0 right-0 bg-accent text-accent-fg text-[10px] font-mono font-bold text-center uppercase tracking-label py-1">
@@ -160,13 +163,10 @@ export function WorkerProfileView() {
 
                                                 <div className="border border-border-default bg-bg-app p-3">
                                                     <span className="block text-[10px] text-txt-disabled font-mono uppercase tracking-label mb-1">
-                                                        Digital ID
+                                                        State
                                                     </span>
-                                                    <span className="text-[13px] text-txt-primary font-mono flex items-center gap-2">
-                                                        <IdCard size={14} className="text-accent" />
-                                                        {profile.idCardUrl || profile.id_card_url
-                                                            ? "Available"
-                                                            : "Not assigned"}
+                                                    <span className="text-[13px] text-txt-primary font-mono">
+                                                        {getStateLabel(profile.state)}
                                                     </span>
                                                 </div>
                                             </div>
@@ -194,16 +194,6 @@ export function WorkerProfileView() {
                                     <div className="bg-bg-app border border-border-default p-4 min-h-28">
                                         <p className="text-[13px] text-txt-secondary font-mono leading-relaxed">
                                             {profile.conditions || "No health conditions registered."}
-                                        </p>
-                                    </div>
-
-                                    <div className="mt-4 border border-status-warning/50 bg-status-warning/10 p-3">
-                                        <div className="flex items-center gap-2 text-status-warning font-mono text-[11px] uppercase tracking-label font-bold">
-                                            <Shield size={14} />
-                                            Medical registry
-                                        </div>
-                                        <p className="text-[11px] text-txt-disabled font-mono mt-1">
-                                            Health data is consultative for operational assignment.
                                         </p>
                                     </div>
                                 </section>
