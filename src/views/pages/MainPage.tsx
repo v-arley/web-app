@@ -23,6 +23,7 @@ import {
   Database,
   Tent,
   Filter,
+  UserRound,
 } from "lucide-react";
 import {
   getAuthContextFromToken,
@@ -30,6 +31,7 @@ import {
   getRoleLabel,
 } from "../../utils/authAccess";
 import { CampsView } from "./CampsView";
+import { WorkerProfileView } from "./WorkerProfileView";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -73,6 +75,12 @@ const SECTIONS: DashboardSection[] = [
     label: "Settings",
     icon: <Filter size={18} strokeWidth={2} />,
     component: () => <SettingsView />,
+  },
+  {
+    key: "worker-profile",
+    label: "Mi Perfil",
+    icon: <UserRound size={18} strokeWidth={2} />,
+    component: () => <WorkerProfileView />,
   },
 ];
 

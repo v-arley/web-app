@@ -1,3 +1,6 @@
+import type { Camp } from "./Camp";
+import type { WorkerProfessionSummary } from "./PersonProfession";
+
 export class Person {
 
     id?: number;
@@ -15,6 +18,12 @@ export class Person {
     created_at?: Date;
 
     conditions?: string;
+
+    idCardUrl?: string | null;
+    id_card_url?: string | null;
+    createdAt?: Date | string;
+    camp?: Camp | null;
+    profession?: WorkerProfessionSummary | null;
 
     constructor(data: Partial<Person>) {
         Object.assign(this, data);
