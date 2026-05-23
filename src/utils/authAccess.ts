@@ -142,7 +142,7 @@ export function getAvailableSections(
   const profession = normalizeProfession(auth.profession);
   const allowedByProfession: Record<ProfessionKey, string[]> = {
     worker: ["dashboard", "requests", "worker-profile", "worker-achievements",
-       "worker-tasks","worker-production", "worker-rations"],
+       "worker-tasks","worker-production", "worker-rations", "worker-explorations"],
     resource_manager: ["dashboard", "inventory", "warehouse", "requests"],
     expedition_leader: ["dashboard", "requests", "inventory"],
   };

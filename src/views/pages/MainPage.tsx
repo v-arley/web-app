@@ -27,6 +27,7 @@ import {
   Trophy,
   ClipboardCheck,
   ShoppingBag,
+  Compass,
 } from "lucide-react";
 import {
   getAuthContextFromToken,
@@ -39,6 +40,7 @@ import { WorkerAchievementsView } from "./WorkerAchievementsView";
 import { WorkerTasksView } from "./WorkerTasksView";
 import { WorkerProductionView } from "./WorkerProductionView";
 import { WorkerRationsView } from "./WorkerRationsView";
+import { WorkerExplorationsView } from "./WorkerExplorationsView";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -112,6 +114,12 @@ const SECTIONS: DashboardSection[] = [
     label: "Raciones",
     icon: <ShoppingBag size={18} strokeWidth={2} />,
     component: () => <WorkerRationsView />,
+  },
+  {
+    key: "worker-explorations",
+    label: "Exploraciones",
+    icon: <Compass size={18} strokeWidth={2} />,
+    component: () => <WorkerExplorationsView />,
   },
 ];
 
