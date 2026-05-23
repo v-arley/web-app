@@ -24,6 +24,7 @@ import {
   Tent,
   Filter,
   UserRound,
+  Trophy,
 } from "lucide-react";
 import {
   getAuthContextFromToken,
@@ -32,6 +33,7 @@ import {
 } from "../../utils/authAccess";
 import { CampsView } from "./CampsView";
 import { WorkerProfileView } from "./WorkerProfileView";
+import { WorkerAchievementsView } from "./WorkerAchievementsView";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -81,6 +83,12 @@ const SECTIONS: DashboardSection[] = [
     label: "Mi Perfil",
     icon: <UserRound size={18} strokeWidth={2} />,
     component: () => <WorkerProfileView />,
+  },
+  {
+    key: "worker-achievements",
+    label: "Logros y puntos",
+    icon: <Trophy size={18} strokeWidth={2} />,
+    component: () => <WorkerAchievementsView />,
   },
 ];
 
