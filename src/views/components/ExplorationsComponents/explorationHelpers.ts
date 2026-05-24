@@ -15,6 +15,8 @@ export type ExplorationRow = {
     duration_days?: number;
     risk_level?: RiskLevel;
     state?: ExplorationState;
+    people_count?: number;
+    resource_count?: number;
 };
 
 export function getRiskLabel(level?: RiskLevel) {
