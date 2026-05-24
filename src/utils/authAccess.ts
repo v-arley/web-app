@@ -1,6 +1,9 @@
 import type { DashboardSection } from "../hooks/useDashboardNav";
 
-export const SYSTEM_ADMIN_ROLES = ["SYSTEM_ADMINISTRATOR", "GLOBAL_ADMIN"] as const;
+export const SYSTEM_ADMIN_ROLES = [
+  "SYSTEM_ADMINISTRATOR",
+  "GLOBAL_ADMIN",
+] as const;
 export const CAMP_ADMIN_ROLES = ["CAMP_ADMINISTRATOR", "CAMP_ADMIN"] as const;
 
 export type ProfessionKey = "worker" | "resource_manager" | "expedition_leader";
@@ -17,6 +20,7 @@ const PROFESSION_BY_BACKEND_VALUE: Record<string, ProfessionKey> = {
   WORKER: "worker",
   RESOURCE_MANAGER: "resource_manager",
   EXPEDITION_LEADER: "expedition_leader",
+  EXPLORATION: "expedition_leader",
 };
 
 const BACKEND_PROFESSION_BY_KEY: Record<ProfessionKey, string> = {
@@ -25,7 +29,10 @@ const BACKEND_PROFESSION_BY_KEY: Record<ProfessionKey, string> = {
   expedition_leader: "EXPEDITION_LEADER",
 };
 
-export const PROFESSION_OPTIONS: Array<{ value: ProfessionKey; label: string }> = [
+export const PROFESSION_OPTIONS: Array<{
+  value: ProfessionKey;
+  label: string;
+}> = [
   { value: "worker", label: "Trabajador" },
   { value: "resource_manager", label: "Gestor de recursos" },
   { value: "expedition_leader", label: "Lider de expedicion" },
@@ -52,7 +59,10 @@ export function normalizeRoles(value: unknown): string[] {
     .filter(Boolean);
 }
 
-export function hasAnyRole(roles: readonly string[] | undefined, allowedRoles: readonly string[]) {
+export function hasAnyRole(
+  roles: readonly string[] | undefined,
+  allowedRoles: readonly string[],
+) {
   if (!roles?.length) {
     return false;
   }
@@ -77,7 +87,10 @@ function decodeTokenPayload(token: string): Record<string, unknown> | null {
     }
 
     const base64 = rawPayload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
     return JSON.parse(atob(padded)) as Record<string, unknown>;
   } catch {
     return null;
@@ -92,10 +105,16 @@ export function getAuthContextFromToken(): AuthContext {
     return { name: "---", roles: [] };
   }
 
-  const name = (payload.sub ?? payload.username ?? payload.name ?? "") as string;
-  const userId = typeof payload.userId === "number" ? payload.userId : undefined;
-  const profession = typeof payload.profession === "string" ? payload.profession : undefined;
-  const campId = typeof payload.camp_id === "number" ? payload.camp_id : undefined;
+  const name = (payload.sub ??
+    payload.username ??
+    payload.name ??
+    "") as string;
+  const userId =
+    typeof payload.userId === "number" ? payload.userId : undefined;
+  const profession =
+    typeof payload.profession === "string" ? payload.profession : undefined;
+  const campId =
+    typeof payload.camp_id === "number" ? payload.camp_id : undefined;
   const roles = normalizeRoles(payload.roles);
 
   return {
@@ -108,7 +127,9 @@ export function getAuthContextFromToken(): AuthContext {
 }
 
 export function normalizeProfession(value: unknown): ProfessionKey {
-  return PROFESSION_BY_BACKEND_VALUE[normalize(String(value ?? ""))] ?? "worker";
+  return (
+    PROFESSION_BY_BACKEND_VALUE[normalize(String(value ?? ""))] ?? "worker"
+  );
 }
 
 export function toBackendProfession(profession: ProfessionKey) {
@@ -139,12 +160,57 @@ export function getAvailableSections(
     return sections.filter((section) => section.key !== "camp");
   }
 
+  const normalizedRoles = auth.roles.map(normalize);
+
+  if (normalizedRoles.includes("EXPEDITION_LEADER")) {
+    const allowed = new Set([
+      "dashboard",
+      "explorations",
+      "requests",
+      "inventory",
+    ]);
+    return sections.filter((section) => allowed.has(section.key));
+  }
+
+  if (normalizedRoles.includes("RESOURCE_MANAGER")) {
+    const allowed = new Set([
+      "dashboard",
+      "inventory",
+      "warehouse",
+      "requests",
+    ]);
+    return sections.filter((section) => allowed.has(section.key));
+  }
+
+  if (normalizedRoles.includes("WORKER")) {
+    const allowed = new Set([
+      "dashboard",
+      "requests",
+      "worker-profile",
+      "worker-achievements",
+      "worker-tasks",
+      "worker-production",
+      "worker-rations",
+      "worker-explorations",
+    ]);
+
+    return sections.filter((section) => allowed.has(section.key));
+  }
+
   const profession = normalizeProfession(auth.profession);
   const allowedByProfession: Record<ProfessionKey, string[]> = {
-    worker: ["dashboard", "requests", "worker-profile", "worker-achievements",
-       "worker-tasks","worker-production", "worker-rations", "worker-explorations"],
+    worker: [
+      "dashboard",
+      "requests",
+      "worker-profile",
+      "worker-achievements",
+      "worker-tasks",
+      "worker-production",
+      "worker-rations",
+      "worker-explorations",
+    ],
     resource_manager: ["dashboard", "inventory", "warehouse", "requests"],
-    expedition_leader: ["dashboard", "requests", "inventory"],
+    expedition_leader: ["dashboard", "explorations", "requests", "inventory"],
   };
 
   const allowed = new Set(allowedByProfession[profession]);

@@ -14,6 +14,7 @@ import { UsersView } from "./UsersView";
 import { RequestsView } from "./RequestsView";
 import { CampService } from "../../services/CampService";
 import { InventoryView } from "./InventoryView";
+import { ExplorationsView } from "./ExplorationsView";
 import type { Camp } from "../../models/Camp";
 import {
   Boxes,
@@ -48,6 +49,12 @@ const SECTIONS: DashboardSection[] = [
     label: "Dashboard",
     icon: <LayoutDashboard size={18} strokeWidth={2} />,
     component: () => <DashboardView />,
+  },
+  {
+    key: "explorations",
+    label: "Explorations",
+    icon: <Compass size={18} strokeWidth={2} />,
+    component: () => <ExplorationsView />,
   },
   {
     key: "users",

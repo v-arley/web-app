@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { PersonService } from "../services/PersonService";
 import { AdmissionRequestService } from "../services/AdmissionRequestService";
 import { AiPromptService } from "../services/AiPromptService";
+import { AdmissionEvaluationService } from "../services/AdmissionEvaluationService";
 import { getAuthContextFromToken } from "../utils/authAccess";
 
 export type RegistrationStep = "personal_data" | "ai_assessment";
@@ -9,6 +10,7 @@ export type RegistrationStep = "personal_data" | "ai_assessment";
 const personService = new PersonService();
 const admissionRequestService = new AdmissionRequestService();
 const aiPromptService = new AiPromptService();
+const admissionEvaluationService = new AdmissionEvaluationService();
 
 export const MIN_BIRTH_DATE = "1924-01-01";
 export const MAX_BIRTH_DATE = new Date().toISOString().split("T")[0];
@@ -19,6 +21,7 @@ type UseRegistrationPanelParams = {
 
 export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
   const authContext = getAuthContextFromToken();
+
   const [step, setStep] = useState<RegistrationStep>("personal_data");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -29,6 +32,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
   const [sex, setSex] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [description, setDescription] = useState("");
+  const [conditions, setConditions] = useState("");
 
   const [background, setBackground] = useState("");
   const [skills, setSkills] = useState("");
@@ -175,15 +179,29 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     return [
       "Evaluate the admission of this person according to the following information:",
       "",
+      `Name: ${firstName.trim()} ${lastName.trim()}`,
+      `DNI: ${dni.trim()}`,
+      `Sex: ${sex}`,
+      `Birth date: ${birthDate}`,
+      `Description: ${description.trim()}`,
+      `Conditions: ${conditions.trim() || "Sin condiciones declaradas"}`,
+      "",
       `Background and history: ${background.trim()}`,
       `Specialized skills: ${skills.trim()}`,
       `Motivation for joining: ${motivation.trim()}`,
+      "",
+      "Return a JSON object with: apto, riesgo, razon, asignacion_recomendada.",
     ].join("\n");
   };
 
   const handleSubmit = async () => {
     setErrorMessage("");
     setSuccessMessage("");
+
+    if (!authContext.campId) {
+      setErrorMessage("No se pudo identificar el campamento del usuario.");
+      return;
+    }
 
     if (!isBirthDateValid) {
       setStep("personal_data");
@@ -215,6 +233,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         sex,
         photo,
         description: description.trim(),
+        conditions: conditions.trim() || undefined,
         state: "A",
       });
 
@@ -232,11 +251,6 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         setErrorMessage("La persona fue creada, pero no se recibió el ID.");
         return;
       }
-
-      if (authContext.campId == null) {
-  setErrorMessage("No se pudo identificar el campamento del usuario.");
-  return;
-}
 
       const admissionResp = await admissionRequestService.save({
         person_id: createdPerson.id,
@@ -272,7 +286,19 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         return;
       }
 
-      setSuccessMessage("Solicitud enviada para análisis correctamente.");
+      const evaluationResp = await admissionEvaluationService.evaluate(
+        createdAdmissionRequest.id,
+      );
+
+      if (!evaluationResp.getEstado()) {
+        setErrorMessage(
+          evaluationResp.getMensaje() ||
+            "La solicitud fue creada, pero no se pudo ejecutar la evaluación de IA.",
+        );
+        return;
+      }
+
+      setSuccessMessage("Solicitud enviada y evaluada por IA correctamente.");
 
       window.setTimeout(() => {
         onClose();
@@ -302,6 +328,8 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     birthDate,
     description,
     setDescription,
+    conditions,
+    setConditions,
 
     background,
     setBackground,
