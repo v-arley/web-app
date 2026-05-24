@@ -1,6 +1,5 @@
 import {
     AlertTriangle,
-    Calendar,
     ChevronDown,
     ChevronLeft,
     ChevronRight,
