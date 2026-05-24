@@ -13,6 +13,7 @@ type Props = {
     onSearchChange: (value: string) => void;
     onRiskFilterChange: (value: RiskFilter) => void;
     onStateFilterChange: (value: StateFilter) => void;
+    onCreateClick: () => void;
 };
 
 const filterSelectClass = (focused: boolean) =>
@@ -29,6 +30,7 @@ export default function ExplorationFilters({
     onSearchChange,
     onRiskFilterChange,
     onStateFilterChange,
+    onCreateClick,
 }: Props) {
     const [isRiskFocused, setIsRiskFocused] = useState(false);
     const [isStateFocused, setIsStateFocused] = useState(false);
@@ -76,6 +78,7 @@ export default function ExplorationFilters({
 
             <button
                 type="button"
+                onClick={onCreateClick}
                 className="group flex w-full items-center justify-center gap-[10px] rounded-lg border border-black bg-black px-4 py-2 text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black xl:w-auto xl:justify-start"
             >
                 <Plus className="text-white transition-colors group-hover:text-black" />

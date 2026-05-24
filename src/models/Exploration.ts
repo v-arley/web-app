@@ -3,13 +3,13 @@ export class Exploration {
     id?: number;
     code!: string;
     name!: string;
-    objective!: string;
-    notes!: string;
-    departure_date!: Date;
-    estimated_return_date!: Date;
-    duration_days!: number;
-    risk_level!: string;
-    state!: string;
+    objective?: string;
+    notes?: string;
+    departure_date!: Date | string;
+    estimated_return_date?: Date | string;
+    duration_days?: number;
+    risk_level?: string;
+    state?: string;
 
     camp_id!: number;
 

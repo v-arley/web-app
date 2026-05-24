@@ -17,6 +17,7 @@ const PROFESSION_BY_BACKEND_VALUE: Record<string, ProfessionKey> = {
   WORKER: "worker",
   RESOURCE_MANAGER: "resource_manager",
   EXPEDITION_LEADER: "expedition_leader",
+  EXPLORATION: "expedition_leader",
 };
 
 const BACKEND_PROFESSION_BY_KEY: Record<ProfessionKey, string> = {
@@ -139,13 +140,31 @@ export function getAvailableSections(
     return sections.filter((section) => section.key !== "camp");
   }
 
+  const normalizedRoles = auth.roles.map(normalize);
+
+  if (normalizedRoles.includes("EXPEDITION_LEADER")) {
+    const allowed = new Set(["dashboard", "explorations", "requests", "inventory"]);
+    return sections.filter((section) => allowed.has(section.key));
+  }
+
+  if (normalizedRoles.includes("RESOURCE_MANAGER")) {
+    const allowed = new Set(["dashboard", "inventory", "warehouse", "requests"]);
+    return sections.filter((section) => allowed.has(section.key));
+  }
+
+  if (normalizedRoles.includes("WORKER")) {
+    const allowed = new Set(["dashboard", "requests"]);
+    return sections.filter((section) => allowed.has(section.key));
+  }
+
   const profession = normalizeProfession(auth.profession);
   const allowedByProfession: Record<ProfessionKey, string[]> = {
     worker: ["dashboard", "requests"],
     resource_manager: ["dashboard", "inventory", "warehouse", "requests"],
-    expedition_leader: ["dashboard", "requests", "inventory"],
+    expedition_leader: ["dashboard", "explorations", "requests", "inventory"],
   };
 
   const allowed = new Set(allowedByProfession[profession]);
   return sections.filter((section) => allowed.has(section.key));
+
 }
