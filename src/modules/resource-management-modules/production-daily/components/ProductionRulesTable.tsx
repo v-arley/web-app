@@ -1,18 +1,17 @@
-import { Edit, Trash2 } from "lucide-react";
 import type { ProductionRuleFormValues } from "../schemas/production-rule.schema";
 
 type Props = {
     rules: ProductionRuleFormValues[];
     professionMap: Map<number, string>;
     resourceMap: Map<number, string>;
-    onEdit: (rule: ProductionRuleFormValues) => void;
-    onDelete: (id: number) => void;
+    selectedId?: number;
+    onSelect: (rule: ProductionRuleFormValues) => void;
 };
 
-export function ProductionRulesTable({ rules, professionMap, resourceMap, onEdit, onDelete }: Props) {
+export function ProductionRulesTable({ rules, professionMap, resourceMap, selectedId, onSelect }: Props) {
     if (rules.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
+            <div className="flex items-center justify-center h-64 text-txt-secondary font-mono text-xs">
                 No hay reglas de producción configuradas
             </div>
         );
@@ -23,84 +22,72 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, onEdit
             <table className="w-full font-mono text-[11px]">
                 <thead className="bg-bg-secondary/50 border-b border-border-default">
                     <tr>
-                        <th className="text-left px-4 py-3 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
+                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
                             Profesión
                         </th>
-                        <th className="text-left px-4 py-3 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
+                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
                             Recurso
                         </th>
-                        <th className="text-right px-4 py-3 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
+                        <th className="text-right px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
                             Cantidad/Día
                         </th>
-                        <th className="text-left px-4 py-3 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
+                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
                             Vigencia
                         </th>
-                        <th className="text-center px-4 py-3 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
+                        <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
                             Estado
-                        </th>
-                        <th className="text-center px-4 py-3 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                            Acciones
                         </th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-border-default">
+                <tbody className="divide-y divide-border-subtle">
                     {rules.map((rule) => {
                         const professionName = professionMap.get(rule.profession_id) || `ID ${rule.profession_id}`;
                         const resourceName = resourceMap.get(rule.resource_id) || `ID ${rule.resource_id}`;
                         const isActive = rule.state === 'A';
+                        const isSelected = rule.id !== undefined && rule.id === selectedId;
 
                         return (
                             <tr
                                 key={rule.id}
-                                className="hover:bg-bg-secondary/30 transition-colors"
+                                onClick={() => onSelect(rule)}
+                                className={`cursor-pointer transition-colors relative ${
+                                    isSelected
+                                        ? "bg-accent/8 border-l-2 border-accent"
+                                        : "hover:bg-bg-secondary/40"
+                                }`}
                             >
-                                <td className="px-4 py-3 text-txt-primary">
+                                <td className={`px-4 py-2.5 ${isSelected ? "pl-3" : ""} text-txt-primary`}>
                                     {professionName}
                                 </td>
-                                <td className="px-4 py-3 text-txt-primary">
+                                <td className="px-4 py-2.5 text-txt-secondary">
                                     {resourceName}
                                 </td>
-                                <td className="px-4 py-3 text-right text-txt-primary">
+                                <td className="px-4 py-2.5 text-right text-txt-primary font-bold">
                                     {rule.expected_amount}
                                 </td>
-                                <td className="px-4 py-3 text-txt-secondary">
+                                <td className="px-4 py-2.5 text-txt-secondary">
                                     {rule.effective_date}
-                                    {rule.end_date && ` → ${rule.end_date}`}
+                                    {rule.end_date && <span className="text-txt-muted"> → {rule.end_date}</span>}
                                 </td>
-                                <td className="px-4 py-3 text-center">
+                                <td className="px-4 py-2.5 text-center">
                                     <span
-                                        className={`inline-flex items-center px-2 py-1 text-[9px] font-bold uppercase tracking-widest ${
+                                        className={`inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border ${
                                             isActive
-                                                ? "bg-status-ok/10 text-status-ok"
-                                                : "bg-status-critical/10 text-status-critical"
+                                                ? "bg-status-ok/10 text-status-ok border-status-ok/30"
+                                                : "bg-status-critical/10 text-status-critical border-status-critical/30"
                                         }`}
                                     >
                                         {isActive ? "Activa" : "Inactiva"}
                                     </span>
-                                </td>
-                                <td className="px-4 py-3">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <button
-                                            onClick={() => onEdit(rule)}
-                                            className="p-2 hover:bg-bg-tertiary border border-transparent hover:border-border-default transition-all text-txt-secondary hover:text-accent"
-                                            title="Editar"
-                                        >
-                                            <Edit className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button
-                                            onClick={() => rule.id && onDelete(rule.id)}
-                                            className="p-2 hover:bg-bg-tertiary border border-transparent hover:border-border-default transition-all text-txt-secondary hover:text-status-critical"
-                                            title="Eliminar"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                        </button>
-                                    </div>
                                 </td>
                             </tr>
                         );
                     })}
                 </tbody>
             </table>
+            <div className="px-4 py-2 border-t border-border-subtle bg-bg-secondary/20 font-mono text-[9px] text-txt-muted uppercase tracking-widest">
+                Selecciona una fila para editar &bull; {rules.length} regla{rules.length !== 1 ? 's' : ''}
+            </div>
         </div>
     );
 }

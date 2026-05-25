@@ -10,14 +10,12 @@ export class RequestResourceService extends AxiosBaseService {
      */
     async getRequestResources(requestId: number): Promise<RequestResourceFormValues[]> {
         try {
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/request-resources?request_id=${requestId}`
-            );
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/request-resources?request_id=${requestId}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeRequestResource(item));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -37,7 +35,7 @@ export class RequestResourceService extends AxiosBaseService {
             const items = Array.isArray(data) ? data : (data as any)?.items ?? [];
             return items.map((item: unknown) => this.normalizeRequestResource(item));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -49,6 +47,14 @@ export class RequestResourceService extends AxiosBaseService {
             resource_id: source.resource_id ?? 0,
             amount: source.amount ?? 0,
         });
+    }
+
+    private resolveError(error: unknown) {
+        const extracted = this.extractErrorMessage(error, CONTRACT_ERROR_MESSAGE).trim();
+        if (!extracted || extracted.includes("404") || extracted.includes("Cannot")) {
+            return CONTRACT_ERROR_MESSAGE;
+        }
+        return extracted;
     }
 }
 

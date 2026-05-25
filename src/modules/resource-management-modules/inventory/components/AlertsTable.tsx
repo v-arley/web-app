@@ -14,67 +14,93 @@ function formatDate(value?: string | null) {
     return date.toLocaleString("es-CR");
 }
 
-export function AlertsTable({ alerts, onResolve, onViewDetail }: Props) {
+export function AlertsTable({ alerts = [], onResolve, onViewDetail }: Props) {
     if (alerts.length === 0) {
         return (
-            <div className="py-16 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-status-ok italic">
-                ¡No hay alertas activas! Todo está bajo control.
+            <div className="py-20 text-center relative border border-status-ok/20 bg-status-ok/5">
+                <div className="absolute inset-0 flex items-center justify-center opacity-5">
+                    <span className="font-mono text-[80px] font-bold text-status-ok">SAFE</span>
+                </div>
+                <div className="relative z-10 font-mono text-[11px] uppercase tracking-[0.3em] text-status-ok">
+                    No active criticalities detected in sector
+                </div>
             </div>
         );
     }
 
     return (
-        <>
-            <div className="grid grid-cols-[1fr_1.2fr_0.7fr_0.7fr_1fr_0.9fr] gap-2 px-4 py-2 bg-bg-tertiary text-[10px] font-mono font-bold text-txt-secondary uppercase tracking-widest border-b border-border-default">
-                {["Almacén", "Recurso", "Actual", "Mínimo", "Fecha Alerta", "Acciones"].map((header) => (
-                    <div key={header}>{header}</div>
-                ))}
-            </div>
-            <div className="flex-1 overflow-y-auto divide-y divide-border-subtle/30 bg-bg-primary/5">
-                {alerts.map((alert) => (
-                    <div
+        <table className="rmm-table">
+            <thead>
+                <tr>
+                    <th className="w-10">UID</th>
+                    <th>Node/Warehouse</th>
+                    <th>Resource / Code</th>
+                    <th className="text-right">Actual</th>
+                    <th className="text-right">Min_Cap</th>
+                    <th>Trigger Date</th>
+                    <th className="text-right">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {alerts.map((alert, idx) => (
+                    <tr
                         key={alert.id ?? `${alert.warehouse_id}-${alert.resource_id}`}
-                        className="grid grid-cols-[1fr_1.2fr_0.7fr_0.7fr_1fr_0.9fr] gap-2 px-4 py-3 items-center border-l-2 border-l-status-critical/50 bg-status-critical/5"
+                        className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical"
                     >
-                        <div className="font-mono text-[10px] text-txt-secondary truncate">
-                            {alert.warehouse_name}
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                            <div className="font-mono text-[10px] font-bold text-accent">{alert.resource_code}</div>
-                            <div className="font-mono text-[10px] text-txt-primary truncate">{alert.resource_name}</div>
-                        </div>
-                        <div className="font-mono text-[11px] font-bold text-status-critical">
-                            {alert.current_amount}
-                        </div>
-                        <div className="font-mono text-[10px] text-txt-secondary">{alert.min_quantity}</div>
-                        <div className="font-mono text-[10px] text-txt-secondary">
-                            {formatDate(alert.alert_date)}
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {onViewDetail && (
-                                <button
-                                    type="button"
-                                    onClick={() => onViewDetail(alert.warehouse_id, alert.resource_id)}
-                                    className="flex items-center gap-1.5 px-2 py-1.5 bg-bg-tertiary border border-border-default font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest hover:border-accent hover:text-accent transition-all"
-                                    title="Ver detalle"
-                                >
-                                    <Eye className="h-3 w-3" />
-                                </button>
-                            )}
-                            {alert.id != null && (
-                                <button
-                                    type="button"
-                                    onClick={() => onResolve(alert.id!)}
-                                    className="flex items-center gap-1.5 px-2 py-1.5 bg-status-ok/10 border border-status-ok/30 font-mono text-[9px] font-bold text-status-ok uppercase tracking-widest hover:bg-status-ok/20 transition-all"
-                                    title="Marcar como resuelta"
-                                >
-                                    <CheckCircle className="h-3 w-3" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
+                        <td>
+                            <span className="font-tech text-accent opacity-50">
+                                {String(alert.id || idx + 1).padStart(3, '0')}
+                            </span>
+                        </td>
+                        <td>
+                            <span className="font-mono text-txt-secondary uppercase">{alert.warehouse_name}</span>
+                        </td>
+                        <td>
+                            <div className="flex flex-col">
+                                <span className="font-mono font-bold text-accent">{alert.resource_code}</span>
+                                <span className="font-mono text-[9px] text-txt-muted uppercase">{alert.resource_name}</span>
+                            </div>
+                        </td>
+                        <td className="text-right">
+                            <span className="font-mono font-bold text-status-critical text-[12px]">
+                                {alert.current_amount}
+                            </span>
+                        </td>
+                        <td className="text-right">
+                            <span className="font-mono text-txt-secondary">{alert.min_quantity}</span>
+                        </td>
+                        <td>
+                            <span className="font-mono text-[10px] text-txt-muted">
+                                {formatDate(alert.alert_date)}
+                            </span>
+                        </td>
+                        <td className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                                {onViewDetail && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onViewDetail(alert.warehouse_id, alert.resource_id)}
+                                        className="rmm-btn rmm-btn-outline p-1.5!"
+                                        title="Audit Detail"
+                                    >
+                                        <Eye size={12} />
+                                    </button>
+                                )}
+                                {alert.id != null && (
+                                    <button
+                                        type="button"
+                                        onClick={() => onResolve(alert.id!)}
+                                        className="rmm-btn rmm-btn-accent p-1.5! bg-status-ok! hover:bg-status-ok/80!"
+                                        title="Acknowledge & Resolve"
+                                    >
+                                        <CheckCircle size={12} />
+                                    </button>
+                                )}
+                            </div>
+                        </td>
+                    </tr>
                 ))}
-            </div>
-        </>
+            </tbody>
+        </table>
     );
 }

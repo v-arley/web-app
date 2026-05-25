@@ -8,23 +8,21 @@ export class ShipmentService extends AxiosBaseService {
     /**
      * Obtener envíos con filtros
      */
-    async getShipments(filters?: {
-        requestId?: number;
-        status?: 'P' | 'I' | 'D' | 'C';
-    }): Promise<ShipmentFormValues[]> {
+    async getShipments(filters?: { requestId?: number; status?: 'P' | 'I' | 'D' | 'C'; }): Promise<ShipmentFormValues[]> {
         try {
             const params = new URLSearchParams();
-            if (filters?.requestId) params.append('request_id', filters.requestId.toString());
-            if (filters?.status) params.append('status', filters.status);
 
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/shipments?${params.toString()}`
-            );
+            if (filters?.requestId) 
+                params.append('request_id', filters.requestId.toString());
+            if (filters?.status) 
+                params.append('status', filters.status);
+
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/shipments?${params.toString()}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeShipment(item));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error, ));
         }
     }
 
@@ -33,13 +31,11 @@ export class ShipmentService extends AxiosBaseService {
      */
     async getShipmentById(id: number): Promise<ShipmentFormValues> {
         try {
-            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>(
-                `/shipments/${id}`
-            );
+            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>( `/shipments/${id}` );
             
             return this.normalizeShipment(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error, ));
         }
     }
 
@@ -48,14 +44,11 @@ export class ShipmentService extends AxiosBaseService {
      */
     async createShipment(payload: Partial<ShipmentFormValues>): Promise<ShipmentFormValues> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
-                "/shipments",
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/shipments", this.toWritePayload(payload) );
             
             return this.normalizeShipment(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error, ));
         }
     }
 
@@ -64,14 +57,11 @@ export class ShipmentService extends AxiosBaseService {
      */
     async startTransit(id: number): Promise<ShipmentFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/shipments/${id}/start-transit`,
-                {}
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/shipments/${id}/start-transit`, {} );
             
             return this.normalizeShipment(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -80,14 +70,11 @@ export class ShipmentService extends AxiosBaseService {
      */
     async confirmDelivery(id: number, observations?: string): Promise<ShipmentFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/shipments/${id}/confirm-delivery`,
-                { observations }
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/shipments/${id}/confirm-delivery`, { observations } );
             
             return this.normalizeShipment(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -96,14 +83,11 @@ export class ShipmentService extends AxiosBaseService {
      */
     async cancelShipment(id: number, observations?: string): Promise<ShipmentFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/shipments/${id}/cancel`,
-                { observations }
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/shipments/${id}/cancel`, { observations } );
             
             return this.normalizeShipment(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -128,6 +112,14 @@ export class ShipmentService extends AxiosBaseService {
             status: payload.status,
             observations: payload.observations?.trim() || undefined,
         };
+    }
+
+    private resolveError(error: unknown) {
+        const extracted = this.extractErrorMessage(error, CONTRACT_ERROR_MESSAGE).trim();
+        if (!extracted || extracted.includes("404") || extracted.includes("Cannot")) {
+            return CONTRACT_ERROR_MESSAGE;
+        }
+        return extracted;
     }
 }
 

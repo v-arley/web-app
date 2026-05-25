@@ -16,12 +16,9 @@ export class RationExecutionService extends AxiosBaseService {
      */
     async executeRationGeneration(payload: RationExecutionFormValues): Promise<RationExecutionResult> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ result: unknown }> | unknown>(
-                "/rations/execute",
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.post<BackendResponse<{ result: unknown }> | unknown>( "/rations/execute", this.toWritePayload(payload) );
             
-            return this.normalizeResult(this.extractItem<unknown>(data, 'result'));
+            return this.normalizeResult(this.extractItem<unknown>(data));
         } catch (error) {
             throw new Error(this.resolveError(error));
         }
@@ -32,10 +29,9 @@ export class RationExecutionService extends AxiosBaseService {
      */
     async checkExistingRations(campId: number, rationDate: string): Promise<{ exists: boolean; count: number }> {
         try {
-            const { data } = await this.client.get<BackendResponse<{ exists: boolean; count: number }> | unknown>(
-                `/rations/check?camp_id=${campId}&ration_date=${rationDate}`
-            );
+            const { data } = await this.client.get<BackendResponse<{ exists: boolean; count: number }> | unknown>( `/rations/check?camp_id=${campId}&ration_date=${rationDate}` );
             
+            // TODO: verificar el origen del error y mitigarlo adecuadamente sin corromper la funcionalidad
             const result = this.extractItem<{ exists: boolean; count: number }>(data);
             return {
                 exists: result.exists ?? false,
@@ -49,16 +45,11 @@ export class RationExecutionService extends AxiosBaseService {
     /**
      * Obtiene una vista previa de las raciones que se generarían
      */
-    async previewRationGeneration(campId: number, rationDate: string): Promise<{
-        total_persons: number;
-        persons: Array<{ id: number; name: string }>;
-        resources_needed: Array<{ resource_id: number; total_amount: number }>;
-    }> {
+    async previewRationGeneration(campId: number, rationDate: string): Promise<{ total_persons: number; persons: Array<{ id: number; name: string }>; resources_needed: Array<{ resource_id: number; total_amount: number }>; }> {
         try {
-            const { data } = await this.client.get<BackendResponse<unknown> | unknown>(
-                `/rations/preview?camp_id=${campId}&ration_date=${rationDate}`
-            );
+            const { data } = await this.client.get<BackendResponse<unknown> | unknown>( `/rations/preview?camp_id=${campId}&ration_date=${rationDate}` );
             
+            // TODO: verificar el origen del error y mitigarlo adecuadamente sin corromper la funcionalidad
             const result = this.extractItem<unknown>(data) as any;
             return {
                 total_persons: result.total_persons ?? 0,
@@ -89,6 +80,14 @@ export class RationExecutionService extends AxiosBaseService {
             ration_date: payload.ration_date,
             resource_config: payload.resource_config,
         };
+    }
+
+    private resolveError(error: unknown) {
+        const extracted = this.extractErrorMessage(error, CONTRACT_ERROR_MESSAGE).trim();
+        if (!extracted || extracted.includes("404") || extracted.includes("Cannot")) {
+            return CONTRACT_ERROR_MESSAGE;
+        }
+        return extracted;
     }
 }
 

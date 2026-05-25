@@ -53,10 +53,10 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 items-end bg-bg-tertiary/30 border border-border-default p-4">
+      <div className="flex gap-2 items-end">
         <div className="flex-1">
           <label htmlFor="resource-id" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest mb-2">
-            Seleccionar Recurso
+            RESOURCE
           </label>
           <select
             id="resource-id"
@@ -64,7 +64,7 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
             onChange={(e) => setResourceId(Number(e.target.value))}
             className="w-full px-3 py-2 bg-bg-primary border border-border-default font-mono text-[11px] text-txt-primary focus:outline-none focus:border-accent"
           >
-            <option value={0}>Seleccione...</option>
+            <option value={0}>Select...</option>
             {availableResources.map((r: any) => (
               <option key={r.id} value={r.id}>
                 {r.name} ({r.unit_of_measure})
@@ -72,9 +72,9 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
             ))}
           </select>
         </div>
-        <div className="w-32">
+        <div className="w-24">
           <label htmlFor="amount" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest mb-2">
-            Cantidad
+            QTY
           </label>
           <input
             id="amount"
@@ -89,7 +89,7 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
           type="button"
           onClick={handleAdd}
           disabled={resourceId === 0}
-          className="px-4 py-2 bg-accent/10 border border-accent/30 font-mono text-[9px] font-bold text-accent uppercase tracking-widest hover:bg-accent/20 transition-all flex items-center gap-2 disabled:opacity-50"
+          className="px-3 py-2 bg-accent/10 border border-accent/30 font-mono text-[9px] font-bold text-accent uppercase tracking-widest hover:bg-accent/20 transition-all flex items-center gap-2 disabled:opacity-50"
         >
           <Plus className="h-3 w-3" />
           ADD

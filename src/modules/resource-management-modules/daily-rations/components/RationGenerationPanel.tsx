@@ -56,7 +56,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                     type="date"
                     value={rationDate}
                     onChange={(e) => onDateChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-bg-tertiary border border-border-default text-txt-primary font-mono text-sm rounded focus:outline-none focus:border-border-focus"
+                    className="rmm-input w-full text-[11px]!"
                 />
             </div>
 

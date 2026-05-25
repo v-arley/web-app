@@ -36,7 +36,7 @@ const ACTIVIDAD_RECIENTE = [
 
 export function GlobalDashboardView() {
     return (
-        <div className="flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4 overflow-y-auto">
+        <div className="mm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4 overflow-y-auto">
             <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                 DASHBOARD GLOBAL
             </div>

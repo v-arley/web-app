@@ -1,0 +1,54 @@
+// components/NotificationBell.tsx
+import React from 'react';
+import { useNotifications } from './NotificationContext.tsx.backup';
+
+export const NotificationBell: React.FC = () => {
+    const { notifications, unreadCount, markAsRead, isConnected } = useNotifications();
+    const [open, setOpen] = React.useState(false);
+
+    const criticalAlerts = notifications.filter(n => n.type === 'resource_alert' && !n.read);
+
+    return (
+        <div className="notification-container">
+            <button onClick={() => setOpen(!open)} className="bell-button">
+                🔔 {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+                {!isConnected && <span className="disconnected-dot" title="Desconectado" />}
+            </button>
+
+            {open && (
+                <div className="notification-dropdown">
+                    <div className="notification-header">
+                        <h4>Notificaciones</h4>
+                        <span className={`connection-status ${isConnected ? 'connected' : 'disconnected'}`}>
+                            {isConnected ? '● En vivo' : '● Reconectando...'}
+                        </span>
+                    </div>
+
+                    {criticalAlerts.length > 0 && (
+                        <div className="critical-section">
+                            <div className="critical-title">🚨 ALERTAS CRÍTICAS</div>
+                            {criticalAlerts.map(alert => (
+                                <div key={alert.id} className="notification-item critical" onClick={() => markAsRead(alert.id)}>
+                                    <div className="notification-type">STOCK BAJO</div>
+                                    <div className="notification-message">{alert.message}</div>
+                                    <div className="notification-time">{new Date(alert.timestamp).toLocaleTimeString()}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {notifications.length === 0 ? (
+                        <div className="empty-state">Sin notificaciones pendientes</div>
+                    ) : (
+                        notifications.slice(0, 10).map(n => (
+                            <div key={n.id} className={`notification-item ${n.read ? 'read' : 'unread'}`} onClick={() => markAsRead(n.id)}>
+                                <div className="notification-title">{n.title}</div>
+                                <div className="notification-message">{n.message}</div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};

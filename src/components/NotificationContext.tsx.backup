@@ -1,0 +1,71 @@
+// contexts/NotificationContext.tsx
+import React, { createContext, useContext, useCallback, useState } from 'react';
+import { useSSE } from '../hooks/useSSE.ts.backu[';
+
+interface Notification {
+  id: string;
+  type: 'resource_alert' | 'admission_pending' | 'exploration_overdue' | 'shipment_update' | 'production_adjustment';
+  title: string;
+  message: string;
+  campId: number;
+  entityType: string;
+  entityId: number;
+  timestamp: string;
+  read: boolean;
+}
+
+interface NotificationContextType {
+  notifications: Notification[];
+  unreadCount: number;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  isConnected: boolean;
+}
+
+const NotificationContext = createContext<<NotificationContextType | null>(null);
+
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [notifications, setNotifications] = useState<<Notification[]>([]);
+
+  const { isConnected } = useSSE<<Notification>({
+    url: '/api/v1/notifications/stream',
+    eventTypes: ['notification', 'alert', 'shipment', 'exploration'],
+    onMessage: (notification) => {
+      setNotifications(prev => {
+        // Evitar duplicados por ID
+        if (prev.some(n => n.id === notification.id)) return prev;
+        return [notification, ...prev].slice(0, 100); // Mantener últimas 100
+      });
+      
+      // Toast inmediato para alertas críticas
+      if (notification.type === 'resource_alert') {
+        showToastCritical(notification.title, notification.message);
+      }
+    },
+    autoReconnect: true,
+    reconnectInterval: 3000,
+  });
+
+  const markAsRead = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    // API call: PATCH /api/v1/notifications/:id/read
+  }, []);
+
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  }, []);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  return (
+    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead, isConnected }}>
+      {children}
+    </NotificationContext.Provider>
+  );
+};
+
+export const useNotifications = () => {
+  const ctx = useContext(NotificationContext);
+  if (!ctx) throw new Error('useNotifications must be used within NotificationProvider');
+  return ctx;
+};

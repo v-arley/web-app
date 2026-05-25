@@ -41,7 +41,7 @@ function DeliverRationsPageContent() {
     const pendingCount = rations?.filter((r) => r.completed === 'N').length ?? 0;
 
     return (
-        <div className="flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Raciones Diarias / Entregar Raciones
@@ -57,7 +57,7 @@ function DeliverRationsPageContent() {
                     <div className="max-w-7xl mx-auto space-y-6">
                 {/* Header */}
                 {/* <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-accent-secondary/20 rounded-lg">
+                    <div className="p-3 bg-accent-secondary/10 border border-accent-secondary/30">
                         <ClipboardCheck className="w-6 h-6 text-accent-secondary" />
                     </div>
                     <div>
@@ -84,7 +84,7 @@ function DeliverRationsPageContent() {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as 'Y' | 'N' | '')}
-                                className="w-full px-3 py-2 bg-bg-tertiary border border-border-default text-txt-primary font-mono text-sm rounded focus:outline-none focus:border-border-focus"
+                                className="rmm-input w-full text-[11px]!"
                             >
                                 <option value="">Todos</option>
                                 <option value="Y">Entregadas</option>

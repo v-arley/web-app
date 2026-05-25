@@ -6,6 +6,7 @@ import { ResourceSelector } from "../components/ResourceSelector";
 import { requestResourceService } from "../services/RequestResourceService";
 import { CampService } from "../../../../services/CampService";
 import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { Camp } from "../../../../models/Camp";
 
 const campService = new CampService();
 
@@ -23,12 +24,12 @@ export function CreateRequestPage() {
     queryKey: ["camps-list-for-requests"],
     queryFn: async () => {
       const res = await campService.findAllForRequests();
-      return res.getResultado<any[]>("registros") ?? [];
+      return res.getResultado<Camp[]>("registros") ?? [];
     }
   });
 
   // Obtener nombre del campamento origen
-  const originCampName = camps.find(c => c.id === originCampId)?.name ?? "Cargando...";
+  const originCampName = camps.find(c => c.id === originCampId)?.code ?? "Cargando...";
   
   // Campamentos disponibles como destino (excluye el origen)
   const availableDestinations = camps.filter(c => c.id !== originCampId);
@@ -78,7 +79,7 @@ export function CreateRequestPage() {
   };
 
   return (
-    <div className="flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+    <div className="rmm-scope flex h-full flex-col bg-bg-app gap-4">
       {/* <div className="flex items-center justify-between">
         <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
           Gestión Inter-Campamento / Crear Solicitud
@@ -86,7 +87,7 @@ export function CreateRequestPage() {
         
       </div> */}
 
-      <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default shadow-2xl">
+      <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary shadow-2xl">
         <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
         <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
 
@@ -94,18 +95,18 @@ export function CreateRequestPage() {
           <div className="flex-1 overflow-auto p-6">
             <div className="max-w-4xl mx-auto">
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="bg-status-info/10 border border-status-info/30 p-4 mb-6">
+              {/* <div className="bg-status-info/10 border border-status-info/30 p-4 mb-6">
                 <div className="font-mono text-[10px] font-bold text-status-info mb-2 uppercase tracking-widest">
-                  Nueva Solicitud de Recursos
+                  NEW REQUEST
                 </div>
                 <div className="font-mono text-[9px] text-txt-secondary leading-relaxed">
                   Complete el formulario para solicitar recursos de otro campamento. La solicitud requiere aprobación del campamento destino y del campamento origen.
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-bg-tertiary/30 border border-border-default">
+              </div> */}
+              <div className="flex flex-col gap-2 p-4">
                 <div>
-                  <label htmlFor="origin-camp" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest mb-3">
-                    Mi Campamento (Origen)
+                  <label htmlFor="origin-camp" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
+                    MY CAMP ID
                   </label>
                   <input
                     id="origin-camp"
@@ -117,13 +118,13 @@ export function CreateRequestPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="destination-camp" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest mb-3">
-                    Campamento Destino
+                  <label htmlFor="destination-camp" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
+                    TARGET CAMP
                   </label>
                   {isLoadingCamps ? (
                     <div className="w-full px-3 py-2 bg-bg-tertiary border border-border-default font-mono text-[11px] text-txt-disabled flex items-center gap-2">
-                      <div className="h-3 w-3 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                      Cargando campamentos...
+                      <div className="h-3 w-3 border-2 border-accent/30 border-t-accent animate-spin" />
+                      LOADING CAMPS...
                     </div>
                   ) : (
                     <select
@@ -135,7 +136,7 @@ export function CreateRequestPage() {
                     >
                       <option value={0}>Seleccione destino...</option>
                       {availableDestinations.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
+                        <option key={c.id ?? 0} value={c.id ?? 0}>{c.code}</option>
                       ))}
                     </select>
                   )}
@@ -143,14 +144,14 @@ export function CreateRequestPage() {
               </div>
 
               {originCampId === destinationCampId && destinationCampId !== 0 && (
-                <div className="px-4 py-3 border font-mono text-[11px] uppercase tracking-widest bg-status-critical/10 border-status-critical/30 text-status-critical">
+                <div className="p-4 font-mono text-[11px] uppercase tracking-widest bg-status-critical/10 border-status-critical/30 text-status-critical">
                   ERROR: El campamento origen y destino deben ser diferentes.
                 </div>
               )}
 
               <div>
-                <label htmlFor="description" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest mb-3">
-                  Descripción / Justificación
+                <label htmlFor="description" className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
+                  DESCRIPTION (optional)
                 </label>
                 <textarea
                   id="description"
@@ -162,9 +163,9 @@ export function CreateRequestPage() {
                 />
               </div>
 
-              <div className="pt-4 border-t border-border-default">
+              <div className="p-4">
                 <label className="block font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest mb-4">
-                  Lista de Recursos Requeridos
+                  LIST OF RESOURCES TO REQUEST
                 </label>
                 <ResourceSelector resources={resources} onChange={setResources} />
               </div>
@@ -177,13 +178,13 @@ export function CreateRequestPage() {
                 >
                   {createRequest.isPending ? (
                     <>
-                      <div className="h-4 w-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                      PROCESANDO...
+                      <div className="h-4 w-4 border-2 border-accent/30 border-t-accent animate-spin" />
+                      PROCESSING...
                     </>
                   ) : (
                     <>
                       <Send className="h-4 w-4" />
-                      ENVIAR SOLICITUD
+                      SEND REQUEST
                     </>
                   )}
                 </button>

@@ -46,7 +46,7 @@ export function RequestDetailModal({ requestId, onClose }: RequestDetailModalPro
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-4">
-              <div className="h-10 w-10 border-4 border-accent/30 border-t-accent rounded-full animate-spin" />
+              <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary animate-pulse">Cargando recursos...</p>
             </div>
           ) : resources.length === 0 ? (

@@ -51,9 +51,9 @@ export function RationResourcesDetail({ rationId }: Props) {
                     return (
                         <div
                             key={`${resource.ration_id}-${resource.resource_id}`}
-                            className="flex items-center gap-3 bg-bg-secondary border border-border-default p-3 rounded"
+                            className="flex items-center gap-3 bg-bg-secondary border border-border-default p-3"
                         >
-                            <Package className="w-4 h-4 text-accent-primary flex-shrink-0" />
+                            <Package className="w-4 h-4 text-accent-primary shrink-0" />
                             <div className="flex-1 min-w-0">
                                 <div className="font-mono text-xs text-txt-primary truncate">
                                     {resourceData?.name || `ID ${resource.resource_id}`}

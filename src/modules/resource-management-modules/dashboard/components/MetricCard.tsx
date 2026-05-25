@@ -42,11 +42,11 @@ export function MetricCard({
                     <div className="text-[10px] font-mono font-bold text-txt-disabled uppercase tracking-[0.2em] mb-2">
                         {title}
                     </div>
-                    <div className="text-3xl font-mono font-bold text-txt-primary mb-1">
+                    <div className="text-xl font-mono font-bold text-txt-primary mb-1">
                         {value}
                     </div>
                     {subtitle && (
-                        <div className="text-[11px] font-mono text-txt-secondary tracking-wide">
+                        <div className="text-[10px] font-mono text-txt-secondary tracking-wide opacity-80 uppercase">
                             {subtitle}
                         </div>
                     )}

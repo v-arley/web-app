@@ -20,9 +20,9 @@ export function OutgoingRequestsTable({
 
   if (requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-bg-tertiary/20 border-2 border-dashed border-border-default">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary italic">
-          No hay solicitudes salientes registradas
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary">
+          NO HAY SOLICITUDES SALIENTES REGISTRADAS
         </p>
       </div>
     );

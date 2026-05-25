@@ -172,7 +172,7 @@ function CreateCampModuleContent() {
     };
 
     return (
-        <div className="flex h-full min-h-0 flex-col p-4 md:p-6 bg-bg-app">
+        <div className="mm-scope flex h-full min-h-0 flex-col p-4 md:p-6 bg-bg-app">
             <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em] mb-4">
                 Gestion de Campamentos / Module Slice
             </div>

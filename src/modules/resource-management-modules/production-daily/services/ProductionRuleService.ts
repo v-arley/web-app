@@ -7,9 +7,7 @@ const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es v
 export class ProductionRuleService extends AxiosBaseService {
     async getProductionRules(campId: number): Promise<ProductionRuleFormValues[]> {
         try {
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/production-rules/camp/${campId}`
-            );
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/production-rules/camp/${campId}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeRule(item));
@@ -20,10 +18,7 @@ export class ProductionRuleService extends AxiosBaseService {
 
     async createProductionRule(payload: ProductionRuleFormValues): Promise<ProductionRuleFormValues> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
-                "/production-rules",
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/production-rules", this.toWritePayload(payload) );
             
             return this.normalizeRule(this.extractItem<unknown>(data));
         } catch (error) {
@@ -33,10 +28,7 @@ export class ProductionRuleService extends AxiosBaseService {
 
     async updateProductionRule(id: number, payload: ProductionRuleFormValues): Promise<ProductionRuleFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/production-rules/${id}`,
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/production-rules/${id}`, this.toWritePayload(payload) );
             
             return this.normalizeRule(this.extractItem<unknown>(data));
         } catch (error) {

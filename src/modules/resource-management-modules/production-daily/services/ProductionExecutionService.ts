@@ -7,10 +7,7 @@ const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es v
 export class ProductionExecutionService extends AxiosBaseService {
     async executeDailyProduction(payload: ProductionExecutionFormValues): Promise<ProductionExecutionResult> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
-                "/production/execute-daily",
-                payload
-            );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/production/execute-daily", payload );
             
             return this.normalizeResult(this.extractItem<unknown>(data));
         } catch (error) {

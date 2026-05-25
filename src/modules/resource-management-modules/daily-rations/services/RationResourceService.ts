@@ -7,9 +7,7 @@ const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es v
 export class RationResourceService extends AxiosBaseService {
     async getRationResources(rationId: number): Promise<RationResourceFormValues[]> {
         try {
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/ration-resources?ration_id=${rationId}`
-            );
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/ration-resources?ration_id=${rationId}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeRationResource(item));
@@ -20,10 +18,7 @@ export class RationResourceService extends AxiosBaseService {
 
     async createRationResource(payload: RationResourceFormValues): Promise<RationResourceFormValues> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
-                "/ration-resources",
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/ration-resources", this.toWritePayload(payload) );
             
             return this.normalizeRationResource(this.extractItem<unknown>(data));
         } catch (error) {
@@ -46,6 +41,14 @@ export class RationResourceService extends AxiosBaseService {
             resource_id: payload.resource_id,
             amount: payload.amount,
         };
+    }
+
+    private resolveError(error: unknown) {
+        const extracted = this.extractErrorMessage(error, CONTRACT_ERROR_MESSAGE).trim();
+        if (!extracted || extracted.includes("404") || extracted.includes("Cannot")) {
+            return CONTRACT_ERROR_MESSAGE;
+        }
+        return extracted;
     }
 }
 

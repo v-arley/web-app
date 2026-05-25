@@ -1,3 +1,5 @@
+// TODO: cambiar la estructura del service para que continue el patron utilizado en los modulos de inventario, porduccion diaria, solicitures inter-campamentos
+
 import axiosClient from "../../../../api/axiosClient";
 
 export interface DashboardMetrics {
