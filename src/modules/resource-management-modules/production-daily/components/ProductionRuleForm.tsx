@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RotateCcw, Save } from "lucide-react";
+import { RotateCcw, Save, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { productionRuleSchema, type ProductionRuleFormInput, type ProductionRuleFormValues, EMPTY_PRODUCTION_RULE } from "../schemas/production-rule.schema";
@@ -11,10 +11,11 @@ type Props = {
     isSubmitting?: boolean;
     onSubmit: (values: ProductionRuleFormValues) => Promise<void>;
     onClear: () => void;
+    onDelete?: (id: number) => void;
 };
 
 const fieldClass =
-    "bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all placeholder:text-txt-disabled/30 w-full";
+    "bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-[11px] text-txt-primary focus:border-accent outline-none transition-all placeholder:text-txt-muted/50 w-full";
 
 function Field({
     label,
@@ -30,8 +31,8 @@ function Field({
     return (
         <label className="flex flex-col gap-1.5">
             <span className="flex items-center justify-between gap-3 text-[10px] font-mono font-bold uppercase tracking-widest">
-                <span className={required ? "text-status-critical" : "text-txt-disabled"}>{label}</span>
-                {error ? <span className="text-status-critical normal-case tracking-normal">{error}</span> : null}
+                <span className={required ? "text-accent" : "text-txt-secondary"}>{label}</span>
+                {error ? <span className="text-accent normal-case tracking-normal">{error}</span> : null}
             </span>
             {children}
         </label>
@@ -45,6 +46,7 @@ export function ProductionRuleForm({
     isSubmitting = false,
     onSubmit,
     onClear,
+    onDelete,
 }: Props) {
     const form = useForm<ProductionRuleFormInput, undefined, ProductionRuleFormValues>({
         resolver: zodResolver(productionRuleSchema),
@@ -128,12 +130,24 @@ export function ProductionRuleForm({
                 </Field>
             </div>
 
-            <div className="border-t border-border-default bg-bg-secondary/30 px-5 py-4 flex gap-3">
+            <div className="border-t border-border-default bg-bg-secondary/30 px-5 py-3 flex gap-2">
+                {initialData?.id && onDelete && (
+                    <button
+                        type="button"
+                        onClick={() => onDelete(initialData.id!)}
+                        disabled={isSubmitting}
+                        className="flex items-center justify-center gap-1.5 bg-status-critical/10 border border-status-critical/30 px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-status-critical hover:bg-status-critical/20 transition-all disabled:opacity-50"
+                        title="Eliminar regla"
+                    >
+                        <Trash2 className="w-3 h-3" />
+                        Del
+                    </button>
+                )}
                 <button
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-disabled hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="w-3.5 h-3.5" />
                     Limpiar
@@ -141,10 +155,10 @@ export function ProductionRuleForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 flex items-center justify-center gap-2 bg-accent border border-accent px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-accent/90 transition-all disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 bg-accent border border-accent px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-accent/90 transition-all disabled:opacity-50"
                 >
                     <Save className="w-3.5 h-3.5" />
-                    {isSubmitting ? "Guardando..." : "Guardar"}
+                    {isSubmitting ? "..." : initialData?.id ? "Actualizar" : "Guardar"}
                 </button>
             </div>
         </form>

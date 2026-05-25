@@ -2,52 +2,47 @@ import { AxiosBaseService } from "../../../../services/AxiosBaseService";
 import type { BackendResponse, BackendListPayload } from "../../../../utils/Response";
 import { rationSchema, type RationFormValues } from "../schemas/ration.schema";
 
+const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
+
 export class RationService extends AxiosBaseService {
-    async getRations(campId: number, filters?: {
-        startDate?: string;
-        endDate?: string;
-        completed?: 'Y' | 'N';
-    }): Promise<RationFormValues[]> {
+    async getRations(campId: number, filters?: { startDate?: string; endDate?: string; completed?: 'Y' | 'N'; }): Promise<RationFormValues[]> {
         try {
             const params = new URLSearchParams();
-            params.append('camp_id', campId.toString());
-            if (filters?.startDate) params.append('start_date', filters.startDate);
-            if (filters?.endDate) params.append('end_date', filters.endDate);
-            if (filters?.completed) params.append('completed', filters.completed);
 
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/rations?${params.toString()}`
-            );
+            params.append('camp_id', campId.toString());
+            if (filters?.startDate) 
+                params.append('start_date', filters.startDate);
+            if (filters?.endDate) 
+                params.append('end_date', filters.endDate);
+            if (filters?.completed) 
+                params.append('completed', filters.completed);
+
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/rations?${params.toString()}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeRation(item));
         } catch (error) {
-            throw new Error(this.extractErrorMessage(error, "Error al obtener raciones"));
+            throw new Error(this.resolveError(error));
         }
     }
 
     async getRationById(id: number): Promise<RationFormValues> {
         try {
-            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>(
-                `/rations/${id}`
-            );
+            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>( `/rations/${id}` );
             
             return this.normalizeRation(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.extractErrorMessage(error, "Error al obtener ración"));
+            throw new Error(this.resolveError(error));
         }
     }
 
     async updateRation(id: number, payload: Partial<RationFormValues>): Promise<RationFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/rations/${id}`,
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/rations/${id}`, this.toWritePayload(payload) );
             
             return this.normalizeRation(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.extractErrorMessage(error, "Error al actualizar ración"));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -80,6 +75,14 @@ export class RationService extends AxiosBaseService {
             ration_date: payload.ration_date,
             notes: payload.notes?.trim() || undefined,
         };
+    }
+
+    private resolveError(error: unknown) {
+        const extracted = this.extractErrorMessage(error, CONTRACT_ERROR_MESSAGE).trim();
+        if (!extracted || extracted.includes("404") || extracted.includes("Cannot")) {
+            return CONTRACT_ERROR_MESSAGE;
+        }
+        return extracted;
     }
 }
 

@@ -14,7 +14,7 @@ type Props = {
 };
 
 const fieldClass =
-    "bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all placeholder:text-txt-disabled/30 w-full";
+    "bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-[11px] text-txt-primary focus:border-accent outline-none transition-all placeholder:text-txt-muted/50 w-full";
 
 function Field({
     label,
@@ -30,8 +30,8 @@ function Field({
     return (
         <label className="flex flex-col gap-1.5">
             <span className="flex items-center justify-between gap-3 text-[10px] font-mono font-bold uppercase tracking-widest">
-                <span className={required ? "text-status-critical" : "text-txt-disabled"}>{label}</span>
-                {error ? <span className="text-status-critical normal-case tracking-normal">{error}</span> : null}
+                <span className={required ? "text-accent" : "text-txt-secondary"}>{label}</span>
+                {error ? <span className="text-accent normal-case tracking-normal">{error}</span> : null}
             </span>
             {children}
         </label>

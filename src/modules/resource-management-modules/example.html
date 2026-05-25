@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SYS//UI — Component Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --prussian: #122435;
+    --indigo-dye: #224766;
+    --sinopia: #CC361E;
+    --sinopia-dim: rgba(204,54,30,0.15);
+    --sinopia-mid: rgba(204,54,30,0.4);
+    --anti-flash: #EFEFEF;
+    --silver: #B3B3B3;
+    --fog: #C2CDD5;
+    --fog-light: #E8EDF0;
+    --fog-dark: #8FA0AB;
+    --bg: #F0F2F4;
+    --surface: #FAFBFC;
+    --surface-2: #EAEEF1;
+    --text-primary: #122435;
+    --text-secondary: #3A5060;
+    --text-muted: #7A8F9C;
+    --border: rgba(18,36,53,0.12);
+    --border-strong: rgba(18,36,53,0.22);
+    --grid: rgba(18,36,53,0.06);
+    --accent: #CC361E;
+    --accent-2: #224766;
+    --mono: 'Space Mono', monospace;
+    --tech: 'Share Tech Mono', monospace;
+    --sans: 'Barlow Condensed', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* CORNER BRACKETS */
+  .bracket {
+    position: fixed;
+    width: 28px;
+    height: 28px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .bracket::before, .bracket::after {
+    content: '';
+    position: absolute;
+    background: var(--prussian);
+  }
+  .bracket-tl { top: 16px; left: 16px; }
+  .bracket-tl::before { width: 100%; height: 2px; top: 0; left: 0; }
+  .bracket-tl::after { width: 2px; height: 100%; top: 0; left: 0; }
+  .bracket-tr { top: 16px; right: 16px; }
+  .bracket-tr::before { width: 100%; height: 2px; top: 0; right: 0; }
+  .bracket-tr::after { width: 2px; height: 100%; top: 0; right: 0; }
+  .bracket-bl { bottom: 16px; left: 16px; }
+  .bracket-bl::before { width: 100%; height: 2px; bottom: 0; left: 0; }
+  .bracket-bl::after { width: 2px; height: 100%; bottom: 0; left: 0; }
+  .bracket-br { bottom: 16px; right: 16px; }
+  .bracket-br::before { width: 100%; height: 2px; bottom: 0; right: 0; }
+  .bracket-br::after { width: 2px; height: 100%; bottom: 0; right: 0; }
+
+  /* LAYOUT */
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-strong);
+    margin-bottom: 48px;
+    position: relative;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--prussian);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-accent { color: var(--accent); }
+  .logo-sep {
+    width: 20px; height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .topbar-meta {
+    font-family: var(--tech);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    display: flex;
+    gap: 24px;
+  }
+  .topbar-meta span { color: var(--accent); }
+  .topbar-nav {
+    display: flex;
+    gap: 2px;
+  }
+  .nav-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--surface-2); border-color: var(--accent); color: var(--accent); }
+  .nav-btn.active { background: var(--prussian); color: #fff; border-color: var(--prussian); }
+
+  /* SECTION HEADERS */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .section-title {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .section-id {
+    font-family: var(--tech);
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section { margin-bottom: 64px; }
+
+  /* PAGE TITLE */
+  .page-title-block {
+    margin-bottom: 48px;
+    position: relative;
+    padding-left: 16px;
+  }
+  .page-title-block::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+  .page-title {
+    font-family: var(--sans);
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--prussian);
+    text-transform: uppercase;
+  }
+  .page-subtitle {
+    font-family: var(--tech);
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    margin-top: 6px;
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  .btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    border: none;
+    outline: none;
+  }
+  /* Primary */
+  .btn-primary {
+    background: var(--prussian);
+    color: #fff;
+    border: 1px solid var(--prussian);
+  }
+  .btn-primary::after {
+    content: '▶';
+    font-size: 8px;
+    opacity: 0.6;
+  }
+  .btn-primary:hover { background: var(--indigo-dye); border-color: var(--indigo-dye); }
+
+  /* Accent */
+  .btn-accent {
+    background: var(--accent);
+    color: #fff;
+    border: 1px solid var(--accent);
+  }
+  .btn-accent::after { content: '▶'; font-size: 8px; opacity: 0.7; }
+  .btn-accent:hover { background: #a82a15; border-color: #a82a15; }
+
+  /* Ghost */
+  .btn-ghost {
+    background: transparent;
+    color: var(--prussian);
+    border: 1px solid var(--border-strong);
+  }
+  .btn-ghost::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--accent);
+    transition: width 0.2s;
+  }
+  .btn-ghost:hover::before { width: 100%; }
+  .btn-ghost:hover { border-color: var(--prussian); }
+
+  /* Outline accent */
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-outline:hover { background: var(--sinopia-dim); }
+
+  /* Disabled */
+  .btn-disabled {
+    background: var(--surface-2);
+    color: var(--silver);
+    border: 1px solid var(--border);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Icon btn */
+  .btn-icon {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Stripes decoration on buttons */
+  .btn-stripes {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-stripes::before {
+    content: '';
+    position: absolute;
+    right: -8px; top: -8px;
+    width: 28px; height: 48px;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 3px,
+      rgba(255,255,255,0.15) 3px,
+      rgba(255,255,255,0.15) 6px
+    );
+  }
+
+  /* ─── TAGS / BADGES ─── */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .tag {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tag-dot { width: 5px; height: 5px; background: currentColor; }
+  .tag-default { color: var(--text-secondary); border-color: var(--border-strong); background: transparent; }
+  .tag-accent { color: var(--accent); border-color: var(--accent); background: var(--sinopia-dim); }
+  .tag-info { color: var(--indigo-dye); border-color: var(--indigo-dye); background: rgba(34,71,102,0.08); }
+  .tag-success { color: #1a6640; border-color: #1a6640; background: rgba(26,102,64,0.08); }
+  .tag-warn { color: #8B5E00; border-color: #8B5E00; background: rgba(139,94,0,0.08); }
+  .tag-dark { color: #fff; background: var(--prussian); border-color: var(--prussian); }
+
+  /* ─── INPUTS / FORM ─── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .field-label {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .field-label .field-id { color: var(--accent); }
+
+  .field-input {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: var(--silver); }
+
+  .field-select {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    padding: 9px 12px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23122435' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .field-select:focus { border-color: var(--accent); }
+
+  .field-textarea {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    padding: 9px 12px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .field-textarea:focus { border-color: var(--accent); }
+
+  .field-hint {
+    font-family: var(--tech);
+    font-size: 10px;
+    color: var(--silver);
+    letter-spacing: 0.06em;
+  }
+  .field-hint.error { color: var(--accent); }
+
+  /* Checkbox / Radio */
+  .check-group { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .check-box {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .check-box.checked { border-color: var(--accent); background: var(--sinopia-dim); }
+  .check-box.checked::after { content: '✕'; font-size: 9px; color: var(--accent); font-weight: 700; }
+  .check-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+  }
+
+  /* Toggle */
+  .toggle-row { display: flex; align-items: center; gap: 12px; }
+  .toggle {
+    width: 36px; height: 18px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    background: var(--silver);
+    top: 2px; left: 2px;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .toggle.on { background: var(--sinopia-dim); border-color: var(--accent); }
+  .toggle.on::after { transform: translateX(18px); background: var(--accent); }
+  .toggle-label { font-family: var(--mono); font-size: 11px; color: var(--text-secondary); }
+
+  /* ─── TABS ─── */
+  .tabs { margin-bottom: 0; }
+  .tab-list {
+    display: flex;
+    border-bottom: 1px solid var(--border-strong);
+    gap: 0;
+    margin-bottom: 0;
+  }
+  .tab-item {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-bottom: none;
+    transition: all 0.12s;
+    position: relative;
+    top: 1px;
+  }
+  .tab-item:hover { color: var(--prussian); background: var(--surface-2); }
+  .tab-item.active {
+    color: var(--prussian);
+    background: var(--surface);
+    border-color: var(--border-strong);
+    border-bottom-color: var(--surface);
+  }
+  .tab-item.active::after {
+    content: '';
+    position: absolute;
+    top: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+  .tab-panel {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-top: none;
+    padding: 20px;
+  }
+  .tab-panel p {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* ─── TABLE ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table thead tr {
+    background: var(--prussian);
+    color: #fff;
+  }
+  .data-table thead th {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 400;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  .data-table thead th:last-child { border-right: none; }
+  .data-table thead th.sort-active::after { content: ' ▼'; color: var(--accent); font-size: 8px; }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .data-table tbody tr:hover { background: var(--surface-2); }
+  .data-table tbody tr.selected { background: var(--sinopia-dim); }
+  .data-table tbody td {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    vertical-align: middle;
+  }
+  .data-table tbody td:first-child { color: var(--text-primary); }
+  .data-table tfoot tr {
+    background: var(--surface-2);
+    border-top: 2px solid var(--border-strong);
+  }
+  .data-table tfoot td {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 8px 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* Row status marker */
+  .row-marker {
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .row-marker.ok { background: #1a6640; }
+  .row-marker.warn { background: #8B5E00; }
+  .row-marker.err { background: var(--accent); }
+
+  /* ─── CARDS ─── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--border);
+    transition: background 0.15s;
+  }
+  .card:hover { border-color: var(--fog-dark); }
+  .card:hover::before { background: var(--accent); }
+
+  .card-accent::before { background: var(--accent) !important; }
+  .card-info::before { background: var(--indigo-dye) !important; }
+
+  .card-id {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--silver);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .card-title {
+    font-family: var(--sans);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--prussian);
+    line-height: 1.1;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .card-value {
+    font-family: var(--mono);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--prussian);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .card-value .card-unit { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+  .card-sub {
+    font-family: var(--tech);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+  .card-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: var(--tech);
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .card-delta.up { color: #1a6640; }
+  .card-delta.down { color: var(--accent); }
+
+  /* Stat card inline bar */
+  .card-bar {
+    height: 3px;
+    background: var(--surface-2);
+    margin-top: 12px;
+    position: relative;
+  }
+  .card-bar-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: var(--accent);
+    transition: width 0.5s ease;
+  }
+  .card-bar-fill.info { background: var(--indigo-dye); }
+  .card-bar-fill.success { background: #1a6640; }
+
+  /* ─── ALERTS ─── */
+  .alert {
+    border-left: 3px solid;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: var(--surface);
+    margin-bottom: 10px;
+  }
+  .alert-icon {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    padding-top: 1px;
+    letter-spacing: 0.04em;
+  }
+  .alert-body { flex: 1; }
+  .alert-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+  .alert-msg {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .alert-info { border-color: var(--indigo-dye); }
+  .alert-info .alert-icon, .alert-info .alert-title { color: var(--indigo-dye); }
+  .alert-info .alert-msg { color: var(--text-secondary); }
+  .alert-err { border-color: var(--accent); background: var(--sinopia-dim); }
+  .alert-err .alert-icon, .alert-err .alert-title { color: var(--accent); }
+  .alert-err .alert-msg { color: #7a2010; }
+  .alert-warn { border-color: #8B5E00; }
+  .alert-warn .alert-icon, .alert-warn .alert-title { color: #8B5E00; }
+  .alert-warn .alert-msg { color: var(--text-secondary); }
+  .alert-ok { border-color: #1a6640; }
+  .alert-ok .alert-icon, .alert-ok .alert-title { color: #1a6640; }
+  .alert-ok .alert-msg { color: var(--text-secondary); }
+
+  /* ─── PROGRESS ─── */
+  .progress-list { display: flex; flex-direction: column; gap: 14px; }
+  .progress-item {}
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .progress-label { color: var(--text-secondary); }
+  .progress-val { color: var(--accent); }
+  .progress-track {
+    height: 4px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    position: absolute;
+    left: 0; top: 0;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: inherit;
+    filter: brightness(1.4);
+  }
+  .pf-accent { background: var(--accent); }
+  .pf-info { background: var(--indigo-dye); }
+  .pf-success { background: #1a6640; }
+  .pf-warn { background: #8B5E00; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    background: rgba(18,36,53,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    min-height: 340px;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+  .modal-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .modal-id {
+    font-family: var(--tech);
+    font-size: 10px;
+    color: var(--silver);
+    letter-spacing: 0.12em;
+  }
+  .modal-title {
+    font-family: var(--sans);
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--prussian);
+  }
+  .modal-body {
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  /* ─── NAVIGATION SIDEBAR ─── */
+  .nav-demo {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border: 1px solid var(--border-strong);
+    min-height: 360px;
+    background: var(--surface);
+  }
+  .sidebar {
+    background: var(--prussian);
+    padding: 0;
+    border-right: none;
+  }
+  .sidebar-logo {
+    padding: 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.1em;
+  }
+  .sidebar-logo span { color: var(--accent); }
+  .sidebar-section-label {
+    font-family: var(--tech);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    padding: 16px 16px 6px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    transition: all 0.12s;
+    border-left: 2px solid transparent;
+    position: relative;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+  .sidebar-item.active {
+    color: #fff;
+    background: rgba(204,54,30,0.15);
+    border-left-color: var(--accent);
+  }
+  .sidebar-item .s-dot {
+    width: 5px; height: 5px;
+    background: currentColor;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+  .sidebar-item.active .s-dot { background: var(--accent); opacity: 1; }
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: #fff;
+    font-size: 9px;
+    padding: 1px 6px;
+    font-family: var(--tech);
+    letter-spacing: 0.08em;
+  }
+  .sidebar-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 8px 0; }
+
+  .content-preview {
+    padding: 24px;
+    background: var(--bg);
+  }
+  .content-preview h3 {
+    font-family: var(--sans);
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    color: var(--prussian);
+  }
+  .content-preview p {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ─── BREADCRUMBS ─── */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--tech);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .breadcrumb-item { color: var(--text-muted); }
+  .breadcrumb-item.current { color: var(--prussian); }
+  .breadcrumb-sep { color: var(--accent); font-family: var(--mono); }
+
+  /* ─── PAGINATION ─── */
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .page-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.12s;
+  }
+  .page-btn:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .page-btn.active { background: var(--prussian); color: #fff; border-color: var(--prussian); }
+  .page-btn.accent { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── HUD WIDGET ─── */
+  .hud-widget {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    padding: 16px;
+    position: relative;
+  }
+  .hud-corner {
+    position: absolute;
+    width: 10px; height: 10px;
+  }
+  .hud-corner::before, .hud-corner::after { content: ''; position: absolute; background: var(--accent); }
+  .hud-tl { top: 0; left: 0; }
+  .hud-tl::before { width: 100%; height: 2px; top: 0; left: 0; }
+  .hud-tl::after { height: 100%; width: 2px; top: 0; left: 0; }
+  .hud-br { bottom: 0; right: 0; }
+  .hud-br::before { width: 100%; height: 2px; bottom: 0; right: 0; }
+  .hud-br::after { height: 100%; width: 2px; bottom: 0; right: 0; }
+
+  .hud-label {
+    font-family: var(--tech);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 4px;
+  }
+  .hud-value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--prussian);
+    line-height: 1;
+  }
+  .hud-value sup {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .hud-status {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hud-dot {
+    width: 6px; height: 6px;
+    border: 1px solid;
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .hud-dot.active { border-color: #1a6640; background: rgba(26,102,64,0.3); }
+  .hud-dot.warn { border-color: #8B5E00; background: rgba(139,94,0,0.2); animation-duration: 0.8s; }
+  .hud-dot.err { border-color: var(--accent); background: var(--sinopia-dim); animation-duration: 0.5s; }
+  .hud-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+  /* ─── TYPOGRAPHY ─── */
+  .type-showcase > * { margin-bottom: 12px; }
+  .t-display {
+    font-family: var(--sans);
+    font-size: 64px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--prussian);
+  }
+  .t-h1 {
+    font-family: var(--sans);
+    font-size: 40px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--prussian);
+  }
+  .t-h2 {
+    font-family: var(--sans);
+    font-size: 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--prussian);
+  }
+  .t-mono {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .t-tech {
+    font-family: var(--tech);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .t-code {
+    font-family: var(--tech);
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--sinopia-dim);
+    padding: 2px 8px;
+    border: 1px solid var(--sinopia-mid);
+  }
+
+  /* ─── TOOLTIP DEMO ─── */
+  .tooltip-demo { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .tooltip-wrap { position: relative; display: inline-block; }
+  .tooltip-wrap:hover .tooltip { opacity: 1; pointer-events: auto; }
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--prussian);
+    color: #fff;
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 5px 10px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    text-transform: uppercase;
+  }
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--prussian);
+  }
+  .tooltip.accent { background: var(--accent); }
+  .tooltip.accent::after { border-top-color: var(--accent); }
+
+  /* ─── DIVIDERS ─── */
+  .divider-labeled {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-text {
+    font-family: var(--tech);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .divider-text.accent { color: var(--accent); }
+
+  /* SCAN LINE decoration */
+  .scanline {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+    animation: scan 8s linear infinite;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  @keyframes scan {
+    0% { top: 0; }
+    100% { top: 100vh; }
+  }
+
+  /* UTILITY */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 768px) {
+    .two-col, .three-col, .form-grid { grid-template-columns: 1fr; }
+    .hud-grid { grid-template-columns: 1fr 1fr; }
+    .nav-demo { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+<div class="bracket bracket-tl"></div>
+<div class="bracket bracket-tr"></div>
+<div class="bracket bracket-bl"></div>
+<div class="bracket bracket-br"></div>
+
+<div class="page-wrap">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-sep"></div>
+      SYS<span class="logo-accent">//</span>UI
+    </div>
+    <div class="topbar-meta">
+      <span>VER <span>2.4.1</span></span>
+      <span>BUILD <span>20260524</span></span>
+      <span>STATUS <span>NOMINAL</span></span>
+    </div>
+    <nav class="topbar-nav">
+      <button class="nav-btn active">Components</button>
+      <button class="nav-btn">Templates</button>
+      <button class="nav-btn">Tokens</button>
+      <button class="nav-btn">Docs</button>
+    </nav>
+  </header>
+
+  <!-- PAGE TITLE -->
+  <div class="page-title-block">
+    <div class="page-title">Component<br>Library</div>
+    <div class="page-subtitle">// SYSTEM UI KIT — LIGHT THEME — REV 2.4</div>
+  </div>
+
+  <!-- ─── TYPOGRAPHY ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">01</span>
+      <span class="section-title">Typography</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="type-showcase">
+      <div class="t-display">DISPLAY</div>
+      <div class="t-h1">Heading Level 1 — System Title</div>
+      <div class="t-h2">Heading Level 2 — Section Header</div>
+      <p class="t-mono">Body text — Space Mono 13px. Far far away, behind the word mountains, far from the countries Vokalia and Consonantia there live the blind texts. Separated they live in Bookmarksgrove.</p>
+      <span class="t-tech">Technical Label — Share Tech Mono 11px — Uppercase tracking</span><br>
+      <code class="t-code">CODE_REFERENCE_01</code>
+    </div>
+  </section>
+
+  <!-- ─── BUTTONS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">02</span>
+      <span class="section-title">Buttons</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-primary btn-stripes">Primary</button>
+      <button class="btn btn-accent btn-stripes">Accent</button>
+      <button class="btn btn-ghost">Ghost</button>
+      <button class="btn btn-outline">Outline</button>
+      <button class="btn btn-icon">⊕</button>
+      <button class="btn btn-icon">✕</button>
+      <button class="btn btn-disabled">Disabled</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="font-size:9px;padding:6px 12px">SM Primary</button>
+      <button class="btn btn-accent" style="font-size:9px;padding:6px 12px">SM Accent</button>
+      <button class="btn btn-ghost" style="font-size:9px;padding:6px 12px">SM Ghost</button>
+      <button class="btn btn-primary" style="padding:13px 28px;font-size:13px">LG Primary</button>
+    </div>
+  </section>
+
+  <!-- ─── TAGS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">03</span>
+      <span class="section-title">Tags &amp; Badges</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="tag-row">
+      <span class="tag tag-default"><span class="tag-dot"></span>Default</span>
+      <span class="tag tag-accent"><span class="tag-dot"></span>Active</span>
+      <span class="tag tag-info"><span class="tag-dot"></span>Info</span>
+      <span class="tag tag-success"><span class="tag-dot"></span>Success</span>
+      <span class="tag tag-warn"><span class="tag-dot"></span>Warning</span>
+      <span class="tag tag-dark">System</span>
+      <span class="tag tag-accent">▲ Critical</span>
+      <span class="tag tag-info">// Module 07</span>
+    </div>
+  </section>
+
+  <!-- ─── FORM ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">04</span>
+      <span class="section-title">Form Elements</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="field-label">Target ID <span class="field-id">F-001</span></label>
+            <input class="field-input" type="text" placeholder="SYS-A_0032">
+            <span class="field-hint">Alphanumeric identifier</span>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Sector <span class="field-id">F-002</span></label>
+            <select class="field-select">
+              <option>Zone Alpha</option>
+              <option>Zone Beta</option>
+              <option>Zone Gamma</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Signal Input <span class="field-id">F-003</span></label>
+            <input class="field-input" type="text" placeholder="0.000" style="border-color: var(--accent)">
+            <span class="field-hint error">▲ Out of range — check calibration</span>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Priority <span class="field-id">F-004</span></label>
+            <select class="field-select">
+              <option>P1 — Critical</option>
+              <option>P2 — High</option>
+              <option>P3 — Normal</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="field-label">Description <span class="field-id">F-005</span></label>
+            <textarea class="field-textarea" placeholder="Enter operational notes..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-primary btn-stripes" style="width:100%;justify-content:center">Submit — Transmit Data ▶</button>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:20px">
+          <div class="field-label" style="margin-bottom:10px">Options <span class="field-id">F-006</span></div>
+          <div class="check-group">
+            <label class="check-item">
+              <div class="check-box checked" onclick="this.classList.toggle('checked')"></div>
+              <span class="check-label">Enable auto-sync</span>
+            </label>
+            <label class="check-item">
+              <div class="check-box" onclick="this.classList.toggle('checked')"></div>
+              <span class="check-label">Verbose logging</span>
+            </label>
+            <label class="check-item">
+              <div class="check-box checked" onclick="this.classList.toggle('checked')"></div>
+              <span class="check-label">Broadcast signal</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <div class="field-label" style="margin-bottom:10px">Toggles <span class="field-id">F-007</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="toggle-row">
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              <span class="toggle-label">System Online</span>
+              <span class="tag tag-success" style="margin-left:auto">Active</span>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              <span class="toggle-label">Debug Mode</span>
+              <span class="tag tag-default" style="margin-left:auto">Off</span>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              <span class="toggle-label">Secure Channel</span>
+              <span class="tag tag-accent" style="margin-left:auto">Locked</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TABS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">05</span>
+      <span class="section-title">Tabs</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="tabs">
+      <div class="tab-list" id="tab-list">
+        <div class="tab-item active" data-tab="0">Overview</div>
+        <div class="tab-item" data-tab="1">Signal Data</div>
+        <div class="tab-item" data-tab="2">Configuration</div>
+        <div class="tab-item" data-tab="3">Log Output</div>
+      </div>
+      <div class="tab-panel" id="tab-panel">
+        <p>// TAB 01 — Overview. System operational. All sensors nominal. Last sync: 00:01:32-016. Network latency 12ms. Uptime 99.8%.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TABLE ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">06</span>
+      <span class="section-title">Data Table</span>
+      <div class="section-line"></div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Node ID</th>
+          <th class="sort-active">Signal</th>
+          <th>Sector</th>
+          <th>Status</th>
+          <th>Last Ping</th>
+          <th>Load</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="selected">
+          <td>NODE-A_0021</td>
+          <td>5.210 mV</td>
+          <td>Zone Alpha</td>
+          <td><span class="tag tag-success" style="padding:3px 8px"><span class="tag-dot"></span>ONLINE</span></td>
+          <td style="font-family:var(--tech);font-size:10px;letter-spacing:0.1em">00:00:02</td>
+          <td><div class="progress-track" style="width:80px"><div class="progress-fill pf-success" style="width:78%"></div></div></td>
+        </tr>
+        <tr>
+          <td>NODE-B_0047</td>
+          <td>3.817 mV</td>
+          <td>Zone Beta</td>
+          <td><span class="tag tag-info" style="padding:3px 8px"><span class="tag-dot"></span>SYNC</span></td>
+          <td style="font-family:var(--tech);font-size:10px;letter-spacing:0.1em">00:00:18</td>
+          <td><div class="progress-track" style="width:80px"><div class="progress-fill pf-info" style="width:45%"></div></div></td>
+        </tr>
+        <tr>
+          <td>NODE-C_0009</td>
+          <td>0.003 mV</td>
+          <td>Zone Gamma</td>
+          <td><span class="tag tag-accent" style="padding:3px 8px"><span class="tag-dot"></span>ERROR</span></td>
+          <td style="font-family:var(--tech);font-size:10px;letter-spacing:0.1em">00:04:55</td>
+          <td><div class="progress-track" style="width:80px"><div class="progress-fill pf-accent" style="width:8%"></div></div></td>
+        </tr>
+        <tr>
+          <td>NODE-D_0033</td>
+          <td>4.501 mV</td>
+          <td>Zone Alpha</td>
+          <td><span class="tag tag-warn" style="padding:3px 8px"><span class="tag-dot"></span>WARN</span></td>
+          <td style="font-family:var(--tech);font-size:10px;letter-spacing:0.1em">00:01:07</td>
+          <td><div class="progress-track" style="width:80px"><div class="progress-fill pf-warn" style="width:62%"></div></div></td>
+        </tr>
+        <tr>
+          <td>NODE-E_0088</td>
+          <td>5.190 mV</td>
+          <td>Zone Delta</td>
+          <td><span class="tag tag-success" style="padding:3px 8px"><span class="tag-dot"></span>ONLINE</span></td>
+          <td style="font-family:var(--tech);font-size:10px;letter-spacing:0.1em">00:00:01</td>
+          <td><div class="progress-track" style="width:80px"><div class="progress-fill pf-success" style="width:95%"></div></div></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">5 Nodes // 3 Active // 1 Error // 1 Warning</td>
+          <td colspan="2" style="text-align:right">Page 1 of 12</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">System</span>
+        <span class="breadcrumb-sep">//</span>
+        <span class="breadcrumb-item">Nodes</span>
+        <span class="breadcrumb-sep">//</span>
+        <span class="breadcrumb-item current">Registry</span>
+      </div>
+      <div class="pagination">
+        <button class="page-btn accent">◀</button>
+        <button class="page-btn active">01</button>
+        <button class="page-btn">02</button>
+        <button class="page-btn">03</button>
+        <button class="page-btn" style="width:auto;padding:0 8px;font-size:10px">...</button>
+        <button class="page-btn">12</button>
+        <button class="page-btn accent">▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STAT CARDS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">07</span>
+      <span class="section-title">Metric Cards</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="card-grid">
+      <div class="card card-accent">
+        <div class="card-id">// SYS-METRIC 001</div>
+        <div class="card-title">Signal Rate</div>
+        <div class="card-value">5.210 <span class="card-unit">mV</span></div>
+        <div class="card-delta up">▲ 12.4% vs prev</div>
+        <div class="card-bar"><div class="card-bar-fill" style="width:82%"></div></div>
+      </div>
+      <div class="card card-info">
+        <div class="card-id">// SYS-METRIC 002</div>
+        <div class="card-title">Active Nodes</div>
+        <div class="card-value">247 <span class="card-unit">/ 300</span></div>
+        <div class="card-delta up">▲ 3 new online</div>
+        <div class="card-bar"><div class="card-bar-fill info" style="width:73%"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-id">// SYS-METRIC 003</div>
+        <div class="card-title">Error Rate</div>
+        <div class="card-value">0.8 <span class="card-unit">%</span></div>
+        <div class="card-delta down">▼ 2.1% below threshold</div>
+        <div class="card-bar"><div class="card-bar-fill" style="width:8%;background:#1a6640"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-id">// SYS-METRIC 004</div>
+        <div class="card-title">Uptime</div>
+        <div class="card-value">99.8 <span class="card-unit">%</span></div>
+        <div class="card-delta up">▲ 31d 14h continuous</div>
+        <div class="card-bar"><div class="card-bar-fill info" style="width:99%;background:#1a6640"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── HUD WIDGETS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">08</span>
+      <span class="section-title">HUD Readout Widgets</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="hud-grid">
+      <div class="hud-widget">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <div class="hud-label">// Bandwidth</div>
+        <div class="hud-value">2.84 <sup>GB/s</sup></div>
+        <div class="hud-status">
+          <div class="hud-dot active"></div>
+          <span style="font-family:var(--tech);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">STREAM ACTIVE</span>
+        </div>
+      </div>
+      <div class="hud-widget">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <div class="hud-label">// Temperature</div>
+        <div class="hud-value">74.3 <sup>°C</sup></div>
+        <div class="hud-status">
+          <div class="hud-dot warn"></div>
+          <span style="font-family:var(--tech);font-size:10px;color:#8B5E00;letter-spacing:0.1em">ABOVE NOMINAL</span>
+        </div>
+      </div>
+      <div class="hud-widget">
+        <div class="hud-corner hud-tl"></div>
+        <div class="hud-corner hud-br"></div>
+        <div class="hud-label">// Sector Fault</div>
+        <div class="hud-value" style="color:var(--accent)">003 <sup>ERR</sup></div>
+        <div class="hud-status">
+          <div class="hud-dot err"></div>
+          <span style="font-family:var(--tech);font-size:10px;color:var(--accent);letter-spacing:0.1em">CRITICAL — ZONE C</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ALERTS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">09</span>
+      <span class="section-title">Alerts &amp; Notifications</span>
+      <div class="section-line"></div>
+    </div>
+    <div>
+      <div class="alert alert-ok">
+        <span class="alert-icon">OK</span>
+        <div class="alert-body">
+          <div class="alert-title">System Nominal</div>
+          <div class="alert-msg">All nodes responding. Signal integrity confirmed. Last check: 00:00:04 ago.</div>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <span class="alert-icon">INF</span>
+        <div class="alert-body">
+          <div class="alert-title">Sync In Progress</div>
+          <div class="alert-msg">Downloading configuration delta for Zone Beta. Estimated completion: 00:00:32.</div>
+        </div>
+      </div>
+      <div class="alert alert-warn">
+        <span class="alert-icon">WRN</span>
+        <div class="alert-body">
+          <div class="alert-title">Threshold Approaching</div>
+          <div class="alert-msg">Node D-0033 operating at 74°C. Cooling recommendation: reduce workload or increase airflow.</div>
+        </div>
+      </div>
+      <div class="alert alert-err">
+        <span class="alert-icon">ERR</span>
+        <div class="alert-body">
+          <div class="alert-title">Connection Lost — Node C-0009</div>
+          <div class="alert-msg">Signal below threshold (0.003mV). Auto-recovery initiated. Manual inspection may be required at Sector Gamma.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PROGRESS ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">10</span>
+      <span class="section-title">Progress Indicators</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="two-col">
+      <div class="progress-list">
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">// CPU Load</span>
+            <span class="progress-val">78%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill pf-accent" style="width:78%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">// Memory</span>
+            <span class="progress-val" style="color:var(--indigo-dye)">45%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill pf-info" style="width:45%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">// Network I/O</span>
+            <span class="progress-val" style="color:#1a6640">91%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill pf-success" style="width:91%"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header">
+            <span class="progress-label">// Storage</span>
+            <span class="progress-val" style="color:#8B5E00">62%</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill pf-warn" style="width:62%"></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="divider-labeled" style="margin-bottom:16px">
+          <div class="divider-line"></div>
+          <span class="divider-text accent">// Tooltips</span>
+          <div class="divider-line"></div>
+        </div>
+        <div class="tooltip-demo">
+          <div class="tooltip-wrap">
+            <button class="btn btn-ghost">Hover Me</button>
+            <div class="tooltip">Default tooltip</div>
+          </div>
+          <div class="tooltip-wrap">
+            <button class="btn btn-accent btn-stripes">Hover Accent</button>
+            <div class="tooltip accent">// Critical path</div>
+          </div>
+          <div class="tooltip-wrap">
+            <span class="tag tag-info" style="cursor:pointer"><span class="tag-dot"></span>NODE-B</span>
+            <div class="tooltip">Zone Beta — 3.817mV</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── NAVIGATION ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">11</span>
+      <span class="section-title">Navigation Sidebar</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="nav-demo">
+      <nav class="sidebar">
+        <div class="sidebar-logo">SYS<span>/</span>/UI</div>
+        <div class="sidebar-section-label">// Main</div>
+        <div class="sidebar-item active">
+          <div class="s-dot"></div> Dashboard
+          <span class="sidebar-badge">3</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="s-dot"></div> Node Registry
+        </div>
+        <div class="sidebar-item">
+          <div class="s-dot"></div> Signal Map
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">// Operations</div>
+        <div class="sidebar-item">
+          <div class="s-dot"></div> Live Feed
+          <span class="sidebar-badge">12</span>
+        </div>
+        <div class="sidebar-item">
+          <div class="s-dot"></div> Log Viewer
+        </div>
+        <div class="sidebar-item">
+          <div class="s-dot"></div> Config
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-item" style="color:rgba(204,54,30,0.6)">
+          <div class="s-dot" style="background:var(--accent)"></div> System Fault
+          <span class="sidebar-badge" style="animation: pulse-dot 0.5s infinite;opacity:1">!</span>
+        </div>
+      </nav>
+      <div class="content-preview">
+        <h3>Dashboard — Overview</h3>
+        <p>// Zone Alpha — All sensors nominal. 247 of 300 nodes active.<br>Last sync: 00:01:32-016 — Signal integrity: 99.4%</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MODAL ─── -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-id">12</span>
+      <span class="section-title">Modal Dialog</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-id">// DIALOG-007</span>
+          <span class="modal-title">Confirm Action</span>
+        </div>
+        <div class="modal-body">
+          <p>You are about to broadcast a reset signal to Sector Gamma. This will disconnect all active nodes in that zone temporarily. Estimated downtime: 00:00:45.</p>
+          <br>
+          <div class="alert alert-warn" style="margin-top:0">
+            <span class="alert-icon">WRN</span>
+            <div class="alert-body">
+              <div class="alert-title">Irreversible Action</div>
+              <div class="alert-msg">This cannot be undone without manual re-initialization.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-accent btn-stripes">Confirm Reset ▶</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-item');
+  const panel = document.getElementById('tab-panel');
+  const content = [
+    '// TAB 01 — Overview. System operational. All sensors nominal. Last sync: 00:01:32-016. Network latency 12ms. Uptime 99.8%.',
+    '// TAB 02 — Signal Data. Carrier frequency: 2.4GHz. Current amplitude: 5.210mV. SNR: 42dB. Packets received: 1,847,392.',
+    '// TAB 03 — Configuration. Mode: PRIME. Broadcast: ENABLED. Auto-recovery: ON. Sync interval: 30s. Timeout: 5000ms.',
+    '// TAB 04 — Log Output. [00:00:01] NODE-A online. [00:00:04] Sync complete. [00:04:55] NODE-C signal lost. [00:05:02] Recovery initiated.'
+  ];
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      panel.querySelector('p').textContent = content[+tab.dataset.tab];
+    });
+  });
+</script>
+</body>
+</html>

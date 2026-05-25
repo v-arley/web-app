@@ -91,7 +91,7 @@ function MovementsPageContent() {
     };
 
     return (
-        <div className="flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Gestión de Inventario / Registrar Movimiento
@@ -101,7 +101,7 @@ function MovementsPageContent() {
 
             {feedback && <AlertBanner tone={feedback.tone} message={feedback.message} />}
 
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default shadow-2xl">
+            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
 
@@ -135,7 +135,7 @@ function MovementsPageContent() {
                         </div>
                     </div>
 
-                    <aside className="flex w-full flex-col lg:w-[28rem] shrink-0 bg-bg-primary/20 overflow-hidden">
+                    <aside className="flex w-full flex-col lg:w-md shrink-0 bg-bg-primary/20 overflow-hidden">
                         <MovementForm
                             key={JSON.stringify(initialData)}
                             warehouseOptions={warehouseOptions}

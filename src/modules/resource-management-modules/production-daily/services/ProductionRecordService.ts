@@ -5,23 +5,21 @@ import { productionRecordSchema, type ProductionRecordFormValues } from "../sche
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
 export class ProductionRecordService extends AxiosBaseService {
-    async getProductionRecords(campId: number, filters?: {
-        startDate?: string;
-        endDate?: string;
-        personId?: number;
-        resourceId?: number;
-    }): Promise<ProductionRecordFormValues[]> {
+    async getProductionRecords(campId: number, filters?: { startDate?: string; endDate?: string; personId?: number; resourceId?: number; }): Promise<ProductionRecordFormValues[]> {
         try {
             const params = new URLSearchParams();
-            params.append('camp_id', campId.toString());
-            if (filters?.startDate) params.append('start_date', filters.startDate);
-            if (filters?.endDate) params.append('end_date', filters.endDate);
-            if (filters?.personId) params.append('person_id', filters.personId.toString());
-            if (filters?.resourceId) params.append('resource_id', filters.resourceId.toString());
 
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/production-records?${params.toString()}`
-            );
+            params.append('camp_id', campId.toString());
+            if (filters?.startDate) 
+                params.append('start_date', filters.startDate);
+            if (filters?.endDate) 
+                params.append('end_date', filters.endDate);
+            if (filters?.personId) 
+                params.append('person_id', filters.personId.toString());
+            if (filters?.resourceId) 
+                params.append('resource_id', filters.resourceId.toString());
+
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/production-records?${params.toString()}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeRecord(item));
@@ -32,10 +30,7 @@ export class ProductionRecordService extends AxiosBaseService {
 
     async createProductionRecord(payload: ProductionRecordFormValues): Promise<ProductionRecordFormValues> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
-                "/production-records",
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/production-records", this.toWritePayload(payload) );
             
             return this.normalizeRecord(this.extractItem<unknown>(data));
         } catch (error) {
@@ -45,10 +40,7 @@ export class ProductionRecordService extends AxiosBaseService {
 
     async updateProductionRecord(id: number, payload: ProductionRecordFormValues): Promise<ProductionRecordFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/production-records/${id}`,
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/production-records/${id}`, this.toWritePayload(payload) );
             
             return this.normalizeRecord(this.extractItem<unknown>(data));
         } catch (error) {

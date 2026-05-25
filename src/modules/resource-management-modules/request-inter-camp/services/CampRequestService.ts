@@ -8,31 +8,28 @@ export class CampRequestService extends AxiosBaseService {
     /**
      * Obtener solicitudes con filtros
      */
-    async getCampRequests(filters?: {
-        originCampId?: number;
-        destinationCampId?: number;
-        requestType?: 'R' | 'P';
-        status?: 'P' | 'A' | 'R';
-        originApprovalStatus?: 'P' | 'A' | 'R';
-        destinationApprovalStatus?: 'P' | 'A' | 'R';
-    }): Promise<CampRequestFormValues[]> {
+    async getCampRequests(filters?: { originCampId?: number; destinationCampId?: number; requestType?: 'R' | 'P'; status?: 'P' | 'A' | 'R'; originApprovalStatus?: 'P' | 'A' | 'R'; destinationApprovalStatus?: 'P' | 'A' | 'R'; }): Promise<CampRequestFormValues[]> {
         try {
             const params = new URLSearchParams();
-            if (filters?.originCampId) params.append('origin_camp_id', filters.originCampId.toString());
-            if (filters?.destinationCampId) params.append('destination_camp_id', filters.destinationCampId.toString());
-            if (filters?.requestType) params.append('request_type', filters.requestType);
-            if (filters?.status) params.append('status', filters.status);
-            if (filters?.originApprovalStatus) params.append('origin_approval_status', filters.originApprovalStatus);
-            if (filters?.destinationApprovalStatus) params.append('destination_approval_status', filters.destinationApprovalStatus);
+            if (filters?.originCampId) 
+                params.append('origin_camp_id', filters.originCampId.toString());
+            if (filters?.destinationCampId) 
+                params.append('destination_camp_id', filters.destinationCampId.toString());
+            if (filters?.requestType) 
+                params.append('request_type', filters.requestType);
+            if (filters?.status) 
+                params.append('status', filters.status);
+            if (filters?.originApprovalStatus) 
+                params.append('origin_approval_status', filters.originApprovalStatus);
+            if (filters?.destinationApprovalStatus) 
+                params.append('destination_approval_status', filters.destinationApprovalStatus);
 
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/camp-requests?${params.toString()}`
-            );
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/camp-requests?${params.toString()}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeCampRequest(item));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -41,13 +38,11 @@ export class CampRequestService extends AxiosBaseService {
      */
     async getCampRequestById(id: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>(
-                `/camp-requests/${id}`
-            );
+            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}` );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -56,14 +51,11 @@ export class CampRequestService extends AxiosBaseService {
      */
     async createCampRequest(payload: Partial<CampRequestFormValues>): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
-                "/camp-requests",
-                this.toWritePayload(payload)
-            );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/camp-requests", this.toWritePayload(payload) );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -72,14 +64,11 @@ export class CampRequestService extends AxiosBaseService {
      */
     async approveAsDestination(id: number, userId: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/camp-requests/${id}/approve-destination`,
-                { approved_by_destination_user_id: userId }
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/approve-destination`, { approved_by_destination_user_id: userId } );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -88,14 +77,11 @@ export class CampRequestService extends AxiosBaseService {
      */
     async rejectAsDestination(id: number, userId: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/camp-requests/${id}/reject-destination`,
-                { approved_by_destination_user_id: userId }
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/reject-destination`, { approved_by_destination_user_id: userId } );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -104,14 +90,11 @@ export class CampRequestService extends AxiosBaseService {
      */
     async approveAsOrigin(id: number, userId: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/camp-requests/${id}/approve-origin`,
-                { approved_by_origin_user_id: userId }
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/approve-origin`, { approved_by_origin_user_id: userId } );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -120,14 +103,11 @@ export class CampRequestService extends AxiosBaseService {
      */
     async rejectAsOrigin(id: number, userId: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>(
-                `/camp-requests/${id}/reject-origin`,
-                { approved_by_origin_user_id: userId }
-            );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/reject-origin`, { approved_by_origin_user_id: userId } );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
-            throw new Error(this.resolveError(error, CONTRACT_ERROR_MESSAGE));
+            throw new Error(this.resolveError(error));
         }
     }
 
@@ -160,6 +140,14 @@ export class CampRequestService extends AxiosBaseService {
             destination_approval_status: payload.destination_approval_status,
             description: payload.description?.trim() || undefined,
         };
+    }
+
+    private resolveError(error: unknown) {
+        const extracted = this.extractErrorMessage(error, CONTRACT_ERROR_MESSAGE).trim();
+        if (!extracted || extracted.includes("404") || extracted.includes("Cannot")) {
+            return CONTRACT_ERROR_MESSAGE;
+        }
+        return extracted;
     }
 }
 

@@ -1,3 +1,4 @@
+import "../resource-management-modules.css";
 // Páginas del módulo de inventario
 export { InventoryMainPage } from "./pages/inventory-main-page";
 export { StockViewPage } from "./pages/StockViewPage";

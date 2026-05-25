@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Settings2, Play, FileText, AlertCircle } from "lucide-react";
 import { getAuthContextFromToken } from "../../../../utils/authAccess";
 import { ProductionRulesPage } from "./ProductionRulesPage";
@@ -18,49 +18,63 @@ function ExecuteJobConfirmModal({ isOpen, onClose, onConfirm, isExecuting }: Con
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="relative bg-bg-secondary border-2 border-accent shadow-2xl max-w-md w-full mx-4">
-                <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-accent" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-accent" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="relative bg-bg-tertiary border border-border-strong max-w-md w-full">
+                {/* Modal Brackets */}
+                <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-accent" />
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-accent" />
 
-                <div className="p-6">
-                    <div className="flex items-start gap-3 mb-4">
-                        <AlertCircle size={24} className="text-status-warning shrink-0 mt-1" />
+                <header className="p-4 border-b border-border-subtle bg-bg-secondary/50">
+                    <div className="rmm-section-header mb-0 border-none pb-0">
+                        <span className="rmm-section-title">Confirmación</span>
+                        <span className="rmm-section-id">PRD_EXEC_REQ</span>
+                    </div>
+                </header>
+
+                <div className="p-4">
+                    <div className="flex items-start gap-3 mb-3">
+                        <AlertCircle size={18} className="text-accent shrink-0 mt-0.5" />
                         <div>
-                            <h3 className="text-[13px] font-mono font-bold text-txt-primary uppercase tracking-[0.15em] mb-2">
-                                Confirmar Ejecución
-                            </h3>
-                            <p className="text-[11px] font-mono text-txt-secondary leading-relaxed">
-                                ¿Estás seguro de que deseas ejecutar el job de producción diaria? Esta acción:
+                            <p className="font-mono text-[11px] text-txt-primary leading-relaxed mb-3">
+                                ¿Estás seguro de que deseas ejecutar el job de producción diaria?
                             </p>
-                            <ul className="mt-3 space-y-2 text-[10px] font-mono text-txt-secondary list-disc list-inside">
-                                <li>Generará registros de producción para todas las personas con profesiones activas</li>
-                                <li>Aplicará las reglas de producción configuradas</li>
-                                <li>Actualizará el inventario del almacén</li>
-                            </ul>
+                            <div className="space-y-2 bg-bg-secondary/30 p-3 border border-border-subtle">
+                                <div className="flex items-center gap-2 font-mono text-[10px] text-txt-muted uppercase">
+                                    <div className="w-1 h-1 bg-accent"></div>
+                                    <span>Generación de registros automáticos</span>
+                                </div>
+                                <div className="flex items-center gap-2 font-mono text-[10px] text-txt-muted uppercase">
+                                    <div className="w-1 h-1 bg-accent"></div>
+                                    <span>Aplicación de reglas por profesión</span>
+                                </div>
+                                <div className="flex items-center gap-2 font-mono text-[10px] text-txt-muted uppercase">
+                                    <div className="w-1 h-1 bg-accent"></div>
+                                    <span>Actualización de inventario central</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex gap-3 mt-6">
+                    <div className="flex gap-3">
                         <button
                             onClick={onClose}
                             disabled={isExecuting}
-                            className="flex-1 px-4 py-3 bg-bg-tertiary border border-border-default hover:border-txt-disabled text-txt-primary text-[10px] font-mono uppercase tracking-widest transition-all disabled:opacity-50"
+                            className="flex-1 rmm-btn border border-border-strong hover:bg-bg-secondary transition-all disabled:opacity-50"
                         >
-                            Cancelar
+                            <span className="font-mono">Cancelar</span>
                         </button>
                         <button
                             onClick={onConfirm}
                             disabled={isExecuting}
-                            className="flex-1 px-4 py-3 bg-accent border border-accent hover:bg-accent/90 text-bg-primary text-[10px] font-mono font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+                            className="flex-1 rmm-btn rmm-btn-accent transition-all disabled:opacity-50"
                         >
                             {isExecuting ? (
                                 <span className="flex items-center justify-center gap-2">
-                                    <div className="h-3 w-3 animate-spin border-2 border-bg-primary border-t-transparent rounded-full" />
-                                    Ejecutando...
+                                    <div className="h-3 w-3 animate-spin border-2 border-white border-t-transparent" />
+                                    <span className="font-mono">Ejecutando...</span>
                                 </span>
                             ) : (
-                                "Ejecutar Job"
+                                <span className="font-mono">Confirmar Ejecución</span>
                             )}
                         </button>
                     </div>
@@ -87,18 +101,11 @@ export function ProductionMainPage() {
         setExecutionFeedback(null);
 
         try {
-            // TODO: Implementar llamada al endpoint POST /api/production/execute-daily
-            // const response = await productionService.executeDailyJob(campId);
-
-            // Simulación temporal
             await new Promise((resolve) => setTimeout(resolve, 2000));
-
             setExecutionFeedback({
                 type: "error",
-                message:
-                    "⚠️ Endpoint POST /api/production/execute-daily no implementado. Implementa este endpoint en el backend.",
+                message: "⚠️ Endpoint POST /api/production/execute-daily no implementado.",
             });
-
             setShowConfirmModal(false);
         } catch (error: any) {
             setExecutionFeedback({
@@ -119,121 +126,125 @@ export function ProductionMainPage() {
         {
             key: "rules",
             label: "Reglas de Producción",
-            icon: <Settings2 size={20} />,
-            description: "Configura las reglas de producción por profesión",
+            icon: <Settings2 size={16} />,
+            description: "Configuración base",
         },
         {
             key: "execute",
             label: "Ejecutar Job Diario",
-            icon: <Play size={20} />,
-            description: "Genera registros de producción del día",
+            icon: <Play size={16} />,
+            description: "Procesamiento diario",
         },
         {
             key: "records",
             label: "Registros y Ajustes",
-            icon: <FileText size={20} />,
-            description: "Consulta y ajusta registros de producción",
+            icon: <FileText size={16} />,
+            description: "Control de salida",
         },
     ];
 
     return (
-        <div className="flex h-full flex-col bg-bg-app overflow-hidden">
-            {/* Header with tabs */}
-            <div className="shrink-0 border-b border-border-default bg-bg-secondary">
-                <div className="px-5 py-3">
-                    <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em] mb-3">
-                        Administración de Recursos / Producción
-                    </div>
+        <article className="rmm-scope flex h-screen flex-col bg-bg-app overflow-hidden relative">
+            {/* Corner Brackets */}
+            <div className="rmm-bracket rmm-bracket-tl"></div>
+            <div className="rmm-bracket rmm-bracket-tr"></div>
+            <div className="rmm-bracket rmm-bracket-bl"></div>
+            <div className="rmm-bracket rmm-bracket-br"></div>
 
-                    {/* Tab Navigation */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={`flex items-start gap-3 p-4 border-2 transition-all text-left ${
-                                    activeTab === tab.key
-                                        ? "border-accent bg-accent/10"
-                                        : "border-border-default bg-bg-primary/20 hover:border-accent/50"
-                                }`}
-                            >
-                                <div
-                                    className={`shrink-0 ${
-                                        activeTab === tab.key ? "text-accent" : "text-txt-disabled"
-                                    }`}
-                                >
-                                    {tab.icon}
-                                </div>
-                                <div className="flex-1">
-                                    <div
-                                        className={`text-[11px] font-mono font-bold uppercase tracking-[0.15em] mb-1 ${
-                                            activeTab === tab.key ? "text-accent" : "text-txt-primary"
-                                        }`}
-                                    >
-                                        {tab.label}
-                                    </div>
-                                    {/* <div className="text-[10px] font-mono text-txt-secondary">
-                                        {tab.description}
-                                    </div> */}
-                                </div>
-                            </button>
-                        ))}
+            {/* Topbar — identity + horizontal nav */}
+            <header className="flex items-stretch border-b border-border-default bg-bg-tertiary shrink-0 z-10">
+                {/* Module identity */}
+                <div className="flex items-center gap-3 shrink-0">
+                    <div className="w-0.75 self-stretch bg-accent"></div>
+                    <div className="py-2">
+                        <h3 className="text-xl font-bold uppercase tracking-widest text-txt-primary leading-none">
+                            Producción
+                        </h3>
+                        <p className="font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
+                            Administración de Recursos <span className="text-accent"> | </span> RMM-03
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            {/* Feedback Banner */}
+                {/* Horizontal tab nav */}
+                <nav className="flex items-stretch flex-1 justify-end">
+                    {tabs.map((tab, i) => (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveTab(tab.key)}
+                            className={`relative flex items-center gap-2.5 px-5 border-r border-border-subtle transition-all group ${
+                                activeTab === tab.key
+                                    ? "bg-bg-app/60 text-accent"
+                                    : "text-txt-muted hover:bg-bg-secondary/40 hover:text-txt-primary"
+                            }`}
+                        >
+                            {activeTab === tab.key && (
+                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+                            )}
+                            <span className={`font-mono text-[9px] opacity-40 ${activeTab === tab.key ? "text-accent opacity-60" : ""}`}>
+                                {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <span className={activeTab === tab.key ? "text-accent" : "text-txt-disabled group-hover:text-txt-secondary"}>
+                                {tab.icon}
+                            </span>
+                            <div className="text-left">
+                                <div className="font-mono text-[10px] font-bold uppercase tracking-widest">
+                                    {tab.label}
+                                </div>
+                                <div className="font-mono text-[8px] text-txt-disabled uppercase tracking-wide">
+                                    {tab.description}
+                                </div>
+                            </div>
+                        </button>
+                    ))}
+                </nav>
+            </header>
+
+            {/* Execution feedback banner */}
             {executionFeedback && (
-                <div
-                    className={`px-4 py-3 border font-mono text-[11px] uppercase tracking-widest ${
-                        executionFeedback.type === "success"
-                            ? "bg-status-ok/10 border-status-ok/30 text-status-ok"
-                            : "bg-status-warning/10 border-status-warning/30 text-status-warning"
-                    }`}
-                >
-                    {executionFeedback.message}
+                <div className="shrink-0 px-4 py-2 border-b border-accent/30 bg-accent/10 font-mono text-[10px] text-accent uppercase tracking-widest flex items-center justify-between">
+                    <span>{executionFeedback.message}</span>
+                    <button onClick={() => setExecutionFeedback(null)} className="opacity-50 hover:opacity-100 transition-opacity">✕</button>
                 </div>
             )}
 
-            {/* Content Area */}
-            <div className="flex-1 overflow-hidden">
-                {activeTab === "rules" && <ProductionRulesPage />}
-                {activeTab === "execute" && (
-                    <div className="flex h-full items-center justify-center p-6">
-                        <div className="max-w-xl w-full">
-                            <div className="relative bg-bg-secondary border border-border-default p-8 shadow-2xl">
-                                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50" />
-                                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50" />
-
-                                <div className="text-center mb-6">
-                                    <Play size={48} className="mx-auto mb-4 text-accent" />
-                                    <h2 className="text-[13px] font-mono font-bold text-txt-primary uppercase tracking-[0.2em] mb-2">
-                                        Ejecutar Job de Producción Diaria
-                                    </h2>
-                                    <p className="text-[11px] font-mono text-txt-secondary leading-relaxed">
-                                        Genera automáticamente los registros de producción para todas las personas con
-                                        profesiones activas según las reglas configuradas.
-                                    </p>
-                                </div>
-
-                                <button
-                                    onClick={() => setShowConfirmModal(true)}
-                                    className="w-full px-6 py-4 bg-accent border-2 border-accent hover:bg-accent/90 text-bg-primary text-[11px] font-mono font-bold uppercase tracking-widest transition-all"
-                                >
-                                    Ejecutar Job Diario
-                                </button>
-
-                                <div className="mt-6 px-4 py-3 bg-status-info/10 border border-status-info/30 text-[10px] font-mono text-txt-secondary leading-relaxed">
-                                    <span className="font-bold text-status-info">NOTA:</span> Esta acción ejecutará la
-                                    lógica de producción solo una vez por día. Si ya se ejecutó hoy, no se generarán
-                                    registros duplicados.
+            {/* Main Content */}
+            <main className="flex-1 overflow-hidden flex flex-col">
+                <section className="flex-1 overflow-y-auto">
+                    {activeTab === "rules" && <ProductionRulesPage />}
+                    {activeTab === "execute" && (
+                        <div className="flex h-full items-center justify-center p-4">
+                            <div className="max-w-md w-full relative">
+                                <div className="relative bg-bg-tertiary border border-border-strong p-4 group">
+                                    <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-accent/30 group-hover:border-accent transition-colors" />
+                                    <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-accent/30 group-hover:border-accent transition-colors" />
+                                    <div className="text-center mb-4">
+                                        <div className="w-12 h-12 bg-accent/10 flex items-center justify-center mx-auto mb-3">
+                                            <Play size={22} className="text-accent ml-1" />
+                                        </div>
+                                        <h2 className="rmm-section-header justify-center border-none mb-3">
+                                            <span className="rmm-section-title text-lg tracking-[0.3em]">Módulo de Ejecución</span>
+                                        </h2>
+                                        <p className="font-mono text-[11px] text-txt-secondary leading-relaxed uppercase tracking-wider">
+                                            Generación masiva de registros de producción diaria basada en profesiones activas.
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowConfirmModal(true)}
+                                        className="w-full rmm-btn rmm-btn-accent justify-center py-2 text-sm tracking-[0.2em]"
+                                    >
+                                        <span className="font-mono">INICIAR PROCESO DIARIO</span>
+                                    </button>
+                                    <div className="mt-3 p-3 bg-bg-secondary/50 border-l-2 border-accent/50 font-mono text-[10px] text-txt-muted uppercase tracking-widest leading-loose">
+                                        <span className="text-accent font-bold">WARNING:</span> Esta acción es irreversible para el periodo actual. Asegúrese de haber configurado las reglas correctamente.
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-                {activeTab === "records" && <ProductionRecordsPage />}
-            </div>
+                    )}
+                    {activeTab === "records" && <ProductionRecordsPage />}
+                </section>
+            </main>
 
             {/* Confirmation Modal */}
             <ExecuteJobConfirmModal
@@ -242,6 +253,7 @@ export function ProductionMainPage() {
                 onConfirm={handleExecuteJob}
                 isExecuting={isExecuting}
             />
-        </div>
+        </article>
     );
 }
+

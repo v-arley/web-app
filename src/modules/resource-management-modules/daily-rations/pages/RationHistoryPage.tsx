@@ -44,7 +44,7 @@ function RationHistoryPageContent() {
     const deliveryRate = totalRations > 0 ? ((deliveredCount / totalRations) * 100).toFixed(1) : '0';
 
     return (
-        <div className="flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Raciones Diarias / Historial de Raciones
@@ -61,7 +61,7 @@ function RationHistoryPageContent() {
                 {/* Header */}
                 {/* <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-accent-tertiary/20 rounded-lg">
+                        <div className="p-3 bg-accent-tertiary/10 border border-accent-tertiary/30">
                             <History className="w-6 h-6 text-accent-tertiary" />
                         </div>
                         <div>
@@ -94,7 +94,7 @@ function RationHistoryPageContent() {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as 'Y' | 'N' | '')}
-                                className="w-full px-3 py-2 bg-bg-tertiary border border-border-default text-txt-primary font-mono text-sm rounded focus:outline-none focus:border-border-focus"
+                                className="rmm-input w-full text-[11px]!"
                             >
                                 <option value="">Todos</option>
                                 <option value="Y">Entregadas</option>

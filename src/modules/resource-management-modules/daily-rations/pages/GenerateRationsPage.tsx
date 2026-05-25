@@ -28,7 +28,7 @@ function GenerateRationsPageContent() {
     }, [resourcesData]);
 
     return (
-        <div className="flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Raciones Diarias / Generar Raciones
@@ -44,7 +44,7 @@ function GenerateRationsPageContent() {
                     <div className="max-w-4xl mx-auto space-y-6">
                 {/* Header */}
                 {/* <div className="flex items-center gap-3 mb-2">
-                    <div className="p-3 bg-accent-primary/20 rounded-lg">
+                    <div className="p-3 bg-accent-primary/10 border border-accent-primary/30">
                         <Utensils className="w-6 h-6 text-accent-primary" />
                     </div>
                     <div>

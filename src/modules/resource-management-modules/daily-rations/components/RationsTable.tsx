@@ -95,14 +95,12 @@ export function RationsTable({ rations, personMap, onRationClick }: Props) {
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         {isDelivered ? (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-status-success/20 text-status-success rounded-sm text-[10px] font-bold">
-                                                <CheckCircle className="w-3 h-3" />
-                                                ENTREGADA
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-success/10 text-status-success border border-status-success/30 text-[10px] font-bold uppercase tracking-wider">
+                                                <div className="w-1.5 h-1.5 bg-status-success" /> ENTREGADA
                                             </span>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-status-warning/20 text-status-warning rounded-sm text-[10px] font-bold">
-                                                <XCircle className="w-3 h-3" />
-                                                PENDIENTE
+                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-warning/10 text-status-warning border border-status-warning/30 text-[10px] font-bold uppercase tracking-wider">
+                                                <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDIENTE
                                             </span>
                                         )}
                                     </td>

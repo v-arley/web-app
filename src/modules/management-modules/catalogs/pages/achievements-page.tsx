@@ -37,7 +37,7 @@ function AchievementsPageContent() {
     const achievements = useAchievementCatalogTab(true, callbacks);
 
     return (
-        <div className="flex h-full flex-col overflow-hidden">
+        <div className="mm-scope flex h-full flex-col overflow-hidden">
             {feedback ? (
                 <div className="px-5 py-2">
                     <AlertBanner tone={feedback.tone} message={feedback.message} />
