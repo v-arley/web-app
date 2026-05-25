@@ -29,6 +29,17 @@ import {
   ClipboardCheck,
   ShoppingBag,
   Compass,
+  Layers,
+  Briefcase,
+  Star,
+  PlusCircle,
+  Globe,
+  BarChart2,
+  Archive,
+  Bell,
+  Factory,
+  Utensils,
+  ArrowLeftRight,
 } from "lucide-react";
 import {
   getAuthContextFromToken,
@@ -42,6 +53,18 @@ import { WorkerTasksView } from "./WorkerTasksView";
 import { WorkerProductionView } from "./WorkerProductionView";
 import { WorkerRationsView } from "./WorkerRationsView";
 import { WorkerExplorationsView } from "./WorkerExplorationsView";
+
+import { ResourcesPage, ProfessionsPage, AchievementsPage } from "../../modules/management-modules/catalogs";
+import { CreateCampModulePage } from "../../modules/management-modules/camps/create-camp";
+import { GlobalDashboardModulePage } from "../../modules/management-modules/dashboard/global-dashboard";
+import { GlobalDashboardView } from "../../modules/management-modules/dashboard/global-dashboard/pages/GlobalDashboardView";
+
+import { DashboardResourcePage } from "../../modules/resource-management-modules/dashboard";
+import { InventoryMainPage } from "../../modules/resource-management-modules/inventory";
+import { StockAlertsMainPage } from "../../modules/resource-management-modules/stock-alerts";
+import { ProductionMainPage } from "../../modules/resource-management-modules/production-daily";
+import { RationsMainPage } from "../../modules/resource-management-modules/daily-rations";
+import { InterCampMainPage } from "../../modules/resource-management-modules/request-inter-camp";
 
 const SECTIONS: DashboardSection[] = [
   {
@@ -127,6 +150,76 @@ const SECTIONS: DashboardSection[] = [
     label: "Exploraciones",
     icon: <Compass size={18} strokeWidth={2} />,
     component: () => <WorkerExplorationsView />,
+  },
+  // Catalog sections
+  {
+    key: "catalog-resources",
+    label: "Resources Catalog",
+    icon: <Layers size={18} strokeWidth={2} />,
+    component: () => <ResourcesPage />,
+  },
+  {
+    key: "catalog-professions",
+    label: "Professions",
+    icon: <Briefcase size={18} strokeWidth={2} />,
+    component: () => <ProfessionsPage />,
+  },
+  {
+    key: "catalog-achievements",
+    label: "Achievements",
+    icon: <Star size={18} strokeWidth={2} />,
+    component: () => <AchievementsPage />,
+  },
+  // Camp management
+  {
+    key: "create-camp",
+    label: "Create Camp",
+    icon: <PlusCircle size={18} strokeWidth={2} />,
+    component: () => <CreateCampModulePage />,
+  },
+  // Global dashboard
+  {
+    key: "global-dashboard",
+    label: "Global Dashboard",
+    icon: <Globe size={18} strokeWidth={2} />,
+    component: () => <GlobalDashboardModulePage />,
+  },
+  // Resource management
+  {
+    key: "resource-dashboard",
+    label: "Resource Dashboard",
+    icon: <BarChart2 size={18} strokeWidth={2} />,
+    component: () => <DashboardResourcePage />,
+  },
+  {
+    key: "inventory-main",
+    label: "Inventory",
+    icon: <Archive size={18} strokeWidth={2} />,
+    component: () => <InventoryMainPage />,
+  },
+  {
+    key: "stock-alerts",
+    label: "Stock Alerts",
+    icon: <Bell size={18} strokeWidth={2} />,
+    component: () => <StockAlertsMainPage />,
+  },
+  {
+    key: "production",
+    label: "Production",
+    icon: <Factory size={18} strokeWidth={2} />,
+    component: () => <ProductionMainPage />,
+  },
+  {
+    key: "rations",
+    label: "Rations",
+    icon: <Utensils size={18} strokeWidth={2} />,
+    component: () => <RationsMainPage />,
+  },
+  {
+    key: "inter-camp",
+    label: "Inter-Camp",
+    icon: <ArrowLeftRight size={18} strokeWidth={2} />,
+    component: () => <InterCampMainPage />,
   },
 ];
 

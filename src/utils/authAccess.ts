@@ -1,10 +1,11 @@
 import type { DashboardSection } from "../hooks/useDashboardNav";
 
-export const SYSTEM_ADMIN_ROLES = [
-  "SYSTEM_ADMINISTRATOR",
-  "GLOBAL_ADMIN",
-] as const;
-export const CAMP_ADMIN_ROLES = ["CAMP_ADMINISTRATOR", "CAMP_ADMIN"] as const;
+// export const SYSTEM_ADMIN_ROLES = [ "SYSTEM_ADMINISTRATOR", "GLOBAL_ADMIN", ] as const;
+// export const CAMP_ADMIN_ROLES = ["CAMP_ADMINISTRATOR", "CAMP_ADMIN"] as const;
+
+export const SYSTEM_ADMIN_ROLES = ["SYSTEM_ADMINISTRATOR", "GLOBAL_ADMIN", "RES_MANAGER", "RESOURCE_MANAGER"] as const;
+export const CAMP_ADMIN_ROLES = ["CAMP_ADMINISTRATOR", "CAMP_ADMIN", "RES_MANAGER", "RESOURCE_MANAGER"] as const;
+
 
 export type ProfessionKey = "worker" | "resource_manager" | "expedition_leader";
 
@@ -212,6 +213,35 @@ export function getAvailableSections(
     resource_manager: ["dashboard", "inventory", "warehouse", "requests"],
     expedition_leader: ["dashboard", "explorations", "requests", "inventory"],
   };
+
+  // const allowedByProfession: Record<ProfessionKey, string[]> = {
+  //   worker: ["dashboard", "requests"],
+  //   resource_manager: [
+  //     "dashboard",
+  //     "inventory",
+  //     "warehouse",
+  //     "requests",
+  //     "inventory-stock",
+  //     "inventory-movements",
+  //     "inventory-config",
+  //     "inventory-alerts",
+  //     "production-rules",
+  //     "production-execute",
+  //     "production-records",
+  //   ],
+  //   expedition_leader: [
+  //     "dashboard",
+  //     "requests",
+  //     "inventory",
+  //     "inventory-stock",
+  //     "inventory-movements",
+  //     "inventory-config",
+  //     "inventory-alerts",
+  //     "production-rules",
+  //     "production-execute",
+  //     "production-records",
+  //   ],
+  // };
 
   const allowed = new Set(allowedByProfession[profession]);
   return sections.filter((section) => allowed.has(section.key));
