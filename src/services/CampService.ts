@@ -58,4 +58,19 @@ export class CampService extends AxiosBaseService{
 			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
 		}
 	}
+
+	/**
+	 * Obtiene todos los campamentos disponibles para crear solicitudes entre campamentos.
+	 * Este método siempre devuelve todos los campamentos, independientemente del scope del usuario.
+	 */
+	async findAllForRequests(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Camp>> | Camp[]>("/camps?for_requests=true");
+			const camps = this.extractItems<Camp>(data).map((camp) => new Camp(camp));
+
+			return new Respuesta(true, "Campamentos obtenidos correctamente.", "", "registros", camps);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los campamentos"), "");
+		}
+	}
 }
