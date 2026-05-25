@@ -8,6 +8,14 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   CAMP_CREATE: '/camp-create',
 
+  // Resource Management Module
+  RESOURCE_DASHBOARD: '/resource-dashboard',
+  RESOURCE_INVENTORY: '/resource-inventory',
+  RESOURCE_ALERTS: '/resource-alerts',
+  RESOURCE_PRODUCTION: '/resource-production',
+  RESOURCE_RATIONS: '/resource-rations',
+  RESOURCE_INTER_CAMP: '/resource-inter-camp',
+
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];
