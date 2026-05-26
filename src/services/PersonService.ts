@@ -1,74 +1,162 @@
-
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
+﻿import {
+  Response as Respuesta,
+  type BackendListPayload,
+  type BackendResponse,
+} from "../shared/utils/Response";
 import { Person, type CreatePerson, type UpdatePerson } from "../models/Person";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
-export class PersonService {
-    private request: Request;
+export class PersonService extends AxiosBaseService {
+  async save(register: CreatePerson): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.post<
+        BackendResponse<{ item: Person }> | Person
+      >("/people", register);
+      const person = this.extractItem<Person>(data);
 
-    constructor() {
-        this.request = new Request();
+      return new Respuesta(
+        true,
+        "Registro creado correctamente.",
+        "",
+        "registro",
+        person,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo crear el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async save(register: Person): Promise<Respuesta> {
-        const request = new Request("/people");
-        await request.post(register);
+  async update(id: number, register: UpdatePerson): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.put<
+        BackendResponse<{ item: Person }> | Person
+      >(`/people/${id}`, register);
+      const person = this.extractItem<Person>(data);
 
-        const data = request.readEntity<Person>();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
+      return new Respuesta(
+        true,
+        "Registro actualizado correctamente.",
+        "",
+        "registro",
+        person,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo actualizar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async update(id: number, register: Person): Promise<Respuesta> {
-        const request = new Request("/people", "{id}", { id });
-        await request.put(register);
+  async remove(id: number): Promise<Respuesta> {
+    try {
+      await this.client.delete(`/people/${id}`);
 
-        const data = request.readEntity<Person>();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
-
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
+      return new Respuesta(
+        true,
+        "Registro eliminado correctamente.",
+        "",
+        "registro",
+        null,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo eliminar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/people", "{id}", { id });
-        await request.delete();
+  async findAll(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<Person>> | Person[]
+      >("/people");
+      const people = this.extractItems<Person>(data).map(
+        (person) => new Person(person),
+      );
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+      return new Respuesta(
+        true,
+        "Registros obtenidos correctamente.",
+        "",
+        "registros",
+        people,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudieron obtener los registros"),
+        "",
+      );
     }
+  }
 
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/people");
-        await request.get();
+  async findById(id: number): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<{ item: Person }> | Person
+      >(`/people/${id}`);
+      const personData = this.extractItem<Person>(data);
+      const person = personData ? new Person(personData) : null;
 
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-
-        const people = (data?.resultado?.items ?? []).map((person) => new Person(person));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", people);
+      return new Respuesta(
+        true,
+        "Registro obtenido correctamente.",
+        "",
+        "registro",
+        person,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo obtener el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/people", "{id}", { id });
-        await request.get();
+  async findWorkerProfile(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<{ item: Person }> | Person
+      >("/people/worker");
+      const personData = this.extractItem<Person>(data);
+      const person = personData ? new Person(personData) : null;
 
-        const data = request.readEntity<BackendResponse<{ item: Person }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-
-        const person = data?.resultado?.item ? new Person(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", person);
+      return new Respuesta(
+        true,
+        "Perfil del trabajador obtenido correctamente.",
+        "",
+        "registro",
+        person,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(
+          error,
+          "No se pudo obtener el perfil del trabajador",
+        ),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 }
+

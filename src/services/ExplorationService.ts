@@ -1,74 +1,217 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Exploration, type CreateExploration, type UpdateExploration } from "../models/Exploration";
+import {
+  Response as Respuesta,
+  type BackendResponse,
+  type BackendListPayload,
+} from "../shared/utils/Response";
+import {
+  Exploration,
+  type CreateExploration,
+  type UpdateExploration,
+  type WorkerExplorationFilters,
+  type WorkerExplorationPage,
+} from "../models/Exploration";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
-export class ExplorationService {
-    private request: Request;
+export class ExplorationService extends AxiosBaseService {
+  async save(register: CreateExploration): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.post<
+        BackendResponse<{ item: Exploration }> | Exploration
+      >("/explorations", register);
 
-    constructor(){
-        this.request = new Request();
+      const explorationData = this.extractItem<Exploration>(data);
+      const exploration = explorationData
+        ? new Exploration(explorationData)
+        : null;
+
+      return new Respuesta(
+        true,
+        "Registro creado correctamente.",
+        "",
+        "registro",
+        exploration,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo crear el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async save(register: Exploration): Promise<Respuesta> {
-        const request = new Request("/explorations");
-        await request.post(register);
-    
-        const data = request.readEntity<Exploration>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
+  async update(id: number, register: UpdateExploration): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.put<
+        BackendResponse<{ item: Exploration }> | Exploration
+      >(`/explorations/${id}`, register);
+
+      const explorationData = this.extractItem<Exploration>(data);
+      const exploration = explorationData
+        ? new Exploration(explorationData)
+        : null;
+
+      return new Respuesta(
+        true,
+        "Registro actualizado correctamente.",
+        "",
+        "registro",
+        exploration,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo actualizar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async update(id: number, register: Exploration): Promise<Respuesta> {
-        const request = new Request("/explorations", "{id}", { id });
-        await request.put(register);
-    
-        const data = request.readEntity<Exploration>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
-    
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
+  async remove(id: number): Promise<Respuesta> {
+    try {
+      await this.client.delete(`/explorations/${id}`);
+
+      return new Respuesta(
+        true,
+        "Registro eliminado correctamente.",
+        "",
+        "registro",
+        null,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo eliminar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/explorations", "{id}", { id });
-        await request.delete();
+  async findAll(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<Exploration>> | Exploration[]
+      >("/explorations");
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
+      const explorations = this.extractItems<Exploration>(data).map(
+        (exploration) => new Exploration(exploration),
+      );
 
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+      return new Respuesta(
+        true,
+        "Registros obtenidos correctamente.",
+        "",
+        "registros",
+        explorations,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudieron obtener los registros"),
+        "",
+        "registros",
+        [],
+      );
     }
+  }
 
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/explorations");
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-    
-        const explorations = (data?.resultado?.items ?? []).map((exploration) => new Exploration(exploration));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", explorations);
+  async findById(id: number): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<{ item: Exploration }> | Exploration
+      >(`/explorations/${id}`);
+
+      const explorationData = this.extractItem<Exploration>(data);
+      const exploration = explorationData
+        ? new Exploration(explorationData)
+        : null;
+
+      return new Respuesta(
+        true,
+        "Registro obtenido correctamente.",
+        "",
+        "registro",
+        exploration,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo obtener el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/exploration", "{id}", { id });
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<{ item: Exploration }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-    
-        const explorations = data?.resultado?.item ? new Exploration(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", explorations);
+  async findWorkerExplorations(
+    filters: WorkerExplorationFilters,
+  ): Promise<Respuesta> {
+    try {
+      const page = filters.page ?? 1;
+      const limit = filters.limit ?? 10;
+
+      const params = new URLSearchParams();
+
+      params.set("page", String(page));
+      params.set("limit", String(limit));
+
+      if (filters.name) params.set("name", filters.name);
+      if (filters.state) params.set("state", filters.state);
+      if (filters.riskLevel) params.set("riskLevel", filters.riskLevel);
+
+      const { data } = await this.client.get<
+        BackendResponse<{ item: WorkerExplorationPage }> | WorkerExplorationPage
+      >(`/explorations/worker?${params.toString()}`);
+
+      const pageData = this.extractItem<WorkerExplorationPage>(data);
+
+      const result: WorkerExplorationPage = pageData
+        ? {
+            ...pageData,
+            items: (pageData.items ?? []).map(
+              (exploration) => new Exploration(exploration),
+            ),
+          }
+        : {
+            page,
+            limit,
+            total: 0,
+            totalPages: 1,
+            items: [],
+          };
+
+      return new Respuesta(
+        true,
+        "Exploraciones del trabajador obtenidas correctamente.",
+        "",
+        "registro",
+        result,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(
+          error,
+          "No se pudieron obtener las exploraciones del trabajador",
+        ),
+        "",
+        "registro",
+        {
+          page: filters.page ?? 1,
+          limit: filters.limit ?? 10,
+          total: 0,
+          totalPages: 1,
+          items: [],
+        },
+      );
     }
-
+  }
 }
+

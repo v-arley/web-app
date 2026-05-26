@@ -1,73 +1,63 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
+import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
 import { Permission, type CreatePermission, type UpdatePermission } from "../models/Permision";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
-export class PermissionService {
-    private request: Request;
 
-    constructor() {
-        this.request = new Request();
+export class PermissionService extends AxiosBaseService{
+   
+    async save (register: CreatePermission): Promise<Respuesta>{
+        try {
+			const { data } = await this.client.post<BackendResponse<{ item: Permission }> | Permission>("/permissions", register);
+			const permission = this.extractItem<Permission>(data);
+
+			return new Respuesta(true, "Registro creado correctamente.", "", "registro", permission);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
+		}
     }
+    
 
-    async save(register: Permission): Promise<Respuesta> {
-        const request = new Request("/permissions");
-        await request.post(register);
-    
-        const data = request.readEntity<Permission>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
-    }
+    async update(id: number, register: UpdatePermission): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.put<BackendResponse<{ item: Permission }> | Permission>(`/permissions/${id}`, register);
+			const permission = this.extractItem<Permission>(data);
 
-    async update(id: number, register: Permission): Promise<Respuesta> {
-        const request = new Request("/permissions", "{id}", { id });
-        await request.put(register);
-    
-        const data = request.readEntity<Permission>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
-    
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", permission);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
+		}
+	}
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/permissions", "{id}", { id });
-        await request.delete();
+	async remove(id: number): Promise<Respuesta> {
+		try {
+			await this.client.delete(`/permissions/${id}`);
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
+	async findAll(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<Permission>> | Permission[]>("/permissions");
+			const permissions = this.extractItems<Permission>(data).map((permission) => new Permission(permission));
 
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/permissions");
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-    
-        const permissions = (data?.resultado?.items ?? []).map((permission) => new Permission(permission));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", permissions);
-    }
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", permissions);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
 
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/permissions", "{id}", { id });
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<{ item: Permission }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-    
-        const permissions = data?.resultado?.item ? new Permission(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", permissions);
-    }
+	async findById(id: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: Permission }> | Permission>(`/permissions/${id}`);
+			const permissionData = this.extractItem<Permission>(data);
+			const permission = permissionData ? new Permission(permissionData) : null;
+
+			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", permission);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
 }

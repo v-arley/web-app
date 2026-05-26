@@ -1,73 +1,67 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
+import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
 import { UserRol, type CreateUserRol } from "../models/UserRol";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
-export class UserRoleService {
-    private request: Request;
+export class UserRoleService extends AxiosBaseService {
 
-    constructor() {
-        this.request = new Request();
-    }
+	async save(register: CreateUserRol): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.post<BackendResponse<{ item: UserRol }> | UserRol>("/user-roles",register);
+			const userRole = this.extractItem<UserRol>(data);
 
-    async save(register: UserRol): Promise<Respuesta> {
-        const request = new Request("/user-roles");
-        await request.post(register);
-    
-        const data = request.readEntity<UserRol>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
-    }
+			return new Respuesta(true, "Registro creado correctamente.", "", "registro", userRole);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo crear el registro"), "", "registro", null);
+		}
+	}
 
-    async update(id: number, register: UserRol): Promise<Respuesta> {
-        const request = new Request("/user-roles", "{id}", { id });
-        await request.put(register);
-    
-        const data = request.readEntity<UserRol>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
-    
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
-    }
+	async update(id: number, register: UserRol): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.put<BackendResponse<{ item: UserRol }> | UserRol>(`/user-roles/${id}`,register);
+			const userRole = this.extractItem<UserRol>(data);
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/user-roles", "{id}", { id });
-        await request.delete();
+			return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", userRole);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo actualizar el registro"), "", "registro", null);
+		}
+	}
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
+	async remove(id: number): Promise<Respuesta> {
+		try {
+			await this.client.delete(`/user-roles/${id}`);
 
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
-    }
+			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo eliminar el registro"), "", "registro", null);
+		}
+	}
 
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/user-roles");
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-    
-        const userRoles = (data?.resultado?.items ?? []).map((userRol) => new UserRol(userRol));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", userRoles);
-    }
+	async findAll(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<UserRol>> | UserRol[]>(
+				"/user-roles"
+			);
+			const userRoles = this.extractItems<UserRol>(data).map(
+				(userRol) => new UserRol(userRol)
+			);
 
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/user-role", "{id}", { id });
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<{ item: UserRol }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-    
-        const userRoles = data?.resultado?.item ? new UserRol(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", userRoles);
-    }
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", userRoles);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
+		}
+	}
+
+	async findById(id: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: UserRol }> | UserRol>(
+				`/user-roles/${id}`
+			);
+			const userRoleData = this.extractItem<UserRol>(data);
+			const userRole = userRoleData ? new UserRol(userRoleData) : null;
+
+			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", userRole);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
 }

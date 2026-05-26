@@ -4,8 +4,8 @@ export class Warehouse {
     name!: string;
     location_details!: string;
 
-    camp_id!: number;  // primary key real de campamento
-    persona_id!: number;  // primary key real de persona
+    camp_id!: number;
+    admin_id?: number;
 
     constructor(data?: Partial<Warehouse>) {
         Object.assign(this, data);

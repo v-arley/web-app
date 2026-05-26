@@ -1,69 +1,209 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { UserResponseDto, type CreateUserDto, type UpdateUserDto } from "../models/User";
+﻿import {
+  Response as Respuesta,
+  type BackendListPayload,
+  type BackendResponse,
+} from "../shared/utils/Response";
+import { User, type CreateUser, type UpdateUser } from "../models/User";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
-export class UserService {
+export class UserService extends AxiosBaseService {
+  async save(register: CreateUser): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.post<
+        BackendResponse<{ item: User }> | User
+      >("/users", register);
+      const user = this.extractItem<User>(data);
 
-    async save(register: CreateUserDto): Promise<Respuesta> {
-        const request = new Request("/users");
-        await request.post(register);
-
-        const data = request.readEntity<UserResponseDto>();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
+      return new Respuesta(
+        true,
+        "Registro creado correctamente.",
+        "",
+        "registro",
+        user,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo crear el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async update(id: number, register: UpdateUserDto): Promise<Respuesta> {
-        const request = new Request("/users", "{id}", { id });
-        await request.put(register);
+  async update(id: number, register: UpdateUser): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.put<
+        BackendResponse<{ item: User }> | User
+      >(`/users/${id}`, register);
+      const user = this.extractItem<User>(data);
 
-        const data = request.readEntity<UserResponseDto>();
-
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
+      return new Respuesta(
+        true,
+        "Registro actualizado correctamente.",
+        "",
+        "registro",
+        user,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo actualizar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/users", "{id}", { id });
-        await request.delete();
+  async remove(id: number): Promise<Respuesta> {
+    try {
+      await this.client.delete(`/users/${id}`);
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+      return new Respuesta(
+        true,
+        "Registro eliminado correctamente.",
+        "",
+        "registro",
+        null,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo eliminar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/users");
-        request.setBearerToken(localStorage.getItem("token") ?? "");
-        await request.get();
+  async findAll(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<User>> | User[]
+      >("/users");
+      const user = this.extractItems<User>(data).map((user) => new User(user));
 
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-
-        const users = (data?.resultado?.items ?? []).map((u) => new UserResponseDto(u));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", users);
+      return new Respuesta(
+        true,
+        "Registros obtenidos correctamente.",
+        "",
+        "registros",
+        user,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudieron obtener los registros"),
+        "",
+      );
     }
+  }
 
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/users", "{id}", { id });
-        request.setBearerToken(localStorage.getItem("token") ?? "");
-        await request.get();
+  async findProfessions(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<string>> | string[]
+      >("/users/professions");
+      const professions = this.extractItems<string>(data);
 
-        const data = request.readEntity<BackendResponse<{ item: UserResponseDto }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-
-        const user = data?.resultado?.item ? new UserResponseDto(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", user);
+      return new Respuesta(
+        true,
+        "Profesiones obtenidas correctamente.",
+        "",
+        "registros",
+        professions,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(
+          error,
+          "No se pudieron obtener las profesiones",
+        ),
+        "",
+        "registros",
+        [],
+      );
     }
+  }
+
+  async findById(id: number): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<{ item: User }> | User
+      >(`/users/${id}`);
+      const userData = this.extractItem<User>(data);
+      const user = userData ? new User(userData) : null;
+
+      return new Respuesta(
+        true,
+        "Registro obtenido correctamente.",
+        "",
+        "registro",
+        user,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo obtener el registro"),
+        "",
+        "registro",
+        null,
+      );
+    }
+  }
+  async findAllWithProfile(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<User>> | User[]
+      >("/users/profiles/list");
+      const users = this.extractItems<User>(data).map((user) => new User(user));
+
+      return new Respuesta(
+        true,
+        "Registros obtenidos correctamente.",
+        "",
+        "registros",
+        users,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudieron obtener los registros"),
+        "",
+        "registros",
+        [],
+      );
+    }
+  }
+
+  async findByIdWithProfile(id: number): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<{ item: User }> | User
+      >(`/users/detail/${id}`);
+      const userData = this.extractItem<User>(data);
+      const user = userData ? new User(userData) : null;
+
+      return new Respuesta(
+        true,
+        "Registro obtenido correctamente.",
+        "",
+        "registro",
+        user,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo obtener el registro"),
+        "",
+        "registro",
+        null,
+      );
+    }
+  }
 }
 

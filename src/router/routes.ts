@@ -1,13 +1,4 @@
-/**
- * Definición centralizada de rutas de la aplicación.
- * Agregar aquí cada nueva vista/página para mantener consistencia.
- */
 export const ROUTES = {
-
-  LOGIN: '/login',
-  DASHBOARD: '/dashboard',
-  CAMP_CREATE: '/camp-create',
-
+    LOGIN: "/login",
+    DASHBOARD: "/",
 } as const;
-
-export type Route = (typeof ROUTES)[keyof typeof ROUTES];

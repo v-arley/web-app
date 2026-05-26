@@ -1,73 +1,228 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
-import { Task, type CreateTask, type UpdateTask } from "../models/Task";
+import {
+  Response as Respuesta,
+  type BackendResponse,
+  type BackendListPayload,
+} from "../shared/utils/Response";
+import {
+  Task,
+  type CreateTask,
+  type UpdateTask,
+  type WorkerTaskCompleteResponse,
+} from "../models/Task";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
-export class TaskService {
-    private request: Request;
+export class TaskService extends AxiosBaseService {
+  private toBackendPayload(register: CreateTask | UpdateTask) {
+    const estimatedMinutes =
+      register.estimated_minutes ??
+      register.estimatedMinutes ??
+      (register.estimated_hours !== undefined
+        ? Number(register.estimated_hours) * 60
+        : undefined);
 
-    constructor() {
-        this.request = new Request();
+    return {
+      camp_id: register.camp_id ?? register.campId,
+      name: register.name ?? register.title,
+      description: register.description,
+      type: register.type,
+      priority: register.priority,
+      difficulty: register.difficulty,
+      estimated_minutes: Number.isNaN(estimatedMinutes)
+        ? undefined
+        : estimatedMinutes,
+    };
+  }
+
+  async save(register: CreateTask): Promise<Respuesta> {
+    try {
+      const payload = this.toBackendPayload(register);
+
+      const { data } = await this.client.post<
+        BackendResponse<{ item: Task }> | Task
+      >("/tasks", payload);
+
+      const taskData = this.extractItem<Task>(data);
+      const task = taskData ? new Task(taskData) : null;
+
+      return new Respuesta(
+        true,
+        "Registro creado correctamente.",
+        "",
+        "registro",
+        task,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo crear el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async save(register: Task): Promise<Respuesta> {
-        const request = new Request("/tasks");
-        await request.post(register);
-    
-        const data = request.readEntity<Task>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo crear el registro", "", "registro", null);
-        }
-        return new Respuesta(true, "Registro creado correctamente.", "", "registro", data);
+  async update(id: number, register: UpdateTask): Promise<Respuesta> {
+    try {
+      const payload = this.toBackendPayload(register);
+
+      const { data } = await this.client.put<
+        BackendResponse<{ item: Task }> | Task
+      >(`/tasks/${id}`, payload);
+
+      const taskData = this.extractItem<Task>(data);
+      const task = taskData ? new Task(taskData) : null;
+
+      return new Respuesta(
+        true,
+        "Registro actualizado correctamente.",
+        "",
+        "registro",
+        task,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo actualizar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async update(id: number, register: Task): Promise<Respuesta> {
-        const request = new Request("/tasks", "{id}", { id });
-        await request.put(register);
-    
-        const data = request.readEntity<Task>();
-    
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo actualizar el registro", "", "registro", null);
-        }
-    
-        return new Respuesta(true, "Registro actualizado correctamente.", "", "registro", data);
+  async remove(id: number): Promise<Respuesta> {
+    try {
+      await this.client.delete(`/tasks/${id}`);
+
+      return new Respuesta(
+        true,
+        "Registro eliminado correctamente.",
+        "",
+        "registro",
+        null,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo eliminar el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
 
-    async remove(id: number): Promise<Respuesta> {
-        const request = new Request("/tasks", "{id}", { id });
-        await request.delete();
+  async findAll(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<Task>> | Task[]
+      >("/tasks");
 
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo eliminar el registro", "", "registro", null);
-        }
+      const tasks = this.extractItems<Task>(data).map((task) => new Task(task));
 
-        return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
+      return new Respuesta(
+        true,
+        "Registros obtenidos correctamente.",
+        "",
+        "registros",
+        tasks,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudieron obtener los registros"),
+        "",
+      );
     }
+  }
 
-    async findAll(): Promise<Respuesta> {
-        const request = new Request("/tasks");
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<BackendListPayload>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudieron obtener los registros", "");
-        }
-    
-        const tasks = (data?.resultado?.items ?? []).map((task) => new Task(task));
-        return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", tasks);
-    }
+  async findById(id: number): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<{ item: Task }> | Task
+      >(`/tasks/${id}`);
 
-    async findById(id: number): Promise<Respuesta> {
-        const request = new Request("/tasks", "{id}", { id });
-        await request.get();
-    
-        const data = request.readEntity<BackendResponse<{ item: Task }>>();
-        if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "No se pudo obtener el registro", "", "registro", null);
-        }
-    
-        const tasks = data?.resultado?.item ? new Task(data.resultado.item) : null;
-        return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", tasks);
+      const taskData = this.extractItem<Task>(data);
+      const task = taskData ? new Task(taskData) : null;
+
+      return new Respuesta(
+        true,
+        "Registro obtenido correctamente.",
+        "",
+        "registro",
+        task,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(error, "No se pudo obtener el registro"),
+        "",
+        "registro",
+        null,
+      );
     }
+  }
+
+  async findWorkerTasks(): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.get<
+        BackendResponse<BackendListPayload<Task>> | Task[]
+      >("/tasks/worker");
+
+      const tasks = this.extractItems<Task>(data).map((task) => new Task(task));
+
+      return new Respuesta(
+        true,
+        "Tareas del trabajador obtenidas correctamente.",
+        "",
+        "registros",
+        tasks,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(
+          error,
+          "No se pudieron obtener las tareas del trabajador",
+        ),
+        "",
+        "registros",
+        [],
+      );
+    }
+  }
+
+  async completeWorkerTask(taskId: number): Promise<Respuesta> {
+    try {
+      const { data } = await this.client.patch<
+        | BackendResponse<{ item: WorkerTaskCompleteResponse }>
+        | WorkerTaskCompleteResponse
+      >(`/tasks/worker/${taskId}/complete`, {});
+
+      const result = this.extractItem<WorkerTaskCompleteResponse>(data);
+
+      return new Respuesta(
+        true,
+        result?.alreadyCompleted
+          ? "La tarea ya estaba completada."
+          : "Tarea completada correctamente.",
+        "",
+        "registro",
+        result,
+      );
+    } catch (error) {
+      return new Respuesta(
+        false,
+        this.extractErrorMessage(
+          error,
+          "No se pudo completar la tarea del trabajador",
+        ),
+        "",
+        "registro",
+        null,
+      );
+    }
+  }
 }
+

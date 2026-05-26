@@ -1,4 +1,3 @@
-
 export class PermissionRol {
 
     permission_id!: number;

@@ -1,0 +1,22 @@
+// hooks/usePollingFallback.ts
+import { useEffect, useRef } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+
+export function usePollingFallback(enabled: boolean, intervalMs: number = 30000) {
+  const queryClient = useQueryClient();
+  const intervalRef = useRef<<ReturnType<<typeof setInterval>>();
+
+  useEffect(() => {
+    if (!enabled) return;
+    
+    intervalRef.current = setInterval(() => {
+      // Invalidar queries clave para forzar re-fetch
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      queryClient.invalidateQueries({ queryKey: ['explorations'] });
+      queryClient.invalidateQueries({ queryKey: ['requests'] });
+    }, intervalMs);
+
+    return () => clearInterval(intervalRef.current);
+  }, [enabled, intervalMs, queryClient]);
+}
