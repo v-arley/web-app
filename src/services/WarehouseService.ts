@@ -1,4 +1,4 @@
-﻿import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
+import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
 import { Warehouse, type CreateWarehouse, type UpdateWarehouse } from "../models/Warehouse";
 import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 

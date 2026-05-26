@@ -1,4 +1,4 @@
-﻿import {
+import {
     Response as Respuesta,
     type BackendResponse,
     type BackendListPayload,
