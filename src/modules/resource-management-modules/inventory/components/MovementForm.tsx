@@ -54,6 +54,7 @@ export function MovementForm({
 }: Props) {
     const form = useForm<ResourceMovementFormValues>({
         resolver: zodResolver(resourceMovementSchema),
+        mode: 'onChange',
         defaultValues: { ...EMPTY_RESOURCE_MOVEMENT, ...initialData },
     });
     const errors = form.formState.errors;
@@ -61,7 +62,8 @@ export function MovementForm({
 
     useEffect(() => {
         form.reset({ ...EMPTY_RESOURCE_MOVEMENT, ...initialData });
-    }, [form, initialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialData]);
 
     const handleClear = () => {
         form.reset(EMPTY_RESOURCE_MOVEMENT);
@@ -71,7 +73,7 @@ export function MovementForm({
     return (
         <form
             onSubmit={form.handleSubmit(async (values) => onSubmit(values))}
-            className="flex h-full flex-col relative"
+            className="flex flex-1 min-h-0 flex-col relative"
         >
             <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
                 <span className="font-mono text-[40px] font-bold">MOVE_STK</span>
@@ -144,24 +146,24 @@ export function MovementForm({
                 </Field>
             </div>
 
-            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-3">
+            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2">
                 <button
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn border border-border-strong hover:bg-bg-secondary transition-all disabled:opacity-50"
+                    className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
-                    <span className="font-mono">Reset</span>
+                    <span className="font-mono">Limpiar</span>
                 </button>
 
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-2 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
+                    className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
                 >
                     <Save className="h-3.5 w-3.5" />
-                    <span className="font-mono">{isSubmitting ? "Comitting..." : "Commit Transaction"}</span>
+                    <span className="font-mono">{isSubmitting ? "..." : "Guardar"}</span>
                 </button>
             </footer>
         </form>

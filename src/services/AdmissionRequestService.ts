@@ -1,6 +1,6 @@
-import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../utils/Response";
+﻿import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../shared/utils/Response";
 import { AdmissionRequest, type CreateAdmissionRequest, type UpdateAdmissionRequest } from "../models/AdmissionRequest";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class AdmissionRequestService extends AxiosBaseService {
     async save(register: CreateAdmissionRequest): Promise<Respuesta> {
@@ -58,3 +58,4 @@ export class AdmissionRequestService extends AxiosBaseService {
         }
     }
 }
+

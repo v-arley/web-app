@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-quer
 import { Play } from "lucide-react";
 import { useMemo } from "react";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { ProductionExecutionPanel } from "../components/ProductionExecutionPanel";
 import { useExecuteDailyProduction } from "../hooks/useExecuteDailyProduction";
 //import { useToast } from "../../../../hooks/useToast";
@@ -57,7 +57,7 @@ function DailyProductionPageContent() {
     };
 
     return (
-        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Producción Diaria / Ejecutar Producción

@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { Utensils } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { ResourceService } from "../../../../services/ResourceService";
 import { RationGenerationPanel } from "../components/RationGenerationPanel";
 
@@ -28,7 +28,7 @@ function GenerateRationsPageContent() {
     }, [resourcesData]);
 
     return (
-        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Raciones Diarias / Generar Raciones

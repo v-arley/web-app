@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { Settings2, Play, FileText, AlertCircle } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { ProductionRulesPage } from "./ProductionRulesPage";
 import { DailyProductionPage } from "./DailyProductionPage";
 import { ProductionRecordsPage } from "./ProductionRecordsPage";
@@ -144,7 +144,7 @@ export function ProductionMainPage() {
     ];
 
     return (
-        <article className="rmm-scope flex h-screen flex-col bg-bg-app overflow-hidden relative">
+            <article className="rmm-scope flex h-full min-h-0 flex-col bg-bg-app overflow-hidden relative">
             {/* Corner Brackets */}
             <div className="rmm-bracket rmm-bracket-tl"></div>
             <div className="rmm-bracket rmm-bracket-tr"></div>
@@ -210,7 +210,7 @@ export function ProductionMainPage() {
 
             {/* Main Content */}
             <main className="flex-1 overflow-hidden flex flex-col">
-                <section className="flex-1 overflow-y-auto">
+                <section className="flex-1 flex flex-col overflow-hidden">
                     {activeTab === "rules" && <ProductionRulesPage />}
                     {activeTab === "execute" && (
                         <div className="flex h-full items-center justify-center p-4">
@@ -231,7 +231,7 @@ export function ProductionMainPage() {
                                     </div>
                                     <button
                                         onClick={() => setShowConfirmModal(true)}
-                                        className="w-full rmm-btn rmm-btn-accent justify-center py-2 text-sm tracking-[0.2em]"
+                                        className="w-full rmm-btn rmm-btn-accent justify-center py-2 text-sm tracking-wide"
                                     >
                                         <span className="font-mono">INICIAR PROCESO DIARIO</span>
                                     </button>

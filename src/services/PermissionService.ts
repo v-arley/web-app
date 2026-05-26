@@ -1,6 +1,6 @@
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
+﻿import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
 import { Permission, type CreatePermission, type UpdatePermission } from "../models/Permision";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 
 export class PermissionService extends AxiosBaseService{

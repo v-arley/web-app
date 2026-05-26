@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../../services/AxiosBaseService";
-import type { BackendListPayload, BackendResponse } from "../../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../../shared/utils/AxiosBaseService";
+import type { BackendListPayload, BackendResponse } from "../../../../../shared/utils/Response";
 import type { CampFormValues } from "../schemas/create-camp.schema";
 import { campSchema, type CampRecord } from "../schemas/camp.schema";
 

@@ -1,14 +1,14 @@
-import {
+﻿import {
     Response as Respuesta,
     type BackendListPayload,
     type BackendResponse,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
     AuditLog,
     type CreateAuditLog,
     type UpdateAuditLog,
 } from "../models/AuditLog";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class AuditLogService extends AxiosBaseService {
     async save(register: CreateAuditLog): Promise<Respuesta> {
@@ -21,7 +21,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registro de auditoría creado correctamente.",
+                "Registro de auditorÃ­a creado correctamente.",
                 "",
                 "registro",
                 item,
@@ -29,7 +29,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo crear el registro de auditoría"),
+                this.extractErrorMessage(error, "No se pudo crear el registro de auditorÃ­a"),
                 "",
                 "registro",
                 null,
@@ -47,7 +47,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registro de auditoría actualizado correctamente.",
+                "Registro de auditorÃ­a actualizado correctamente.",
                 "",
                 "registro",
                 item,
@@ -55,7 +55,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo actualizar el registro de auditoría"),
+                this.extractErrorMessage(error, "No se pudo actualizar el registro de auditorÃ­a"),
                 "",
                 "registro",
                 null,
@@ -69,7 +69,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registro de auditoría eliminado correctamente.",
+                "Registro de auditorÃ­a eliminado correctamente.",
                 "",
                 "registro",
                 null,
@@ -77,7 +77,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo eliminar el registro de auditoría"),
+                this.extractErrorMessage(error, "No se pudo eliminar el registro de auditorÃ­a"),
                 "",
                 "registro",
                 null,
@@ -97,7 +97,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registros de auditoría obtenidos correctamente.",
+                "Registros de auditorÃ­a obtenidos correctamente.",
                 "",
                 "registros",
                 items,
@@ -105,7 +105,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudieron obtener los registros de auditoría"),
+                this.extractErrorMessage(error, "No se pudieron obtener los registros de auditorÃ­a"),
                 "",
                 "registros",
                 [],
@@ -124,7 +124,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registro de auditoría obtenido correctamente.",
+                "Registro de auditorÃ­a obtenido correctamente.",
                 "",
                 "registro",
                 auditLog,
@@ -132,7 +132,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo obtener el registro de auditoría"),
+                this.extractErrorMessage(error, "No se pudo obtener el registro de auditorÃ­a"),
                 "",
                 "registro",
                 null,
@@ -152,7 +152,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registros de auditoría obtenidos correctamente.",
+                "Registros de auditorÃ­a obtenidos correctamente.",
                 "",
                 "registros",
                 items,
@@ -160,7 +160,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudieron obtener los registros de auditoría"),
+                this.extractErrorMessage(error, "No se pudieron obtener los registros de auditorÃ­a"),
                 "",
                 "registros",
                 [],
@@ -180,7 +180,7 @@ export class AuditLogService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Registros de auditoría obtenidos correctamente.",
+                "Registros de auditorÃ­a obtenidos correctamente.",
                 "",
                 "registros",
                 items,
@@ -188,7 +188,7 @@ export class AuditLogService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudieron obtener los registros de auditoría"),
+                this.extractErrorMessage(error, "No se pudieron obtener los registros de auditorÃ­a"),
                 "",
                 "registros",
                 [],

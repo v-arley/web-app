@@ -1,5 +1,5 @@
-import { Request } from "../utils/Request";
-import { Response as Respuesta, type BackendResponse } from "../utils/Response";
+﻿import { Request } from "../shared/utils/Request";
+import { Response as Respuesta, type BackendResponse } from "../shared/utils/Response";
 
 export type RegisterUserPayload = {
     username: string;
@@ -18,7 +18,7 @@ export class AuthService {
         const data = request.readEntity<BackendResponse<{ token: string }>>();
 
         if (request.isError()) {
-            return new Respuesta(false, request.getError() ?? "Credenciales inválidas", "");
+            return new Respuesta(false, request.getError() ?? "Credenciales invÃ¡lidas", "");
         }
 
         const token = (data as Record<string, unknown>)?.token as string ?? null;
@@ -42,3 +42,4 @@ export class AuthService {
         return new Respuesta(true, "Registro exitoso", "", "usuario", data);
     }
 }
+

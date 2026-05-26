@@ -1,5 +1,5 @@
 import { MapPin } from "lucide-react";
-import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup } from "../../../../../components/ui/map";
+import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup } from "../../../../../shared/components/ui/map";
 import { formatCoord } from "../utils/global-dashboard.mappers";
 import type { CampPoint, GlobalDashboardSnapshot, HeatCampPoint } from "../utils/global-dashboard.types";
 import { SectionHeader } from "./SectionHeader";

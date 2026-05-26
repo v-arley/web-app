@@ -1,12 +1,12 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
 import { shipmentSchema, type ShipmentFormValues } from "../schemas/shipment.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
 export class ShipmentService extends AxiosBaseService {
     /**
-     * Obtener envíos con filtros
+     * Obtener envÃ­os con filtros
      */
     async getShipments(filters?: { requestId?: number; status?: 'P' | 'I' | 'D' | 'C'; }): Promise<ShipmentFormValues[]> {
         try {
@@ -27,7 +27,7 @@ export class ShipmentService extends AxiosBaseService {
     }
 
     /**
-     * Obtener envío por ID
+     * Obtener envÃ­o por ID
      */
     async getShipmentById(id: number): Promise<ShipmentFormValues> {
         try {
@@ -40,7 +40,7 @@ export class ShipmentService extends AxiosBaseService {
     }
 
     /**
-     * Crear nuevo envío
+     * Crear nuevo envÃ­o
      */
     async createShipment(payload: Partial<ShipmentFormValues>): Promise<ShipmentFormValues> {
         try {
@@ -53,7 +53,7 @@ export class ShipmentService extends AxiosBaseService {
     }
 
     /**
-     * Iniciar tránsito (cambiar estado a 'I')
+     * Iniciar trÃ¡nsito (cambiar estado a 'I')
      */
     async startTransit(id: number): Promise<ShipmentFormValues> {
         try {
@@ -66,7 +66,7 @@ export class ShipmentService extends AxiosBaseService {
     }
 
     /**
-     * Confirmar recepción (cambiar estado a 'D')
+     * Confirmar recepciÃ³n (cambiar estado a 'D')
      */
     async confirmDelivery(id: number, observations?: string): Promise<ShipmentFormValues> {
         try {
@@ -79,7 +79,7 @@ export class ShipmentService extends AxiosBaseService {
     }
 
     /**
-     * Cancelar envío
+     * Cancelar envÃ­o
      */
     async cancelShipment(id: number, observations?: string): Promise<ShipmentFormValues> {
         try {
@@ -124,3 +124,4 @@ export class ShipmentService extends AxiosBaseService {
 }
 
 export const shipmentService = new ShipmentService();
+

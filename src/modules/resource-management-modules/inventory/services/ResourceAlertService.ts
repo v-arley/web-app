@@ -1,14 +1,14 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendListPayload, BackendResponse } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendListPayload, BackendResponse } from "../../../../shared/utils/Response";
 import { resourceAlertSchema, type ResourceAlertFormValues } from "../schemas/resource-alert.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aun no existe o el contrato no es valido.";
 
 export class ResourceAlertService extends AxiosBaseService {
-    async getAlerts(campId: number): Promise<ResourceAlertFormValues[]> {
+    async getAlerts(campId: number, resolved: "Y" | "N" = "N"): Promise<ResourceAlertFormValues[]> {
         try {
             const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/camps/${campId}/resource-alerts?resolved=N`
+                `/camps/${campId}/resource-alerts?resolved=${resolved}`
             );
             const items = this.extractItems<unknown>(data);
             
@@ -53,3 +53,4 @@ export class ResourceAlertService extends AxiosBaseService {
 }
 
 export const resourceAlertService = new ResourceAlertService();
+

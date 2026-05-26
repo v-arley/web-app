@@ -1,14 +1,14 @@
-import {
+﻿import {
     Response as Respuesta,
     type BackendListPayload,
     type BackendResponse,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
     PersonProfession,
     type CreatePersonProfession,
     type UpdatePersonProfession,
 } from "../models/PersonProfession";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class PersonProfessionService extends AxiosBaseService {
     async save(register: CreatePersonProfession): Promise<Respuesta> {
@@ -21,7 +21,7 @@ export class PersonProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Profesión asignada correctamente.",
+                "ProfesiÃ³n asignada correctamente.",
                 "",
                 "registro",
                 item,
@@ -29,7 +29,7 @@ export class PersonProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo asignar la profesión"),
+                this.extractErrorMessage(error, "No se pudo asignar la profesiÃ³n"),
                 "",
                 "registro",
                 null,
@@ -51,7 +51,7 @@ export class PersonProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Asignación actualizada correctamente.",
+                "AsignaciÃ³n actualizada correctamente.",
                 "",
                 "registro",
                 item,
@@ -59,7 +59,7 @@ export class PersonProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo actualizar la asignación"),
+                this.extractErrorMessage(error, "No se pudo actualizar la asignaciÃ³n"),
                 "",
                 "registro",
                 null,
@@ -73,7 +73,7 @@ export class PersonProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Asignación eliminada correctamente.",
+                "AsignaciÃ³n eliminada correctamente.",
                 "",
                 "registro",
                 null,
@@ -81,7 +81,7 @@ export class PersonProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo eliminar la asignación"),
+                this.extractErrorMessage(error, "No se pudo eliminar la asignaciÃ³n"),
                 "",
                 "registro",
                 null,

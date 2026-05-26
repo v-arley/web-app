@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { AchievementFormValues } from "../schemas/achievement.schema";
 import { useAchievementMutations } from "./useAchievementMutations";
 import { useAchievementQuery } from "./useAchievementQuery";
-import { useDebounce } from "../../../../hooks/useDebounce";
+import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
 type CatalogCallbacks = {
     onSuccess?: (message: string) => void;

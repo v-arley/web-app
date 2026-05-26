@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Search } from "lucide-react";
-import { useState } from "react";import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { useState } from "react";import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { StockFiltersPanel } from "../components/StockFiltersPanel";
 import { StockTable } from "../components/StockTable";
 import { useStockView } from "../hooks/useStockView";
@@ -51,12 +51,12 @@ function StockViewContent() {
 
                         {/* Search + Filters — alineados al extremo derecho */}
                         <div className="ml-auto flex items-center gap-3">
-                            <div className="relative w-44 shrink-0">
-                                <Search className="absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-accent pointer-events-none" />
+                            <div className="relative w-48 shrink-0">
+                                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-accent/60 pointer-events-none" />
                                 <input
                                     type="search"
-                                    placeholder="SCAN_ID..."
-                                    className="rmm-input h-6! w-full pl-7! text-[10px]!"
+                                    placeholder="SCAN_RESOURCE_ID..."
+                                    className="rmm-input !h-8 w-full pl-9 text-[10px] !bg-[#1c1c1c] !border-border-strong shadow-lg focus:!border-accent/80"
                                     value={stockView.search}
                                     onChange={(e) => stockView.setSearch(e.target.value)}
                                 />

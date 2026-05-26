@@ -1,6 +1,6 @@
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
+﻿import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
 import { Rule, type CreateRule, type UpdateRule } from "../models/Rule";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class RuleService extends AxiosBaseService {
 
@@ -59,3 +59,4 @@ export class RuleService extends AxiosBaseService {
 		}
 	}
 }
+

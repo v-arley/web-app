@@ -1,18 +1,20 @@
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
+import { PersonService } from "../../../../services/PersonService";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { ProductionAdjustmentForm } from "../components/ProductionAdjustmentForm";
 import { ProductionRecordsTable } from "../components/ProductionRecordsTable";
 import { useProductionRecordMutation } from "../hooks/useProductionRecordMutation";
 import { useProductionRecordsQuery } from "../hooks/useProductionRecordsQuery";
 import type { ProductionRecordFormValues } from "../schemas/production-record.schema";
 // import { useToast } from "../../../../hooks/useToast";
-import { useDebounce } from "../../../../hooks/useDebounce";
+import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
 const queryClient = new QueryClient();
+const personService = new PersonService();
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
@@ -72,14 +74,24 @@ function ProductionRecordsPageContent() {
         },
     });
 
-    // Obtener personas (simulado, debería venir del backend)
-    const personOptions = [
-        { id: 6, label: "Carmen Vega - Médica" },
-        { id: 7, label: "Roberto Chinchilla - Ingeniero" },
-        { id: 11, label: "Miguel Araya - Carpintero" },
-        { id: 13, label: "Fernando Quesada - Electricista" },
-        { id: 14, label: "Gabriela Picado - Cocinera" },
-    ];
+    // Obtener personas del campamento desde el backend
+    const { data: personsData } = useQuery({
+        queryKey: ["persons", campId],
+        queryFn: async () => {
+            const response = await personService.findAll();
+            const all = response.getResultado<{ id: number; name: string; last_name: string; camp_id: number }[]>("registros") ?? [];
+            return all.filter((p) => p.camp_id === campId);
+        },
+        enabled: campId > 0,
+    });
+
+    const personOptions = useMemo(() => {
+        if (!personsData) return [];
+        return personsData.map((p) => ({
+            id: p.id,
+            label: `${p.name} ${p.last_name}`.trim(),
+        }));
+    }, [personsData]);
 
     const warehouseOptions = useMemo(() => {
         if (!warehousesData) return [];
@@ -101,7 +113,7 @@ function ProductionRecordsPageContent() {
 
     const personMap = useMemo(() => {
         return new Map(personOptions.map((p) => [p.id, p.label]));
-    }, []);
+    }, [personOptions]);
 
     const warehouseMap = useMemo(() => {
         if (!warehousesData) return new Map();
@@ -125,7 +137,7 @@ function ProductionRecordsPageContent() {
     };
 
     return (
-        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Producción Diaria / Registros y Ajustes

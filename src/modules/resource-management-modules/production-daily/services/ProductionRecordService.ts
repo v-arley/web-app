@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
 import { productionRecordSchema, type ProductionRecordFormValues } from "../schemas/production-record.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
@@ -19,7 +19,7 @@ export class ProductionRecordService extends AxiosBaseService {
             if (filters?.resourceId) 
                 params.append('resource_id', filters.resourceId.toString());
 
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/production-records?${params.toString()}` );
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/resource-productions/filters?${params.toString()}` );
             
             const items = this.extractItems<unknown>(data);
             return items.map((item) => this.normalizeRecord(item));
@@ -30,7 +30,7 @@ export class ProductionRecordService extends AxiosBaseService {
 
     async createProductionRecord(payload: ProductionRecordFormValues): Promise<ProductionRecordFormValues> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/production-records", this.toWritePayload(payload) );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/resource-productions", this.toWritePayload(payload) );
             
             return this.normalizeRecord(this.extractItem<unknown>(data));
         } catch (error) {
@@ -40,7 +40,7 @@ export class ProductionRecordService extends AxiosBaseService {
 
     async updateProductionRecord(id: number, payload: ProductionRecordFormValues): Promise<ProductionRecordFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/production-records/${id}`, this.toWritePayload(payload) );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/resource-productions/${id}`, this.toWritePayload(payload) );
             
             return this.normalizeRecord(this.extractItem<unknown>(data));
         } catch (error) {
@@ -84,3 +84,4 @@ export class ProductionRecordService extends AxiosBaseService {
 }
 
 export const productionRecordService = new ProductionRecordService();
+

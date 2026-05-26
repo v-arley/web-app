@@ -14,15 +14,15 @@ export function useProductionRuleMutation() {
     });
 
     const update = useMutation({
-        mutationFn: ({ id, data }: { id: number; data: ProductionRuleFormValues }) =>
-            productionRuleService.updateProductionRule(id, data),
+        mutationFn: ({ currentRule, data }: { currentRule: ProductionRuleFormValues; data: ProductionRuleFormValues }) =>
+            productionRuleService.updateProductionRule(currentRule, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PRODUCTION_RULES_QUERY_KEY });
         },
     });
 
     const remove = useMutation({
-        mutationFn: (id: number) => productionRuleService.deleteProductionRule(id),
+        mutationFn: (rule: ProductionRuleFormValues) => productionRuleService.deleteProductionRule(rule),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: PRODUCTION_RULES_QUERY_KEY });
         },

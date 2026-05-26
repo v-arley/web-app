@@ -53,7 +53,7 @@ export function useDashboard(campId: number, autoFetch: boolean = true): UseDash
     const fetchRecentActivity = async () => {
         setIsLoadingActivity(true);
         try {
-            const data = await dashboardService.getRecentActivity(campId, 10);
+            const data = await dashboardService.getRecentActivity(10);
             setRecentActivity(data);
         } catch (err: any) {
             console.error("Error loading activity:", err);

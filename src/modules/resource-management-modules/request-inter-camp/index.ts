@@ -1,4 +1,3 @@
-import "../resource-management-modules.css";
 // Schemas
 export * from './schemas/camp-request.schema';
 export * from './schemas/request-resource.schema';

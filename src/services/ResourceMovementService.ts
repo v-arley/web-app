@@ -1,6 +1,6 @@
-import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../utils/Response";
+﻿import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../shared/utils/Response";
 import { ResourceMovement, type CreateResourceMovement } from "../models/ResourceMovement";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class ResourceMovementService extends AxiosBaseService {
 

@@ -32,7 +32,7 @@ export function InventoryMainPage() {
     ];
 
     return (
-        <article className="rmm-scope flex h-screen flex-col bg-bg-app overflow-hidden relative">
+            <article className="rmm-scope flex h-full min-h-0 flex-col bg-bg-app overflow-hidden relative">
             {/* Corner Brackets */}
             <div className="rmm-bracket rmm-bracket-tl"></div>
             <div className="rmm-bracket rmm-bracket-tr"></div>
@@ -103,7 +103,7 @@ export function InventoryMainPage() {
 
             {/* Main Content — full width */}
             <main className="flex-1 overflow-hidden flex flex-col">
-                <section className="flex-1 overflow-y-auto">
+                <section className="flex-1 flex flex-col overflow-hidden">
                     {activeTab === "stock" && <StockViewPage />}
                     {activeTab === "movements" && <MovementsPage />}
                     {activeTab === "config" && <MinStockConfigPage />}

@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse } from "../../../../shared/utils/Response";
 import { resourceMovementSchema, type ResourceMovementFormValues } from "../schemas/resource-movement.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aun no existe o el contrato no es valido.";
@@ -53,3 +53,4 @@ export class ResourceMovementService extends AxiosBaseService {
 }
 
 export const resourceMovementService = new ResourceMovementService();
+

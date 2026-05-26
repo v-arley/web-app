@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { PersonService } from "../../../../services/PersonService";
 import { useRationsQuery } from "../hooks/useRationsQuery";
 import { RationHistoryTable } from "../components/RationHistoryTable";
@@ -44,7 +44,7 @@ function RationHistoryPageContent() {
     const deliveryRate = totalRations > 0 ? ((deliveredCount / totalRations) * 100).toFixed(1) : '0';
 
     return (
-        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Raciones Diarias / Historial de Raciones

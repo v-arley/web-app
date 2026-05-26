@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "./AxiosBaseService";
-import { Response as Respuesta, type BackendResponse } from "../utils/Response";
+﻿import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
+import { Response as Respuesta, type BackendResponse } from "../shared/utils/Response";
 import { Achievement, type AchievementPage } from "../models/Achievement";
 
 type AchievementPagePayload = Omit<AchievementPage, "items"> & {
@@ -81,3 +81,4 @@ export class AchievementService extends AxiosBaseService {
     }
   }
 }
+

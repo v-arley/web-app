@@ -1,6 +1,6 @@
-import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../utils/Response";
+﻿import { Response as Respuesta, type BackendListPayload, type BackendResponse } from "../shared/utils/Response";
 import { Camp, type CreateCamp, type UpdateCamp } from "../models/Camp";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class CampService extends AxiosBaseService{
     
@@ -61,7 +61,7 @@ export class CampService extends AxiosBaseService{
 
 	/**
 	 * Obtiene todos los campamentos disponibles para crear solicitudes entre campamentos.
-	 * Este método siempre devuelve todos los campamentos, independientemente del scope del usuario.
+	 * Este mÃ©todo siempre devuelve todos los campamentos, independientemente del scope del usuario.
 	 */
 	async findAllForRequests(): Promise<Respuesta> {
 		try {

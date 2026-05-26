@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Play, AlertTriangle, Users, Package } from "lucide-react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "../../../../shared/components/ui/button";
 import { useExecuteDailyRations, useCheckExistingRations, usePreviewRationGeneration } from "../hooks/useExecuteDailyRations";
 import { DEFAULT_RATION_CONFIG } from "../schemas/ration-execution.schema";
 import type { RationExecutionFormValues, RationExecutionResult } from "../schemas/ration-execution.schema";

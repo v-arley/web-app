@@ -1,6 +1,5 @@
-// TODO: cambiar la estructura del service para que continue el patron utilizado en los modulos de inventario, porduccion diaria, solicitures inter-campamentos
-
-import axiosClient from "../../../../api/axiosClient";
+import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
 
 export interface DashboardMetrics {
     population: {
@@ -35,69 +34,76 @@ export interface ActivityLog {
     action: string;
     record_id: number | null;
     performed_by: number | null;
-    username: string;
+    username: string | null;
     old_values: any;
     new_values: any;
     created_at: string;
 }
 
-export class DashboardService {
-    private baseUrl = "/api/camps";
+type MetricsPayload = { data: DashboardMetrics };
 
-    /**
-     * Obtiene las métricas del dashboard para un campamento
-     * NOTA: Endpoint pendiente de implementación en backend
-     */
+export class DashboardService extends AxiosBaseService {
+    private readonly campBase = "/camps";
+
     async getDashboardMetrics(campId: number): Promise<DashboardMetrics> {
         try {
-            const response = await axiosClient.get(`${this.baseUrl}/${campId}/dashboard-metrics`);
-            if (response.data.estado) {
-                return response.data.data;
+            const { data } = await this.client.get<BackendResponse<MetricsPayload>>(
+                `${this.campBase}/${campId}/dashboard-metrics`
+            );
+            if (data && typeof data === "object" && "resultado" in data) {
+                const metrics = (data as BackendResponse<MetricsPayload>).resultado?.data;
+                if (metrics) return metrics;
             }
-            throw new Error(response.data.mensaje || "Error al obtener métricas");
-        } catch (error: any) {
-            // Retornar datos mock mientras se implementa el endpoint
-            console.warn("⚠️ Endpoint /dashboard-metrics no implementado, usando datos mock");
-            return {
-                population: { current: 0, total: 0, percentage: 0 },
-                critical_alerts: 0,
-                rations_today: { delivered: 0, total: 0, percentage: 0 },
-                shipments_in_transit: 0,
-            };
+            throw new Error("Respuesta inesperada del servidor");
+        } catch (error) {
+            throw new Error(this.extractErrorMessage(error, "Error al obtener métricas del dashboard"));
         }
     }
 
-    /**
-     * Obtiene el resumen de stock del almacén principal
-     */
     async getStockSummary(campId: number): Promise<StockSummaryItem[]> {
         try {
-            const response = await axiosClient.get(`${this.baseUrl}/${campId}/stock-summary`);
-            if (response.data.estado) {
-                return response.data.data || [];
-            }
-            throw new Error(response.data.mensaje || "Error al obtener stock");
-        } catch (error: any) {
-            console.error("Error fetching stock summary:", error);
-            return [];
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>>>(
+                `${this.campBase}/${campId}/stock-summary`
+            );
+            const rawItems = this.extractItems<Record<string, unknown>>(data);
+            return rawItems.map((item) => ({
+                resource_id: Number(item.resource_id ?? 0),
+                resource_code: String(item.resource_code ?? ""),
+                resource_name: String(item.resource_name ?? ""),
+                warehouse_id: Number(item.warehouse_id ?? 0),
+                warehouse_name: String(item.warehouse_name ?? ""),
+                amount: Number(item.current_amount ?? 0),
+                min_quantity: Number(item.min_quantity ?? 0),
+                stock_status: (item.stock_status === "CRITICAL" || item.stock_status === "LOW"
+                    ? item.stock_status
+                    : "OK") as "OK" | "LOW" | "CRITICAL",
+                date_last_movement: String(item.date_last_movement ?? ""),
+            }));
+        } catch (error) {
+            throw new Error(this.extractErrorMessage(error, "Error al obtener resumen de stock"));
         }
     }
 
-    /**
-     * Obtiene la actividad reciente del campamento
-     * NOTA: Endpoint pendiente - usar /api/audit-logs filtrado por campamento
-     */
-    async getRecentActivity(campId: number, limit: number = 10): Promise<ActivityLog[]> {
+    async getRecentActivity(limit: number = 10): Promise<ActivityLog[]> {
         try {
-            const response = await axiosClient.get(`/api/audit-logs`, {
-                params: { camp_id: campId, limit },
-            });
-            if (response.data.estado) {
-                return response.data.data || [];
-            }
-            throw new Error(response.data.mensaje || "Error al obtener actividad");
-        } catch (error: any) {
-            console.warn("⚠️ Error al obtener logs de actividad:", error.message);
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>>>(
+                `/audit-logs/recent`,
+                { params: { limit } }
+            );
+            const rawItems = this.extractItems<Record<string, unknown>>(data);
+            return rawItems.map((item) => ({
+                id: Number(item.id ?? 0),
+                table_name: String(item.table_name ?? ""),
+                action: String(item.action ?? ""),
+                record_id: item.record_id != null ? Number(item.record_id) : null,
+                performed_by: item.performed_by != null ? Number(item.performed_by) : null,
+                username: item.username != null ? String(item.username) : null,
+                old_values: item.old_values ?? null,
+                new_values: item.new_values ?? null,
+                created_at: String(item.created_at ?? ""),
+            }));
+        } catch (error) {
+            console.warn("Error al obtener actividad reciente:", this.extractErrorMessage(error, ""));
             return [];
         }
     }

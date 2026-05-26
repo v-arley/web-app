@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../../services/AxiosBaseService";
-import type { BackendListPayload, BackendResponse } from "../../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../../shared/utils/AxiosBaseService";
+import type { BackendListPayload, BackendResponse } from "../../../../../shared/utils/Response";
 import { adminCandidateSchema, userSchema, type CampAdminOption, type UserRecord } from "../schemas/user.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aun no existe o el contrato no es valido.";

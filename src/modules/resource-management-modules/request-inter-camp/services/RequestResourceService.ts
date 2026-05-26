@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
 import { requestResourceSchema, type RequestResourceFormValues } from "../schemas/request-resource.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
@@ -59,3 +59,4 @@ export class RequestResourceService extends AxiosBaseService {
 }
 
 export const requestResourceService = new RequestResourceService();
+

@@ -1,6 +1,6 @@
-import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../utils/Response";
+﻿import { Response as Respuesta, type BackendResponse, type BackendListPayload } from "../shared/utils/Response";
 import { Resource, type CreateResource, type UpdateResource } from "../models/Resource";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class ResourceService extends AxiosBaseService {
 	private toBackendPayload(register: CreateResource | UpdateResource) {
@@ -79,3 +79,4 @@ export class ResourceService extends AxiosBaseService {
 		}
 	}
 }
+

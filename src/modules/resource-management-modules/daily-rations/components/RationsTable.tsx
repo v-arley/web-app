@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CheckCircle, XCircle, User, Calendar } from "lucide-react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "../../../../shared/components/ui/button";
 import { useRationMutation } from "../hooks/useRationMutation";
 import { RationResourcesDetail } from "./RationResourcesDetail";
 import type { RationFormValues } from "../schemas/ration.schema";

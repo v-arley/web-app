@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
-import { Inbox, Send, Truck } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { Inbox, Send, Truck, RotateCcw } from "lucide-react";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { IncomingRequestsPage } from "./IncomingRequestsPage";
 import { OutgoingRequestsPage } from "./OutgoingRequestsPage";
 import { ShipmentsPage } from "./ShipmentsPage";
@@ -86,7 +86,7 @@ export function InterCampMainPage() {
     ];
 
     return (
-        <article className="rmm-scope flex h-screen flex-col bg-bg-app overflow-hidden relative">
+        <article className="rmm-scope flex h-full min-h-0 flex-col bg-bg-app overflow-hidden relative">
             <div className="rmm-bracket rmm-bracket-tl"></div>
             <div className="rmm-bracket rmm-bracket-tr"></div>
             <div className="rmm-bracket rmm-bracket-bl"></div>
@@ -140,7 +140,7 @@ export function InterCampMainPage() {
 
                 {/* Main Content */}
                 <main className="flex-1 overflow-hidden flex flex-col">
-                    <section className="flex-1 overflow-y-auto">
+                    <section className="flex-1 flex flex-col overflow-hidden">
                         {activeTab === "incoming"  && <IncomingRequestsPage />}
                         {activeTab === "outgoing"  && <OutgoingRequestsPage />}
                         {activeTab === "shipments" && <ShipmentsPage />}
@@ -148,9 +148,9 @@ export function InterCampMainPage() {
                 </main>
 
                 {/* Right panel: Generate Provision form */}
-                <aside className="w-72 shrink-0 border-l border-border-default bg-bg-secondary/20 flex flex-col overflow-hidden">
-                    <header className="px-4 py-2 border-b border-border-default bg-bg-tertiary shrink-0">
-                        <div className="font-mono text-[10px] font-bold text-accent uppercase tracking-[0.2em] flex items-center gap-2">
+                <aside className="w-96 shrink-0 border-l border-border-default bg-bg-secondary/20 flex flex-col overflow-hidden relative">
+                    <header className="px-4 py-3 border-b border-border-default bg-bg-tertiary shrink-0">
+                        <div className="font-mono text-[10px] font-bold text-accent uppercase tracking-wide flex items-center gap-2">
                             <Send size={12} />
                             Generate Provision
                         </div>
@@ -171,7 +171,7 @@ export function InterCampMainPage() {
                                 <select
                                     value={destinationCampId}
                                     onChange={(e) => setDestinationCampId(Number(e.target.value))}
-                                    className="rmm-input w-full py-1.5!"
+                                    className="rmm-input w-full"
                                     required
                                 >
                                     <option value={0}>SELECT_DESTINATION...</option>
@@ -187,8 +187,8 @@ export function InterCampMainPage() {
                             <textarea
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="rmm-input w-full text-[10px]! resize-none"
-                                rows={2}
+                                className="rmm-input w-full text-[10px] resize-none"
+                                rows={3}
                                 placeholder="Mission justification..."
                             />
                         </div>
@@ -202,14 +202,15 @@ export function InterCampMainPage() {
                                 type="button"
                                 onClick={() => { setDestinationCampId(0); setDescription(""); setResources([]); }}
                                 disabled={createRequest.isPending}
-                                className="rmm-btn border border-border-strong text-txt-secondary hover:text-txt-primary hover:bg-bg-secondary text-[10px] py-3! disabled:opacity-50"
+                                className="rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary hover:bg-bg-secondary text-[10px] px-3 transition-all disabled:opacity-50"
                             >
-                                CLR
+                                <RotateCcw size={12} />
+                                LIMPIAR
                             </button>
                             <button
                                 type="submit"
                                 disabled={createRequest.isPending || destinationCampId === 0 || resources.length === 0}
-                                className="rmm-btn rmm-btn-accent flex-1 justify-center text-[10px] py-3!"
+                                className="rmm-btn rmm-btn-accent flex-1 justify-center text-[10px] py-2.5 transition-all shadow-sm"
                             >
                                 {createRequest.isPending ? (
                                     <div className="h-3 w-3 border-2 border-white/30 border-t-white animate-spin" />

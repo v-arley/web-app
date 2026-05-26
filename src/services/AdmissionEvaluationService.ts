@@ -1,5 +1,5 @@
-import { Response as Respuesta, type BackendResponse } from "../utils/Response";
-import { AxiosBaseService } from "./AxiosBaseService";
+﻿import { Response as Respuesta, type BackendResponse } from "../shared/utils/Response";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 import { AiDecision } from "../models/AiDecision";
 import { AiPrompt } from "../models/AiPrompt";
 
@@ -31,3 +31,4 @@ export class AdmissionEvaluationService extends AxiosBaseService {
         }
     }
 }
+

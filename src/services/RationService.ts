@@ -1,15 +1,15 @@
-import {
+﻿import {
   Response as Respuesta,
   type BackendResponse,
   type BackendListPayload,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
   Ration,
   type CreateRation,
   type UpdateRation,
   type WorkerRationHistoryPage,
 } from "../models/Ration";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 type WorkerRationCurrentPayload =
   | Ration
@@ -210,7 +210,7 @@ export class RationService extends AxiosBaseService {
 
       return new Respuesta(
         true,
-        "Ración del trabajador obtenida correctamente.",
+        "RaciÃ³n del trabajador obtenida correctamente.",
         "",
         "registro",
         ration,
@@ -220,7 +220,7 @@ export class RationService extends AxiosBaseService {
         false,
         this.extractErrorMessage(
           error,
-          "No se pudo obtener la ración del trabajador",
+          "No se pudo obtener la raciÃ³n del trabajador",
         ),
         "",
         "registro",
@@ -285,3 +285,4 @@ export class RationService extends AxiosBaseService {
     }
   }
 }
+

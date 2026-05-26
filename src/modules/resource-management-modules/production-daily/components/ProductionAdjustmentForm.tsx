@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, AlertTriangle } from "lucide-react";
+import { Save, AlertTriangle, RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { productionRecordSchema, type ProductionRecordFormValues, EMPTY_PRODUCTION_RECORD } from "../schemas/production-record.schema";
 
@@ -51,6 +51,10 @@ export function ProductionAdjustmentForm({
 
     const handleSubmit = async (values: ProductionRecordFormValues) => {
         await onSubmit(values);
+        form.reset(EMPTY_PRODUCTION_RECORD);
+    };
+
+    const handleClear = () => {
         form.reset(EMPTY_PRODUCTION_RECORD);
     };
 
@@ -124,14 +128,25 @@ export function ProductionAdjustmentForm({
                     />
                 </Field>
 
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-2 bg-status-warning border border-status-warning px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-status-warning/90 transition-all disabled:opacity-50"
-                >
-                    <Save className="w-4 h-4" />
-                    {isSubmitting ? "Registrando..." : "Registrar Ajuste"}
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        disabled={isSubmitting}
+                        className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Limpiar
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex-1 flex items-center justify-center gap-2 bg-status-warning border border-status-warning px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-status-warning/90 transition-all disabled:opacity-50"
+                    >
+                        <Save className="w-4 h-4" />
+                        {isSubmitting ? "..." : "Registrar"}
+                    </button>
+                </div>
             </form>
         </div>
     );

@@ -14,27 +14,33 @@ type Props = {
 };
 
 const fieldClass =
-    "bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-[11px] text-txt-primary focus:border-accent outline-none transition-all placeholder:text-txt-muted/50 w-full";
+    "rmm-input w-full";
 
 function Field({
     label,
     required,
     error,
+    id,
     children,
 }: {
     label: string;
     required?: boolean;
     error?: string;
+    id?: string;
     children: React.ReactNode;
 }) {
     return (
-        <label className="flex flex-col gap-1.5">
-            <span className="flex items-center justify-between gap-3 text-[10px] font-mono font-bold uppercase tracking-widest">
-                <span className={required ? "text-accent" : "text-txt-secondary"}>{label}</span>
-                {error ? <span className="text-accent normal-case tracking-normal">{error}</span> : null}
-            </span>
+        <div className="flex flex-col gap-2">
+            <label className="rmm-label">
+                <span className="flex items-center gap-1.5">
+                    {required && <span className="text-accent">*</span>}
+                    {label}
+                </span>
+                {id && <span className="rmm-field-id">#{id}</span>}
+                {error && <span className="text-accent lowercase font-normal italic">!! {error}</span>}
+            </label>
             {children}
-        </label>
+        </div>
     );
 }
 
@@ -54,13 +60,15 @@ export function MinStockConfigForm({
 }: Props) {
     const form = useForm<MinStockConfigFormValues>({
         resolver: zodResolver(minStockConfigSchema),
+        mode: 'onChange',
         defaultValues: { ...EMPTY_MIN_STOCK, ...initialData },
     });
     const errors = form.formState.errors;
 
     useEffect(() => {
         form.reset({ ...EMPTY_MIN_STOCK, ...initialData });
-    }, [form, initialData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialData]);
 
     const handleClear = () => {
         form.reset(EMPTY_MIN_STOCK);
@@ -70,19 +78,17 @@ export function MinStockConfigForm({
     return (
         <form
             onSubmit={form.handleSubmit(async (values) => onSubmit(values))}
-            className="flex h-full flex-col"
+            className="flex flex-1 min-h-0 flex-col relative"
         >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border-default bg-bg-secondary/50">
-                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em]">
-                    Configurar Mínimos
+             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 shrink-0">
+                <div className="rmm-section-header mb-0 border-none pb-0">
+                    <span className="rmm-section-title">Stock de Seguridad</span>
+                    <span className="rmm-section-id">INV_CFG_STK</span>
                 </div>
-                <div className="text-[9px] font-mono font-bold text-txt-disabled uppercase tracking-widest">
-                    Stock de Seguridad
-                </div>
-            </div>
+            </header>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                <Field label="Almacén" required error={errors.warehouse_id?.message}>
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <Field label="Nodo de Almacén" required id="WH_LOC" error={errors.warehouse_id?.message}>
                     <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
                         <option value={0}>[ SELECCIONAR ALMACÉN ]</option>
                         {warehouseOptions.map((opt) => (
@@ -91,7 +97,7 @@ export function MinStockConfigForm({
                     </select>
                 </Field>
 
-                <Field label="Recurso" required error={errors.resource_id?.message}>
+                <Field label="Recurso Base" required id="RES_TARGET" error={errors.resource_id?.message}>
                     <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
                         <option value={0}>[ SELECCIONAR RECURSO ]</option>
                         {resourceOptions.map((opt) => (
@@ -100,7 +106,7 @@ export function MinStockConfigForm({
                     </select>
                 </Field>
 
-                <Field label="Cantidad Mínima" required error={errors.min_quantity?.message}>
+                <Field label="Umbral de Alerta" required id="MIN_LVL" error={errors.min_quantity?.message}>
                     <input
                         type="number"
                         step="0.01"
@@ -111,32 +117,32 @@ export function MinStockConfigForm({
                     />
                 </Field>
 
-                <div className="px-4 py-3 bg-status-info/10 border border-status-info/30 font-mono text-[10px] text-txt-secondary leading-relaxed">
-                    <span className="font-bold text-status-info">NOTA:</span> Si la cantidad actual es menor al mínimo configurado,
-                    se generará automáticamente una alerta en el sistema.
+                <div className="p-4 bg-status-info/5 border border-status-info/20 font-mono text-[10px] text-txt-muted leading-relaxed">
+                    <span className="text-status-info font-bold uppercase tracking-wider block mb-1">PROT_ALRT_SYSTEM:</span>
+                    Se generará una notificación automática si el nivel de stock desciende por debajo del umbral definido.
                 </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-border-default bg-bg-secondary/30">
+            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2 shrink-0">
                 <button
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-bg-tertiary border border-border-default font-mono text-[10px] font-bold text-txt-secondary uppercase tracking-widest hover:border-txt-secondary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
-                    Limpiar
+                    <span className="font-mono">Limpiar</span>
                 </button>
 
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-accent border border-accent font-mono text-[10px] font-bold text-white uppercase tracking-widest hover:bg-accent/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
                 >
                     <Save className="h-3.5 w-3.5" />
-                    {isSubmitting ? "Guardando..." : "Guardar"}
+                    <span className="font-mono">{isSubmitting ? "..." : "Guardar"}</span>
                 </button>
-            </div>
+            </footer>
         </form>
     );
 }

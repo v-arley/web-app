@@ -1,5 +1,5 @@
-import { Response as Respuesta, type BackendResponse } from "../utils/Response";
-import { AxiosBaseService } from "./AxiosBaseService";
+﻿import { Response as Respuesta, type BackendResponse } from "../shared/utils/Response";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 import { CampProductionRule } from "../models/CampProductionRule";
 import type {
   CreateWorkerResourceProduction,
@@ -84,7 +84,7 @@ export class ResourceProductionService extends AxiosBaseService {
 
       return new Respuesta(
         true,
-        "Reglas de producción obtenidas correctamente.",
+        "Reglas de producciÃ³n obtenidas correctamente.",
         "",
         "registros",
         rules,
@@ -94,7 +94,7 @@ export class ResourceProductionService extends AxiosBaseService {
         false,
         this.extractErrorMessage(
           error,
-          "No se pudieron obtener las reglas de producción del trabajador",
+          "No se pudieron obtener las reglas de producciÃ³n del trabajador",
         ),
         "",
         "registros",
@@ -116,7 +116,7 @@ export class ResourceProductionService extends AxiosBaseService {
 
       return new Respuesta(
         true,
-        "Producción registrada correctamente.",
+        "ProducciÃ³n registrada correctamente.",
         "",
         "registro",
         result ?? null,
@@ -126,7 +126,7 @@ export class ResourceProductionService extends AxiosBaseService {
         false,
         this.extractErrorMessage(
           error,
-          "No se pudo registrar la producción del trabajador",
+          "No se pudo registrar la producciÃ³n del trabajador",
         ),
         "",
         "registro",
@@ -159,7 +159,7 @@ export class ResourceProductionService extends AxiosBaseService {
 
       return new Respuesta(
         true,
-        "Historial de producción obtenido correctamente.",
+        "Historial de producciÃ³n obtenido correctamente.",
         "",
         "registro",
         history ?? {
@@ -175,7 +175,7 @@ export class ResourceProductionService extends AxiosBaseService {
         false,
         this.extractErrorMessage(
           error,
-          "No se pudo obtener el historial de producción",
+          "No se pudo obtener el historial de producciÃ³n",
         ),
         "",
         "registro",
@@ -190,3 +190,4 @@ export class ResourceProductionService extends AxiosBaseService {
     }
   }
 }
+

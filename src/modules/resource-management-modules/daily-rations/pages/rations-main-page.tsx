@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Utensils, ClipboardCheck, History, Play } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { GenerateRationsPage } from "./GenerateRationsPage";
 import { DeliverRationsPage } from "./DeliverRationsPage";
 import { RationHistoryPage } from "./RationHistoryPage";
@@ -65,7 +65,7 @@ export function RationsMainPage() {
     ];
 
     return (
-        <article className="rmm-scope flex h-screen flex-col bg-bg-app overflow-hidden relative">
+            <article className="rmm-scope flex h-full min-h-0 flex-col bg-bg-app overflow-hidden relative">
             {/* Corner Brackets */}
             <div className="rmm-bracket rmm-bracket-tl"></div>
             <div className="rmm-bracket rmm-bracket-tr"></div>
@@ -156,7 +156,7 @@ export function RationsMainPage() {
 
             {/* Main Content */}
             <main className="flex-1 overflow-hidden flex flex-col">
-                <section className="flex-1 overflow-y-auto">
+                <section className="flex-1 flex flex-col overflow-hidden">
                     {activeTab === "generate" && <GenerateRationsPage />}
                     {activeTab === "deliver" && <DeliverRationsPage />}
                     {activeTab === "history" && <RationHistoryPage />}

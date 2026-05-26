@@ -1,7 +1,7 @@
-import React from "react";
+//import React from "react";
 import { Users, Map as MapIcon, AlertCircle, TrendingUp, Activity, Zap, Package } from "lucide-react";
-import CampMap from "../../../../../views/components/DashboardComponents/CampMap";
-import { Map, MapMarker, MarkerContent, MapControls } from "../../../../../components/ui/map";
+import CampMap from "../../../../../shared/components/DashboardComponents/CampMap";
+import { Map, MapMarker, MarkerContent, MapControls } from "../../../../../shared/components/ui/map";
 import type { Camp } from "../../../../../models/Camp";
 
 const PRODUCTION_DATA = [40, 65, 45, 90, 85, 55, 75, 95, 80, 60, 45, 70];

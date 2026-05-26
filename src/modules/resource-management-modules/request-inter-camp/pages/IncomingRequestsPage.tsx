@@ -1,7 +1,7 @@
 import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { IncomingRequestsTable } from "../components/IncomingRequestsTable";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 
 export function IncomingRequestsPage() {
   const authContext = getAuthContextFromToken();
@@ -12,7 +12,7 @@ export function IncomingRequestsPage() {
   });
 
   const { approveAsDestination, rejectAsDestination } = useCampRequestMutation();
-  const userId = 1; // Obtener del contexto de autenticación
+  const userId = authContext.userId ?? 0;
 
   const handleApprove = (id: number) => {
     approveAsDestination.mutate({ id, userId });

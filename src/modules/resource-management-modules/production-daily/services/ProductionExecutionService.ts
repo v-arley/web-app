@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse } from "../../../../shared/utils/Response";
 import type { ProductionExecutionFormValues, ProductionExecutionResult } from "../schemas/production-execution.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
@@ -7,7 +7,7 @@ const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es v
 export class ProductionExecutionService extends AxiosBaseService {
     async executeDailyProduction(payload: ProductionExecutionFormValues): Promise<ProductionExecutionResult> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/production/execute-daily", payload );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/resource-productions/execute-daily", payload );
             
             return this.normalizeResult(this.extractItem<unknown>(data));
         } catch (error) {
@@ -37,3 +37,4 @@ export class ProductionExecutionService extends AxiosBaseService {
 }
 
 export const productionExecutionService = new ProductionExecutionService();
+

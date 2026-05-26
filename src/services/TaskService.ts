@@ -1,15 +1,15 @@
-import {
+﻿import {
   Response as Respuesta,
   type BackendResponse,
   type BackendListPayload,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
   Task,
   type CreateTask,
   type UpdateTask,
   type WorkerTaskCompleteResponse,
 } from "../models/Task";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class TaskService extends AxiosBaseService {
   private toBackendPayload(register: CreateTask | UpdateTask) {
@@ -225,3 +225,4 @@ export class TaskService extends AxiosBaseService {
     }
   }
 }
+

@@ -1,8 +1,8 @@
-import {
+﻿import {
   Response as Respuesta,
   type BackendResponse,
   type BackendListPayload,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
   Exploration,
   type CreateExploration,
@@ -10,7 +10,7 @@ import {
   type WorkerExplorationFilters,
   type WorkerExplorationPage,
 } from "../models/Exploration";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class ExplorationService extends AxiosBaseService {
   async save(register: CreateExploration): Promise<Respuesta> {
@@ -214,3 +214,4 @@ export class ExplorationService extends AxiosBaseService {
     }
   }
 }
+

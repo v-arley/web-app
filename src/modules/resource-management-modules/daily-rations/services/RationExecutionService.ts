@@ -1,22 +1,22 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse } from "../../../../shared/utils/Response";
 import { rationExecutionResultSchema, type RationExecutionFormValues, type RationExecutionResult } from "../schemas/ration-execution.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
 export class RationExecutionService extends AxiosBaseService {
     /**
-     * Ejecuta la generación de raciones diarias para un campamento
+     * Ejecuta la generaciÃ³n de raciones diarias para un campamento
      * Paso 1: Verificar si ya existen raciones para la fecha
      * Paso 2: Crear raciones para cada persona activa
-     * Paso 3: Asignar recursos según configuración
+     * Paso 3: Asignar recursos segÃºn configuraciÃ³n
      * Paso 4: Descontar del inventario
      * Paso 5: Verificar alertas
      * Paso 6: Retornar resultado
      */
     async executeRationGeneration(payload: RationExecutionFormValues): Promise<RationExecutionResult> {
         try {
-            const { data } = await this.client.post<BackendResponse<{ result: unknown }> | unknown>( "/rations/execute", this.toWritePayload(payload) );
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>( "/rations/execute", this.toWritePayload(payload) );
             
             return this.normalizeResult(this.extractItem<unknown>(data));
         } catch (error) {
@@ -25,7 +25,7 @@ export class RationExecutionService extends AxiosBaseService {
     }
 
     /**
-     * Verifica si ya existen raciones para una fecha específica
+     * Verifica si ya existen raciones para una fecha especÃ­fica
      */
     async checkExistingRations(campId: number, rationDate: string): Promise<{ exists: boolean; count: number }> {
         try {
@@ -43,7 +43,7 @@ export class RationExecutionService extends AxiosBaseService {
     }
 
     /**
-     * Obtiene una vista previa de las raciones que se generarían
+     * Obtiene una vista previa de las raciones que se generarÃ­an
      */
     async previewRationGeneration(campId: number, rationDate: string): Promise<{ total_persons: number; persons: Array<{ id: number; name: string }>; resources_needed: Array<{ resource_id: number; total_amount: number }>; }> {
         try {
@@ -92,3 +92,4 @@ export class RationExecutionService extends AxiosBaseService {
 }
 
 export const rationExecutionService = new RationExecutionService();
+

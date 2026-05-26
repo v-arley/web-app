@@ -5,6 +5,7 @@ type Props = {
     alerts: ResourceAlertFormValues[];
     onResolve: (alertId: number) => Promise<void>;
     onViewDetail?: (warehouseId: number, resourceId: number) => void;
+    showResolveButton?: boolean;
 };
 
 function formatDate(value?: string | null) {
@@ -14,7 +15,7 @@ function formatDate(value?: string | null) {
     return date.toLocaleString("es-CR");
 }
 
-export function AlertsTable({ alerts = [], onResolve, onViewDetail }: Props) {
+export function AlertsTable({ alerts = [], onResolve, onViewDetail, showResolveButton = true }: Props) {
     if (alerts.length === 0) {
         return (
             <div className="py-20 text-center relative border border-status-ok/20 bg-status-ok/5">
@@ -86,7 +87,7 @@ export function AlertsTable({ alerts = [], onResolve, onViewDetail }: Props) {
                                         <Eye size={12} />
                                     </button>
                                 )}
-                                {alert.id != null && (
+                                {alert.id != null && showResolveButton && (
                                     <button
                                         type="button"
                                         onClick={() => onResolve(alert.id!)}

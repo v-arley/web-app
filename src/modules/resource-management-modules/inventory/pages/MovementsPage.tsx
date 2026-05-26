@@ -3,7 +3,7 @@ import { PackagePlus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { MovementForm } from "../components/MovementForm";
 import { useMovementMutation } from "../hooks/useMovementMutation";
 import type { ResourceMovementFormValues } from "../schemas/resource-movement.schema";
@@ -91,7 +91,7 @@ function MovementsPageContent() {
     };
 
     return (
-        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Gestión de Inventario / Registrar Movimiento
@@ -135,7 +135,7 @@ function MovementsPageContent() {
                         </div>
                     </div>
 
-                    <aside className="flex w-full flex-col lg:w-md shrink-0 bg-bg-primary/20 overflow-hidden">
+                    <aside className="flex w-full flex-col lg:w-[380px] shrink-0 bg-bg-primary/20 border-l border-border-default relative overflow-hidden">
                         <MovementForm
                             key={JSON.stringify(initialData)}
                             warehouseOptions={warehouseOptions}

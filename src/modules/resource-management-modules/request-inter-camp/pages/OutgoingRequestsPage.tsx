@@ -1,7 +1,7 @@
 import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { OutgoingRequestsTable } from "../components/OutgoingRequestsTable";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 
 export function OutgoingRequestsPage() {
   const authContext = getAuthContextFromToken();
@@ -12,7 +12,7 @@ export function OutgoingRequestsPage() {
   });
 
   const { approveAsOrigin, rejectAsOrigin } = useCampRequestMutation();
-  const userId = 1; // Obtener del contexto de autenticación
+  const userId = authContext.userId ?? 0;
 
   const handleApprove = (id: number) => {
     approveAsOrigin.mutate({ id, userId });

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { ProfessionFormValues } from "../schemas/profession.schema";
 import { useProfessionMutations } from "./useProfessionMutations";
 import { useProfessionQuery } from "./useProfessionQuery";
-import { useDebounce } from "../../../../hooks/useDebounce";
+import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
 type CatalogCallbacks = {
     onSuccess?: (message: string) => void;

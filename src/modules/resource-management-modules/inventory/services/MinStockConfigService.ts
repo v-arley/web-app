@@ -1,4 +1,4 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
 import type { MinStockConfigFormValues } from "../schemas/min-stock-config.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aun no existe o el contrato no es valido.";
@@ -7,7 +7,7 @@ export class MinStockConfigService extends AxiosBaseService {
     async updateMinStock(payload: MinStockConfigFormValues): Promise<void> {
         try {
             await this.client.put(
-                `/warehouses/${payload.warehouse_id}/resources/${payload.resource_id}/min-quantity`,
+                `/warehouse-resources/${payload.warehouse_id}/${payload.resource_id}`,
                 { min_quantity: payload.min_quantity }
             );
         } catch (error) {
@@ -25,3 +25,4 @@ export class MinStockConfigService extends AxiosBaseService {
 }
 
 export const minStockConfigService = new MinStockConfigService();
+

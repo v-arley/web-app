@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Settings2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { ProfessionService } from "../../../../services/ProfessionService";
 import { ResourceService } from "../../../../services/ResourceService";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { ProductionRuleForm } from "../components/ProductionRuleForm";
 import { ProductionRulesTable } from "../components/ProductionRulesTable";
 import { useProductionRuleMutation } from "../hooks/useProductionRuleMutation";
@@ -11,6 +12,7 @@ import type { ProductionRuleFormValues } from "../schemas/production-rule.schema
 // import { useToast } from "../../../../hooks/useToast";
 
 const queryClient = new QueryClient();
+const professionService = new ProfessionService();
 const resourceService = new ResourceService();
 
 function AlertBanner({ tone, message }: { tone: "error" | "success" | "info"; message: string }) {
@@ -48,19 +50,19 @@ function ProductionRulesPageContent() {
         },
     });
 
-    // Obtener profesiones (simulado, debería venir del backend)
-    const professionOptions = [
-        { id: 1, label: "Médico" },
-        { id: 2, label: "Ingeniero" },
-        { id: 3, label: "Soldado" },
-        { id: 4, label: "Técnico en Comunicaciones" },
-        { id: 5, label: "Logística" },
-        { id: 6, label: "Carpintero" },
-        { id: 7, label: "Electricista" },
-        { id: 8, label: "Cocinero" },
-        { id: 9, label: "Mecánico" },
-        { id: 10, label: "Explorador" },
-    ];
+    // Obtener profesiones desde el backend
+    const { data: professionsData } = useQuery({
+        queryKey: ["professions"],
+        queryFn: async () => {
+            const response = await professionService.findAll();
+            return response.getResultado<{ id: number; name: string }[]>("registros") ?? [];
+        },
+    });
+
+    const professionOptions = useMemo(() => {
+        if (!professionsData) return [];
+        return professionsData.map((p) => ({ id: p.id!, label: p.name }));
+    }, [professionsData]);
 
     const resourceOptions = useMemo(() => {
         if (!resourcesData) return [];
@@ -81,8 +83,8 @@ function ProductionRulesPageContent() {
 
     const handleSubmit = async (values: ProductionRuleFormValues) => {
         try {
-            if (selectedRule?.id) {
-                await ruleMutation.update.mutateAsync({ id: selectedRule.id, data: { ...values, camp_id: campId } });
+            if (selectedRule) {
+                await ruleMutation.update.mutateAsync({ currentRule: selectedRule, data: { ...values, camp_id: campId } });
                 //toast({ message: "Regla actualizada correctamente", tone: "success" });
             } else {
                 await ruleMutation.create.mutateAsync({ ...values, camp_id: campId });
@@ -101,11 +103,11 @@ function ProductionRulesPageContent() {
         setFeedback(null);
     };
 
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (rule: ProductionRuleFormValues) => {
         if (!confirm("¿Está seguro de eliminar esta regla de producción?")) return;
 
         try {
-            await ruleMutation.remove.mutateAsync(id);
+            await ruleMutation.remove.mutateAsync(rule);
             //toast({ message: "Regla eliminada correctamente", tone: "success" });
             setFeedback(null);
         } catch (error) {
@@ -120,7 +122,7 @@ function ProductionRulesPageContent() {
     };
 
     return (
-        <div className="rmm-scope flex h-full flex-col p-4 md:p-6 bg-bg-app gap-4">
+        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
             {/* <div className="flex items-center justify-between">
                 <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
                     Producción Diaria / Configurar Reglas
@@ -146,16 +148,16 @@ function ProductionRulesPageContent() {
                                     rules={rules}
                                     professionMap={professionMap}
                                     resourceMap={resourceMap}
-                                    selectedId={selectedRule?.id}
+                                    selectedKey={selectedRule ? `${selectedRule.camp_id}-${selectedRule.profession_id}-${selectedRule.resource_id}-${selectedRule.effective_date}` : undefined}
                                     onSelect={handleEdit}
                                 />
                             )}
                         </div>
                     </div>
 
-                    <aside className="flex w-full flex-col lg:w-md shrink-0 bg-bg-primary/20 overflow-hidden">
+                    <aside className="flex w-full flex-col lg:w-[400px] shrink-0 bg-bg-primary/20 border-l border-border-default relative overflow-hidden">
                         <ProductionRuleForm
-                            key={selectedRule?.id ?? 'new'}
+                            key={selectedRule ? `${selectedRule.camp_id}-${selectedRule.profession_id}-${selectedRule.resource_id}-${selectedRule.effective_date}` : 'new'}
                             professionOptions={professionOptions}
                             resourceOptions={resourceOptions}
                             initialData={selectedRule}

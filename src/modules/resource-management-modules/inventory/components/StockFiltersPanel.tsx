@@ -13,7 +13,7 @@ type Props = {
 };
 
 const selectClass =
-    "h-6 bg-bg-app border border-border-default px-2 font-mono text-[9px] text-txt-primary focus:border-accent outline-none transition-all uppercase tracking-wider w-full";
+    "rmm-input !bg-[#1c1c1c] !h-8 !border-border-strong px-3 font-mono text-[10px] text-txt-primary focus:border-accent outline-none transition-all uppercase tracking-wider w-full shadow-lg";
 
 export function StockFiltersPanel({
     categories,
@@ -29,52 +29,58 @@ export function StockFiltersPanel({
     const hasActiveFilters = selectedCategory || selectedStatus || selectedWarehouse;
 
     return (
-        <div className="flex items-center gap-2">
-            <select
-                value={selectedWarehouse ?? ""}
-                onChange={(e) => onWarehouseChange(e.target.value ? Number(e.target.value) : null)}
-                className={selectClass + " min-w-35"}
-                title="Warehouse"
-            >
-                <option value="">WAREHOUSE: TODOS</option>
-                {warehouses.map((wh) => (
-                    <option key={wh.id} value={wh.id}>{wh.name}</option>
-                ))}
-            </select>
+        <div className="flex items-center gap-3">
+            <div className="flex-1 lg:flex-none">
+                <select
+                    value={selectedWarehouse ?? ""}
+                    onChange={(e) => onWarehouseChange(e.target.value ? Number(e.target.value) : null)}
+                    className={selectClass + " lg:min-w-[180px]"}
+                    title="Warehouse"
+                >
+                    <option value="">WAREHOUSE: ALL_STATIONS</option>
+                    {warehouses.map((wh) => (
+                        <option key={wh.id} value={wh.id}>{wh.name}</option>
+                    ))}
+                </select>
+            </div>
 
-            <select
-                value={selectedCategory}
-                onChange={(e) => onCategoryChange(e.target.value)}
-                className={selectClass + " min-w-30"}
-                title="Categoría"
-            >
-                <option value="">CATEGORÍA: TODA</option>
-                {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                ))}
-            </select>
+            <div className="flex-1 lg:flex-none">
+                <select
+                    value={selectedCategory}
+                    onChange={(e) => onCategoryChange(e.target.value)}
+                    className={selectClass + " lg:min-w-[160px]"}
+                    title="Categoría"
+                >
+                    <option value="">CATEGORY: ALL_RESOURCES</option>
+                    {categories.map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                </select>
+            </div>
 
-            <select
-                value={selectedStatus}
-                onChange={(e) => onStatusChange(e.target.value)}
-                className={selectClass + " min-w-27"}
-                title="Estado de Stock"
-            >
-                <option value="">STOCK: TODO</option>
-                <option value="OK">OK</option>
-                <option value="LOW">BAJO</option>
-                <option value="CRITICAL">CRÍTICO</option>
-            </select>
+            <div className="flex-1 lg:flex-none">
+                <select
+                    value={selectedStatus}
+                    onChange={(e) => onStatusChange(e.target.value)}
+                    className={selectClass + " lg:min-w-[140px]"}
+                    title="Estado de Stock"
+                >
+                    <option value="">STATUS: TOTAL_SCAN</option>
+                    <option value="OK">LEVEL: NOMINAL</option>
+                    <option value="LOW">LEVEL: LOW_RESERVE</option>
+                    <option value="CRITICAL">LEVEL: CRITICAL_EMPT</option>
+                </select>
+            </div>
 
             {hasActiveFilters && (
                 <button
                     type="button"
                     onClick={onClear}
-                    className="h-6 flex items-center gap-1.5 px-2 bg-status-critical/10 border border-status-critical/30 font-mono text-[9px] font-bold text-status-critical uppercase tracking-widest hover:bg-status-critical/20 transition-all"
+                    className="h-8 flex items-center gap-2 px-3 bg-status-critical/10 border border-status-critical/40 font-mono text-[9px] font-bold text-status-critical uppercase tracking-widest hover:bg-status-critical/20 transition-all shadow-md group"
                     title="Limpiar filtros"
                 >
-                    <X className="h-3 w-3" />
-                    CLR
+                    <X className="h-3.5 w-3.5 transition-transform group-hover:rotate-90" />
+                    RESET
                 </button>
             )}
         </div>

@@ -1,14 +1,14 @@
-import {
+﻿import {
     Response as Respuesta,
     type BackendListPayload,
     type BackendResponse,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
     Profession,
     type CreateProfession,
     type UpdateProfession,
 } from "../models/Profession";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class ProfessionService extends AxiosBaseService {
     async save(register: CreateProfession): Promise<Respuesta> {
@@ -21,7 +21,7 @@ export class ProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Profesión creada correctamente.",
+                "ProfesiÃ³n creada correctamente.",
                 "",
                 "registro",
                 item,
@@ -29,7 +29,7 @@ export class ProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo crear la profesión"),
+                this.extractErrorMessage(error, "No se pudo crear la profesiÃ³n"),
                 "",
                 "registro",
                 null,
@@ -47,7 +47,7 @@ export class ProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Profesión actualizada correctamente.",
+                "ProfesiÃ³n actualizada correctamente.",
                 "",
                 "registro",
                 item,
@@ -55,7 +55,7 @@ export class ProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo actualizar la profesión"),
+                this.extractErrorMessage(error, "No se pudo actualizar la profesiÃ³n"),
                 "",
                 "registro",
                 null,
@@ -69,7 +69,7 @@ export class ProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Profesión eliminada correctamente.",
+                "ProfesiÃ³n eliminada correctamente.",
                 "",
                 "registro",
                 null,
@@ -77,7 +77,7 @@ export class ProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo eliminar la profesión"),
+                this.extractErrorMessage(error, "No se pudo eliminar la profesiÃ³n"),
                 "",
                 "registro",
                 null,
@@ -126,7 +126,7 @@ export class ProfessionService extends AxiosBaseService {
 
             return new Respuesta(
                 true,
-                "Profesión obtenida correctamente.",
+                "ProfesiÃ³n obtenida correctamente.",
                 "",
                 "registro",
                 profession,
@@ -134,7 +134,7 @@ export class ProfessionService extends AxiosBaseService {
         } catch (error) {
             return new Respuesta(
                 false,
-                this.extractErrorMessage(error, "No se pudo obtener la profesión"),
+                this.extractErrorMessage(error, "No se pudo obtener la profesiÃ³n"),
                 "",
                 "registro",
                 null,

@@ -1,13 +1,13 @@
-import {
+﻿import {
     Response as Respuesta,
     type BackendResponse,
     type BackendListPayload,
-} from "../utils/Response";
+} from "../shared/utils/Response";
 import {
     PersonExploration,
     type CreatePersonExploration,
 } from "../models/PersonExploration";
-import { AxiosBaseService } from "./AxiosBaseService";
+import { AxiosBaseService } from "../shared/utils/AxiosBaseService";
 
 export class PersonExplorationService extends AxiosBaseService {
     async save(register: CreatePersonExploration): Promise<Respuesta> {

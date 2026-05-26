@@ -4,11 +4,15 @@ type Props = {
     rules: ProductionRuleFormValues[];
     professionMap: Map<number, string>;
     resourceMap: Map<number, string>;
-    selectedId?: number;
+    selectedKey?: string;
     onSelect: (rule: ProductionRuleFormValues) => void;
 };
 
-export function ProductionRulesTable({ rules, professionMap, resourceMap, selectedId, onSelect }: Props) {
+function ruleKey(rule: ProductionRuleFormValues): string {
+    return `${rule.camp_id}-${rule.profession_id}-${rule.resource_id}-${rule.effective_date}`;
+}
+
+export function ProductionRulesTable({ rules, professionMap, resourceMap, selectedKey, onSelect }: Props) {
     if (rules.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-txt-secondary font-mono text-xs">
@@ -44,11 +48,11 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
                         const professionName = professionMap.get(rule.profession_id) || `ID ${rule.profession_id}`;
                         const resourceName = resourceMap.get(rule.resource_id) || `ID ${rule.resource_id}`;
                         const isActive = rule.state === 'A';
-                        const isSelected = rule.id !== undefined && rule.id === selectedId;
+                        const isSelected = ruleKey(rule) === selectedKey;
 
                         return (
                             <tr
-                                key={rule.id}
+                                key={ruleKey(rule)}
                                 onClick={() => onSelect(rule)}
                                 className={`cursor-pointer transition-colors relative ${
                                     isSelected

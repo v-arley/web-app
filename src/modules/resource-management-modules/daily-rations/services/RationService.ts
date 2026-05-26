@@ -1,5 +1,5 @@
-import { AxiosBaseService } from "../../../../services/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../utils/Response";
+﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
+import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
 import { rationSchema, type RationFormValues } from "../schemas/ration.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
@@ -87,3 +87,4 @@ export class RationService extends AxiosBaseService {
 }
 
 export const rationService = new RationService();
+

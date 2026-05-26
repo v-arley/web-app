@@ -5,7 +5,7 @@ import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { ResourceSelector } from "../components/ResourceSelector";
 import { requestResourceService } from "../services/RequestResourceService";
 import { CampService } from "../../../../services/CampService";
-import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { Camp } from "../../../../models/Camp";
 
 const campService = new CampService();
@@ -79,7 +79,7 @@ export function CreateRequestPage() {
   };
 
   return (
-    <div className="rmm-scope flex h-full flex-col bg-bg-app gap-4">
+    <div className="flex flex-1 min-h-0 flex-col bg-bg-app gap-4">
       {/* <div className="flex items-center justify-between">
         <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
           Gestión Inter-Campamento / Crear Solicitud

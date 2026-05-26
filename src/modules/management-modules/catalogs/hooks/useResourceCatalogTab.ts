@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import type { ResourceFormValues } from "../schemas/resource.schema";
 import { useResourceMutations } from "./useResourceMutations";
 import { useResourceQuery } from "./useResourceQuery";
-import { useDebounce } from "../../../../hooks/useDebounce";
+import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
 type CatalogCallbacks = {
     onSuccess?: (message: string) => void;
