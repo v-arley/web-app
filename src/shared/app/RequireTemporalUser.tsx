@@ -1,11 +1,16 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
-// Protege rutas: acepta token JWT (localStorage) o sesión temporal (sessionStorage)
+// Protege rutas: redirige al login si no hay sesión activa verificada por el servidor.
 export function RequireTemporalUser() {
-    const token = localStorage.getItem("token");
-    const activeUser = sessionStorage.getItem("activeUser");
+    const { isAuthenticated, isLoading } = useAuth();
 
-    if (!token && !activeUser) {
+    if (isLoading) {
+        // Evita un destello de redirección mientras se verifica la sesión en /auth/me
+        return null;
+    }
+
+    if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 

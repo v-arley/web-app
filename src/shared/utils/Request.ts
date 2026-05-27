@@ -109,6 +109,7 @@ export class Request {
         const options: RequestInit = {
             method,
             headers: this.headers,
+            credentials: "include",
         };
 
         if (body !== undefined && method !== "GET" && method !== "DELETE") {

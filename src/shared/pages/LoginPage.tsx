@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../app/router";
-import { AuthService } from "../../services/AuthService";
-
-const authService = new AuthService();
+import { useAuth } from "../app/AuthContext";
 
 export function LoginPage() {
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -17,25 +16,14 @@ export function LoginPage() {
         setError("");
         setLoading(true);
         try {
-            const resp = await authService.login(username, password);
-            if (resp.getEstado()) {
-                const token = resp.getResultado<string>("token");
-                if (token) localStorage.setItem("token", token);
-                navigate(ROUTES.DASHBOARD);
-            } else {
-                setError(resp.getMensaje() || "INVALID CREDENTIALS");
-            }
+            await login(username, password);
+            navigate(ROUTES.DASHBOARD);
         } catch {
-            setError("COULD NOT CONNECT TO SERVER");
+            setError("INVALID CREDENTIALS OR SERVER ERROR");
         } finally {
             setLoading(false);
         }
     }
-
-    //temporal
-    /* async function handleSubmit() {
-    navigate(ROUTES.DASHBOARD);
-        }*/
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-bg-app px-4">

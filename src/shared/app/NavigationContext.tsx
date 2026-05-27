@@ -11,11 +11,11 @@ import type { Camp } from "../../models/Camp";
 import { CampService } from "../../services/CampService";
 import type { DashboardSection } from "../hooks/useDashboardNav";
 import {
-    getAuthContextFromToken,
     getAvailableSections,
     type AuthContext,
 } from "../utils/authAccess";
 import { SECTIONS } from "./sections";
+import { useAuth } from "./AuthContext";
 
 type NavigationContextValue = {
     sections: DashboardSection[];
@@ -31,7 +31,12 @@ const NavigationContext = createContext<NavigationContextValue | null>(null);
 const campSvc = new CampService();
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
-    const [authContext] = useState(getAuthContextFromToken);
+    const { user } = useAuth();
+    const authContext: AuthContext = useMemo(
+        () => user ?? { name: "", roles: [] },
+        [user],
+    );
+
     const availableSections = useMemo(
         () => getAvailableSections(SECTIONS, authContext),
         [authContext],

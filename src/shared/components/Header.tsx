@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../app/router";
 import { useNavigation } from "../app/NavigationContext";
 import { getRoleLabel } from "../utils/authAccess";
+import { useAuth } from "../app/AuthContext";
 
 export default function Header() {
     const { authContext, activeCamp } = useNavigation();
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
     const roleLabel = useMemo(() => getRoleLabel(authContext), [authContext]);
@@ -24,10 +26,8 @@ export default function Header() {
         return `${dd}/${mm}/${d.getFullYear()}`;
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        sessionStorage.removeItem("activeUser");
+    const handleLogout = async () => {
+        await logout();
         navigate(ROUTES.LOGIN);
     };
 
