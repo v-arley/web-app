@@ -68,14 +68,14 @@ function GenerateRationsPageContent() {
                 {/* Información */}
                 <div className="bg-bg-secondary border border-border-default p-5">
                     <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-3">
-                        Información
+                        Information
                     </div>
                     <div className="space-y-2 font-mono text-xs text-txt-secondary">
-                        <p>• Las raciones se generan automáticamente para todas las personas activas del campamento.</p>
-                        <p>• Cada ración incluye por defecto: 5L de agua potable y 1 ración de combate.</p>
-                        <p>• Los recursos se descuentan automáticamente del inventario.</p>
-                        <p>• Si no hay suficiente inventario, la generación será bloqueada.</p>
-                        <p>• Solo se puede generar una vez por fecha y campamento.</p>
+                        <p>• Rations are automatically generated for all active camp members.</p>
+                        <p>• Each ration includes, by default: 5L of drinking water and 1 combat ration.</p>
+                        <p>• Resources are automatically deducted from the inventory.</p>
+                        <p>• If there is insufficient inventory, ration generation will be blocked.</p>
+                        <p>• Rations can only be generated once per date and camp.</p>
                     </div>
                 </div>
             </div>

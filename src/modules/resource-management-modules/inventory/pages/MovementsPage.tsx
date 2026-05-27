@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { MovementForm } from "../components/MovementForm";
 import { useMovementMutation } from "../hooks/useMovementMutation";
 import type { ResourceMovementFormValues } from "../schemas/resource-movement.schema";
@@ -11,26 +12,11 @@ import type { ResourceMovementFormValues } from "../schemas/resource-movement.sc
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
-function AlertBanner({ tone, message }: { tone: "error" | "success" | "info"; message: string }) {
-    const toneClassName =
-        tone === "error"
-            ? "bg-status-critical/10 border-status-critical/30 text-status-critical"
-            : tone === "success"
-            ? "bg-status-ok/10 border-status-ok/30 text-status-ok"
-            : "bg-status-info/10 border-status-info/30 text-status-info";
-
-    return (
-        <div className={`px-4 py-3 border font-mono text-[11px] uppercase tracking-widest ${toneClassName}`}>
-            {message}
-        </div>
-    );
-}
-
 function MovementsPageContent() {
     const authContext = getAuthContextFromToken();
     const campId = authContext.campId ?? 0;
 
-    const [feedback, setFeedback] = useState<{ tone: "error" | "success" | "info"; message: string } | null>(null);
+    const { toast } = useToast();
     const [initialData, setInitialData] = useState<Partial<ResourceMovementFormValues> | undefined>(undefined);
 
     const movementMutation = useMovementMutation();
@@ -75,19 +61,23 @@ function MovementsPageContent() {
     const handleSubmit = async (values: ResourceMovementFormValues) => {
         try {
             await movementMutation.create.mutateAsync(values);
-            setFeedback({ tone: "success", message: "Movimiento registrado correctamente." });
+            toast({
+                tone: "success",
+                title: "Movement registered",
+                message: "The movement was successfully recorded.",
+            });
             setInitialData(undefined);
         } catch (error) {
-            setFeedback({
+            toast({
                 tone: "error",
-                message: error instanceof Error ? error.message : "No se pudo registrar el movimiento.",
+                title: "Registration failed",
+                message: error instanceof Error ? error.message : "Could not record the movement.",
             });
         }
     };
 
     const handleClear = () => {
         setInitialData(undefined);
-        setFeedback(null);
     };
 
     return (
@@ -99,8 +89,6 @@ function MovementsPageContent() {
                 <PackagePlus className="h-5 w-5 text-accent" />
             </div> */}
 
-            {feedback && <AlertBanner tone={feedback.tone} message={feedback.message} />}
-
             <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
@@ -110,25 +98,25 @@ function MovementsPageContent() {
                         <div className="text-center px-8 py-12 max-w-md">
                             <PackagePlus className="h-16 w-16 text-accent/30 mx-auto mb-4" />
                             <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] mb-2">
-                                Tipos de Movimiento
+                                Type of Movement
                             </div>
                             <div className="space-y-3 text-left">
                                 <div className="p-3 bg-bg-tertiary border border-border-default">
-                                    <div className="font-mono text-[10px] font-bold text-status-ok mb-1">ENTRADA (E)</div>
+                                    <div className="font-mono text-[10px] font-bold text-status-ok mb-1">IN (I)</div>
                                     <div className="font-mono text-[9px] text-txt-secondary">
-                                        Recursos ingresan al almacén
+                                        Resources enter the warehouse
                                     </div>
                                 </div>
                                 <div className="p-3 bg-bg-tertiary border border-border-default">
-                                    <div className="font-mono text-[10px] font-bold text-status-warning mb-1">SALIDA (S)</div>
+                                    <div className="font-mono text-[10px] font-bold text-status-warning mb-1">OUT (O)</div>
                                     <div className="font-mono text-[9px] text-txt-secondary">
-                                        Recursos salen del almacén
+                                        Resources leave the warehouse
                                     </div>
                                 </div>
                                 <div className="p-3 bg-bg-tertiary border border-border-default">
-                                    <div className="font-mono text-[10px] font-bold text-accent mb-1">AJUSTE (A)</div>
+                                    <div className="font-mono text-[10px] font-bold text-accent mb-1">ADJUST (A)</div>
                                     <div className="font-mono text-[9px] text-txt-secondary">
-                                        Corrección de inventario (+/-)
+                                        Inventory adjustment (+/-)
                                     </div>
                                 </div>
                             </div>

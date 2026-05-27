@@ -3,7 +3,7 @@ import { shipmentService } from "../services/ShipmentService";
 import { SHIPMENTS_QUERY_KEY } from "./useShipmentsQuery";
 import { CAMP_REQUESTS_QUERY_KEY } from "./useCampRequestsQuery";
 import type { ShipmentFormValues } from "../schemas/shipment.schema";
-//import { useToast } from "../../../../hooks/useToast";
+import { useToast } from "../../../../shared/hooks/useToast";
 
 export function useShipmentMutation() {
     const queryClient = useQueryClient();

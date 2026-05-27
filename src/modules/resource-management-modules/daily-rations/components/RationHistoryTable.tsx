@@ -10,7 +10,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
     if (rations.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                No hay historial de raciones para el período seleccionado
+                There is no ration history for the selected period
             </div>
         );
     }
@@ -39,7 +39,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                         <div className="px-5 py-3 border-b border-border-default bg-bg-secondary/50 flex items-center justify-between">
                             <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] flex items-center gap-2">
                                 <Calendar className="w-4 h-4" />
-                                {new Date(date + 'T00:00:00').toLocaleDateString('es-CR', { 
+                                {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
                                     weekday: 'long', 
                                     year: 'numeric', 
                                     month: 'long', 
@@ -49,11 +49,11 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                             <div className="flex items-center gap-4 text-[10px] font-mono font-bold uppercase tracking-widest">
                                 <span className="text-status-success flex items-center gap-1">
                                     <CheckCircle className="w-3 h-3" />
-                                    {deliveredCount} Entregadas
+                                    {deliveredCount} Delivered
                                 </span>
                                 <span className="text-status-warning flex items-center gap-1">
                                     <XCircle className="w-3 h-3" />
-                                    {pendingCount} Pendientes
+                                    {pendingCount} Pending
                                 </span>
                             </div>
                         </div>
@@ -63,16 +63,16 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                 <thead className="bg-bg-tertiary/50 border-b border-border-default">
                                     <tr>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Persona
+                                            Person
                                         </th>
                                         <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Estado
+                                            Status
                                         </th>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Notas
+                                            Notes
                                         </th>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Registro
+                                            Record
                                         </th>
                                     </tr>
                                 </thead>
@@ -95,11 +95,11 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                                 <td className="px-4 py-3 text-center">
                                                     {isDelivered ? (
                                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-success/10 text-status-success border border-status-success/30 text-[10px] font-bold uppercase tracking-wider">
-                                                            <div className="w-1.5 h-1.5 bg-status-success" /> ENTREGADA
+                                                            <div className="w-1.5 h-1.5 bg-status-success" /> DELIVERED
                                                         </span>
                                                     ) : (
                                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-warning/10 text-status-warning border border-status-warning/30 text-[10px] font-bold uppercase tracking-wider">
-                                                            <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDIENTE
+                                                            <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDING
                                                         </span>
                                                     )}
                                                 </td>

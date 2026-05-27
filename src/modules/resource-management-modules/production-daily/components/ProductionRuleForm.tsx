@@ -78,31 +78,31 @@ export function ProductionRuleForm({
         >
             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 shrink-0">
                 <div className="rmm-section-header mb-0 border-none pb-0">
-                    <span className="rmm-section-title">Parámetros de Producción</span>
+                    <span className="rmm-section-title">Production Parameters</span>
                     <span className="rmm-section-id">PRD_RULE_CMD</span>
                 </div>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <Field label="Especialidad Requerida" required id="PROF_CODE" error={errors.profession_id?.message}>
+                <Field label="Required Profession" required id="PROF_CODE" error={errors.profession_id?.message}>
                     <select {...form.register("profession_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR PROFESIÓN ]</option>
+                        <option value={0}>[ SELECT PROFESSION ]</option>
                         {professionOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                     </select>
                 </Field>
 
-                <Field label="Recurso a Generar" required id="RES_OUTPUT" error={errors.resource_id?.message}>
+                <Field label="Resource to Generate" required id="RES_OUTPUT" error={errors.resource_id?.message}>
                     <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR RECURSO ]</option>
+                        <option value={0}>[ SELECT RESOURCE ]</option>
                         {resourceOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                     </select>
                 </Field>
 
-                <Field label="Cuota Diaria Estimada" required id="EXP_QTY" error={errors.expected_amount?.message}>
+                <Field label="Estimated Daily Quota" required id="EXP_QTY" error={errors.expected_amount?.message}>
                     <input
                         type="number"
                         {...form.register("expected_amount", { valueAsNumber: true })}
@@ -113,7 +113,7 @@ export function ProductionRuleForm({
                 </Field>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <Field label="Desde" required id="START_DT" error={errors.effective_date?.message}>
+                    <Field label="From" required id="START_DT" error={errors.effective_date?.message}>
                         <input
                             type="date"
                             {...form.register("effective_date")}
@@ -121,7 +121,7 @@ export function ProductionRuleForm({
                         />
                     </Field>
 
-                    <Field label="Hasta" id="END_DT" error={errors.end_date?.message}>
+                    <Field label="To" id="END_DT" error={errors.end_date?.message}>
                         <input
                             type="date"
                             {...form.register("end_date")}
@@ -130,10 +130,10 @@ export function ProductionRuleForm({
                     </Field>
                 </div>
 
-                <Field label="Protocolo Operativo" required id="STATUS" error={errors.state?.message}>
+                <Field label="Operational Protocol" required id="STATUS" error={errors.state?.message}>
                     <select {...form.register("state")} className={fieldClass}>
-                        <option value="A">ACTIVO (NOMINAL)</option>
-                        <option value="I">INACTIVO (OFFLINE)</option>
+                        <option value="A">ACTIVE (A)</option>
+                        <option value="I">INACTIVE (I)</option>
                     </select>
                 </Field>
             </div>
@@ -145,10 +145,10 @@ export function ProductionRuleForm({
                         onClick={() => onDelete(initialData as ProductionRuleFormValues)}
                         disabled={isSubmitting}
                         className="rmm-btn border border-status-critical/30 bg-status-critical/5 text-status-critical hover:bg-status-critical/15 px-3 disabled:opacity-30"
-                        title="Eliminar regla"
+                        title="Delete rule"
                     >
                         <Trash2 className="w-4 h-4" />
-                        <span className="font-mono">ELIM</span>
+                        <span className="font-mono">DELETE</span>
                     </button>
                 )}
                 <button
@@ -158,7 +158,7 @@ export function ProductionRuleForm({
                     className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
-                    <span className="font-mono">Limpiar</span>
+                    <span className="font-mono">CLEAR</span>
                 </button>
                 <button
                     type="submit"
@@ -166,7 +166,7 @@ export function ProductionRuleForm({
                     className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
                 >
                     <Save className="h-3.5 w-3.5" />
-                    <span className="font-mono">{isSubmitting ? "..." : initialData?.camp_id ? "Actualizar" : "Guardar"}</span>
+                    <span className="font-mono">{isSubmitting ? "..." : initialData?.camp_id ? "UPDATE" : "SAVE"}</span>
                 </button>
             </footer>
         </form>

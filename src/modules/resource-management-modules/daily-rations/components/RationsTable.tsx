@@ -18,7 +18,7 @@ export function RationsTable({ rations, personMap, onRationClick }: Props) {
     if (rations.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                No hay raciones para mostrar
+                There are no rations to show
             </div>
         );
     }
@@ -49,19 +49,19 @@ export function RationsTable({ rations, personMap, onRationClick }: Props) {
                     <thead className="bg-bg-tertiary/50 border-b border-border-default">
                         <tr>
                             <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Persona
+                                Person
                             </th>
                             <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Fecha
+                                Date
                             </th>
                             <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Estado
+                                Status
                             </th>
                             <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Notas
+                                Notes
                             </th>
                             <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Acción
+                                Actions
                             </th>
                         </tr>
                     </thead>
@@ -89,18 +89,18 @@ export function RationsTable({ rations, personMap, onRationClick }: Props) {
                                         <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4 text-txt-disabled" />
                                             <span className="text-txt-secondary">
-                                                {new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('es-CR')}
+                                                {new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('en-US')}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="px-4 py-3 text-center">
                                         {isDelivered ? (
                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-success/10 text-status-success border border-status-success/30 text-[10px] font-bold uppercase tracking-wider">
-                                                <div className="w-1.5 h-1.5 bg-status-success" /> ENTREGADA
+                                                <div className="w-1.5 h-1.5 bg-status-success" /> DELIVERED
                                             </span>
                                         ) : (
                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-warning/10 text-status-warning border border-status-warning/30 text-[10px] font-bold uppercase tracking-wider">
-                                                <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDIENTE
+                                                <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDING
                                             </span>
                                         )}
                                     </td>
@@ -117,7 +117,7 @@ export function RationsTable({ rations, personMap, onRationClick }: Props) {
                                             }}
                                             disabled={markAsDelivered.isPending || markAsNotDelivered.isPending}
                                         >
-                                            {isDelivered ? 'Marcar Pendiente' : 'Marcar Entregada'}
+                                            {isDelivered ? 'Mark as Pending' : 'Mark as Delivered'}
                                         </Button>
                                     </td>
                                 </tr>

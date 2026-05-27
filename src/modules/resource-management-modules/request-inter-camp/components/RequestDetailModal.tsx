@@ -31,9 +31,9 @@ export function RequestDetailModal({ requestId, onClose }: RequestDetailModalPro
         <div className="p-6 border-b border-border-default flex justify-between items-center bg-bg-primary">
           <div>
             <h2 className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.2em]">
-              Detalle de Solicitud #{requestId}
+              REQUEST DETAIL #{requestId}
             </h2>
-            <p className="font-mono text-[9px] text-txt-secondary mt-1">Recursos solicitados para transferencia</p>
+            <p className="font-mono text-[9px] text-txt-secondary mt-1">Requested resources for transfer</p>
           </div>
           <button 
             onClick={onClose}
@@ -47,19 +47,19 @@ export function RequestDetailModal({ requestId, onClose }: RequestDetailModalPro
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-4">
               <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary animate-pulse">Cargando recursos...</p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary animate-pulse">Loading resources...</p>
             </div>
           ) : resources.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 bg-bg-tertiary/20 border-2 border-dashed border-border-default">
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary italic">
-                No se encontraron recursos para esta solicitud
+                No resources found for this request
               </p>
             </div>
           ) : (
             <div className="bg-bg-tertiary border border-border-default overflow-hidden">
               <div className="bg-bg-primary border-b border-border-default px-4 py-3 grid grid-cols-[1fr_0.6fr] gap-4">
-                <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">RECURSO</div>
-                <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">CANTIDAD</div>
+                <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">RESOURCE</div>
+                <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">QUANTITY</div>
               </div>
 
               <div className="divide-y divide-border-default">
@@ -89,7 +89,7 @@ export function RequestDetailModal({ requestId, onClose }: RequestDetailModalPro
             onClick={onClose}
             className="px-6 py-2 bg-bg-secondary border border-border-default font-mono text-[10px] font-bold text-txt-primary uppercase tracking-widest hover:bg-bg-tertiary transition-all"
           >
-            CERRAR
+            CLOSE
           </button>
         </div>
       </div>

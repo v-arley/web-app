@@ -63,10 +63,10 @@ export function ProductionAdjustmentForm({
             <div className="px-5 py-4 border-b border-border-default bg-status-warning/10">
                 <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-status-warning uppercase tracking-[0.15em]">
                     <AlertTriangle className="w-4 h-4" />
-                    Ajuste Manual de Producción
+                    Manual Production Adjustment
                 </div>
                 <div className="text-[10px] font-mono text-txt-secondary mt-1">
-                    Usar solo cuando un trabajador no pudo cumplir el objetivo por razones justificadas
+                    Use only when a worker was unable to meet the objective for justifiable reasons
                 </div>
             </div>
 
@@ -74,34 +74,34 @@ export function ProductionAdjustmentForm({
                 onSubmit={form.handleSubmit(handleSubmit)}
                 className="p-5 space-y-4"
             >
-                <Field label="Trabajador" required error={errors.person_id?.message}>
+                <Field label="Worker" required error={errors.person_id?.message}>
                     <select {...form.register("person_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR TRABAJADOR ]</option>
+                        <option value={0}>[ SELECT WORKER ]</option>
                         {personOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                     </select>
                 </Field>
 
-                <Field label="Bodega" required error={errors.warehouse_id?.message}>
+                <Field label="Warehouse" required error={errors.warehouse_id?.message}>
                     <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR BODEGA ]</option>
+                        <option value={0}>[ SELECT WAREHOUSE ]</option>
                         {warehouseOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                     </select>
                 </Field>
 
-                <Field label="Recurso" required error={errors.resource_id?.message}>
+                <Field label="Resource" required error={errors.resource_id?.message}>
                     <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR RECURSO ]</option>
+                        <option value={0}>[ SELECT RESOURCE ]</option>
                         {resourceOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                     </select>
                 </Field>
 
-                <Field label="Cantidad Real Producida" required error={errors.amount?.message}>
+                <Field label="Actual Produced Quantity" required error={errors.amount?.message}>
                     <input
                         type="number"
                         {...form.register("amount", { valueAsNumber: true })}
@@ -111,7 +111,7 @@ export function ProductionAdjustmentForm({
                     />
                 </Field>
 
-                <Field label="Fecha de Producción" required error={errors.production_date?.message}>
+                <Field label="Production Date" required error={errors.production_date?.message}>
                     <input
                         type="date"
                         {...form.register("production_date")}
@@ -119,10 +119,10 @@ export function ProductionAdjustmentForm({
                     />
                 </Field>
 
-                <Field label="Motivo del Ajuste" error={errors.notes?.message}>
+                <Field label="Adjustment Reason" error={errors.notes?.message}>
                     <textarea
                         {...form.register("notes")}
-                        placeholder="Ej: Trabajador enfermo, cantidad menor por falta de materiales, etc."
+                        placeholder="E.g.: Worker sick, lower quantity due to lack of materials, etc."
                         rows={3}
                         className={fieldClass}
                     />
@@ -136,7 +136,7 @@ export function ProductionAdjustmentForm({
                         className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                     >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        Limpiar
+                        CLEAR
                     </button>
                     <button
                         type="submit"
@@ -144,7 +144,7 @@ export function ProductionAdjustmentForm({
                         className="flex-1 flex items-center justify-center gap-2 bg-status-warning border border-status-warning px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-status-warning/90 transition-all disabled:opacity-50"
                     >
                         <Save className="w-4 h-4" />
-                        {isSubmitting ? "..." : "Registrar"}
+                        {isSubmitting ? "..." : "SAVE"}
                     </button>
                 </div>
             </form>

@@ -5,7 +5,7 @@ import { WarehouseService } from "../../../../services/WarehouseService";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { ProductionExecutionPanel } from "../components/ProductionExecutionPanel";
 import { useExecuteDailyProduction } from "../hooks/useExecuteDailyProduction";
-//import { useToast } from "../../../../hooks/useToast";
+import { useToast } from "../../../../shared/hooks/useToast";
 import type { ProductionExecutionFormValues, ProductionExecutionResult } from "../schemas/production-execution.schema";
 
 const queryClient = new QueryClient();
@@ -16,7 +16,7 @@ function DailyProductionPageContent() {
     const campId = authContext.campId ?? 0;
 
     const { execute } = useExecuteDailyProduction();
-    //const { toast } = useToast();
+    const { toast } = useToast();
 
     // Obtener almacenes del campamento
     const { data: warehousesData } = useQuery({
@@ -41,17 +41,28 @@ function DailyProductionPageContent() {
     const handleExecute = async (data: ProductionExecutionFormValues): Promise<ProductionExecutionResult> => {
         try {
             const result = await execute.mutateAsync(data);
-            
+
             if (result.success) {
-                //toast({ message: `Producción ejecutada: ${result.total_productions} registros creados`, tone: "success" });
+                toast({
+                    tone: "success",
+                    title: "Production executed",
+                    message: `${result.total_productions} record${result.total_productions !== 1 ? "s" : ""} created successfully.`,
+                });
             } else {
-                //toast({ message: `Ejecución completada con ${result.total_errors} errores`, tone: "warning" });
+                toast({
+                    tone: "warning",
+                    title: "Execution completed with errors",
+                    message: `${result.total_errors} error${result.total_errors !== 1 ? "s" : ""} occurred during production.`,
+                });
             }
-            
+
             return result;
         } catch (error) {
-            const message = error instanceof Error ? error.message : "Error al ejecutar la producción";
-            //toast({ message, tone: "error" });
+            toast({
+                tone: "error",
+                title: "Execution failed",
+                message: error instanceof Error ? error.message : "Failed to execute daily production.",
+            });
             throw error;
         }
     };
@@ -74,19 +85,19 @@ function DailyProductionPageContent() {
                         <div className="max-w-3xl mx-auto">
                             <div className="mb-6 p-4 bg-status-info/10 border border-status-info/30">
                                 <div className="font-mono text-[10px] font-bold text-status-info mb-2 uppercase tracking-widest">
-                                    Proceso Automático de Producción
+                                    Automated Production Process
                                 </div>
                                 <div className="font-mono text-[9px] text-txt-secondary leading-relaxed space-y-2">
-                                    <p>Este proceso ejecuta automáticamente la producción diaria siguiendo estos pasos:</p>
+                                    <p>This process automatically executes daily production by following these steps:</p>
                                     <ol className="list-decimal list-inside space-y-1 ml-2">
-                                        <li>Identifica todas las personas activas del campamento con profesiones asignadas</li>
-                                        <li>Busca las reglas de producción activas para cada profesión</li>
-                                        <li>Genera registros de producción con las cantidades esperadas</li>
-                                        <li>Actualiza automáticamente el inventario de las bodegas</li>
-                                        <li>Verifica y genera alertas si hay stock bajo el mínimo</li>
+                                        <li>Identifies all active camp members with assigned professions</li>
+                                        <li>Finds active production rules for each profession</li>
+                                        <li>Generates production records with expected quantities</li>
+                                        <li>Automatically updates warehouse inventory</li>
+                                        <li>Checks and generates alerts if stock falls below the minimum level</li>
                                     </ol>
                                     <p className="text-status-warning font-bold mt-2">
-                                        ⚠ Este proceso solo debe ejecutarse una vez por día
+                                        ⚠ This process should only be executed once per day
                                     </p>
                                 </div>
                             </div>

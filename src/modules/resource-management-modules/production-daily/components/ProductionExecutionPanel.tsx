@@ -43,21 +43,21 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
             <div className="bg-bg-secondary border border-border-default">
                 <div className="px-5 py-4 border-b border-border-default bg-bg-secondary/50">
                     <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em]">
-                        Ejecutar Producción Diaria
+                        Execute Daily Production
                     </div>
                 </div>
 
                 <div className="p-5 space-y-4">
                     <label className="flex flex-col gap-1.5">
                         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-status-critical">
-                            Bodega Principal
+                                Warehouse Main
                         </span>
                         <select
                             value={selectedWarehouse}
                             onChange={(e) => setSelectedWarehouse(Number(e.target.value))}
                             className="bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all w-full"
                         >
-                            <option value={0}>[ SELECCIONAR BODEGA ]</option>
+                            <option value={0}>[ SELECT WAREHOUSE ]</option>
                             {warehouseOptions.map((opt) => (
                                 <option key={opt.id} value={opt.id}>{opt.label}</option>
                             ))}
@@ -66,7 +66,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
 
                     <label className="flex flex-col gap-1.5">
                         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-status-critical">
-                            Fecha de Producción
+                            Production Date
                         </span>
                         <input
                             type="date"
@@ -84,7 +84,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
                             className="w-4 h-4"
                         />
                         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-txt-secondary">
-                            Forzar ejecución (si ya existe)
+                            Force Execution (if already exists)
                         </span>
                     </label>
 
@@ -94,7 +94,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
                         className="w-full flex items-center justify-center gap-2 bg-accent border border-accent px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-accent/90 transition-all disabled:opacity-50"
                     >
                         <Play className="w-4 h-4" />
-                        {isExecuting ? "Ejecutando..." : "Ejecutar Producción"}
+                        {isExecuting ? "Executing..." : "Execute Production"}
                     </button>
                 </div>
             </div>
@@ -106,12 +106,12 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
                             {result.success ? (
                                 <>
                                     <CheckCircle2 className="w-4 h-4 text-status-ok" />
-                                    <span className="text-status-ok">Ejecución Exitosa</span>
+                                    <span className="text-status-ok">Successful Execution</span>
                                 </>
                             ) : (
                                 <>
                                     <AlertCircle className="w-4 h-4 text-status-critical" />
-                                    <span className="text-status-critical">Ejecución con Errores</span>
+                                    <span className="text-status-critical">Execution with Errors</span>
                                 </>
                             )}
                         </div>
@@ -120,15 +120,15 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
                     <div className="p-5 space-y-3">
                         <div className="grid grid-cols-3 gap-4 font-mono text-xs">
                             <div>
-                                <div className="text-txt-disabled text-[10px] uppercase tracking-widest">Personas</div>
+                                <div className="text-txt-disabled text-[10px] uppercase tracking-widest">Persons</div>
                                 <div className="text-txt-primary font-bold text-lg">{result.total_persons}</div>
                             </div>
                             <div>
-                                <div className="text-txt-disabled text-[10px] uppercase tracking-widest">Producciones</div>
+                                <div className="text-txt-disabled text-[10px] uppercase tracking-widest">Productions</div>
                                 <div className="text-status-ok font-bold text-lg">{result.total_productions}</div>
                             </div>
                             <div>
-                                <div className="text-txt-disabled text-[10px] uppercase tracking-widest">Errores</div>
+                                <div className="text-txt-disabled text-[10px] uppercase tracking-widest">Errors</div>
                                 <div className="text-status-critical font-bold text-lg">{result.total_errors}</div>
                             </div>
                         </div>
@@ -136,7 +136,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
                         {result.productions.length > 0 && (
                             <div className="mt-4">
                                 <div className="text-[10px] font-mono font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                                    Producciones Registradas
+                                    Registered Productions
                                 </div>
                                 <div className="bg-bg-tertiary border border-border-default divide-y divide-border-default max-h-64 overflow-y-auto">
                                     {result.productions.map((prod, idx) => (
@@ -154,7 +154,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
                         {result.errors && result.errors.length > 0 && (
                             <div className="mt-4">
                                 <div className="text-[10px] font-mono font-bold text-status-critical uppercase tracking-widest mb-2">
-                                    Errores Encontrados
+                                    Found Errors
                                 </div>
                                 <div className="bg-status-critical/10 border border-status-critical divide-y divide-status-critical/30">
                                     {result.errors.map((err, idx) => (

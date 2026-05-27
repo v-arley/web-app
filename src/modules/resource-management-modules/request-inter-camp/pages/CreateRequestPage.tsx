@@ -6,6 +6,7 @@ import { ResourceSelector } from "../components/ResourceSelector";
 import { requestResourceService } from "../services/RequestResourceService";
 import { CampService } from "../../../../services/CampService";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { Camp } from "../../../../models/Camp";
 
 const campService = new CampService();
@@ -13,7 +14,8 @@ const campService = new CampService();
 export function CreateRequestPage() {
   const authContext = getAuthContextFromToken();
   const originCampId = authContext.campId ?? 0;
-  
+
+  const { toast } = useToast();
   const [destinationCampId, setDestinationCampId] = useState<number>(0);
   const [description, setDescription] = useState<string>("");
   const [resources, setResources] = useState<Array<{ resource_id: number; amount: number }>>([]);
@@ -38,17 +40,17 @@ export function CreateRequestPage() {
     e.preventDefault();
 
     if (destinationCampId === 0) {
-      alert("Debes seleccionar un campamento destino");
+      toast({ tone: "warning", title: "Missing destination", message: "Please select a destination camp." });
       return;
     }
 
     if (originCampId === destinationCampId) {
-      alert("El campamento de origen y destino no pueden ser el mismo");
+      toast({ tone: "error", title: "Invalid selection", message: "Origin and destination camps must be different." });
       return;
     }
 
     if (resources.length === 0) {
-      alert("Debes seleccionar al menos un recurso");
+      toast({ tone: "warning", title: "No resources", message: "Please add at least one resource to the request." });
       return;
     }
 
@@ -68,13 +70,17 @@ export function CreateRequestPage() {
           resource_id: r.resource_id,
           amount: r.amount
         })));
-        alert("Solicitud creada exitosamente");
+        toast({ tone: "success", title: "Request submitted", message: "Inter-camp resource request created successfully." });
         setDestinationCampId(0);
         setDescription("");
         setResources([]);
       }
     } catch (error) {
-      alert(`Error al crear solicitud: ${error}`);
+      toast({
+        tone: "error",
+        title: "Request failed",
+        message: error instanceof Error ? error.message : "Failed to create the inter-camp request.",
+      });
     }
   };
 
@@ -134,7 +140,7 @@ export function CreateRequestPage() {
                       className="w-full px-3 py-2 bg-bg-primary border border-border-default font-mono text-[11px] text-txt-primary focus:outline-none focus:border-accent"
                       required
                     >
-                      <option value={0}>Seleccione destino...</option>
+                  <option value={0}>Select destination...</option>
                       {availableDestinations.map(c => (
                         <option key={c.id ?? 0} value={c.id ?? 0}>{c.code}</option>
                       ))}
@@ -144,8 +150,8 @@ export function CreateRequestPage() {
               </div>
 
               {originCampId === destinationCampId && destinationCampId !== 0 && (
-                <div className="p-4 font-mono text-[11px] uppercase tracking-widest bg-status-critical/10 border-status-critical/30 text-status-critical">
-                  ERROR: El campamento origen y destino deben ser diferentes.
+                <div className="p-4 font-mono text-[11px] uppercase tracking-widest bg-status-critical/10 border border-status-critical/30 text-status-critical">
+                  ERROR: Origin and destination camps must be different.
                 </div>
               )}
 
@@ -159,7 +165,7 @@ export function CreateRequestPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-3 py-3 bg-bg-primary border border-border-default font-mono text-[10px] text-txt-primary focus:outline-none focus:border-accent resize-none"
                   rows={3}
-                  placeholder="Explique el motivo de esta solicitud..."
+                  placeholder="Describe the reason for this request..."
                 />
               </div>
 

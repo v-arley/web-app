@@ -2,24 +2,41 @@ import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { IncomingRequestsTable } from "../components/IncomingRequestsTable";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useToast } from "../../../../shared/hooks/useToast";
 
 export function IncomingRequestsPage() {
   const authContext = getAuthContextFromToken();
   const destinationCampId = authContext.campId ?? 0;
-
-  const { data: requests = [], isLoading } = useCampRequestsQuery({
-    destinationCampId,
-  });
-
-  const { approveAsDestination, rejectAsDestination } = useCampRequestMutation();
   const userId = authContext.userId ?? 0;
 
-  const handleApprove = (id: number) => {
-    approveAsDestination.mutate({ id, userId });
+  const { toast } = useToast();
+  const { data: requests = [], isLoading } = useCampRequestsQuery({ destinationCampId });
+  const { approveAsDestination, rejectAsDestination } = useCampRequestMutation();
+
+  const handleApprove = async (id: number) => {
+    try {
+      await approveAsDestination.mutateAsync({ id, userId });
+      toast({ tone: "success", title: "Request approved", message: "The inter-camp request has been approved." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Approval failed",
+        message: error instanceof Error ? error.message : "Failed to approve the request.",
+      });
+    }
   };
 
-  const handleReject = (id: number) => {
-    rejectAsDestination.mutate({ id, userId });
+  const handleReject = async (id: number) => {
+    try {
+      await rejectAsDestination.mutateAsync({ id, userId });
+      toast({ tone: "info", title: "Request rejected", message: "The inter-camp request has been rejected." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Rejection failed",
+        message: error instanceof Error ? error.message : "Failed to reject the request.",
+      });
+    }
   };
 
   return (

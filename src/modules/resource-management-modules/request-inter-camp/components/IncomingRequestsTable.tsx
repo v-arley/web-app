@@ -22,7 +22,7 @@ export function IncomingRequestsTable({
     return (
       <div className="flex flex-col items-center justify-center py-20">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary">
-          NO HAY SOLICITUDES ENTRANTES REGISTRADAS
+          NO INCOMING REQUESTS RECORDED
         </p>
       </div>
     );
@@ -50,11 +50,11 @@ export function IncomingRequestsTable({
     <>
       <div className="bg-bg-tertiary border border-border-default overflow-hidden">
         <div className="bg-bg-primary border-b border-border-default px-4 py-3 grid grid-cols-[1fr_1.5fr_0.9fr_0.9fr_1fr] gap-4">
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">ORIGEN</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">DESCRIPCIÓN</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">ESTADO</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">FECHA</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-right">ACCIONES</div>
+          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">ORIGIN</div>
+          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">DESCRIPTION</div>
+          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">STATUS</div>
+          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">DATE</div>
+          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-right">ACTIONS</div>
         </div>
 
         <div className="divide-y divide-border-default">
@@ -71,7 +71,7 @@ export function IncomingRequestsTable({
               
               <div>
                 <p className="font-mono text-[9px] text-txt-secondary line-clamp-1" title={request.description || ""}>
-                  {request.description || "Sin descripción"}
+                  {request.description || "No description"}
                 </p>
               </div>
               
@@ -81,7 +81,7 @@ export function IncomingRequestsTable({
               
               <div>
                 <span className="font-mono text-[9px] text-txt-secondary">
-                  {new Date(request.created_at || '').toLocaleDateString('es-ES')}
+                  {new Date(request.created_at || '').toLocaleDateString('en-US')}
                 </span>
               </div>
               
@@ -89,7 +89,7 @@ export function IncomingRequestsTable({
                 <button
                   onClick={() => setSelectedRequestId(request.id!)}
                   className="p-1.5 hover:bg-accent/10 border border-accent/30 transition-all"
-                  title="Ver recursos"
+                  title="View resources"
                 >
                   <Eye className="h-3 w-3 text-accent" />
                 </button>
@@ -100,7 +100,7 @@ export function IncomingRequestsTable({
                       onClick={() => onApprove(request.id!)}
                       disabled={isLoading}
                       className="p-1.5 hover:bg-status-ok/10 border border-status-ok/30 transition-all disabled:opacity-50"
-                      title="Aprobar Solicitud"
+                      title="Approve Request"
                     >
                       <Check className="h-3 w-3 text-status-ok" />
                     </button>
@@ -108,7 +108,7 @@ export function IncomingRequestsTable({
                       onClick={() => onReject(request.id!)}
                       disabled={isLoading}
                       className="p-1.5 hover:bg-status-critical/10 border border-status-critical/30 transition-all disabled:opacity-50"
-                      title="Rechazar Solicitud"
+                      title="Reject Request"
                     >
                       <X className="h-3 w-3 text-status-critical" />
                     </button>

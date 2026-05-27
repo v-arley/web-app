@@ -33,7 +33,7 @@ export function RationResourcesDetail({ rationId }: Props) {
     if (!resources || resources.length === 0) {
         return (
             <div className="font-mono text-xs text-txt-disabled">
-                No hay recursos asignados a esta ración
+                No resources are allocated to this ration
             </div>
         );
     }
@@ -41,7 +41,7 @@ export function RationResourcesDetail({ rationId }: Props) {
     return (
         <div className="space-y-2">
             <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                Recursos Asignados
+                Allocated Resources
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

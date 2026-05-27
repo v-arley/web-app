@@ -16,7 +16,7 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
     if (rules.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-txt-secondary font-mono text-xs">
-                No hay reglas de producción configuradas
+                There are no production rules configured yet. Create a new rule using the form on the right.
             </div>
         );
     }
@@ -27,19 +27,19 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
                 <thead className="bg-bg-secondary/50 border-b border-border-default">
                     <tr>
                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Profesión
+                            Profession
                         </th>
                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Recurso
+                            Resource
                         </th>
                         <th className="text-right px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Cantidad/Día
+                            Quantity/Day
                         </th>
                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Vigencia
+                            Effective Date
                         </th>
                         <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Estado
+                            Status
                         </th>
                     </tr>
                 </thead>
@@ -90,7 +90,7 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
                 </tbody>
             </table>
             <div className="px-4 py-2 border-t border-border-subtle bg-bg-secondary/20 font-mono text-[9px] text-txt-muted uppercase tracking-widest">
-                Selecciona una fila para editar &bull; {rules.length} regla{rules.length !== 1 ? 's' : ''}
+                Select a row to edit &bull; {rules.length} rule{rules.length !== 1 ? 's' : ''}
             </div>
         </div>
     );

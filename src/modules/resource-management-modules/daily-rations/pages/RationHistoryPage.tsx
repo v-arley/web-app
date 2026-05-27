@@ -83,22 +83,22 @@ function RationHistoryPageContent() {
                 {/* Filtros */}
                 <div className="bg-bg-secondary border border-border-default p-5">
                     <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-3">
-                        Filtros de Búsqueda
+                        Search Filters
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                         <div>
                             <label className="block font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                                Estado
+                                Status
                             </label>
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value as 'Y' | 'N' | '')}
                                 className="rmm-input w-full text-[11px]!"
                             >
-                                <option value="">Todos</option>
-                                <option value="Y">Entregadas</option>
-                                <option value="N">Pendientes</option>
+                                <option value="">All</option>
+                                <option value="Y">Delivered</option>
+                                <option value="N">Pending</option>
                             </select>
                         </div>
                     </div>
@@ -108,7 +108,7 @@ function RationHistoryPageContent() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="bg-bg-secondary border border-border-default p-5">
                         <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Total Raciones
+                            Total Rations
                         </div>
                         <div className="font-mono text-3xl font-bold text-txt-primary">
                             {totalRations}
@@ -117,7 +117,7 @@ function RationHistoryPageContent() {
 
                     <div className="bg-bg-secondary border border-status-success p-5">
                         <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Entregadas
+                            Delivered
                         </div>
                         <div className="font-mono text-3xl font-bold text-status-success">
                             {deliveredCount}
@@ -126,7 +126,7 @@ function RationHistoryPageContent() {
 
                     <div className="bg-bg-secondary border border-status-warning p-5">
                         <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Pendientes
+                            Pending
                         </div>
                         <div className="font-mono text-3xl font-bold text-status-warning">
                             {pendingCount}
@@ -135,7 +135,7 @@ function RationHistoryPageContent() {
 
                     <div className="bg-bg-secondary border border-accent-primary p-5">
                         <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Tasa de Entrega
+                            Delivery Rate
                         </div>
                         <div className="font-mono text-3xl font-bold text-accent-primary">
                             {deliveryRate}%
@@ -146,7 +146,7 @@ function RationHistoryPageContent() {
                 {/* Tabla de historial */}
                 {isLoadingRations ? (
                     <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                        Cargando historial...
+                        Loading history...
                     </div>
                 ) : (
                     <RationHistoryTable rations={rations ?? []} personMap={personMap} />

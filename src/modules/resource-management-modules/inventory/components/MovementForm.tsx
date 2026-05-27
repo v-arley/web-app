@@ -81,24 +81,24 @@ export function MovementForm({
 
             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20">
                 <div className="rmm-section-header mb-0 border-none pb-0">
-                    <span className="rmm-section-title">Registro de Movimiento</span>
+                    <span className="rmm-section-title">Movement Record</span>
                     <span className="rmm-section-id">INV_CMD_01</span>
                 </div>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <Field label="Nodo de Origen" required id="SRC_WH" error={errors.warehouse_id?.message}>
+                <Field label="Origin Node" required id="SRC_WH" error={errors.warehouse_id?.message}>
                     <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR ALMACÉN ]</option>
+                        <option value={0}>[ SELECT WAREHOUSE ]</option>
                         {warehouseOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
                     </select>
                 </Field>
 
-                <Field label="Identificador de Recurso" required id="RES_ID" error={errors.resource_id?.message}>
+                <Field label="Resource Identifier" required id="RES_ID" error={errors.resource_id?.message}>
                     <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECCIONAR RECURSO ]</option>
+                        <option value={0}>[ SELECT RESOURCE ]</option>
                         {resourceOptions.map((opt) => (
                             <option key={opt.id} value={opt.id}>{opt.label}</option>
                         ))}
@@ -106,16 +106,16 @@ export function MovementForm({
                 </Field>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <Field label="Operación" required id="OPS_TYPE" error={errors.movement_type?.message}>
+                    <Field label="Operation" required id="OPS_TYPE" error={errors.movement_type?.message}>
                         <select {...form.register("movement_type")} className={fieldClass}>
-                            <option value="E">ENTRADA (IN)</option>
-                            <option value="S">SALIDA (OUT)</option>
-                            <option value="A">AJUSTE (ADJ)</option>
+                            <option value="E">IN</option>
+                            <option value="S">OUT</option>
+                            <option value="A">ADJUST</option>
                         </select>
                     </Field>
 
                     {movementType === "A" && (
-                        <Field label="Dirección" required id="ADJ_SIGN" error={errors.adjustment_sign?.message}>
+                        <Field label="Direction" required id="ADJ_SIGN" error={errors.adjustment_sign?.message}>
                             <select {...form.register("adjustment_sign")} className={fieldClass}>
                                 <option value="">[ SELECT ]</option>
                                 <option value="+">INCREMENT (+)</option>
@@ -125,7 +125,7 @@ export function MovementForm({
                     )}
                 </div>
 
-                <Field label="Volumen de Carga" required id="VOL_VAL" error={errors.amount?.message}>
+                <Field label="Load Volume" required id="VOL_VAL" error={errors.amount?.message}>
                     <input
                         type="number"
                         step="0.01"
@@ -136,12 +136,12 @@ export function MovementForm({
                     />
                 </Field>
 
-                <Field label="Bitácora / Justificación" id="LOG_REF" error={errors.reason?.message}>
+                <Field label="Log / Justification" id="LOG_REF" error={errors.reason?.message}>
                     <textarea
                         {...form.register("reason")}
                         rows={3}
                         className={`${fieldClass} resize-none`}
-                        placeholder="Detalles del protocolo..."
+                        placeholder="Protocol details..."
                     />
                 </Field>
             </div>
@@ -154,7 +154,7 @@ export function MovementForm({
                     className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
-                    <span className="font-mono">Limpiar</span>
+                    <span className="font-mono">CLEAR</span>
                 </button>
 
                 <button
@@ -163,7 +163,7 @@ export function MovementForm({
                     className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
                 >
                     <Save className="h-3.5 w-3.5" />
-                    <span className="font-mono">{isSubmitting ? "..." : "Guardar"}</span>
+                    <span className="font-mono">{isSubmitting ? "..." : "SAVE"}</span>
                 </button>
             </footer>
         </form>

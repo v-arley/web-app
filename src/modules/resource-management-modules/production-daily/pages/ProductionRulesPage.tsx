@@ -9,37 +9,21 @@ import { ProductionRulesTable } from "../components/ProductionRulesTable";
 import { useProductionRuleMutation } from "../hooks/useProductionRuleMutation";
 import { useProductionRulesQuery } from "../hooks/useProductionRulesQuery";
 import type { ProductionRuleFormValues } from "../schemas/production-rule.schema";
-// import { useToast } from "../../../../hooks/useToast";
+import { useToast } from "../../../../shared/hooks/useToast";
 
 const queryClient = new QueryClient();
 const professionService = new ProfessionService();
 const resourceService = new ResourceService();
 
-function AlertBanner({ tone, message }: { tone: "error" | "success" | "info"; message: string }) {
-    const toneClassName =
-        tone === "error"
-            ? "bg-status-critical/10 border-status-critical/30 text-status-critical"
-            : tone === "success"
-            ? "bg-status-ok/10 border-status-ok/30 text-status-ok"
-            : "bg-status-info/10 border-status-info/30 text-status-info";
-
-    return (
-        <div className={`px-4 py-3 border font-mono text-[11px] uppercase tracking-widest ${toneClassName}`}>
-            {message}
-        </div>
-    );
-}
-
 function ProductionRulesPageContent() {
     const authContext = getAuthContextFromToken();
     const campId = authContext.campId ?? 0;
 
-    const [feedback, setFeedback] = useState<{ tone: "error" | "success" | "info"; message: string } | null>(null);
     const [selectedRule, setSelectedRule] = useState<ProductionRuleFormValues | undefined>(undefined);
 
     const { data: rules = [], isLoading } = useProductionRulesQuery(campId);
     const ruleMutation = useProductionRuleMutation();
-    // const { toast } = useToast();
+    const { toast } = useToast();
 
     // Obtener recursos globales
     const { data: resourcesData } = useQuery({
@@ -85,53 +69,46 @@ function ProductionRulesPageContent() {
         try {
             if (selectedRule) {
                 await ruleMutation.update.mutateAsync({ currentRule: selectedRule, data: { ...values, camp_id: campId } });
-                //toast({ message: "Regla actualizada correctamente", tone: "success" });
+                toast({ tone: "success", title: "Rule updated", message: "Production rule saved successfully." });
             } else {
                 await ruleMutation.create.mutateAsync({ ...values, camp_id: campId });
-                //toast({ message: "Regla creada correctamente", tone: "success" });
+                toast({ tone: "success", title: "Rule created", message: "New production rule added successfully." });
             }
             setSelectedRule(undefined);
-            setFeedback(null);
         } catch (error) {
-            const message = error instanceof Error ? error.message : "No se pudo guardar la regla.";
-            setFeedback({ tone: "error", message });
+            toast({
+                tone: "error",
+                title: "Save failed",
+                message: error instanceof Error ? error.message : "Failed to save the production rule.",
+            });
         }
     };
 
     const handleEdit = (rule: ProductionRuleFormValues) => {
         setSelectedRule(rule);
-        setFeedback(null);
     };
 
     const handleDelete = async (rule: ProductionRuleFormValues) => {
-        if (!confirm("¿Está seguro de eliminar esta regla de producción?")) return;
+        if (!confirm("Are you sure you want to delete this production rule?")) return;
 
         try {
             await ruleMutation.remove.mutateAsync(rule);
-            //toast({ message: "Regla eliminada correctamente", tone: "success" });
-            setFeedback(null);
+            toast({ tone: "success", title: "Rule deleted", message: "Production rule removed successfully." });
         } catch (error) {
-            const message = error instanceof Error ? error.message : "No se pudo eliminar la regla.";
-            setFeedback({ tone: "error", message });
+            toast({
+                tone: "error",
+                title: "Delete failed",
+                message: error instanceof Error ? error.message : "Failed to delete the production rule.",
+            });
         }
     };
 
     const handleClear = () => {
         setSelectedRule(undefined);
-        setFeedback(null);
     };
 
     return (
         <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
-            {/* <div className="flex items-center justify-between">
-                <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
-                    Producción Diaria / Configurar Reglas
-                </div>
-                <Settings2 className="h-5 w-5 text-accent" />
-            </div> */}
-
-            {feedback && <AlertBanner tone={feedback.tone} message={feedback.message} />}
-
             <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
@@ -141,7 +118,7 @@ function ProductionRulesPageContent() {
                         <div className="p-6">
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                                    Cargando reglas de producción...
+                                    Loading production rules...
                                 </div>
                             ) : (
                                 <ProductionRulesTable

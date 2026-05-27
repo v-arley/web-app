@@ -1,27 +1,49 @@
 import { useShipmentsQuery } from "../hooks/useShipmentsQuery";
 import { useShipmentMutation } from "../hooks/useShipmentMutation";
 import { ShipmentsTable } from "../components/ShipmentsTable";
+import { useToast } from "../../../../shared/hooks/useToast";
 
 export function ShipmentsPage() {
+  const { toast } = useToast();
   const { data: shipments = [], isLoading } = useShipmentsQuery({});
-
   const { startTransit, confirmDelivery, cancelShipment } = useShipmentMutation();
 
-  const handleStartTransit = (id: number) => {
-    if (confirm("¿Confirmar que el envío ha salido del campamento origen?")) {
-      startTransit.mutate(id);
+  const handleStartTransit = async (id: number) => {
+    try {
+      await startTransit.mutateAsync(id);
+      toast({ tone: "success", title: "Shipment dispatched", message: "Shipment marked as in transit." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Dispatch failed",
+        message: error instanceof Error ? error.message : "Failed to update shipment status.",
+      });
     }
   };
 
-  const handleConfirmDelivery = (id: number) => {
-    const observations = prompt("Observaciones de la recepción (opcional):");
-    confirmDelivery.mutate({ id, observations: observations || undefined });
+  const handleConfirmDelivery = async (id: number) => {
+    try {
+      await confirmDelivery.mutateAsync({ id, observations: undefined });
+      toast({ tone: "success", title: "Delivery confirmed", message: "Shipment received and delivery confirmed." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Confirmation failed",
+        message: error instanceof Error ? error.message : "Failed to confirm delivery.",
+      });
+    }
   };
 
-  const handleCancel = (id: number) => {
-    const observations = prompt("Motivo de cancelación:");
-    if (observations) {
-      cancelShipment.mutate({ id, observations });
+  const handleCancel = async (id: number) => {
+    try {
+      await cancelShipment.mutateAsync({ id, observations: undefined });
+      toast({ tone: "info", title: "Shipment cancelled", message: "Shipment has been cancelled." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Cancellation failed",
+        message: error instanceof Error ? error.message : "Failed to cancel the shipment.",
+      });
     }
   };
 
@@ -31,7 +53,7 @@ export function ShipmentsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary animate-pulse">Cargando envíos...</p>
+            <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING SHIPMENTS...</p>
           </div>
         ) : (
           <ShipmentsTable

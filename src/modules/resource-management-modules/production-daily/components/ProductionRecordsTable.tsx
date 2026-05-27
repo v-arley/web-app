@@ -12,7 +12,7 @@ export function ProductionRecordsTable({ records, personMap, warehouseMap, resou
     if (records.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                No hay registros de producción para el período seleccionado
+                There are no production records for the selected period
             </div>
         );
     }
@@ -39,7 +39,7 @@ export function ProductionRecordsTable({ records, personMap, warehouseMap, resou
                     <div key={date} className="bg-bg-secondary border border-border-default">
                         <div className="px-5 py-3 border-b border-border-default bg-bg-secondary/50 flex items-center justify-between">
                             <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em]">
-                                {new Date(date + 'T00:00:00').toLocaleDateString('es-CR', { 
+                                {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
                                     weekday: 'long', 
                                     year: 'numeric', 
                                     month: 'long', 
@@ -47,7 +47,7 @@ export function ProductionRecordsTable({ records, personMap, warehouseMap, resou
                                 })}
                             </div>
                             <div className="text-[10px] font-mono font-bold text-txt-disabled uppercase tracking-widest">
-                                {dayRecords.length} Registro{dayRecords.length !== 1 ? 's' : ''} • Total: {totalProduced}
+                                {dayRecords.length} Record{dayRecords.length !== 1 ? 's' : ''} • Total: {totalProduced}
                             </div>
                         </div>
 
@@ -56,19 +56,19 @@ export function ProductionRecordsTable({ records, personMap, warehouseMap, resou
                                 <thead className="bg-bg-tertiary/50 border-b border-border-default">
                                     <tr>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Trabajador
+                                            Worker
                                         </th>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Recurso
+                                            RESOURCE
                                         </th>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Bodega
+                                            WAREHOUSE
                                         </th>
                                         <th className="text-right px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Cantidad
+                                            AMOUNT
                                         </th>
                                         <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Notas
+                                            NOTES
                                         </th>
                                     </tr>
                                 </thead>

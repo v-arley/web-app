@@ -26,12 +26,12 @@ export function RationsMainPage() {
             await new Promise((resolve) => setTimeout(resolve, 2000));
             setGenerationFeedback({
                 type: "warning",
-                message: "⚠️ Endpoint POST /api/rations/generate-today no implementado.",
+                message: "⚠️ Endpoint POST /api/rations/generate-today not implemented.",
             });
         } catch (error: any) {
             setGenerationFeedback({
                 type: "error",
-                message: error.message || "Error al generar raciones",
+                message: error.message || "Error generating rations",
             });
         } finally {
             setIsGenerating(false);
@@ -46,21 +46,21 @@ export function RationsMainPage() {
     }> = [
         {
             key: "generate",
-            label: "Generar Raciones",
+            label: "Generate Rations",
             icon: <Utensils size={16} />,
-            description: "Población diaria",
+            description: "Daily population",
         },
         {
             key: "deliver",
-            label: "Entregar Raciones",
+            label: "Deliver Rations",
             icon: <ClipboardCheck size={16} />,
-            description: "Entregas individuales",
+            description: "Individual deliveries",
         },
         {
             key: "history",
-            label: "Historial",
+            label: "History",
             icon: <History size={16} />,
-            description: "Registro histórico",
+            description: "Historical record",
         },
     ];
 
@@ -79,10 +79,10 @@ export function RationsMainPage() {
                     <div className="w-0.75 self-stretch bg-accent"></div>
                     <div className="py-2">
                         <h3 className="text-xl font-bold uppercase tracking-widest text-txt-primary leading-none">
-                            Raciones
+                            Rations
                         </h3>
                         <p className="font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
-                            Administración de Recursos <span className="text-accent"> | </span> RMM-02
+                            Resource Management <span className="text-accent"> | </span> RMM-02
                         </p>
                     </div>
                 </div>
@@ -134,7 +134,7 @@ export function RationsMainPage() {
                             ) : (
                                 <>
                                     <Play size={12} fill="currentColor" />
-                                    <span className="font-mono text-[10px]">Generar Raciones</span>
+                                    <span className="font-mono text-[10px]">Generate Rations</span>
                                 </>
                             )}
                         </button>

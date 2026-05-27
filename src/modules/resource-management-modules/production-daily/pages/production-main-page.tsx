@@ -26,7 +26,7 @@ function ExecuteJobConfirmModal({ isOpen, onClose, onConfirm, isExecuting }: Con
 
                 <header className="p-4 border-b border-border-subtle bg-bg-secondary/50">
                     <div className="rmm-section-header mb-0 border-none pb-0">
-                        <span className="rmm-section-title">Confirmación</span>
+                        <span className="rmm-section-title">CONFIRMATION</span>
                         <span className="rmm-section-id">PRD_EXEC_REQ</span>
                     </div>
                 </header>
@@ -36,20 +36,20 @@ function ExecuteJobConfirmModal({ isOpen, onClose, onConfirm, isExecuting }: Con
                         <AlertCircle size={18} className="text-accent shrink-0 mt-0.5" />
                         <div>
                             <p className="font-mono text-[11px] text-txt-primary leading-relaxed mb-3">
-                                ¿Estás seguro de que deseas ejecutar el job de producción diaria?
+                                ¿Are you sure you want to execute the daily production job?
                             </p>
                             <div className="space-y-2 bg-bg-secondary/30 p-3 border border-border-subtle">
                                 <div className="flex items-center gap-2 font-mono text-[10px] text-txt-muted uppercase">
                                     <div className="w-1 h-1 bg-accent"></div>
-                                    <span>Generación de registros automáticos</span>
+                                    <span>Automatic record generation</span>
                                 </div>
                                 <div className="flex items-center gap-2 font-mono text-[10px] text-txt-muted uppercase">
                                     <div className="w-1 h-1 bg-accent"></div>
-                                    <span>Aplicación de reglas por profesión</span>
+                                    <span>Application of rules by profession</span>
                                 </div>
                                 <div className="flex items-center gap-2 font-mono text-[10px] text-txt-muted uppercase">
                                     <div className="w-1 h-1 bg-accent"></div>
-                                    <span>Actualización de inventario central</span>
+                                    <span>Central inventory update</span>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +61,7 @@ function ExecuteJobConfirmModal({ isOpen, onClose, onConfirm, isExecuting }: Con
                             disabled={isExecuting}
                             className="flex-1 rmm-btn border border-border-strong hover:bg-bg-secondary transition-all disabled:opacity-50"
                         >
-                            <span className="font-mono">Cancelar</span>
+                            <span className="font-mono">CANCEL</span>
                         </button>
                         <button
                             onClick={onConfirm}
@@ -71,10 +71,10 @@ function ExecuteJobConfirmModal({ isOpen, onClose, onConfirm, isExecuting }: Con
                             {isExecuting ? (
                                 <span className="flex items-center justify-center gap-2">
                                     <div className="h-3 w-3 animate-spin border-2 border-white border-t-transparent" />
-                                    <span className="font-mono">Ejecutando...</span>
+                                    <span className="font-mono">EXECUTING...</span>
                                 </span>
                             ) : (
-                                <span className="font-mono">Confirmar Ejecución</span>
+                                <span className="font-mono">CONFIRM EXECUTION</span>
                             )}
                         </button>
                     </div>
@@ -125,21 +125,21 @@ export function ProductionMainPage() {
     }> = [
         {
             key: "rules",
-            label: "Reglas de Producción",
+            label: "Production Rules",
             icon: <Settings2 size={16} />,
-            description: "Configuración base",
+            description: "Base Configuration",
         },
         {
             key: "execute",
-            label: "Ejecutar Job Diario",
+            label: "Execute Daily Job",
             icon: <Play size={16} />,
-            description: "Procesamiento diario",
+            description: "Daily Processing",
         },
         {
             key: "records",
-            label: "Registros y Ajustes",
+            label: "Records and Adjustments",
             icon: <FileText size={16} />,
-            description: "Control de salida",
+            description: "Output Control",
         },
     ];
 
@@ -158,10 +158,10 @@ export function ProductionMainPage() {
                     <div className="w-0.75 self-stretch bg-accent"></div>
                     <div className="py-2">
                         <h3 className="text-xl font-bold uppercase tracking-widest text-txt-primary leading-none">
-                            Producción
+                            Production
                         </h3>
                         <p className="font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
-                            Administración de Recursos <span className="text-accent"> | </span> RMM-03
+                            Resource Management <span className="text-accent"> | </span> RMM-03
                         </p>
                     </div>
                 </div>
@@ -223,20 +223,20 @@ export function ProductionMainPage() {
                                             <Play size={22} className="text-accent ml-1" />
                                         </div>
                                         <h2 className="rmm-section-header justify-center border-none mb-3">
-                                            <span className="rmm-section-title text-lg tracking-[0.3em]">Módulo de Ejecución</span>
+                                            <span className="rmm-section-title text-lg tracking-[0.3em]">Execution Module</span>
                                         </h2>
                                         <p className="font-mono text-[11px] text-txt-secondary leading-relaxed uppercase tracking-wider">
-                                            Generación masiva de registros de producción diaria basada en profesiones activas.
+                                            Mass generation of daily production records based on active professions.
                                         </p>
                                     </div>
                                     <button
                                         onClick={() => setShowConfirmModal(true)}
                                         className="w-full rmm-btn rmm-btn-accent justify-center py-2 text-sm tracking-wide"
                                     >
-                                        <span className="font-mono">INICIAR PROCESO DIARIO</span>
+                                        <span className="font-mono">START DAILY PROCESS</span>
                                     </button>
                                     <div className="mt-3 p-3 bg-bg-secondary/50 border-l-2 border-accent/50 font-mono text-[10px] text-txt-muted uppercase tracking-widest leading-loose">
-                                        <span className="text-accent font-bold">WARNING:</span> Esta acción es irreversible para el periodo actual. Asegúrese de haber configurado las reglas correctamente.
+                                        <span className="text-accent font-bold">WARNING:</span> This action is irreversible for the current period. Make sure you have configured the rules correctly.
                                     </div>
                                 </div>
                             </div>

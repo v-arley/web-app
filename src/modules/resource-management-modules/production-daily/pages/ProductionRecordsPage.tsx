@@ -10,7 +10,7 @@ import { ProductionRecordsTable } from "../components/ProductionRecordsTable";
 import { useProductionRecordMutation } from "../hooks/useProductionRecordMutation";
 import { useProductionRecordsQuery } from "../hooks/useProductionRecordsQuery";
 import type { ProductionRecordFormValues } from "../schemas/production-record.schema";
-// import { useToast } from "../../../../hooks/useToast";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
 const queryClient = new QueryClient();
@@ -18,28 +18,13 @@ const personService = new PersonService();
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
-function AlertBanner({ tone, message }: { tone: "error" | "success" | "info"; message: string }) {
-    const toneClassName =
-        tone === "error"
-            ? "bg-status-critical/10 border-status-critical/30 text-status-critical"
-            : tone === "success"
-            ? "bg-status-ok/10 border-status-ok/30 text-status-ok"
-            : "bg-status-info/10 border-status-info/30 text-status-info";
-
-    return (
-        <div className={`px-4 py-3 border font-mono text-[11px] uppercase tracking-widest ${toneClassName}`}>
-            {message}
-        </div>
-    );
-}
-
 function ProductionRecordsPageContent() {
     const authContext = getAuthContextFromToken();
     const campId = authContext.campId ?? 0;
 
     const [personId, setPersonId] = useState<number | undefined>(undefined);
     const [resourceId, setResourceId] = useState<number | undefined>(undefined);
-    const [feedback, setFeedback] = useState<{ tone: "error" | "success" | "info"; message: string } | null>(null);
+    const { toast } = useToast();
 
     // Debounce filters
     const debouncedPersonId = useDebounce(personId, 500);
@@ -52,8 +37,6 @@ function ProductionRecordsPageContent() {
 
     const { data: records = [], isLoading } = useProductionRecordsQuery(campId, filters);
     const recordMutation = useProductionRecordMutation();
-    //const { toast } = useToast();
-    //const { showToast } = useToast();
 
     // Obtener almacenes del campamento
     const { data: warehousesData } = useQuery({
@@ -128,25 +111,18 @@ function ProductionRecordsPageContent() {
     const handleSubmit = async (values: ProductionRecordFormValues) => {
         try {
             await recordMutation.create.mutateAsync(values);
-            //toast({ message: "Ajuste manual registrado correctamente", tone: "success" });
-            setFeedback(null);
+            toast({ tone: "success", title: "Adjustment recorded", message: "Manual production adjustment saved successfully." });
         } catch (error) {
-            const message = error instanceof Error ? error.message : "No se pudo registrar el ajuste.";
-            setFeedback({ tone: "error", message });
+            toast({
+                tone: "error",
+                title: "Record failed",
+                message: error instanceof Error ? error.message : "Failed to record the adjustment.",
+            });
         }
     };
 
     return (
         <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
-            {/* <div className="flex items-center justify-between">
-                <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
-                    Producción Diaria / Registros y Ajustes
-                </div>
-                <FileText className="h-5 w-5 text-accent" />
-            </div> */}
-
-            {feedback && <AlertBanner tone={feedback.tone} message={feedback.message} />}
-
             <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
@@ -158,20 +134,20 @@ function ProductionRecordsPageContent() {
                                 <div className="px-5 py-4 border-b border-border-default bg-bg-secondary/50">
                                     <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em]">
                                         <Search className="w-4 h-4" />
-                                        Filtros de Búsqueda
+                                        Search Filters
                                     </div>
                                 </div>
                                 <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <label className="flex flex-col gap-1.5">
                                         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                            Trabajador
+                                            Worker
                                         </span>
                                         <select
                                             value={personId ?? 0}
                                             onChange={(e) => setPersonId(Number(e.target.value) || undefined)}
                                             className="bg-bg-tertiary border border-border-default px-3 py-2 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all"
                                         >
-                                            <option value={0}>Todos</option>
+                                            <option value={0}>All</option>
                                             {personOptions.map((p) => (
                                                 <option key={p.id} value={p.id}>{p.label}</option>
                                             ))}
@@ -179,14 +155,14 @@ function ProductionRecordsPageContent() {
                                     </label>
                                     <label className="flex flex-col gap-1.5">
                                         <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                            Recurso
+                                            Resource
                                         </span>
                                         <select
                                             value={resourceId ?? 0}
                                             onChange={(e) => setResourceId(Number(e.target.value) || undefined)}
                                             className="bg-bg-tertiary border border-border-default px-3 py-2 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all"
                                         >
-                                            <option value={0}>Todos</option>
+                                            <option value={0}>All</option>
                                             {resourceOptions.map((r) => (
                                                 <option key={r.id} value={r.id}>{r.label}</option>
                                             ))}
@@ -197,7 +173,7 @@ function ProductionRecordsPageContent() {
 
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                                    Cargando registros de producción...
+                                    Loading production records...
                                 </div>
                             ) : (
                                 <ProductionRecordsTable

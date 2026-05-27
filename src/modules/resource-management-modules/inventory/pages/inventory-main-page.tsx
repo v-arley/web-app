@@ -13,21 +13,21 @@ export function InventoryMainPage() {
     const tabs: Array<{ key: InventoryTab; label: string; icon: React.ReactNode; description: string }> = [
         {
             key: "stock",
-            label: "Inventario Global",
+            label: "Global Inventory",
             icon: <Eye size={16} />,
-            description: "Consulta de existencias",
+            description: "Stock overview",
         },
         {
             key: "movements",
-            label: "Movimientos",
+            label: "Movements",
             icon: <PackagePlus size={16} />,
-            description: "Entradas y salidas",
+            description: "In and out movements",
         },
         {
             key: "config",
-            label: "Stock Mínimo",
+            label: "Minimum Stock",
             icon: <Settings2 size={16} />,
-            description: "Umbrales de alerta",
+            description: "Alert thresholds",
         },
     ];
 

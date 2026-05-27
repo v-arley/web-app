@@ -1,32 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle, RefreshCw, Info } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { AlertsTable } from "../components/AlertsTable";
 import { useAlertMutation } from "../hooks/useAlertMutation";
 import { useAlertsQuery } from "../hooks/useAlertsQuery";
-
-function AlertBanner({ tone, message }: { tone: "error" | "success" | "info"; message: string }) {
-    const toneClassName =
-        tone === "error"
-            ? "bg-status-critical/10 border-status-critical/30 text-status-critical"
-            : tone === "success"
-            ? "bg-status-ok/10 border-status-ok/30 text-status-ok"
-            : "bg-status-info/10 border-status-info/30 text-status-info";
-
-    return (
-        <div className={`px-4 py-3 border font-mono text-[11px] uppercase tracking-widest flex items-center gap-3 ${toneClassName}`}>
-            {tone === "error" ? <AlertTriangle size={14} /> : tone === "success" ? <CheckCircle size={14} /> : <Info size={14} />}
-            {message}
-        </div>
-    );
-}
 
 function AlertsPageContent() {
     const authContext = getAuthContextFromToken();
     const campId = authContext.campId ?? 0;
 
-    const [feedback, setFeedback] = useState<{ tone: "error" | "success" | "info"; message: string } | null>(null);
+    const { toast } = useToast();
     const [activeTab, setActiveTab] = useState<"active" | "history">("active");
 
     const { query: activeQuery } = useAlertsQuery(campId, true, "N");
@@ -36,14 +21,29 @@ function AlertsPageContent() {
     const currentQuery = activeTab === "active" ? activeQuery : historyQuery;
     const currentAlerts = currentQuery.data ?? [];
 
+    useEffect(() => {
+        if (currentQuery.error) {
+            toast({
+                tone: "error",
+                title: "Query error",
+                message: currentQuery.error.message,
+            });
+        }
+    }, [currentQuery.error, toast]);
+
     const handleResolve = async (alertId: number) => {
         try {
             await alertMutation.resolve.mutateAsync(alertId);
-            setFeedback({ tone: "success", message: "ALERTA_RESUELTA: Registro actualizado correctamente." });
+            toast({
+                tone: "success",
+                title: "Alert resolved",
+                message: "The alert record has been updated.",
+            });
         } catch (error) {
-            setFeedback({
+            toast({
                 tone: "error",
-                message: error instanceof Error ? `ERROR_SISTEMA: ${error.message}` : "CRITICAL_FAILURE: No se pudo resolver la alerta.",
+                title: "Resolution failed",
+                message: error instanceof Error ? error.message : "Could not resolve the alert.",
             });
         }
     };
@@ -116,7 +116,7 @@ function AlertsPageContent() {
                 {/* Scan button */}
                 <div className="flex items-center px-4 border-l border-border-default shrink-0 gap-3">
                     <button
-                        onClick={() => query.refetch()}
+                        onClick={() => currentQuery.refetch()}
                         className="flex items-center gap-2 px-3 py-1.5 bg-status-critical/10 border border-status-critical/30 text-status-critical font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-status-critical/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={currentQuery.isLoading}
                     >
@@ -128,9 +128,6 @@ function AlertsPageContent() {
 
             {/* Content Area */}
             <main className="flex-1 overflow-hidden flex flex-col p-4 md:p-8 space-y-4">
-                {feedback && <AlertBanner tone={feedback.tone} message={feedback.message} />}
-                {currentQuery.error && <AlertBanner tone="error" message={currentQuery.error.message} />}
-
                 <section className="flex-1 flex flex-col overflow-hidden bg-bg-tertiary border border-border-default shadow-sm">
                     <header className="flex items-center justify-between px-4 py-3 border-b border-border-default bg-bg-secondary/20">
                         <h3 className="text-[12px] font-bold text-txt-primary uppercase tracking-wide flex items-center gap-2">

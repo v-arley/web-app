@@ -50,7 +50,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
             {/* Selector de fecha */}
             <div className="bg-bg-secondary border border-border-default p-5">
                 <label className="block font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                    Fecha de Raciones
+                    Date of Rations
                 </label>
                 <input
                     type="date"
@@ -64,27 +64,27 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
             {preview && !existingCheck?.exists && (
                 <div className="bg-bg-secondary border border-border-default p-5">
                     <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-3">
-                        Vista Previa
+                        Preview
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-accent-primary" />
                             <span className="font-mono text-xs text-txt-primary">
-                                {preview.total_persons} Personas
+                                {preview.total_persons} Persons
                             </span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Package className="w-4 h-4 text-accent-secondary" />
                             <span className="font-mono text-xs text-txt-primary">
-                                {preview.resources_needed.length} Tipos de Recursos
+                                {preview.resources_needed.length} Types of Resources
                             </span>
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <div className="font-mono text-[10px] text-txt-disabled uppercase tracking-widest">
-                            Recursos Necesarios:
+                            Required Resources:
                         </div>
                         {preview.resources_needed.map((resource) => (
                             <div key={resource.resource_id} className="flex justify-between font-mono text-xs text-txt-secondary">
@@ -96,16 +96,16 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                 </div>
             )}
 
-            {/* Advertencia si ya existen raciones */}
+            {/* Warning if rations already exist */}
             {existingCheck?.exists && (
                 <div className="bg-status-warning/10 border border-status-warning p-4 flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-status-warning shrink-0 mt-0.5" />
                     <div>
                         <div className="font-mono text-xs font-bold text-status-warning">
-                            Ya existen {existingCheck.count} raciones para esta fecha
+                            There are already {existingCheck.count} rations available for this date
                         </div>
                         <div className="font-mono text-[10px] text-txt-secondary mt-1">
-                            Selecciona otra fecha para generar nuevas raciones
+                            Select another date to generate new rations
                         </div>
                     </div>
                 </div>
@@ -118,19 +118,19 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                         {result.success && !hasInsufficientStock ? '✓ Generación Exitosa' : '✗ Error en Generación'}
                     </div>
                     <div className="space-y-1 font-mono text-[10px] text-txt-secondary">
-                        <div>Raciones creadas: {result.total_rations}</div>
-                        <div>Recursos asignados: {result.total_resources_assigned}</div>
-                        {result.total_errors > 0 && <div className="text-status-error">Errores: {result.total_errors}</div>}
+                        <div>Rations created: {result.total_rations}</div>
+                        <div>Resources assigned: {result.total_resources_assigned}</div>
+                        {result.total_errors > 0 && <div className="text-status-error">Errors: {result.total_errors}</div>}
                     </div>
 
                     {hasInsufficientStock && (
                         <div className="mt-3 pt-3 border-t border-status-error/30">
                             <div className="font-mono text-[10px] font-bold text-status-error mb-2 uppercase tracking-widest">
-                                Inventario Insuficiente:
+                                Insufficient Inventory:
                             </div>
                             {result.insufficient_stock.map((item) => (
                                 <div key={item.resource_id} className="font-mono text-[10px] text-txt-secondary">
-                                    {item.resource_name}: Necesario {item.required}, Disponible {item.available}
+                                    {item.resource_name}: Required {item.required}, Available {item.available}
                                 </div>
                             ))}
                         </div>
@@ -139,7 +139,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                     {result.errors.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-status-error/30">
                             <div className="font-mono text-[10px] font-bold text-status-error mb-2">
-                                Errores:
+                                Errors:
                             </div>
                             {result.errors.map((error, idx) => (
                                 <div key={idx} className="font-mono text-[10px] text-txt-secondary">
@@ -158,7 +158,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                 className="w-full"
             >
                 <Play className="w-4 h-4 mr-2" />
-                {isExecuting ? 'Generando Raciones...' : 'Generar Raciones del Día'}
+                {isExecuting ? 'Generating Rations...' : 'Generate Daily Rations'}
             </Button>
         </div>
     );

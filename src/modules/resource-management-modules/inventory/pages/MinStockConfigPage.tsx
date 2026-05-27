@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useToast } from "../../../../shared/hooks/useToast";
 import { MinStockConfigForm } from "../components/MinStockConfigForm";
 import { useMinStockMutation } from "../hooks/useMinStockMutation";
 import type { MinStockConfigFormValues } from "../schemas/min-stock-config.schema";
@@ -11,26 +12,11 @@ import type { MinStockConfigFormValues } from "../schemas/min-stock-config.schem
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
-function AlertBanner({ tone, message }: { tone: "error" | "success" | "info"; message: string }) {
-    const toneClassName =
-        tone === "error"
-            ? "bg-status-critical/10 border-status-critical/30 text-status-critical"
-            : tone === "success"
-            ? "bg-status-ok/10 border-status-ok/30 text-status-ok"
-            : "bg-status-info/10 border-status-info/30 text-status-info";
-
-    return (
-        <div className={`px-4 py-3 border font-mono text-[11px] uppercase tracking-widest ${toneClassName}`}>
-            {message}
-        </div>
-    );
-}
-
 function MinStockConfigPageContent() {
     const authContext = getAuthContextFromToken();
     const campId = authContext.campId ?? 0;
 
-    const [feedback, setFeedback] = useState<{ tone: "error" | "success" | "info"; message: string } | null>(null);
+    const { toast } = useToast();
     const [initialData, setInitialData] = useState<Partial<MinStockConfigFormValues> | undefined>(undefined);
 
     const minStockMutation = useMinStockMutation();
@@ -75,19 +61,23 @@ function MinStockConfigPageContent() {
     const handleSubmit = async (values: MinStockConfigFormValues) => {
         try {
             await minStockMutation.update.mutateAsync(values);
-            setFeedback({ tone: "success", message: "Configuración guardada correctamente." });
+            toast({
+                tone: "success",
+                title: "Settings saved",
+                message: "Minimum stock levels have been updated.",
+            });
             setInitialData(undefined);
         } catch (error) {
-            setFeedback({
+            toast({
                 tone: "error",
-                message: error instanceof Error ? error.message : "No se pudo guardar la configuración.",
+                title: "Save failed",
+                message: error instanceof Error ? error.message : "Could not save the configuration.",
             });
         }
     };
 
     const handleClear = () => {
         setInitialData(undefined);
-        setFeedback(null);
     };
 
     return (
@@ -99,8 +89,6 @@ function MinStockConfigPageContent() {
                 <Settings2 className="h-5 w-5 text-accent" />
             </div> */}
 
-            {feedback && <AlertBanner tone={feedback.tone} message={feedback.message} />}
-
             <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
@@ -110,26 +98,25 @@ function MinStockConfigPageContent() {
                         <div className="text-center px-8 py-12 max-w-md">
                             <Settings2 className="h-16 w-16 text-accent/30 mx-auto mb-4" />
                             <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] mb-4">
-                                Stock de Seguridad
+                                Safety Stock
                             </div>
                             <div className="space-y-4 text-left">
                                 <div className="p-4 bg-status-info/10 border border-status-info/30">
                                     <div className="font-mono text-[10px] font-bold text-status-info mb-2">
-                                        ¿Qué es el Stock Mínimo?
+                                        ¿What is Minimum Stock?
                                     </div>
                                     <div className="font-mono text-[9px] text-txt-secondary leading-relaxed">
-                                        Es la cantidad mínima que debe existir de un recurso en un almacén. Cuando el
-                                        stock actual cae por debajo de este valor, se genera automáticamente una alerta.
+                                        This is the minimum quantity of a resource that must be kept in a warehouse. When the current stock falls below this value, an alert is automatically generated.
                                     </div>
                                 </div>
                                 <div className="p-4 bg-status-warning/10 border border-status-warning/30">
                                     <div className="font-mono text-[10px] font-bold text-status-warning mb-2">
-                                        Validaciones
+                                        Validations
                                     </div>
                                     <div className="font-mono text-[9px] text-txt-secondary leading-relaxed">
-                                        • La cantidad mínima debe ser mayor o igual a 0<br />
-                                        • Se aplica por recurso y por almacén<br />
-                                        • Las alertas se generan automáticamente por el sistema
+                                        • The minimum quantity must be greater than or equal to 0<br />
+                                        • It applies per resource and per warehouse<br />
+                                        • Alerts are generated automatically by the system
                                     </div>
                                 </div>
                             </div>

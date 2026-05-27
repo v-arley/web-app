@@ -2,24 +2,41 @@ import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { OutgoingRequestsTable } from "../components/OutgoingRequestsTable";
 import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useToast } from "../../../../shared/hooks/useToast";
 
 export function OutgoingRequestsPage() {
   const authContext = getAuthContextFromToken();
   const originCampId = authContext.campId ?? 0;
-
-  const { data: requests = [], isLoading } = useCampRequestsQuery({
-    originCampId,
-  });
-
-  const { approveAsOrigin, rejectAsOrigin } = useCampRequestMutation();
   const userId = authContext.userId ?? 0;
 
-  const handleApprove = (id: number) => {
-    approveAsOrigin.mutate({ id, userId });
+  const { toast } = useToast();
+  const { data: requests = [], isLoading } = useCampRequestsQuery({ originCampId });
+  const { approveAsOrigin, rejectAsOrigin } = useCampRequestMutation();
+
+  const handleApprove = async (id: number) => {
+    try {
+      await approveAsOrigin.mutateAsync({ id, userId });
+      toast({ tone: "success", title: "Request approved", message: "Outgoing request approved as origin camp." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Approval failed",
+        message: error instanceof Error ? error.message : "Failed to approve the outgoing request.",
+      });
+    }
   };
 
-  const handleReject = (id: number) => {
-    rejectAsOrigin.mutate({ id, userId });
+  const handleReject = async (id: number) => {
+    try {
+      await rejectAsOrigin.mutateAsync({ id, userId });
+      toast({ tone: "info", title: "Request rejected", message: "Outgoing request rejected as origin camp." });
+    } catch (error) {
+      toast({
+        tone: "error",
+        title: "Rejection failed",
+        message: error instanceof Error ? error.message : "Failed to reject the outgoing request.",
+      });
+    }
   };
 
   return (
@@ -28,7 +45,7 @@ export function OutgoingRequestsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary animate-pulse">Cargando solicitudes...</p>
+            <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING REQUESTS...</p>
           </div>
         ) : (
           <OutgoingRequestsTable

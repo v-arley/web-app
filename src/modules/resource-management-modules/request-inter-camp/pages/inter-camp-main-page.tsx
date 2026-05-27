@@ -45,11 +45,11 @@ export function InterCampMainPage() {
             return;
         }
         if (originCampId === destinationCampId) {
-            alert("El campamento de origen y destino no pueden ser el mismo");
+            alert("The origin and destination camps cannot be the same");
             return;
         }
         if (resources.length === 0) {
-            alert("Debes seleccionar al menos un recurso");
+            alert("You must select at least one resource");
             return;
         }
 
@@ -75,14 +75,14 @@ export function InterCampMainPage() {
                 setResources([]);
             }
         } catch (error) {
-            alert(`Error al crear solicitud: ${error}`);
+            alert(`Error creating request: ${error}`);
         }
     };
 
     const tabs: Array<{ key: InterCampTab; label: string; icon: React.ReactNode; description: string }> = [
-        { key: "outgoing",  label: "Sent",      icon: <Send size={16} />,  description: "Solicitudes enviadas"  },
-        { key: "incoming",  label: "Received",  icon: <Inbox size={16} />, description: "Solicitudes recibidas" },
-        { key: "shipments", label: "Shipments", icon: <Truck size={16} />, description: "Envios en transito"    },
+        { key: "outgoing",  label: "Sent",      icon: <Send size={16} />,  description: "Applications submitted"  },
+        { key: "incoming",  label: "Received",  icon: <Inbox size={16} />, description: "Applications received" },
+        { key: "shipments", label: "Shipments", icon: <Truck size={16} />, description: "Shipments in transit"    },
     ];
 
     return (
@@ -205,7 +205,7 @@ export function InterCampMainPage() {
                                 className="rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary hover:bg-bg-secondary text-[10px] px-3 transition-all disabled:opacity-50"
                             >
                                 <RotateCcw size={12} />
-                                LIMPIAR
+                                CLEAR
                             </button>
                             <button
                                 type="submit"
@@ -214,7 +214,7 @@ export function InterCampMainPage() {
                             >
                                 {createRequest.isPending ? (
                                     <div className="h-3 w-3 border-2 border-white/30 border-t-white animate-spin" />
-                                ) : "AUTHORIZE_SEND"}
+                                ) : "AUTHORIZE_SEND"}   
                             </button>
                         </div>
                     </form>
