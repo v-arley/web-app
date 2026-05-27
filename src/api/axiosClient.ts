@@ -26,7 +26,9 @@ axiosClient.interceptors.response.use(
                 await axiosClient.post("/auth/refresh");
                 return axiosClient(originalRequest);
             } catch (refreshError) {
-                window.location.href = "/login";
+                // Notifica a AuthContext para que invalide el estado sin recargar la página.
+                // AuthContext escucha este evento y redirige via React Router.
+                window.dispatchEvent(new CustomEvent("auth:session-expired"));
                 return Promise.reject(refreshError);
             }
         }

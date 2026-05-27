@@ -44,6 +44,16 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const [activeKey, setActiveKey] = useState(
         () => availableSections[0]?.key ?? "",
     );
+
+    // Cuando cambia el conjunto de secciones disponibles (login / cambio de rol),
+    // resetea la sección activa a la primera del nuevo conjunto si la actual ya no existe.
+    useEffect(() => {
+        if (availableSections.length === 0) return;
+        const stillAvailable = availableSections.some((s) => s.key === activeKey);
+        if (!stillAvailable) {
+            setActiveKey(availableSections[0].key);
+        }
+    }, [availableSections, activeKey]);
     const [activeCamp, setActiveCamp] = useState<Camp | null>(null);
 
     useEffect(() => {

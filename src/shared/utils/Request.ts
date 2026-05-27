@@ -8,7 +8,6 @@ export class Request {
     private response: globalThis.Response | null = null;
     private responseData: unknown = null;
     private errorMessage: string | null = null;
-    private _retrying = false;
 
     private static readonly AUTHENTICATION_SCHEME = "Bearer ";
 
@@ -119,19 +118,6 @@ export class Request {
         try {
             this.response = await fetch(this.url, options);
 
-            // Refresco silencioso: ante un 401, intenta renovar el access_token y reintenta una vez.
-            if (this.response.status === 401 && !this._retrying) {
-                this._retrying = true;
-                const refreshed = await this.attemptTokenRefresh();
-                if (refreshed) {
-                    this.response = await fetch(this.url, options);
-                } else {
-                    window.location.href = "/login";
-                    return;
-                }
-                this._retrying = false;
-            }
-
             const contentType = this.response.headers.get("content-type") ?? "";
 
             if (this.response.status === 204) {
@@ -176,18 +162,6 @@ export class Request {
         }
 
         return fallback || "Error en la solicitud";
-    }
-
-    private async attemptTokenRefresh(): Promise<boolean> {
-        try {
-            const refreshResponse = await fetch(
-                `${this.baseUrl}/auth/refresh`,
-                { method: "POST", credentials: "include" },
-            );
-            return refreshResponse.ok;
-        } catch {
-            return false;
-        }
     }
 
     private joinUrl(...parts: string[]): string {

@@ -29,9 +29,13 @@ export class AuthService {
         }
 
         // El backend establece las cookies httpOnly automáticamente.
-        // El cuerpo de la respuesta sólo contiene metadata no sensible del usuario.
-        const data = request.readEntity<MeResponse>();
-        return this.mapToAuthContext(data);
+        // Recuperamos el perfil completo del usuario via /auth/me,
+        // única fuente de verdad para roles y profesión.
+        const user = await this.me();
+        if (!user) {
+            throw new Error("No se pudo obtener el perfil del usuario tras iniciar sesión");
+        }
+        return user;
     }
 
     async me(): Promise<AuthContext | null> {
