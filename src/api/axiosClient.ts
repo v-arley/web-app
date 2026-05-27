@@ -6,7 +6,7 @@ import axios from "axios";
  * - Response interceptor: refresca el access_token ante un 401 y reintenta la petición original.
  */
 const axiosClient = axios.create({
-    baseURL: import.meta.env.API_URL ?? "http://localhost:3000/api",
+    baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000/api",
     withCredentials: true,
     headers: {
         "Content-Type": "application/json; charset=UTF-8",
