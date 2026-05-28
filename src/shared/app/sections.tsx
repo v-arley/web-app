@@ -1,4 +1,3 @@
-import { lazy } from "react";
 import type { DashboardSection } from "../hooks/useDashboardNav";
 import {
     Boxes,
@@ -25,109 +24,33 @@ import {
     Utensils,
     ArrowLeftRight,
 } from "lucide-react";
-
-// ── Shared views (carga diferida) ─────────────────────────────
-const DashboardView = lazy(() =>
-    import("../pages/DashboardView").then((m) => ({ default: m.DashboardView })),
-);
-const ExplorationsView = lazy(() =>
-    import("../pages/ExplorationsView").then((m) => ({ default: m.ExplorationsView })),
-);
-const UsersView = lazy(() =>
-    import("../pages/UsersView").then((m) => ({ default: m.UsersView })),
-);
-const RequestsView = lazy(() =>
-    import("../pages/RequestsView").then((m) => ({ default: m.RequestsView })),
-);
-const InventoryView = lazy(() =>
-    import("../pages/InventoryView").then((m) => ({ default: m.InventoryView })),
-);
-const CampsView = lazy(() =>
-    import("../pages/CampsView").then((m) => ({ default: m.CampsView })),
-);
-const SettingsView = lazy(() =>
-    import("../pages/SettingsView").then((m) => ({ default: m.SettingsView })),
-);
-const WorkerProfileView = lazy(() =>
-    import("../pages/WorkerProfileView").then((m) => ({ default: m.WorkerProfileView })),
-);
-const WorkerAchievementsView = lazy(() =>
-    import("../pages/WorkerAchievementsView").then((m) => ({ default: m.WorkerAchievementsView })),
-);
-const WorkerTasksView = lazy(() =>
-    import("../pages/WorkerTasksView").then((m) => ({ default: m.WorkerTasksView })),
-);
-const WorkerProductionView = lazy(() =>
-    import("../pages/WorkerProductionView").then((m) => ({ default: m.WorkerProductionView })),
-);
-const WorkerRationsView = lazy(() =>
-    import("../pages/WorkerRationsView").then((m) => ({ default: m.WorkerRationsView })),
-);
-const WorkerExplorationsView = lazy(() =>
-    import("../pages/WorkerExplorationsView").then((m) => ({ default: m.WorkerExplorationsView })),
-);
-const WarehouseView = lazy(() =>
-    import("../pages/WarehouseView").then((m) => ({ default: m.WarehouseView })),
-);
-
-// ── Management module pages (carga diferida, import directo al archivo) ──────
-const ResourcesPage = lazy(() =>
-    import("../../modules/management-modules/catalogs/pages/resources-page").then((m) => ({
-        default: m.ResourcesPage,
-    })),
-);
-const ProfessionsPage = lazy(() =>
-    import("../../modules/management-modules/catalogs/pages/professions-page").then((m) => ({
-        default: m.ProfessionsPage,
-    })),
-);
-const AchievementsPage = lazy(() =>
-    import("../../modules/management-modules/catalogs/pages/achievements-page").then((m) => ({
-        default: m.AchievementsPage,
-    })),
-);
-const CreateCampModulePage = lazy(() =>
-    import("../../modules/management-modules/camps/create-camp/pages/CreateCampModulePage").then((m) => ({
-        default: m.CreateCampModulePage,
-    })),
-);
-const GlobalDashboardModulePage = lazy(() =>
-    import("../../modules/management-modules/dashboard/global-dashboard/pages/GlobalDashboardView").then((m) => ({
-        default: m.GlobalDashboardView,
-    })),
-);
-
-// ── Resource management module pages (carga diferida, import directo al archivo) ─
-const DashboardResourcePage = lazy(() =>
-    import("../../modules/resource-management-modules/dashboard/pages/dashboard-resource-page").then((m) => ({
-        default: m.DashboardResourcePage,
-    })),
-);
-const InventoryMainPage = lazy(() =>
-    import("../../modules/resource-management-modules/inventory/pages/inventory-main-page").then((m) => ({
-        default: m.InventoryMainPage,
-    })),
-);
-const StockAlertsMainPage = lazy(() =>
-    import("../../modules/resource-management-modules/stock-alerts/pages/stock-alerts-main-page").then((m) => ({
-        default: m.StockAlertsMainPage,
-    })),
-);
-const ProductionMainPage = lazy(() =>
-    import("../../modules/resource-management-modules/production-daily/pages/production-main-page").then((m) => ({
-        default: m.ProductionMainPage,
-    })),
-);
-const RationsMainPage = lazy(() =>
-    import("../../modules/resource-management-modules/daily-rations/pages/rations-main-page").then((m) => ({
-        default: m.RationsMainPage,
-    })),
-);
-const InterCampMainPage = lazy(() =>
-    import("../../modules/resource-management-modules/request-inter-camp/pages/inter-camp-main-page").then((m) => ({
-        default: m.InterCampMainPage,
-    })),
-);
+import {
+    AchievementsPage,
+    CampsView,
+    CreateCampModulePage,
+    DashboardResourcePage,
+    DashboardView,
+    ExplorationsView,
+    GlobalDashboardModulePage,
+    InterCampMainPage,
+    InventoryMainPage,
+    InventoryView,
+    ProductionMainPage,
+    ProfessionsPage,
+    RationsMainPage,
+    RequestsView,
+    ResourcesPage,
+    SettingsView,
+    StockAlertsMainPage,
+    UsersView,
+    WarehouseView,
+    WorkerAchievementsView,
+    WorkerExplorationsView,
+    WorkerProductionView,
+    WorkerProfileView,
+    WorkerRationsView,
+    WorkerTasksView,
+} from "./section-components";
 
 export const SECTIONS: DashboardSection[] = [
     {
@@ -246,7 +169,7 @@ export const SECTIONS: DashboardSection[] = [
     },
     {
         key: "resource-dashboard",
-        label: "Resource Dashboard",
+        label: "Dashboard",
         icon: <BarChart2 size={18} strokeWidth={2} />,
         component: () => <DashboardResourcePage />,
     },
