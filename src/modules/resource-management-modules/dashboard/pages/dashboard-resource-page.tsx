@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Users, AlertTriangle, Utensils, Truck, RefreshCw, BarChart3, ListFilter, Bell } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useDashboard } from "../hooks/useDashboard";
 import { MetricCard } from "../components/MetricCard";
 import { StockTable } from "../components/StockTable";
@@ -10,7 +10,7 @@ type DashboardTab = "overview" | "analytics" | "notifications";
 
 export function DashboardResourcePage() {
     const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
-    const authContext = getAuthContextFromToken();
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const {

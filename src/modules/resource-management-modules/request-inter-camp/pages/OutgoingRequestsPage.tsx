@@ -1,11 +1,11 @@
 import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { OutgoingRequestsTable } from "../components/OutgoingRequestsTable";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 
 export function OutgoingRequestsPage() {
-  const authContext = getAuthContextFromToken();
+  const { authContext } = useNavigation();
   const originCampId = authContext.campId ?? 0;
   const userId = authContext.userId ?? 0;
 

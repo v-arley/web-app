@@ -1,14 +1,13 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle, RefreshCw, Info } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { AlertsTable } from "../components/AlertsTable";
 import { useAlertMutation } from "../hooks/useAlertMutation";
 import { useAlertsQuery } from "../hooks/useAlertsQuery";
 
-function AlertsPageContent() {
-    const authContext = getAuthContextFromToken();
+export function AlertsPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const { toast } = useToast();
@@ -185,25 +184,5 @@ function AlertsPageContent() {
                 </footer>
             </main>
         </article>
-    );
-}
-
-export function AlertsPage() {
-    const [queryClient] = useState(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        retry: false,
-                        refetchOnWindowFocus: false,
-                    },
-                },
-            })
-    );
-
-    return (
-        <QueryClientProvider client={queryClient}>
-            <AlertsPageContent />
-        </QueryClientProvider>
     );
 }

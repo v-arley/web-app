@@ -1,20 +1,13 @@
-import { useState } from "react";
-import { CheckCircle, XCircle, User, Calendar } from "lucide-react";
-import { Button } from "../../../../shared/components/ui/button";
-import { useRationMutation } from "../hooks/useRationMutation";
-import { RationResourcesDetail } from "./RationResourcesDetail";
 import type { RationFormValues } from "../schemas/ration.schema";
 
 type Props = {
     rations: RationFormValues[];
     personMap: Map<number, string>;
-    onRationClick?: (rationId: number) => void;
+    selectedRationId?: number | null;
+    onRationSelect?: (rationId: number | null) => void;
 };
 
-export function RationsTable({ rations, personMap, onRationClick }: Props) {
-    const [expandedRationId, setExpandedRationId] = useState<number | null>(null);
-    const { markAsDelivered, markAsNotDelivered } = useRationMutation();
-
+export function RationsTable({ rations, personMap, selectedRationId, onRationSelect }: Props) {
     if (rations.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
@@ -23,116 +16,62 @@ export function RationsTable({ rations, personMap, onRationClick }: Props) {
         );
     }
 
-    const handleToggleDelivery = async (ration: RationFormValues) => {
-        if (!ration.id) return;
-
-        try {
-            if (ration.completed === 'N') {
-                await markAsDelivered.mutateAsync({ id: ration.id });
-            } else {
-                await markAsNotDelivered.mutateAsync({ id: ration.id });
-            }
-        } catch (error) {
-            console.error("Error al actualizar ración:", error);
-        }
-    };
-
     const handleRowClick = (rationId: number) => {
-        setExpandedRationId(expandedRationId === rationId ? null : rationId);
-        onRationClick?.(rationId);
+        onRationSelect?.(selectedRationId === rationId ? null : rationId);
     };
 
     return (
-        <div className="bg-bg-secondary border border-border-default">
-            <div className="overflow-x-auto">
-                <table className="w-full font-mono text-[11px]">
-                    <thead className="bg-bg-tertiary/50 border-b border-border-default">
-                        <tr>
-                            <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Person
-                            </th>
-                            <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Date
-                            </th>
-                            <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Status
-                            </th>
-                            <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Notes
-                            </th>
-                            <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border-default">
-                        {rations.map((ration) => {
-                            const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
-                            const isDelivered = ration.completed === 'Y';
-                            const isExpanded = expandedRationId === ration.id;
+        <div className="table-system-wrap h-full">
+            <table className="table-system">
+                <thead className="table-system-head">
+                    <tr>
+                        <th className="table-system-th">Id</th>
+                        <th className="table-system-th">Person</th>
+                        <th className="table-system-th">Date</th>
+                        <th className="table-system-th">Status</th>
+                        <th className="table-system-th">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rations.map((ration) => {
+                        const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
+                        const isDelivered = ration.completed === 'Y';
+                        const isSelected = selectedRationId === ration.id;
 
-                            return (
-                                <tr
-                                    key={ration.id}
-                                    className={`hover:bg-bg-tertiary/30 transition-colors cursor-pointer ${
-                                        isDelivered ? 'bg-status-success/5' : ''
-                                    }`}
-                                    onClick={() => ration.id && handleRowClick(ration.id)}
-                                >
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <User className="w-4 h-4 text-txt-disabled" />
-                                            <span className="text-txt-primary">{personName}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 text-txt-disabled" />
-                                            <span className="text-txt-secondary">
-                                                {new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('en-US')}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        {isDelivered ? (
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-success/10 text-status-success border border-status-success/30 text-[10px] font-bold uppercase tracking-wider">
-                                                <div className="w-1.5 h-1.5 bg-status-success" /> DELIVERED
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-warning/10 text-status-warning border border-status-warning/30 text-[10px] font-bold uppercase tracking-wider">
-                                                <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDING
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3 text-txt-secondary text-[10px]">
-                                        {ration.notes || '-'}
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <Button
-                                            size="sm"
-                                            variant={isDelivered ? "outline" : "default"}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleToggleDelivery(ration);
-                                            }}
-                                            disabled={markAsDelivered.isPending || markAsNotDelivered.isPending}
-                                        >
-                                            {isDelivered ? 'Mark as Pending' : 'Mark as Delivered'}
-                                        </Button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Detalle expandido de recursos */}
-            {expandedRationId && (
-                <div className="border-t border-border-default p-4 bg-bg-tertiary/20">
-                    <RationResourcesDetail rationId={expandedRationId} />
-                </div>
-            )}
+                        return (
+                            <tr
+                                key={ration.id}
+                                className={`table-system-row ${isSelected ? 'table-system-row--selected' : ''}`}
+                                onClick={() => ration.id && handleRowClick(ration.id)}
+                            >
+                                <td className="table-system-td table-system-td--primary">
+                                    <div className="flex items-center justify-center gap-2 uppercase">
+                                        {ration.id}
+                                    </div>
+                                </td>
+                                <td className="table-system-td table-system-td--primary">
+                                    <div className="flex items-center justify-center gap-2 uppercase">
+                                        {personName}
+                                    </div>
+                                </td>
+                                <td className="table-system-td table-system-td--time">
+                                    {new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('en-US')}
+                                </td>
+                                <td className="table-system-td">
+                                    {isDelivered ? (
+                                        <span className="table-system-badge table-system-badge--online">DELIVERED</span>
+                                    ) : (
+                                        <span className="table-system-badge table-system-badge--pending">PENDING</span>
+                                    )}
+                                </td>
+                                <td className="table-system-td uppercase">
+                                    {ration.notes || '—'}
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
         </div>
     );
 }

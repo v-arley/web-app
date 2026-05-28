@@ -1,18 +1,17 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Play } from "lucide-react";
 import { useMemo } from "react";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { ProductionExecutionPanel } from "../components/ProductionExecutionPanel";
 import { useExecuteDailyProduction } from "../hooks/useExecuteDailyProduction";
 import { useToast } from "../../../../shared/hooks/useToast";
 import type { ProductionExecutionFormValues, ProductionExecutionResult } from "../schemas/production-execution.schema";
 
-const queryClient = new QueryClient();
 const warehouseService = new WarehouseService();
 
-function DailyProductionPageContent() {
-    const authContext = getAuthContextFromToken();
+export function DailyProductionPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const { execute } = useExecuteDailyProduction();
@@ -111,13 +110,5 @@ function DailyProductionPageContent() {
                 </div>
             </div>
         </div>
-    );
-}
-
-export function DailyProductionPage() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <DailyProductionPageContent />
-        </QueryClientProvider>
     );
 }

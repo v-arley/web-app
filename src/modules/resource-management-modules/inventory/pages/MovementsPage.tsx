@@ -1,9 +1,9 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { PackagePlus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { MovementForm } from "../components/MovementForm";
 import { useMovementMutation } from "../hooks/useMovementMutation";
@@ -12,8 +12,8 @@ import type { ResourceMovementFormValues } from "../schemas/resource-movement.sc
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
-function MovementsPageContent() {
-    const authContext = getAuthContextFromToken();
+export function MovementsPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const { toast } = useToast();
@@ -137,25 +137,5 @@ function MovementsPageContent() {
                 </div>
             </div>
         </div>
-    );
-}
-
-export function MovementsPage() {
-    const [queryClient] = useState(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        retry: false,
-                        refetchOnWindowFocus: false,
-                    },
-                },
-            })
-    );
-
-    return (
-        <QueryClientProvider client={queryClient}>
-            <MovementsPageContent />
-        </QueryClientProvider>
     );
 }

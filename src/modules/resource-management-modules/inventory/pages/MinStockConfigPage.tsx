@@ -1,9 +1,9 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Settings2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { MinStockConfigForm } from "../components/MinStockConfigForm";
 import { useMinStockMutation } from "../hooks/useMinStockMutation";
@@ -12,8 +12,8 @@ import type { MinStockConfigFormValues } from "../schemas/min-stock-config.schem
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
-function MinStockConfigPageContent() {
-    const authContext = getAuthContextFromToken();
+export function MinStockConfigPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const { toast } = useToast();
@@ -137,25 +137,5 @@ function MinStockConfigPageContent() {
                 </div>
             </div>
         </div>
-    );
-}
-
-export function MinStockConfigPage() {
-    const [queryClient] = useState(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        retry: false,
-                        refetchOnWindowFocus: false,
-                    },
-                },
-            })
-    );
-
-    return (
-        <QueryClientProvider client={queryClient}>
-            <MinStockConfigPageContent />
-        </QueryClientProvider>
     );
 }

@@ -1,6 +1,6 @@
 ﻿import { useState } from "react";
 import { Settings2, Play, FileText, AlertCircle } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { ProductionRulesPage } from "./ProductionRulesPage";
 import { DailyProductionPage } from "./DailyProductionPage";
 import { ProductionRecordsPage } from "./ProductionRecordsPage";
@@ -93,7 +93,7 @@ export function ProductionMainPage() {
         message: string;
     } | null>(null);
 
-    const authContext = getAuthContextFromToken();
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const handleExecuteJob = async () => {

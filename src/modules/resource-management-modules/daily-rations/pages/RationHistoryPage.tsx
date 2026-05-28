@@ -1,15 +1,14 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { PersonService } from "../../../../services/PersonService";
 import { useRationsQuery } from "../hooks/useRationsQuery";
 import { RationHistoryTable } from "../components/RationHistoryTable";
 
-const queryClient = new QueryClient();
 const personService = new PersonService();
 
-function RationHistoryPageContent() {
-    const authContext = getAuthContextFromToken();
+export function RationHistoryPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
     
     const [statusFilter, setStatusFilter] = useState<'Y' | 'N' | ''>('');
@@ -155,13 +154,5 @@ function RationHistoryPageContent() {
         </div>
             </div>
         </div>
-    );
-}
-
-export function RationHistoryPage() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <RationHistoryPageContent />
-        </QueryClientProvider>
     );
 }

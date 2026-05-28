@@ -1,12 +1,12 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Search } from "lucide-react";
-import { useState } from "react";import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useState } from "react";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { StockFiltersPanel } from "../components/StockFiltersPanel";
 import { StockTable } from "../components/StockTable";
 import { useStockView } from "../hooks/useStockView";
 
-function StockViewContent() {
-    const authContext = getAuthContextFromToken();
+export function StockViewPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const [page, setPage] = useState(1);
@@ -136,26 +136,5 @@ function StockViewContent() {
                 </section>
             </div>
         </div>
-    );
-}
-
-
-export function StockViewPage() {
-    const [queryClient] = useState(
-        () =>
-            new QueryClient({
-                defaultOptions: {
-                    queries: {
-                        retry: false,
-                        refetchOnWindowFocus: false,
-                    },
-                },
-            })
-    );
-
-    return (
-        <QueryClientProvider client={queryClient}>
-            <StockViewContent />
-        </QueryClientProvider>
     );
 }

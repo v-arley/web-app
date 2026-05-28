@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Utensils, ClipboardCheck, History, Play } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { GenerateRationsPage } from "./GenerateRationsPage";
 import { DeliverRationsPage } from "./DeliverRationsPage";
 import { RationHistoryPage } from "./RationHistoryPage";
@@ -15,7 +15,7 @@ export function RationsMainPage() {
     } | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
 
-    const authContext = getAuthContextFromToken();
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const handleGenerateRations = async () => {
@@ -65,7 +65,7 @@ export function RationsMainPage() {
     ];
 
     return (
-            <article className="rmm-scope flex h-full min-h-0 flex-col bg-bg-app overflow-hidden relative">
+            <article className="rmm-scope flex h-full min-h-0 flex-col bg-transparent overflow-hidden relative">
             {/* Corner Brackets */}
             <div className="rmm-bracket rmm-bracket-tl"></div>
             <div className="rmm-bracket rmm-bracket-tr"></div>
@@ -73,7 +73,7 @@ export function RationsMainPage() {
             <div className="rmm-bracket rmm-bracket-br"></div>
 
             {/* Topbar — identity + horizontal nav */}
-            <header className="flex items-stretch border-b border-border-default bg-bg-tertiary shrink-0 z-10">
+            <header className="flex items-stretch border-b border-border-default bg-transparent shrink-0 z-10">
                 {/* Module identity */}
                 <div className="flex items-center gap-3 shrink-0">
                     <div className="w-0.75 self-stretch bg-accent"></div>

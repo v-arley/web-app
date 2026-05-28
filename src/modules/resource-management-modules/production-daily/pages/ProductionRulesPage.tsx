@@ -1,9 +1,9 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Settings2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ProfessionService } from "../../../../services/ProfessionService";
 import { ResourceService } from "../../../../services/ResourceService";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { ProductionRuleForm } from "../components/ProductionRuleForm";
 import { ProductionRulesTable } from "../components/ProductionRulesTable";
 import { useProductionRuleMutation } from "../hooks/useProductionRuleMutation";
@@ -11,12 +11,11 @@ import { useProductionRulesQuery } from "../hooks/useProductionRulesQuery";
 import type { ProductionRuleFormValues } from "../schemas/production-rule.schema";
 import { useToast } from "../../../../shared/hooks/useToast";
 
-const queryClient = new QueryClient();
 const professionService = new ProfessionService();
 const resourceService = new ResourceService();
 
-function ProductionRulesPageContent() {
-    const authContext = getAuthContextFromToken();
+export function ProductionRulesPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const [selectedRule, setSelectedRule] = useState<ProductionRuleFormValues | undefined>(undefined);
@@ -147,13 +146,5 @@ function ProductionRulesPageContent() {
                 </div>
             </div>
         </div>
-    );
-}
-
-export function ProductionRulesPage() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <ProductionRulesPageContent />
-        </QueryClientProvider>
     );
 }

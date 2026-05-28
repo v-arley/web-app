@@ -1,10 +1,10 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PersonService } from "../../../../services/PersonService";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { ProductionAdjustmentForm } from "../components/ProductionAdjustmentForm";
 import { ProductionRecordsTable } from "../components/ProductionRecordsTable";
 import { useProductionRecordMutation } from "../hooks/useProductionRecordMutation";
@@ -13,13 +13,12 @@ import type { ProductionRecordFormValues } from "../schemas/production-record.sc
 import { useToast } from "../../../../shared/hooks/useToast";
 import { useDebounce } from "../../../../shared/hooks/useDebounce";
 
-const queryClient = new QueryClient();
 const personService = new PersonService();
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
 
-function ProductionRecordsPageContent() {
-    const authContext = getAuthContextFromToken();
+export function ProductionRecordsPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
 
     const [personId, setPersonId] = useState<number | undefined>(undefined);
@@ -198,13 +197,5 @@ function ProductionRecordsPageContent() {
                 </div>
             </div>
         </div>
-    );
-}
-
-export function ProductionRecordsPage() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <ProductionRecordsPageContent />
-        </QueryClientProvider>
     );
 }

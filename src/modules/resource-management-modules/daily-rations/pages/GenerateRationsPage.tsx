@@ -1,15 +1,14 @@
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { Utensils } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { ResourceService } from "../../../../services/ResourceService";
 import { RationGenerationPanel } from "../components/RationGenerationPanel";
 
-const queryClient = new QueryClient();
 const resourceService = new ResourceService();
 
-function GenerateRationsPageContent() {
-    const authContext = getAuthContextFromToken();
+export function GenerateRationsPage() {
+    const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
     
     const [rationDate, setRationDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -82,13 +81,5 @@ function GenerateRationsPageContent() {
         </div>
             </div>
         </div>
-    );
-}
-
-export function GenerateRationsPage() {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <GenerateRationsPageContent />
-        </QueryClientProvider>
     );
 }
