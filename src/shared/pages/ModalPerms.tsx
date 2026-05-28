@@ -8,13 +8,13 @@ interface ModalPermsProps {
 }
 
 const AVAILABLE_PERMS = [
-    { id: "P-001", resource: "Users", action: "CREATE" },
-    { id: "P-002", resource: "Users", action: "READ" },
-    { id: "P-003", resource: "Settings", action: "UPDATE" },
-    { id: "P-004", resource: "Inventory", action: "DELETE" },
-    { id: "P-005", resource: "Inventory", action: "READ" },
-    { id: "P-006", resource: "Inventory", action: "UPDATE" },
-    { id: "P-007", resource: "Alerts", action: "READ" },
+    { id: "P-001", resource: "Users",       action: "CREATE"    },
+    { id: "P-002", resource: "Users",       action: "READ"      },
+    { id: "P-003", resource: "Settings",    action: "UPDATE"    },
+    { id: "P-004", resource: "Inventory",   action: "DELETE"    },
+    { id: "P-005", resource: "Inventory",   action: "READ"      },
+    { id: "P-006", resource: "Inventory",   action: "UPDATE"    },
+    { id: "P-007", resource: "Alerts",      action: "READ"      },
 ];
 
 export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {

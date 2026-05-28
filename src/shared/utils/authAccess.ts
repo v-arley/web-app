@@ -1,42 +1,64 @@
 import type { DashboardSection } from "../hooks/useDashboardNav";
 
 export type AppRole =
-  | "ADMIN_GLOBAL"
-  | "ADMIN_CAMP"
-  | "WORKER"
-  | "RES_MANAGER"
-  | "EXPLORATOR_LEADER";
+  | "SYSTEM_ADMIN"
+  | "CAMP_ADMIN"
+  | "RESOURCE_MANAGER"
+  | "EXPEDITION_LEADER"
+  | "WORKER";
 
-export const SYSTEM_ADMIN_ROLES = ["SYSTEM_ADMINISTRATOR", "GLOBAL_ADMIN"] as const;
-export const CAMP_ADMIN_ROLES = ["CAMP_ADMINISTRATOR", "CAMP_ADMIN"] as const;
+export const SYSTEM_ADMIN_ROLES = ["SYSTEM_ADMIN"] as const;
+export const CAMP_ADMIN_ROLES = ["CAMP_ADMIN"] as const;
 
 const ROLE_ALIASES: Record<string, AppRole> = {
-  SYSTEM_ADMINISTRATOR: "ADMIN_GLOBAL",
-  GLOBAL_ADMIN: "ADMIN_GLOBAL",
-  ADMIN_GLOBAL: "ADMIN_GLOBAL",
-  CAMP_ADMINISTRATOR: "ADMIN_CAMP",
-  CAMP_ADMIN: "ADMIN_CAMP",
-  ADMIN_CAMP: "ADMIN_CAMP",
+  // SYSTEM_ADMIN
+  SYSTEM_ADMIN: "SYSTEM_ADMIN",
+  SYSTEM_ADMINISTRATOR: "SYSTEM_ADMIN",
+  GLOBAL_ADMIN: "SYSTEM_ADMIN",
+  ADMIN_GLOBAL: "SYSTEM_ADMIN",
+  // CAMP_ADMIN
+  CAMP_ADMIN: "CAMP_ADMIN",
+  CAMP_ADMINISTRATOR: "CAMP_ADMIN",
+  ADMIN_CAMP: "CAMP_ADMIN",
+  // RESOURCE_MANAGER
+  RESOURCE_MANAGER: "RESOURCE_MANAGER",
+  RES_MANAGER: "RESOURCE_MANAGER",
+  // EXPEDITION_LEADER
+  EXPEDITION_LEADER: "EXPEDITION_LEADER",
+  EXPLORATION_LEADER: "EXPEDITION_LEADER",
+  EXPLORATOR_LEADER: "EXPEDITION_LEADER",
+  EXPLORATION: "EXPEDITION_LEADER",
+  // WORKER
   WORKER: "WORKER",
-  RES_MANAGER: "RES_MANAGER",
-  RESOURCE_MANAGER: "RES_MANAGER",
-  EXPLORATOR_LEADER: "EXPLORATOR_LEADER",
-  EXPEDITION_LEADER: "EXPLORATOR_LEADER",
-  EXPLORATION_LEADER: "EXPLORATOR_LEADER",
-  EXPLORATION: "EXPLORATOR_LEADER",
 };
 
 const SECTION_ACCESS_BY_ROLE: Record<AppRole, string[]> = {
-  // Pendiente de definir completamente. Se deja una superficie administrativa provisional.
-  ADMIN_GLOBAL: [
+  // Registrar aquí las vistas a las que puede acceder.
+  // Keys disponibles (ver section-registry.tsx → SECTION_CONFIGS):
+  //   dashboard | explorations | users | requests | inventory | warehouse
+  //   camp | settings | worker-profile | worker-achievements | worker-tasks
+  //   worker-production | worker-rations | worker-explorations
+  //   catalog-resources | catalog-professions | catalog-achievements
+  //   create-camp | global-dashboard
+  //   resource-dashboard | inventory-main | stock-alerts | production | rations | inter-camp
+
+  SYSTEM_ADMIN: [
     "global-dashboard",
     "create-camp",
-    "catalog-resources",
+    // "catalog-resources",  → revisar estilo de tabla
     "catalog-professions",
     "catalog-achievements",
-    "settings",
   ],
-  ADMIN_CAMP: ["dashboard", "users", "settings"],
+  CAMP_ADMIN: ["dashboard", "users", "settings"],
+  RESOURCE_MANAGER: [
+    "resource-dashboard",
+    "inventory-main",
+    "stock-alerts",
+    "production",
+    "rations",
+    "inter-camp",
+  ],
+  EXPEDITION_LEADER: ["explorations"],
   WORKER: [
     "worker-profile",
     "worker-achievements",
@@ -45,15 +67,6 @@ const SECTION_ACCESS_BY_ROLE: Record<AppRole, string[]> = {
     "worker-rations",
     "worker-explorations",
   ],
-  RES_MANAGER: [
-    "resource-dashboard",
-    "inventory-main",
-    "stock-alerts",
-    "production",
-    "rations",
-    "inter-camp",
-  ],
-  EXPLORATOR_LEADER: ["explorations"],
 };
 
 
@@ -110,11 +123,11 @@ function getAppRoleFromProfession(profession: unknown): AppRole {
   const normalizedProfession = normalizeProfession(profession);
 
   if (normalizedProfession === "resource_manager") {
-    return "RES_MANAGER";
+    return "RESOURCE_MANAGER";
   }
 
   if (normalizedProfession === "expedition_leader") {
-    return "EXPLORATOR_LEADER";
+    return "EXPEDITION_LEADER";
   }
 
   return "WORKER";

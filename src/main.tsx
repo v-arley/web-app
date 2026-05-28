@@ -4,23 +4,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import AppProviders from './shared/app/AppProviders'
 import './index.css'
-//import App from './App.tsx'
 
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
-  // <StrictMode>
-  //   <App />
-  // </StrictMode>,
-
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AppProviders />
-    </QueryClientProvider>
-  </StrictMode>,
-
-  // <StrictMode>
-  //   <AppProviders />
-  // </StrictMode>,
+    
+    <StrictMode>
+        <QueryClientProvider client={queryClient}>
+            <AppProviders />
+        </QueryClientProvider>
+    </StrictMode>,
 
 )

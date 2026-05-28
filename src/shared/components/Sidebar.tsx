@@ -1,17 +1,17 @@
-﻿import { Droplets } from "lucide-react";
+﻿// import { Droplets } from "lucide-react";
 import { useNavigation } from "../app/NavigationContext";
 import { SidebarButton } from "./SidebarButton";
 
 const SECTION_GROUPS: Array<{ label: string; keys: string[] }> = [
-    { label: "MAIN",   keys: [] },
+    { label: "",   keys: [] },
     //{ label: "OPERACIONES", keys: ["dashboard", "users", "requests", "camp", "explorations"] },
-    { label: "OPERACIONES", keys: ["dashboard", "users"] },
+    { label: "", keys: ["dashboard", "users"] },
     // { label: "RECURSOS",    keys: ["inventory", "warehouse"] },
-    { label: "EXPLORATION",    keys: ["explorations"] },
-    { label: "R. AVANZADO", keys: ["resource-dashboard", "inventory-main", "stock-alerts", "production", "rations", "inter-camp"] },
+    { label: "",    keys: ["explorations"] },
+    { label: "", keys: ["resource-dashboard", "inventory-main", "stock-alerts", "production", "rations", "inter-camp"] },
     // { label: "CATALOGOS",   keys: ["catalog-resources", "catalog-professions", "catalog-achievements"] },
-    { label: "ADMIN",       keys: ["global-dashboard", "create-camp", "settings", "catalog-resources", "catalog-professions", "catalog-achievements"] },
-    { label: "MI CUENTA",   keys: ["worker-profile", "worker-achievements", "worker-tasks", "worker-production", "worker-rations", "worker-explorations"] },
+    { label: "",       keys: ["global-dashboard", "create-camp", "settings", "catalog-resources", "catalog-professions", "catalog-achievements"] },
+    { label: "",   keys: ["worker-profile", "worker-achievements", "worker-tasks", "worker-production", "worker-rations", "worker-explorations"] },
 ];
 
 export default function Sidebar() {
@@ -32,7 +32,7 @@ export default function Sidebar() {
             </div> */}
 
             <div className="sidebar-content">
-                {SECTION_GROUPS.map((group) => {
+                {SECTION_GROUPS.map((group, idx) => {
                     const groupSections = group.keys
                         .map((key) => sectionMap.get(key))
                         .filter(Boolean) as typeof sections;
@@ -40,7 +40,7 @@ export default function Sidebar() {
                     if (groupSections.length === 0) return null;
 
                     return (
-                        <nav key={group.label} className="nav-group">
+                        <nav key={idx} className="nav-group">
                             <p className="eyebrow">{group.label}</p>
                             {groupSections.map((section) => (
                                 <SidebarButton

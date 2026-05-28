@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../app/router";
+import { ROUTES } from "../../router/routes";
 import { useNavigation } from "../app/NavigationContext";
 import { getRoleLabel } from "../utils/authAccess";
 import { useAuth } from "../app/AuthContext";
@@ -74,13 +74,15 @@ export default function Header() {
                         Date: <strong>{formatDate(currentDate)}</strong>
                     </span>
                 </div>
-                <div className="topbar-status">
-                    <div className="status-dot online" />
-                    <span>Online</span>
+                <div className="flex flex-col justify-center items-center">
+                    <div className="topbar-status">
+                        <div className="status-dot online" />
+                        <span>Online</span>
+                    </div>
+                    <button className="logout-btn" onClick={handleLogout}>
+                        [ Log Out ]
+                    </button>
                 </div>
-                <button className="logout-btn" onClick={handleLogout}>
-                    [ Log Out ]
-                </button>
             </div>
         </header>
     );

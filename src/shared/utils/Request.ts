@@ -1,3 +1,4 @@
+import { API_ACTIVITY_EVENT } from "../hooks/useInactivityTimeout";
 
 type Primitive = string | number | boolean;
 
@@ -96,7 +97,7 @@ export class Request {
         return (this.responseData as T) ?? null;
     }
 
-    private async request(method: string, body?: unknown): Promise<void> {
+    private async request(method: string, body?: unknown, isRetry = false): Promise<void> {
         this.response = null;
         this.responseData = null;
         this.errorMessage = null;
@@ -116,7 +117,18 @@ export class Request {
         }
 
         try {
+            window.dispatchEvent(new CustomEvent(API_ACTIVITY_EVENT));
             this.response = await fetch(this.url, options);
+
+            // Refresh automático ante 401: intenta renovar el token y reintenta la solicitud.
+            // Si el refresh también falla, notifica al AuthContext para que invalide la sesión.
+            if (this.response.status === 401 && !isRetry) {
+                const refreshed = await this.tryRefresh();
+                if (refreshed) {
+                    return this.request(method, body, true);
+                }
+                window.dispatchEvent(new CustomEvent("auth:session-expired"));
+            }
 
             const contentType = this.response.headers.get("content-type") ?? "";
 
@@ -135,6 +147,21 @@ export class Request {
             this.errorMessage =
                 error instanceof Error ? error.message : "Error desconocido en la petición";
             throw error;
+        }
+    }
+
+    private async tryRefresh(): Promise<boolean> {
+        try {
+            // Se incluye Content-Type explícito para pasar el middleware de validación del backend
+            // que rechaza con 415 los POST sin Content-Type declarado.
+            const res = await fetch(this.joinUrl(this.baseUrl, "/auth/refresh"), {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            });
+            return res.ok;
+        } catch {
+            return false;
         }
     }
 

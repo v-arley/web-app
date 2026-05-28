@@ -2,6 +2,8 @@ import { useState, useCallback, type ReactNode } from "react";
 
 export type DashboardSection = {
     key: string;
+    /** Ruta absoluta en el navegador, ej. "/app/dashboard" */
+    path: string;
     label: string;
     icon?: ReactNode;
     component: () => ReactNode;

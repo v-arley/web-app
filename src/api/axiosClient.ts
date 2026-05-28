@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_ACTIVITY_EVENT } from "../shared/hooks/useInactivityTimeout";
 
 /**
  * Instancia centralizada de Axios.
@@ -13,17 +14,28 @@ const axiosClient = axios.create({
     },
 });
 
+// Interceptor de Request: señaliza actividad de red para reiniciar el contador de inactividad
+axiosClient.interceptors.request.use((config) => {
+    window.dispatchEvent(new CustomEvent(API_ACTIVITY_EVENT));
+    return config;
+});
+
 // Interceptor de Response: refresco silencioso del access_token ante 401
 axiosClient.interceptors.response.use(
     (res) => res,
     async (err) => {
         const originalRequest = err.config;
 
-        if (err.response?.status === 401 && !originalRequest._retry) {
+        // No intentar refrescar si la petición fallida ES el endpoint de refresh
+        // (evita loop infinito y falsos positivos de sesión expirada).
+        const isRefreshRequest = originalRequest?.url === "/auth/refresh";
+
+        if (err.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
             originalRequest._retry = true;
             try {
-                // El backend lee refresh_token de la cookie y devuelve un nuevo access_token como cookie
-                await axiosClient.post("/auth/refresh");
+                // El backend lee refresh_token de la cookie y devuelve un nuevo access_token como cookie.
+                // Se pasa {} como body para que Axios NO elimine el header Content-Type (lo hace cuando data es undefined).
+                await axiosClient.post("/auth/refresh", {});
                 return axiosClient(originalRequest);
             } catch (refreshError) {
                 // Notifica a AuthContext para que invalide el estado sin recargar la página.

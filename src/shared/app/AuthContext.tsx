@@ -8,7 +8,6 @@ import {
 } from "react";
 import type { AuthContext as UserInfo } from "../utils/authAccess";
 import { AuthService } from "../../services/AuthService";
-import { useInactivityTimeout } from "../hooks/useInactivityTimeout";
 
 // Types :::
 
@@ -81,19 +80,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => window.removeEventListener("auth:session-expired", handleSessionExpired);
     }, []);
 
-    // Cierre automático por inactividad :::
-    // Solo activo cuando el usuario está autenticado en esta pestaña.
-    // Tras 5 minutos sin actividad (mouse, teclado, scroll, touch) cierra la
-    // sesión en el backend y redirige al login vía cambio de estado de React.
-    useInactivityTimeout(
-        useCallback(async () => {
-            sessionStorage.removeItem(TAB_SESSION_KEY);
-            await authService.logout().catch(() => {});
-            setState({ user: null, isAuthenticated: false, isLoading: false });
-        }, []),
-        state.isAuthenticated,
-    );
-
     const login = useCallback(async (username: string, password: string) => {
         const user = await authService.login(username, password);
         // Marca esta pestaña como autenticada. Las pestañas nuevas no heredarán este marcador.
@@ -102,9 +88,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const logout = useCallback(async () => {
-        await authService.logout();
-        sessionStorage.removeItem(TAB_SESSION_KEY);
-        setState({ user: null, isAuthenticated: false, isLoading: false });
+        try {
+            await authService.logout();
+        } finally {
+            // Asegura expulsión local incluso si el backend no responde.
+            sessionStorage.removeItem(TAB_SESSION_KEY);
+            setState({ user: null, isAuthenticated: false, isLoading: false });
+        }
     }, []);
 
     return (

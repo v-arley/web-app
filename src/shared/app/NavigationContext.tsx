@@ -7,6 +7,7 @@ import {
     useState,
     type ReactNode,
 } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { Camp } from "../../models/Camp";
 import { CampService } from "../../services/CampService";
 import type { DashboardSection } from "../hooks/useDashboardNav";
@@ -32,6 +33,9 @@ const campSvc = new CampService();
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth();
+    const routerNavigate = useNavigate();
+    const location = useLocation();
+
     const authContext: AuthContext = useMemo(
         () => user ?? { name: "", roles: [] },
         [user],
@@ -41,19 +45,31 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         () => getAvailableSections(SECTIONS, authContext),
         [authContext],
     );
-    const [activeKey, setActiveKey] = useState(
-        () => availableSections[0]?.key ?? "",
-    );
 
-    // Cuando cambia el conjunto de secciones disponibles (login / cambio de rol),
-    // resetea la sección activa a la primera del nuevo conjunto si la actual ya no existe.
+    // activeKey derivado de la URL actual :::
+    const activeKey = useMemo(() => {
+        const matched = availableSections.find(
+            (s) =>
+                location.pathname === s.path ||
+                location.pathname.startsWith(s.path + "/"),
+        );
+        return matched?.key ?? availableSections[0]?.key ?? "";
+    }, [location.pathname, availableSections]);
+
+    // Redirige a la primera sección accesible si la URL actual no lo está :::
     useEffect(() => {
         if (availableSections.length === 0) return;
-        const stillAvailable = availableSections.some((s) => s.key === activeKey);
-        if (!stillAvailable) {
-            setActiveKey(availableSections[0].key);
+        const accessible = availableSections.some(
+            (s) =>
+                location.pathname === s.path ||
+                location.pathname.startsWith(s.path + "/"),
+        );
+        if (!accessible) {
+            routerNavigate(availableSections[0].path, { replace: true });
         }
-    }, [availableSections, activeKey]);
+    }, [location.pathname, availableSections, routerNavigate]);
+
+    // Campo de campamento activo :::
     const [activeCamp, setActiveCamp] = useState<Camp | null>(null);
 
     useEffect(() => {
@@ -72,13 +88,18 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
             .catch(() => {});
     }, [authContext.campId]);
 
-    const navigate = useCallback((key: string) => {
-        setActiveKey(key);
-    }, []);
+    // navigate(key) → cambia la URL a la ruta de la sección :::
+    const navigate = useCallback(
+        (key: string) => {
+            const section = availableSections.find((s) => s.key === key);
+            if (section) {
+                routerNavigate(section.path);
+            }
+        },
+        [availableSections, routerNavigate],
+    );
 
-    const activeSection =
-        availableSections.find((s) => s.key === activeKey) ??
-        availableSections[0];
+    const activeSection = availableSections.find((s) => s.key === activeKey);
 
     return (
         <NavigationContext.Provider

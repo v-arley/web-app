@@ -99,3 +99,7 @@ export const InterCampMainPage = lazy(() =>
         default: m.InterCampMainPage,
     })),
 );
+
+export const NotFoundPage = lazy(() =>
+    import("../components/$404").then((m) => ({ default: m.default })),
+);

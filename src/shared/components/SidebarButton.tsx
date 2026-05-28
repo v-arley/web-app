@@ -8,22 +8,21 @@ type SidebarButtonProps = {
 };
 
 export function SidebarButton({ label, icon, active = false, onClick }: SidebarButtonProps) {
-    const base = "w-full text-left transition-all font-mono text-[13px] uppercase tracking-[0.2em] py-4 px-6 relative flex items-center group";
-
-    const activeClass = "text-txt-primary bg-bg-selected";
-    const inactiveClass = "text-txt-secondary hover:bg-bg-tertiary hover:text-txt-primary";
+    const buttonClass = `sidebar-button ${active ? "is-active" : "is-idle"}`;
 
     return (
         <button
-            className={`${base} ${active ? activeClass : inactiveClass}`}
+            type="button"
+            className={buttonClass}
             onClick={onClick}
+            aria-current={active ? "page" : undefined}
         >
             {icon && (
-                <span className={`mr-6 ${active ? 'text-accent' : 'text-txt-disabled group-hover:text-txt-primary'} transition-colors`}>
+                <span className="sidebar-button-icon">
                     {icon}
                 </span>
             )}
-            {label}
+            <span className="sidebar-button-label">{label}</span>
         </button>
     );
 }
