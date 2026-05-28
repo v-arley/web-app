@@ -20,10 +20,10 @@ const sectionRoutes = SECTIONS.map((section) => ({
 
 // Definición del router :::
 export const router = createBrowserRouter([
-    // Raíz → redirige siempre al dashboard (RequireTemporalUser gestiona auth)
+    // Raíz → redirige a login. PublicGuard redirige al dashboard si ya hay sesión activa.
     {
         path: "/",
-        element: <Navigate to={ROUTES.DASHBOARD} replace />,
+        element: <Navigate to={ROUTES.LOGIN} replace />,
     },
     // Rutas públicas: si el usuario ya tiene sesión, PublicGuard lo redirige a /app
     {
@@ -64,10 +64,10 @@ export const router = createBrowserRouter([
             },
         ],
     },
-    // Ruta completamente desconocida (fuera de /app) → redirige al dashboard
+    // Ruta desconocida fuera de /app → redirige a login
     {
         path: "*",
-        element: <Navigate to={ROUTES.DASHBOARD} replace />,
+        element: <Navigate to={ROUTES.LOGIN} replace />,
     },
 ]);
 
