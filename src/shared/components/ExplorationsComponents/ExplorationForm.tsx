@@ -108,10 +108,8 @@ export default function ExplorationForm({
             camp_id: campId,
             code: code.trim(),
             name: name.trim(),
-            departure_date: buildDate(departureDate),
-            estimated_return_date: estimatedReturnDate
-                ? buildDate(estimatedReturnDate)
-                : undefined,
+            departure_date: departureDate,
+            estimated_return_date: estimatedReturnDate || undefined,
             duration_days: durationDays,
             state: isEditMode ? state : "P",
             objective: objective.trim(),

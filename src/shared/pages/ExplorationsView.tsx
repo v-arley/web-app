@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Binoculars } from "lucide-react";
 
 import ExplorationStats from "../components/ExplorationsComponents/ExplorationStats";
 import ExplorationFilters from "../components/ExplorationsComponents/ExplorationFilters";
@@ -83,10 +82,18 @@ export function ExplorationsView() {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5;
+
     const [stateAction, setStateAction] = useState<{
         exploration: ExplorationRow;
         newState: "A" | "F" | "C";
     } | null>(null);
+
+    const currentCampId =
+        authContext.campId ??
+        selectedExploration?.camp_id ??
+        explorations[0]?.camp_id;
 
     const loadExplorations = useCallback(async () => {
         setLoading(true);
@@ -275,6 +282,21 @@ export function ExplorationsView() {
         });
     }, [explorations, search, riskFilter, stateFilter]);
 
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(filteredExplorations.length / pageSize),
+    );
+
+    const safeCurrentPage = Math.min(currentPage, totalPages);
+
+    const paginatedExplorations = useMemo(() => {
+        const startIndex = (safeCurrentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+
+        return filteredExplorations.slice(startIndex, endIndex);
+    }, [filteredExplorations, safeCurrentPage]);
+
     const activeCount = explorations.filter(
         (exploration) => exploration.state === "A",
     ).length;
@@ -298,9 +320,18 @@ export function ExplorationsView() {
                             search={search}
                             riskFilter={riskFilter}
                             stateFilter={stateFilter}
-                            onSearchChange={setSearch}
-                            onRiskFilterChange={setRiskFilter}
-                            onStateFilterChange={setStateFilter}
+                            onSearchChange={(value) => {
+                                setSearch(value);
+                                setCurrentPage(1);
+                            }}
+                            onRiskFilterChange={(value) => {
+                                setRiskFilter(value);
+                                setCurrentPage(1);
+                            }}
+                            onStateFilterChange={(value) => {
+                                setStateFilter(value);
+                                setCurrentPage(1);
+                            }}
                             onCreateClick={() => {
                                 setSuccessMessage("");
                                 setErrorMessage("");
@@ -311,7 +342,7 @@ export function ExplorationsView() {
                         {showCreateForm && (
                             <ExplorationForm
                                 mode="create"
-                                campId={authContext.campId}
+                                campId={currentCampId}
                                 saving={saving}
                                 onCancel={() => setShowCreateForm(false)}
                                 onSubmit={handleCreateExploration}
@@ -321,7 +352,7 @@ export function ExplorationsView() {
                         {editingExploration && (
                             <ExplorationForm
                                 mode="edit"
-                                campId={authContext.campId}
+                                campId={editingExploration.camp_id ?? currentCampId}
                                 saving={saving}
                                 initialData={editingExploration}
                                 onCancel={() => setEditingExploration(null)}
@@ -353,7 +384,7 @@ export function ExplorationsView() {
 
                                     <ExplorationPeoplePanel
                                         selectedExploration={selectedExploration}
-                                        campId={authContext.campId}
+                                        campId={currentCampId}
                                     />
                                 </div>
                             </div>
@@ -438,11 +469,6 @@ export function ExplorationsView() {
                             </div>
                         )}
 
-                        <div className="flex w-full items-center gap-[10px] border-b border-[#B8B8B8] px-3 py-2 text-[#343434] shadow-[0_10px_8px_-8px_rgba(0,0,0,0.45)]">
-                            <Binoculars className="h-8 w-8 rounded-md bg-[#A6A6A6] p-1 text-[#343434]" />
-                            <p>LISTA GENERAL DE EXPLORACIONES</p>
-                        </div>
-
                         {loading && (
                             <div className="rounded-xl bg-[#1A1A1A] p-6 text-sm uppercase tracking-[0.2em] text-[#A6A6A6]">
                                 Cargando exploraciones...
@@ -457,9 +483,13 @@ export function ExplorationsView() {
 
                         {!loading && !errorMessage && (
                             <ExplorationsTable
-                                explorations={filteredExplorations}
+                                explorations={paginatedExplorations}
                                 selectedExploration={selectedExploration}
                                 onSelectExploration={setSelectedExploration}
+                                currentPage={safeCurrentPage}
+                                totalPages={totalPages}
+                                totalItems={filteredExplorations.length}
+                                onPageChange={setCurrentPage}
                             />
                         )}
                     </div>
