@@ -4,6 +4,7 @@ import { router } from "./router";
 import { SharedModalProvider } from "../components/SharedModal";
 import { ToastProvider } from "../components/Toast";
 import { AuthProvider } from "./AuthContext";
+import { NotificationProvider } from "./NotificationProvider";
 
 const queryClient = new QueryClient();
 
@@ -12,9 +13,11 @@ export default function AppProviders() {
         <QueryClientProvider client={queryClient}>
             <AuthProvider>
                 <ToastProvider>
-                    <SharedModalProvider>
-                        <RouterProvider router={router} />
-                    </SharedModalProvider>
+                    <NotificationProvider>
+                        <SharedModalProvider>
+                            <RouterProvider router={router} />
+                        </SharedModalProvider>
+                    </NotificationProvider>
                 </ToastProvider>
             </AuthProvider>
         </QueryClientProvider>

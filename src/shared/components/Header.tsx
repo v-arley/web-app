@@ -4,6 +4,7 @@ import { ROUTES } from "../../router/routes";
 import { useNavigation } from "../app/NavigationContext";
 import { getRoleLabel } from "../utils/authAccess";
 import { useAuth } from "../app/AuthContext";
+import { NotificationBell } from "./NotificationBell";
 
 export default function Header() {
     const { authContext, activeCamp } = useNavigation();
@@ -64,8 +65,9 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* Right: clock, status, logout */}
+            {/* Right: notifications, clock, status, logout */}
             <div className="topbar-right">
+                <NotificationBell />
                 <div className="topbar-clock">
                     <span>
                         Time: <strong>{formatTime(currentDate)}</strong>
