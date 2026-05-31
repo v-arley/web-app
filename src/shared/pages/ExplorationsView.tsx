@@ -81,6 +81,7 @@ export function ExplorationsView() {
     const [showResourcesPanel, setShowResourcesPanel] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [startValidationMessage, setStartValidationMessage] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
@@ -385,6 +386,7 @@ export function ExplorationsView() {
                                     <ExplorationPeoplePanel
                                         selectedExploration={selectedExploration}
                                         campId={currentCampId}
+                                        onChanged={loadExplorations}
                                     />
                                 </div>
                             </div>
@@ -414,6 +416,7 @@ export function ExplorationsView() {
 
                                     <ExplorationResourcesPanel
                                         selectedExploration={selectedExploration}
+                                        onChanged={loadExplorations}
                                     />
                                 </div>
                             </div>
@@ -492,6 +495,34 @@ export function ExplorationsView() {
                                 onPageChange={setCurrentPage}
                             />
                         )}
+
+                        {startValidationMessage && (
+                            <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/70 px-4">
+                                <div className="w-full max-w-md rounded-xl border border-[#FF6600]/50 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#FF6600]">
+                                        Validación de exploración
+                                    </p>
+
+                                    <h3 className="mt-2 text-xl font-bold">
+                                        No se puede iniciar
+                                    </h3>
+
+                                    <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
+                                        {startValidationMessage}
+                                    </p>
+
+                                    <div className="mt-6 flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => setStartValidationMessage("")}
+                                            className="border border-[#FF6600] bg-[#FF6600] px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600]"
+                                        >
+                                            Entendido
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -528,6 +559,33 @@ export function ExplorationsView() {
                         setEditingExploration(null);
                         setShowPeoplePanel(false);
                         setShowResourcesPanel(false);
+
+                        if (newState === "A") {
+                            const peopleCount = exploration.people_count ?? 0;
+                            const resourceCount = exploration.resource_count ?? 0;
+
+                            if (peopleCount === 0 && resourceCount === 0) {
+                                setStartValidationMessage(
+                                    "No se puede iniciar la exploración porque no tiene personas ni recursos objetivo asignados.",
+                                );
+                                return;
+                            }
+
+                            if (peopleCount === 0) {
+                                setStartValidationMessage(
+                                    "No se puede iniciar la exploración porque no tiene personas asignadas.",
+                                );
+                                return;
+                            }
+
+                            if (resourceCount === 0) {
+                                setStartValidationMessage(
+                                    "No se puede iniciar la exploración porque no tiene recursos objetivo asignados.",
+                                );
+                                return;
+                            }
+                        }
+
                         setStateAction({
                             exploration,
                             newState,

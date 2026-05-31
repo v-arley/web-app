@@ -10,6 +10,7 @@ import { PersonExplorationService } from "../../../services/PersonExplorationSer
 type Props = {
     selectedExploration: ExplorationRow | null;
     campId?: number;
+    onChanged?: () => Promise<void> | void;
 };
 
 type AssignedPerson = {
@@ -36,6 +37,7 @@ function getPersonName(person?: Person | null) {
 export default function ExplorationPeoplePanel({
     selectedExploration,
     campId,
+    onChanged,
 }: Props) {
     const [people, setPeople] = useState<Person[]>([]);
     const [assignments, setAssignments] = useState<PersonExploration[]>([]);
@@ -150,6 +152,7 @@ export default function ExplorationPeoplePanel({
         if (selectedExploration?.id) {
             await loadData(selectedExploration.id);
         }
+        await onChanged?.();
         setSaving(false);
     };
 
@@ -178,7 +181,7 @@ export default function ExplorationPeoplePanel({
         if (selectedExploration?.id) {
             await loadData(selectedExploration.id);
         }
-
+        await onChanged?.();
         setSaving(false);
     };
 
