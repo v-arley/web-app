@@ -700,7 +700,7 @@ body {
   flex-direction: column;
 }
 /* --------------------------------------------------------------------------
-   NotificationBell — estilos
+  NotificationBell - estilos
    ------------------------------------------------------------------------ */
 
 .notif-bell-wrapper {
@@ -731,7 +731,7 @@ body {
   height: 20px;
 }
 
-/* Badge numérico */
+/* Badge numï¿½rico */
 .notif-badge {
   position: absolute;
   top: 0;
@@ -752,7 +752,7 @@ body {
   pointer-events: none;
 }
 
-/* Punto de estado de conexión en vivo */
+/* Punto de estado de conexiï¿½n en vivo */
 .notif-live-dot {
   position: absolute;
   bottom: 2px;
@@ -833,7 +833,7 @@ body {
   color: var(--color-txt-disabled, #6B7280);
 }
 
-/* Ítem individual */
+/* ï¿½tem individual */
 .notif-item {
   display: block;
   width: 100%;
