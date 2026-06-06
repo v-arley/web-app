@@ -79,7 +79,7 @@ function RationStatusBadge({ ration }: { ration: Ration }) {
           : "bg-[#E85D04]/10 border-[#E85D04]/60 text-[#E85D04]"
       }`}
     >
-      {delivered ? "Entregada" : "Pendiente"}
+      {delivered ? "Delivered" : "Pending"}
     </span>
   );
 }
@@ -116,7 +116,7 @@ export function WorkerRationsView() {
       <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-6 py-3 flex items-center justify-between shrink-0">
         <div className="flex flex-col">
           <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label">
-            Raciones
+            Rations
           </span>
           <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label">
             Worker ration assignment / supply registry
@@ -146,13 +146,13 @@ export function WorkerRationsView() {
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-[#3a3a3a] pb-4 mb-5">
               <div>
                 <span className="text-[10px] text-[#6B7280] font-mono tracking-label block uppercase">
-                  Latest assigned allowance // asignación reciente
+                  Latest assigned allowance // recent assignment
                 </span>
 
                 <h2 className="text-lg font-mono font-bold text-white uppercase flex items-center gap-2 mt-1">
                   <ShoppingBag className="text-[#E85D04]" size={20} />
                   <span>
-                    Ración del turno: {formatDate(getRationDate(currentRation))}
+                    Shift ration: {formatDate(getRationDate(currentRation))}
                   </span>
                 </h2>
               </div>
@@ -166,18 +166,18 @@ export function WorkerRationsView() {
               </div>
             ) : !currentRation ? (
               <div className="border border-[#FACC15]/40 bg-[#FACC15]/10 p-4 text-[#FACC15] font-mono text-xs uppercase tracking-label">
-                No hay ración actual asignada.
+                No current ration assigned.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs text-[#C0C0C0]">
                 <div className="md:col-span-2 space-y-3">
                   <h4 className="text-[#C0C0C0] text-xs uppercase tracking-label font-bold">
-                    Recursos incluidos
+                    Included resources
                   </h4>
 
                   {currentResources.length === 0 ? (
                     <div className="border border-[#3a3a3a] bg-[#111111] p-4 text-[#6B7280] uppercase tracking-label">
-                      No hay recursos asociados a esta ración.
+                      No resources are associated with this ration.
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -195,7 +195,7 @@ export function WorkerRationsView() {
                   <div className="space-y-3">
                     <div>
                       <span className="text-[#6B7280] block text-[10px] uppercase mb-1">
-                        Estado
+                        Status
                       </span>
 
                       <div className="flex items-center gap-2 text-white">
@@ -205,14 +205,14 @@ export function WorkerRationsView() {
                           <Clock size={15} className="text-[#E85D04]" />
                         )}
                         {isDelivered(currentRation)
-                          ? "Entregada"
-                          : "Pendiente de entrega"}
+                          ? "Delivered"
+                          : "Pending delivery"}
                       </div>
                     </div>
 
                     <div>
                       <span className="text-[#6B7280] block text-[10px] uppercase mb-1">
-                        Campamento
+                        Camp
                       </span>
 
                       <span className="text-[#38BDF8]">
@@ -225,11 +225,11 @@ export function WorkerRationsView() {
 
                     <div>
                       <span className="text-[#6B7280] block text-[10px] uppercase mb-1">
-                        Notas
+                        Notes
                       </span>
 
                       <p className="text-xs text-[#C0C0C0] leading-relaxed">
-                        {currentRation.notes || "Sin notas registradas."}
+                        {currentRation.notes || "No notes recorded."}
                       </p>
                     </div>
                   </div>
@@ -237,7 +237,7 @@ export function WorkerRationsView() {
                   <div className="pt-3 border-t border-[#3a3a3a] mt-3 text-[10px] text-[#6B7280] flex items-start gap-2">
                     <Info size={14} className="text-[#E85D04] shrink-0" />
                     <span>
-                      Esta vista solo muestra el estado de la ración asignada.
+                      This view only shows the status of the assigned ration.
                     </span>
                   </div>
                 </div>
@@ -250,19 +250,19 @@ export function WorkerRationsView() {
               <div className="flex items-center gap-2">
                 <Calendar size={18} className="text-[#E85D04]" />
                 <h3 className="font-mono text-xs font-bold text-white uppercase tracking-label">
-                  Historial de suministros
+                  Supply history
                 </h3>
               </div>
 
               <span className="font-mono text-xs text-[#6B7280] uppercase">
-                Registro total: {history.total}
+                Total records: {history.total}
               </span>
             </div>
 
             <div className="divide-y divide-[#3a3a3a]">
               {history.items.length === 0 && (
                 <div className="p-8 text-center text-[#6B7280] font-mono text-xs uppercase tracking-label">
-                  No hay historial de raciones.
+                  No ration history available.
                 </div>
               )}
 
@@ -289,14 +289,14 @@ export function WorkerRationsView() {
                       </div>
 
                       <p className="text-[#6B7280] text-xs">
-                        {item.notes || "Sin notas registradas."}
+                        {item.notes || "No notes recorded."}
                       </p>
                     </div>
 
                     <div className="shrink-0 flex items-center md:justify-end flex-wrap gap-2 max-w-xl">
                       {resources.length === 0 ? (
                         <span className="px-2 py-1 bg-[#111111] border border-[#3a3a3a] text-[#6B7280] text-[11px] uppercase">
-                          Sin recursos
+                          No resources
                         </span>
                       ) : (
                         resources.map((resource, index) => (
@@ -324,7 +324,7 @@ export function WorkerRationsView() {
 
             <div className="p-3 bg-[#111111] border-t border-[#3a3a3a] flex justify-between items-center">
               <span className="font-mono text-[10px] text-[#6B7280] uppercase tracking-label">
-                Página {history.page} de {history.totalPages || 1}
+                Page {history.page} of {history.totalPages || 1}
               </span>
 
               <div className="flex gap-2">
@@ -335,7 +335,7 @@ export function WorkerRationsView() {
                   className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1"
                 >
                   <ChevronLeft size={13} />
-                  Anterior
+                  Previous
                 </button>
 
                 <button
@@ -346,7 +346,7 @@ export function WorkerRationsView() {
                   disabled={page >= (history.totalPages || 1)}
                   className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1"
                 >
-                  Siguiente
+                  Next
                   <ChevronRight size={13} />
                 </button>
               </div>
