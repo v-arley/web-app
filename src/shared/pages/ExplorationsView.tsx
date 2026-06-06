@@ -82,6 +82,7 @@ export function ExplorationsView() {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [startValidationMessage, setStartValidationMessage] = useState("");
+    const [formValidationMessage, setFormValidationMessage] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
@@ -174,12 +175,13 @@ export function ExplorationsView() {
         setSaving(true);
         setErrorMessage("");
         setSuccessMessage("");
+        setFormValidationMessage("");
 
         const response = await explorationService.save(payload);
 
         if (!response.getEstado()) {
             setSaving(false);
-            setErrorMessage(response.getMensaje());
+            setFormValidationMessage(response.getMensaje());
             return false;
         }
 
@@ -200,15 +202,16 @@ export function ExplorationsView() {
         setSaving(true);
         setErrorMessage("");
         setSuccessMessage("");
+        setFormValidationMessage("");
 
         const response = await explorationService.update(
             editingExploration.id,
             payload,
         );
 
-        if (!response.getEstado()) {
+       if (!response.getEstado()) {
             setSaving(false);
-            setErrorMessage(response.getMensaje());
+            setFormValidationMessage(response.getMensaje());
             return false;
         }
 
@@ -232,15 +235,6 @@ export function ExplorationsView() {
         setSuccessMessage("");
 
         const response = await explorationService.update(exploration.id, {
-            camp_id: exploration.camp_id,
-            code: exploration.code,
-            name: exploration.name,
-            departure_date: exploration.departure_date,
-            estimated_return_date: exploration.estimated_return_date,
-            duration_days: exploration.duration_days,
-            risk_level: exploration.risk_level,
-            objective: exploration.objective,
-            notes: exploration.notes,
             state: newState,
         });
 
@@ -336,6 +330,7 @@ export function ExplorationsView() {
                             onCreateClick={() => {
                                 setSuccessMessage("");
                                 setErrorMessage("");
+                                setFormValidationMessage("");
                                 setShowCreateForm(true);
                             }}
                         />
@@ -523,6 +518,34 @@ export function ExplorationsView() {
                                 </div>
                             </div>
                         )}
+
+                        {formValidationMessage && (
+                            <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/70 px-4">
+                                <div className="w-full max-w-md rounded-xl border border-red-500/50 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                    <p className="text-[10px] uppercase tracking-[0.25em] text-red-400">
+                                        Validación de exploración
+                                    </p>
+
+                                    <h3 className="mt-2 text-xl font-bold">
+                                        No se pudo guardar
+                                    </h3>
+
+                                    <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
+                                        {formValidationMessage}
+                                    </p>
+
+                                    <div className="mt-6 flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormValidationMessage("")}
+                                            className="border border-red-500 bg-red-500 px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-red-400"
+                                        >
+                                            Entendido
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -531,6 +554,7 @@ export function ExplorationsView() {
                     onEditExploration={(exploration) => {
                         setSuccessMessage("");
                         setErrorMessage("");
+                        setFormValidationMessage("");
                         setShowCreateForm(false);
                         setShowPeoplePanel(false);
                         setShowResourcesPanel(false);

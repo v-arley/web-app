@@ -39,6 +39,7 @@ export default function ExplorationPeoplePanel({
     campId,
     onChanged,
 }: Props) {
+    const isLockedExploration = selectedExploration?.state === "A" || selectedExploration?.state === "F";
     const [people, setPeople] = useState<Person[]>([]);
     const [assignments, setAssignments] = useState<PersonExploration[]>([]);
     const [selectedPersonId, setSelectedPersonId] = useState("");
@@ -217,37 +218,45 @@ export default function ExplorationPeoplePanel({
                 </div>
             )}
 
-            <div className="grid gap-3 lg:grid-cols-[1fr_180px_auto]">
-                <select
-                    value={selectedPersonId}
-                    onChange={(event) => setSelectedPersonId(event.target.value)}
-                    className="w-full rounded-lg border border-black bg-black px-4 py-3 text-sm text-white outline-none transition-colors hover:border-[#FF6600] focus:border-[#FF6600]"
-                >
-                    <option value="">Seleccionar persona</option>
-                    {availablePeople.map((person) => (
-                        <option key={person.id} value={person.id}>
-                            {getPersonName(person)} - {person.dni}
-                        </option>
-                    ))}
-                </select>
+            {isLockedExploration && (
+                <div className="mb-4 rounded-lg border border-[#64748b]/40 bg-[#64748b]/10 px-4 py-3 text-sm text-[#334155]">
+                    Esta exploración ya está activa o finalizada. Las personas asignadas solo pueden consultarse.
+                </div>
+            )}
 
-                <input
-                    value={roleName}
-                    onChange={(event) => setRoleName(event.target.value)}
-                    className="w-full rounded-lg border border-black bg-black px-4 py-3 text-sm text-white outline-none transition-colors hover:border-[#FF6600] focus:border-[#FF6600]"
-                    placeholder="Rol"
-                />
+            {!isLockedExploration && (
+                <div className="grid gap-3 lg:grid-cols-[1fr_180px_auto]">
+                    <select
+                        value={selectedPersonId}
+                        onChange={(event) => setSelectedPersonId(event.target.value)}
+                        className="w-full rounded-lg border border-black bg-black px-4 py-3 text-sm text-white outline-none transition-colors hover:border-[#FF6600] focus:border-[#FF6600]"
+                    >
+                        <option value="">Seleccionar persona</option>
+                        {availablePeople.map((person) => (
+                            <option key={person.id} value={person.id}>
+                                {getPersonName(person)} - {person.dni}
+                            </option>
+                        ))}
+                    </select>
 
-                <button
-                    type="button"
-                    disabled={saving || !selectedExploration}
-                    onClick={handleAssignPerson}
-                    className="flex items-center justify-center gap-2 rounded-lg border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.18em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    <UserPlus size={16} />
-                    Asignar
-                </button>
-            </div>
+                    <input
+                        value={roleName}
+                        onChange={(event) => setRoleName(event.target.value)}
+                        className="w-full rounded-lg border border-black bg-black px-4 py-3 text-sm text-white outline-none transition-colors hover:border-[#FF6600] focus:border-[#FF6600]"
+                        placeholder="Rol"
+                    />
+
+                    <button
+                        type="button"
+                        disabled={saving || !selectedExploration}
+                        onClick={handleAssignPerson}
+                        className="flex items-center justify-center gap-2 rounded-lg border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.18em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        <UserPlus size={16} />
+                        Asignar
+                    </button>
+                </div>
+            )}
 
             <div className="mt-5 max-h-[260px] overflow-y-auto pr-2">
                 {loading ? (
@@ -277,8 +286,11 @@ export default function ExplorationPeoplePanel({
 
                                 <button
                                     type="button"
-                                    disabled={saving}
-                                    onClick={() => setPersonToRemove(assignment.person_id)}
+                                    disabled={saving || isLockedExploration}
+                                    onClick={() => {
+                                        if (isLockedExploration) return;
+                                        setPersonToRemove(assignment.person_id);
+                                    }}
                                     className="flex items-center justify-center gap-2 border border-red-500 px-3 py-2 text-xs uppercase tracking-[0.18em] text-red-500 transition-colors hover:bg-red-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <X size={14} />

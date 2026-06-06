@@ -35,6 +35,7 @@ export default function ExplorationDetailPanel({
     const canStart = selectedExploration?.state === "P";
     const canFinish = selectedExploration?.state === "A";
     const canCancel = selectedExploration?.state === "P" || selectedExploration?.state === "A";
+    const canEdit = selectedExploration?.state === "P";
 
     return (
         <aside className="w-full xl:max-w-[360px] xl:self-start">
@@ -60,9 +61,9 @@ export default function ExplorationDetailPanel({
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                             <button
                                 type="button"
-                                disabled={!hasSelectedExploration}
+                                disabled={!hasSelectedExploration || !canEdit}
                                 onClick={() => {
-                                    if (selectedExploration) {
+                                    if (selectedExploration && canEdit) {
                                         onEditExploration(selectedExploration);
                                     }
                                 }}

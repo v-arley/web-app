@@ -6,6 +6,8 @@ import type { Resource } from "../../../models/Resource";
 import type { ExplorationResource } from "../../../models/ExplorationResource";
 import { ResourceService } from "../../../services/ResourceService";
 import { ResourceExplorationService } from "../../../services/ResourceExplorationService";
+import type { ExplorationRation } from "../../../models/ExplorationRation";
+import { ExplorationRationService } from "../../../services/ExplorationRationService";
 
 type Props = {
     selectedExploration: ExplorationRow | null;
@@ -19,6 +21,7 @@ type AssignedResource = {
 
 const resourceService = new ResourceService();
 const resourceExplorationService = new ResourceExplorationService();
+const explorationRationService = new ExplorationRationService();
 
 const labelClass =
     "text-[10px] uppercase tracking-[0.25em] text-[#7b8794]";
@@ -45,6 +48,7 @@ export default function ExplorationResourcesPanel({
 
     const [resources, setResources] = useState<Resource[]>([]);
     const [assignments, setAssignments] = useState<ExplorationResource[]>([]);
+    const [rations, setRations] = useState<ExplorationRation[]>([]);
 
     const [selectedResourceId, setSelectedResourceId] = useState("");
     const [observations, setObservations] = useState("");
@@ -59,10 +63,12 @@ export default function ExplorationResourcesPanel({
         setLoading(true);
         setMessage("");
 
-        const [resourcesResponse, assignmentsResponse] = await Promise.all([
-            resourceService.findAll(),
-            resourceExplorationService.findByExplorationId(explorationId),
-        ]);
+        const [resourcesResponse, assignmentsResponse, rationsResponse] =
+            await Promise.all([
+                resourceService.findAll(),
+                resourceExplorationService.findByExplorationId(explorationId),
+                explorationRationService.findByExplorationId(explorationId),
+            ]);
 
         if (resourcesResponse.getEstado()) {
             const records =
@@ -81,6 +87,14 @@ export default function ExplorationResourcesPanel({
             setMessage(assignmentsResponse.getMensaje());
         }
 
+        if (rationsResponse.getEstado()) {
+            const records =
+                rationsResponse.getResultado<ExplorationRation[]>("registros") ?? [];
+            setRations(records);
+        } else {
+            setRations([]);
+        }
+
         setLoading(false);
     }
 
@@ -88,6 +102,7 @@ export default function ExplorationResourcesPanel({
         const timer = window.setTimeout(() => {
             if (!selectedExploration?.id) {
                 setAssignments([]);
+                setRations([]);
                 setMessage("");
                 setLoading(false);
                 return;
@@ -113,6 +128,18 @@ export default function ExplorationResourcesPanel({
             };
         });
     }, [assignments, resources]);
+
+    const explorationRations = useMemo(() => {
+        return rations.map((ration) => {
+            const resource =
+                resources.find((item) => item.id === ration.resource_id) ?? null;
+
+            return {
+                ration,
+                resource,
+            };
+        });
+    }, [rations, resources]);
 
     const availableResources = useMemo(() => {
         const assignedIds = new Set(
@@ -304,8 +331,6 @@ export default function ExplorationResourcesPanel({
                                     <p className="mt-1 text-xs text-[#707070]">
                                         Objetivo de búsqueda | Recolectado:{" "}
                                         {assignment.amount_collected ?? 0}{" "}
-                                        {getUnit(resource)} | Consumido:{" "}
-                                        {assignment.amount_consumed ?? 0}{" "}
                                         {getUnit(resource)}
                                     </p>
 
@@ -328,6 +353,52 @@ export default function ExplorationResourcesPanel({
                                     <X size={14} />
                                     Quitar
                                 </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div className="mt-6 rounded-xl border border-[#9ca3af] bg-[#d8d8d8] p-4">
+                <div className="mb-3 flex items-center justify-between border-b border-[#9ca3af] pb-3">
+                    <div>
+                        <p className={labelClass}>Raciones consumidas</p>
+                        <h4 className="text-sm font-bold text-[#222]">
+                            Recursos usados al partir
+                        </h4>
+                    </div>
+
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#64748b]">
+                        Total: {explorationRations.length.toString().padStart(2, "0")}
+                    </p>
+                </div>
+
+                {explorationRations.length === 0 ? (
+                    <p className="py-4 text-center text-xs uppercase tracking-[0.2em] text-[#64748b]">
+                        No hay raciones registradas
+                    </p>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        {explorationRations.map(({ ration, resource }) => (
+                            <div
+                                key={`${ration.exploration_id}-${ration.resource_id}`}
+                                className="rounded-lg border border-[#c7c7c7] bg-[#f7f7f7] p-4 text-[#222]"
+                            >
+                                <p className="text-sm font-bold">
+                                    {getResourceName(resource)}
+                                </p>
+
+                                <p className="mt-1 text-xs text-[#707070]">
+                                    Planificado: {ration.planned_amount}{" "}
+                                    {getUnit(resource)} | Consumido:{" "}
+                                    {ration.consumed_amount} {getUnit(resource)}
+                                </p>
+
+                                {ration.notes && (
+                                    <p className="mt-2 text-xs text-[#707070]">
+                                        {ration.notes}
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </div>
