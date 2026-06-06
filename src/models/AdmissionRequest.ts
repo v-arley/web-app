@@ -25,6 +25,11 @@ export type UpdateAdmissionRequest = Partial<{
     camp_id: number;
     request_status: string;
     observations?: string;
+
+    role_id: number;
+    profession_id: number;
+    username: string;
+    password: string;
 }>;
 
 export type responseAdmissionRequest = AdmissionRequest;

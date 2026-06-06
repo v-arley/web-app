@@ -22,11 +22,23 @@ type AiEvaluationView = {
   prompt?: AiPrompt;
 };
 
+type ApprovalData = {
+  role_id: number;
+  profession_id: number;
+  username: string;
+  password: string;
+};
+
 function safeParseAiResponse(response?: string) {
   if (!response) return null;
 
   try {
-    return JSON.parse(response) as Partial<{
+    const cleanResponse = response
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    return JSON.parse(cleanResponse) as Partial<{
       apto: boolean;
       riesgo: string;
       razon: string;
@@ -35,6 +47,16 @@ function safeParseAiResponse(response?: string) {
   } catch {
     return null;
   }
+}
+
+function getItems<T>(response: any): T[] {
+  const registros = response?.getResultado?.("registros");
+  const items = response?.getResultado?.("items");
+
+  if (Array.isArray(registros)) return registros as T[];
+  if (Array.isArray(items)) return items as T[];
+
+  return [];
 }
 
 export function useAdmissionRequestsView() {
@@ -57,59 +79,39 @@ export function useAdmissionRequestsView() {
     );
   }, [admissions, authContext.campId]);
 
-  const loadAdmissions = async () => {
+  const loadAiEvaluations = async (admissionItems: AdmissionRequest[]) => {
     try {
-      setLoading(true);
-      setError("");
-
-      const [admissionResp, decisionResp, promptResp] = await Promise.all([
-        admissionRequestService.findAll(),
+      const [decisionResult, promptResult] = await Promise.allSettled([
         aiDecisionService.findAll(),
         aiPromptService.findAll(),
       ]);
 
-      if (!admissionResp.getEstado()) {
-        setError(
-          admissionResp.getMensaje() || "No se pudieron cargar las admisiones.",
-        );
-        return;
-      }
-
-      const admissionData =
-        admissionResp.getResultado<AdmissionRequest[]>("registros") ?? [];
-
-      setAdmissions(admissionData);
-
       const decisions =
-        decisionResp.getEstado()
-          ? decisionResp.getResultado<AiDecision[]>("registros") ?? []
+        decisionResult.status === "fulfilled" && decisionResult.value.getEstado()
+          ? getItems<AiDecision>(decisionResult.value)
           : [];
 
       const prompts =
-        promptResp.getEstado()
-          ? promptResp.getResultado<AiPrompt[]>("registros") ?? []
+        promptResult.status === "fulfilled" && promptResult.value.getEstado()
+          ? getItems<AiPrompt>(promptResult.value)
           : [];
 
       const nextEvaluations: Record<number, AiEvaluationView> = {};
 
-      for (const admission of admissionData) {
+      for (const admission of admissionItems) {
         if (!admission.id) continue;
+
+        const prompt = prompts.find(
+          (item) => item.admission_request_id === admission.id,
+        );
 
         const decision = decisions.find(
           (item) => item.admission_request_id === admission.id,
         );
 
-        const prompt = prompts
-          .filter((item) => item.admission_request_id === admission.id)
-          .sort((a, b) => {
-            const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-            const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-            return dateB - dateA;
-          })[0];
-
         const parsedResponse = safeParseAiResponse(prompt?.response);
 
-        if (decision || parsedResponse) {
+        if (parsedResponse || decision || prompt) {
           nextEvaluations[admission.id] = {
             evaluation: {
               apto:
@@ -132,8 +134,33 @@ export function useAdmissionRequestsView() {
 
       setEvaluationsByAdmissionId(nextEvaluations);
     } catch (err) {
+      console.error("Error loading AI evaluations:", err);
+    }
+  };
+
+  const loadAdmissions = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const admissionResp = await admissionRequestService.findAll();
+
+      if (!admissionResp.getEstado()) {
+        setError(
+          admissionResp.getMensaje() || "No se pudieron cargar las admisiones.",
+        );
+        setAdmissions([]);
+        return;
+      }
+
+      const admissionItems = getItems<AdmissionRequest>(admissionResp);
+      setAdmissions(admissionItems);
+
+      void loadAiEvaluations(admissionItems);
+    } catch (err) {
       console.error(err);
       setError("Error inesperado al cargar admisiones.");
+      setAdmissions([]);
     } finally {
       setLoading(false);
     }
@@ -142,6 +169,7 @@ export function useAdmissionRequestsView() {
   const updateAdmissionStatus = async (
     id: number,
     request_status: "A" | "R",
+    approvalData?: ApprovalData,
   ) => {
     try {
       setUpdatingId(id);
@@ -149,6 +177,7 @@ export function useAdmissionRequestsView() {
 
       const response = await admissionRequestService.update(id, {
         request_status,
+        ...(request_status === "A" && approvalData ? approvalData : {}),
       });
 
       if (!response.getEstado()) {
