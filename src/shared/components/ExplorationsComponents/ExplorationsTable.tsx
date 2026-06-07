@@ -1,5 +1,5 @@
 import type { ExplorationRow } from "./explorationHelpers";
-import { Boxes, UsersRound } from "lucide-react";
+import { Boxes, ChevronLeft, ChevronRight, UsersRound } from "lucide-react";
 import {
     getCampLabel,
     getDuration,
@@ -13,6 +13,10 @@ type Props = {
     explorations: ExplorationRow[];
     selectedExploration: ExplorationRow | null;
     onSelectExploration: (exploration: ExplorationRow) => void;
+    currentPage?: number;
+    totalPages?: number;
+    totalItems?: number;
+    onPageChange?: (page: number) => void;
 };
 
 const infoLabelClass =
@@ -22,22 +26,40 @@ export default function ExplorationsTable({
     explorations,
     selectedExploration,
     onSelectExploration,
+    currentPage = 1,
+    totalPages = 1,
+    totalItems,
+    onPageChange,
 }: Props) {
+    const total = totalItems ?? explorations.length;
+    const canGoPrevious = currentPage > 1;
+    const canGoNext = currentPage < totalPages;
+
+    const handlePrevious = () => {
+        if (!canGoPrevious || !onPageChange) return;
+        onPageChange(currentPage - 1);
+    };
+
+    const handleNext = () => {
+        if (!canGoNext || !onPageChange) return;
+        onPageChange(currentPage + 1);
+    };
+
     return (
-        <div className="rounded-xl bg-[#cecece] p-4 shadow-[0_0_18px_rgba(0,0,0,0.35),inset_0_0_14px_rgba(115,115,115,0.33)] sm:p-5">
-            <div className="mb-4 flex items-center justify-between border-b border-[#9ca3af] px-2 pb-3">
+        <div className="flex h-[calc(100vh-330px)] min-h-[430px] flex-col rounded-xl bg-[#cecece] p-4 shadow-[0_0_18px_rgba(0,0,0,0.35),inset_0_0_14px_rgba(115,115,115,0.33)] sm:p-5">
+            <div className="mb-4 flex shrink-0 items-center justify-between border-b border-[#9ca3af] px-2 pb-3">
                 <p className="text-[11px] uppercase tracking-[0.25em] text-[#64748b]">
                     Exploraciones registradas
                 </p>
 
                 <p className="text-[11px] uppercase tracking-[0.25em] text-[#64748b]">
-                    Found: {explorations.length.toString().padStart(4, "0")}
+                    Found: {total.toString().padStart(4, "0")}
                 </p>
             </div>
 
-            <div className="max-h-[340px] overflow-y-auto pr-2">
+            <div className="min-h-0 flex-1 overflow-y-auto pr-2">
                 {explorations.length === 0 ? (
-                    <div className="py-16 text-center text-sm uppercase tracking-[0.25em] text-[#f05a28]">
+                    <div className="flex h-full items-center justify-center text-center text-sm uppercase tracking-[0.25em] text-[#f05a28]">
                         No se encontraron exploraciones
                     </div>
                 ) : (
@@ -142,9 +164,7 @@ export default function ExplorationsTable({
                                         </div>
 
                                         <div>
-                                            <p className={infoLabelClass}>
-                                                Duración
-                                            </p>
+                                            <p className={infoLabelClass}>Duración</p>
                                             <p className="mt-1">
                                                 {getDuration(
                                                     exploration.duration_days,
@@ -171,6 +191,34 @@ export default function ExplorationsTable({
                         })}
                     </div>
                 )}
+            </div>
+
+            <div className="mt-4 flex shrink-0 flex-col gap-3 border-t border-[#9ca3af] pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-[#64748b]">
+                    Página {currentPage} de {totalPages}
+                </p>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={handlePrevious}
+                        disabled={!canGoPrevious}
+                        className="flex h-9 items-center gap-2 rounded-md border border-[#888] px-3 text-[11px] uppercase tracking-[0.18em] text-[#333] transition-colors hover:border-[#FF6600] hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        <ChevronLeft size={14} />
+                        Anterior
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={handleNext}
+                        disabled={!canGoNext}
+                        className="flex h-9 items-center gap-2 rounded-md border border-[#888] px-3 text-[11px] uppercase tracking-[0.18em] text-[#333] transition-colors hover:border-[#FF6600] hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        Siguiente
+                        <ChevronRight size={14} />
+                    </button>
+                </div>
             </div>
         </div>
     );

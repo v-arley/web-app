@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Plus, Search } from "lucide-react";
 
 import type {
@@ -16,12 +15,8 @@ type Props = {
     onCreateClick: () => void;
 };
 
-const filterSelectClass = (focused: boolean) =>
-    `w-full rounded-lg border px-4 py-2 outline-none transition-all duration-200 hover:shadow-[0_10px_20px_rgba(0,0,0,0.35)] xl:w-auto ${
-        focused
-            ? "border-[#FF6600] bg-[#FF6600] text-black"
-            : "border-black bg-black text-white hover:border-[#FF6600] hover:text-[#FF6600]"
-    }`;
+const selectClass =
+    "h-12 rounded-lg border border-black bg-black px-5 text-sm text-white outline-none transition-colors hover:border-[#FF6600] hover:text-[#FF6600] focus:border-[#FF6600]";
 
 export default function ExplorationFilters({
     search,
@@ -32,58 +27,59 @@ export default function ExplorationFilters({
     onStateFilterChange,
     onCreateClick,
 }: Props) {
-    const [isRiskFocused, setIsRiskFocused] = useState(false);
-    const [isStateFocused, setIsStateFocused] = useState(false);
-
     return (
-        <div className="flex flex-col items-stretch gap-3 xl:flex-row xl:items-center xl:gap-4">
-            <div className="group flex w-full flex-1 items-center gap-3 rounded-lg border border-[#B8B8B8] bg-[#CCCCCC] px-3 py-3 shadow-[0_1px_6px_rgba(0,0,0,0.10)] transition-colors focus-within:border-[#FF6600] sm:gap-5 sm:py-[15px] lg:gap-[30px]">
-                <Search className="self-center text-gray-500 transition-colors group-focus-within:text-[#FF6600]" />
+        <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="flex h-12 w-full overflow-hidden rounded-lg border border-[#2f2f2f] bg-[#D7DDE2] transition-colors focus-within:border-[#FF6600] lg:flex-1">
+                <div className="flex h-full w-12 shrink-0 items-center justify-center border-r border-[#b8c0c8]">
+                    <Search className="h-5 w-5 text-[#6B7280]" />
+                </div>
 
                 <input
                     type="text"
                     placeholder="Buscar exploración por código, nombre u objetivo..."
-                    className="w-full self-center bg-transparent text-sm text-gray-500 outline-none placeholder:text-gray-500"
+                    className="h-full w-full bg-transparent px-4 text-sm text-[#374151] outline-none placeholder:text-[#6B7280]"
                     value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
+                    onChange={(event) => onSearchChange(event.target.value)}
                 />
             </div>
 
-            <select
-                value={riskFilter}
-                onChange={(e) => onRiskFilterChange(e.target.value as RiskFilter)}
-                onFocus={() => setIsRiskFocused(true)}
-                onBlur={() => setIsRiskFocused(false)}
-                className={filterSelectClass(isRiskFocused)}
-            >
-                <option value="todas">Riesgo</option>
-                <option value="L">Bajo</option>
-                <option value="M">Medio</option>
-                <option value="H">Alto</option>
-            </select>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:flex lg:w-auto lg:items-center">
+                <select
+                    value={riskFilter}
+                    onChange={(event) =>
+                        onRiskFilterChange(event.target.value as RiskFilter)
+                    }
+                    className={`${selectClass} w-full lg:w-[130px]`}
+                >
+                    <option value="todas">Riesgo</option>
+                    <option value="L">Bajo</option>
+                    <option value="M">Medio</option>
+                    <option value="H">Alto</option>
+                </select>
 
-            <select
-                value={stateFilter}
-                onChange={(e) => onStateFilterChange(e.target.value as StateFilter)}
-                onFocus={() => setIsStateFocused(true)}
-                onBlur={() => setIsStateFocused(false)}
-                className={filterSelectClass(isStateFocused)}
-            >
-                <option value="todas">Estado</option>
-                <option value="P">Pendiente</option>
-                <option value="A">Activa</option>
-                <option value="F">Finalizada</option>
-                <option value="C">Cancelada</option>
-            </select>
+                <select
+                    value={stateFilter}
+                    onChange={(event) =>
+                        onStateFilterChange(event.target.value as StateFilter)
+                    }
+                    className={`${selectClass} w-full lg:w-[130px]`}
+                >
+                    <option value="todas">Estado</option>
+                    <option value="P">Pendiente</option>
+                    <option value="A">Activa</option>
+                    <option value="F">Finalizada</option>
+                    <option value="C">Cancelada</option>
+                </select>
 
-            <button
-                type="button"
-                onClick={onCreateClick}
-                className="group flex w-full items-center justify-center gap-[10px] rounded-lg border border-black bg-black px-4 py-2 text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black xl:w-auto xl:justify-start"
-            >
-                <Plus className="text-white transition-colors group-hover:text-black" />
-                Nueva exploración
-            </button>
+                <button
+                    type="button"
+                    onClick={onCreateClick}
+                    className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border border-black bg-black px-5 text-sm text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black lg:w-[220px]"
+                >
+                    <Plus className="h-5 w-5" />
+                    <span>Nueva exploración</span>
+                </button>
+            </div>
         </div>
     );
 }

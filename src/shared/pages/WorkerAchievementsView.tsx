@@ -61,7 +61,7 @@ function UnlockedAchievementCard({
           </div>
 
           <p className="text-xs text-[#C0C0C0] font-mono leading-relaxed max-w-2xl">
-            {achievement.description || "Sin descripción registrada."}
+            {achievement.description || "No description available."}
           </p>
 
           <span className="text-[10px] text-[#22C55E] font-mono uppercase tracking-label">
@@ -72,7 +72,7 @@ function UnlockedAchievementCard({
 
       <div className="shrink-0 text-right font-mono text-xs text-[#22C55E] flex items-center gap-1 self-end sm:self-center">
         <Calendar size={14} />
-        <span>Desbloqueado: {formatDate(achievement.unlockedAt)}</span>
+        <span>Unlocked: {formatDate(achievement.unlockedAt)}</span>
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ function PendingAchievementCard({ achievement }: { achievement: Achievement }) {
             </h4>
 
             <span className="text-[9px] text-[#E85D04] border border-[#E85D04]/70 bg-[#E85D04]/10 px-2 py-0.5 font-mono uppercase tracking-label font-bold">
-              Bloqueado
+              Locked
             </span>
 
             <span className="text-[9px] text-[#6B7280] border border-[#3a3a3a] px-2 py-0.5 font-mono uppercase tracking-label">
@@ -108,7 +108,7 @@ function PendingAchievementCard({ achievement }: { achievement: Achievement }) {
           </div>
 
           <p className="text-xs text-[#9CA3AF] font-mono leading-relaxed max-w-2xl">
-            {achievement.description || "Sin descripción registrada."}
+            {achievement.description || "No description available."}
           </p>
 
           <span className="text-[10px] text-[#E85D04] font-mono uppercase tracking-label">
@@ -133,7 +133,7 @@ function PendingAchievementCard({ achievement }: { achievement: Achievement }) {
         </div>
 
         <span className="text-[10px] text-[#E85D04] block text-right uppercase tracking-label font-bold">
-          Faltan {missingPoints} pts
+          Missing {missingPoints} pts
         </span>
       </div>
     </div>
@@ -169,7 +169,7 @@ export function WorkerAchievementsView() {
       <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-6 py-3 flex items-center justify-between shrink-0">
         <div className="flex flex-col">
           <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label">
-            Logros y puntos
+            Achievements & Points
           </span>
           <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label">
             Worker points / unlocked achievements / pending achievements
@@ -203,19 +203,19 @@ export function WorkerAchievementsView() {
                 <div className="flex items-center gap-2 text-[#FACC15] font-mono">
                   <Trophy size={20} />
                   <span className="text-xs uppercase tracking-label font-bold">
-                    Registro de puntos
+                    Points Record
                   </span>
                 </div>
 
                 <h1 className="text-3xl font-mono font-black text-white leading-none uppercase">
-                  Nivel{" "}
+                  Level{" "}
                   <span className="text-[#FACC15] drop-shadow-[0_0_8px_rgba(250,204,21,0.45)]">
                     {points?.level ?? 1}
                   </span>
                 </h1>
 
                 <p className="text-xs text-[#C0C0C0] font-mono">
-                  Progreso calculado desde el registro de puntos del trabajador.
+                  Progress calculated from the worker's points record.
                 </p>
               </div>
 
@@ -268,7 +268,7 @@ export function WorkerAchievementsView() {
               <div className="flex items-center gap-2">
                 <Award className="text-[#FACC15]" size={18} />
                 <h3 className="font-mono text-sm text-white font-semibold uppercase tracking-label">
-                  Insignias y logros de campo
+                  Field Badges & Achievements
                 </h3>
               </div>
 
@@ -282,7 +282,7 @@ export function WorkerAchievementsView() {
                       : "text-[#6B7280] hover:text-[#22C55E]"
                   }`}
                 >
-                  Obtenidos ({unlocked?.total ?? 0})
+                  Unlocked ({unlocked?.total ?? 0})
                 </button>
 
                 <button
@@ -294,7 +294,7 @@ export function WorkerAchievementsView() {
                       : "text-[#6B7280] hover:text-[#E85D04]"
                   }`}
                 >
-                  Pendientes ({pending?.total ?? 0})
+                  Pending ({pending?.total ?? 0})
                 </button>
               </div>
             </div>
@@ -311,7 +311,7 @@ export function WorkerAchievementsView() {
                 unlockedItems.length === 0 && (
                   <div className="text-center py-10">
                     <p className="text-xs text-[#6B7280] uppercase tracking-label">
-                      No hay logros obtenidos.
+                      No unlocked achievements.
                     </p>
                   </div>
                 )}
@@ -330,7 +330,7 @@ export function WorkerAchievementsView() {
                 pendingItems.length === 0 && (
                   <div className="text-center py-10">
                     <p className="text-xs text-[#6B7280] uppercase tracking-label">
-                      No hay logros pendientes.
+                      No pending achievements.
                     </p>
                   </div>
                 )}
@@ -348,7 +348,7 @@ export function WorkerAchievementsView() {
             {panelTab === "UNLOCKED" && (
               <div className="p-3.5 bg-[#111111] border-t border-[#22C55E]/30 flex justify-between items-center font-mono text-xs">
                 <span className="text-[10px] text-[#6B7280] uppercase tracking-label">
-                  Página {unlocked?.page ?? unlockedPage} de{" "}
+                  Page {unlocked?.page ?? unlockedPage} of{" "}
                   {unlocked?.totalPages ?? 1}
                 </span>
 
@@ -362,7 +362,7 @@ export function WorkerAchievementsView() {
                     className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#22C55E] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white hover:text-[#22C55E] transition font-mono uppercase tracking-label"
                   >
                     <ChevronLeft size={13} className="inline mr-1" />
-                    Anterior
+                    Previous
                   </button>
 
                   <button
@@ -375,7 +375,7 @@ export function WorkerAchievementsView() {
                     disabled={unlockedPage >= (unlocked?.totalPages ?? 1)}
                     className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#22C55E] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white hover:text-[#22C55E] transition font-mono uppercase tracking-label"
                   >
-                    Siguiente
+                    Next
                     <ChevronRight size={13} className="inline ml-1" />
                   </button>
                 </div>
@@ -385,7 +385,7 @@ export function WorkerAchievementsView() {
             {panelTab === "PENDING" && (
               <div className="p-3.5 bg-[#111111] border-t border-[#E85D04]/30 flex justify-between items-center font-mono text-xs">
                 <span className="text-[10px] text-[#6B7280] uppercase tracking-label">
-                  Página {pending?.page ?? pendingPage} de{" "}
+                  Page {pending?.page ?? pendingPage} of{" "}
                   {pending?.totalPages ?? 1}
                 </span>
 
@@ -397,7 +397,7 @@ export function WorkerAchievementsView() {
                     className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white hover:text-[#E85D04] transition font-mono uppercase tracking-label"
                   >
                     <ChevronLeft size={13} className="inline mr-1" />
-                    Anterior
+                    Previous
                   </button>
 
                   <button
@@ -410,7 +410,7 @@ export function WorkerAchievementsView() {
                     disabled={pendingPage >= (pending?.totalPages ?? 1)}
                     className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white hover:text-[#E85D04] transition font-mono uppercase tracking-label"
                   >
-                    Siguiente
+                    Next
                     <ChevronRight size={13} className="inline ml-1" />
                   </button>
                 </div>
