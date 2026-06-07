@@ -137,55 +137,59 @@ function ExplorationCard({
       <button
         type="button"
         onClick={onToggle}
-        className="w-full p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-[#242424]/60 transition-colors text-left"
+        className="w-full p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-[#242424]/60 transition-colors text-left"
       >
-        <div className="space-y-2 flex-1">
-          <div className="flex flex-wrap items-center gap-2 font-mono">
-            <span className="text-[#E85D04] font-bold text-xs uppercase tracking-label">
+        <div className="space-y-2 flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 font-mono min-w-0">
+            <span className="text-[#E85D04] font-bold text-xs uppercase tracking-label break-all">
               {exploration.code || `EXP-${exploration.id}`}
             </span>
 
-            <span className="text-[#6B7280]">//</span>
+            <span className="text-[#6B7280] shrink-0">//</span>
 
-            <span className="text-white font-bold text-sm uppercase tracking-label">
+            <span className="text-white font-bold text-sm uppercase tracking-label break-words min-w-0">
               {exploration.name || "Exploración sin nombre"}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#C0C0C0] font-mono">
-            <span className="flex items-center gap-1">
-              <UserCheck size={14} className="text-[#38BDF8]" />
-              Rol:{" "}
-              <strong className="text-white font-medium">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#C0C0C0] font-mono">
+            <span className="flex items-center gap-1 min-w-0">
+              <UserCheck size={14} className="text-[#38BDF8] shrink-0" />
+              <span className="shrink-0">Rol:</span>{" "}
+              <strong className="text-white font-medium break-words min-w-0">
                 {exploration.roleName || "N/A"}
               </strong>
             </span>
 
-            <span className="text-[#3a3a3a] font-bold">•</span>
+            <span className="text-[#3a3a3a] font-bold hidden sm:inline">
+              •
+            </span>
 
-            <span className="flex items-center gap-1">
-              <Clock size={14} className="text-[#FACC15]" />
-              Duración:{" "}
-              <strong className="text-white font-medium">
+            <span className="flex items-center gap-1 min-w-0">
+              <Clock size={14} className="text-[#FACC15] shrink-0" />
+              <span className="shrink-0">Duración:</span>{" "}
+              <strong className="text-white font-medium whitespace-nowrap">
                 {duration ? `${duration} día(s)` : "N/A"}
               </strong>
             </span>
 
-            <span className="text-[#3a3a3a] font-bold">•</span>
+            <span className="text-[#3a3a3a] font-bold hidden sm:inline">
+              •
+            </span>
 
-            <span className="flex items-center gap-1">
-              <Map size={14} className="text-[#E85D04]" />
-              Campamento:{" "}
-              <strong className="text-[#38BDF8] font-medium">
+            <span className="flex items-center gap-1 min-w-0">
+              <Map size={14} className="text-[#E85D04] shrink-0" />
+              <span className="shrink-0">Campamento:</span>{" "}
+              <strong className="text-[#38BDF8] font-medium break-words min-w-0">
                 {getCampId(exploration) ?? "N/A"}
               </strong>
             </span>
           </div>
         </div>
 
-        <div className="shrink-0 flex items-center gap-3">
+        <div className="shrink-0 flex flex-wrap items-center gap-3 w-full md:w-auto justify-start md:justify-end">
           <span
-            className={`px-2.5 py-0.5 tracking-label font-mono text-[9px] border uppercase font-bold ${getRiskStyle(
+            className={`px-2.5 py-0.5 tracking-label font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getRiskStyle(
               risk,
             )}`}
           >
@@ -193,99 +197,105 @@ function ExplorationCard({
           </span>
 
           <span
-            className={`px-2.5 py-0.5 tracking-label font-mono text-[9px] border uppercase font-bold ${getStateStyle(
+            className={`px-2.5 py-0.5 tracking-label font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getStateStyle(
               exploration.state,
             )}`}
           >
             {getStateLabel(exploration)}
           </span>
 
-          <span className="p-1 text-[#C0C0C0]">
+          <span className="p-1 text-[#C0C0C0] ml-auto md:ml-0">
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </span>
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-[#3a3a3a] bg-[#111111] p-5 font-mono text-xs text-[#C0C0C0] space-y-4">
+        <div className="border-t border-[#3a3a3a] bg-[#111111] p-4 sm:p-5 font-mono text-xs text-[#C0C0C0] space-y-4">
           <div className="p-3 bg-[#1a1a1a] border border-[#3a3a3a] leading-normal">
             <span className="text-[#6B7280] text-[10px] uppercase block mb-1 font-bold tracking-label">
               Objetivo
             </span>
 
-            <p className="text-white text-xs leading-relaxed">
+            <p className="text-white text-xs leading-relaxed break-words">
               {exploration.objective || "Sin objetivo registrado."}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-[#3a3a3a] p-3 bg-[#1a1a1a]">
+            <div className="border border-[#3a3a3a] p-3 bg-[#1a1a1a] min-w-0">
               <span className="text-[#6B7280] text-[9px] block uppercase tracking-label">
                 Calendario
               </span>
 
               <div className="mt-2 space-y-2 font-medium text-white">
-                <p className="flex items-center justify-between gap-3 border-b border-[#3a3a3a] pb-1">
+                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-[#3a3a3a] pb-1">
                   <span className="text-[#6B7280]">Asignación</span>
-                  <span className="text-[#38BDF8]">
+                  <span className="text-[#38BDF8] break-words sm:text-right">
                     {formatDateTime(exploration.assignedAt)}
                   </span>
                 </p>
 
-                <p className="flex items-center justify-between gap-3 border-b border-[#3a3a3a] pb-1">
+                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-[#3a3a3a] pb-1">
                   <span className="text-[#6B7280]">Salida</span>
-                  <span>{formatDateTime(getDepartureDate(exploration))}</span>
+                  <span className="break-words sm:text-right">
+                    {formatDateTime(getDepartureDate(exploration))}
+                  </span>
                 </p>
 
-                <p className="flex items-center justify-between gap-3">
+                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
                   <span className="text-[#6B7280]">Retorno</span>
-                  <span>{formatDateTime(getReturnDate(exploration))}</span>
+                  <span className="break-words sm:text-right">
+                    {formatDateTime(getReturnDate(exploration))}
+                  </span>
                 </p>
               </div>
             </div>
 
-            <div className="border border-[#3a3a3a] p-3 bg-[#1a1a1a] md:col-span-2">
+            <div className="border border-[#3a3a3a] p-3 bg-[#1a1a1a] md:col-span-2 min-w-0">
               <span className="text-[#6B7280] text-[9px] block uppercase tracking-label">
                 Notas
               </span>
 
-              <p className="mt-2 text-xs text-[#FACC15] bg-[#FACC15]/10 p-3 border border-[#FACC15]/30 leading-relaxed">
+              <p className="mt-2 text-xs text-[#FACC15] bg-[#FACC15]/10 p-3 border border-[#FACC15]/30 leading-relaxed break-words">
                 {exploration.notes || "Sin notas registradas."}
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
               <span className="text-[#6B7280] block text-[9px] uppercase">
                 ID
               </span>
-              <strong className="text-[#38BDF8]">#{exploration.id}</strong>
+              <strong className="text-[#38BDF8] break-words">
+                #{exploration.id}
+              </strong>
             </div>
 
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
               <span className="text-[#6B7280] block text-[9px] uppercase">
                 Estado
               </span>
-              <strong className="text-white">
+              <strong className="text-white break-words">
                 {getStateLabel(exploration)}
               </strong>
             </div>
 
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
               <span className="text-[#6B7280] block text-[9px] uppercase">
                 Riesgo
               </span>
-              <strong className="text-white">
+              <strong className="text-white break-words">
                 {getRiskLabel(exploration)}
               </strong>
             </div>
 
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
               <span className="text-[#6B7280] block text-[9px] uppercase">
                 Creada
               </span>
-              <strong className="text-white">
+              <strong className="text-white break-words">
                 {formatDate(exploration.createdAt)}
               </strong>
             </div>
@@ -321,13 +331,13 @@ export function WorkerExplorationsView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#111111] overflow-hidden">
-      <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-6 py-3 flex items-center justify-between shrink-0">
-        <div className="flex flex-col">
-          <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label">
+    <div className="w-full h-full flex flex-col bg-[#111111] overflow-hidden min-w-0">
+      <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
+        <div className="flex flex-col min-w-0">
+          <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label break-words">
             Exploraciones
           </span>
-          <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label">
+          <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label break-words">
             Worker exploration registry / assigned expeditions
           </span>
         </div>
@@ -335,7 +345,7 @@ export function WorkerExplorationsView() {
         <button
           type="button"
           onClick={() => void reload()}
-          className="flex items-center gap-2 text-[11px] font-mono text-[#6B7280] hover:text-[#E85D04] uppercase tracking-label transition-colors"
+          className="flex items-center gap-2 text-[11px] font-mono text-[#6B7280] hover:text-[#E85D04] uppercase tracking-label transition-colors shrink-0"
         >
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
           {loading ? "Loading..." : "Refresh"}
@@ -343,21 +353,23 @@ export function WorkerExplorationsView() {
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="p-4 space-y-4">
-          <section className="border border-[#E85D04]/45 bg-[#1a1a1a] p-5 shadow-[0_0_18px_rgba(232,93,4,0.1)]">
+        <div className="p-3 sm:p-4 space-y-4">
+          <section className="border border-[#E85D04]/45 bg-[#1a1a1a] p-4 sm:p-5 shadow-[0_0_18px_rgba(232,93,4,0.1)]">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <span className="text-[10px] text-[#6B7280] font-mono tracking-label block uppercase">
+              <div className="min-w-0">
+                <span className="text-[10px] text-[#6B7280] font-mono tracking-label block uppercase break-words">
                   Reconnaissance directory // expedition log
                 </span>
 
-                <h2 className="text-lg font-mono font-bold text-white uppercase flex items-center gap-2 mt-1">
-                  <Compass className="text-[#E85D04]" size={20} />
-                  <span>My external exploration missions</span>
+                <h2 className="text-lg font-mono font-bold text-white uppercase flex items-start sm:items-center gap-2 mt-1 min-w-0">
+                  <Compass className="text-[#E85D04] shrink-0 mt-0.5 sm:mt-0" size={20} />
+                  <span className="break-words">
+                    My external exploration missions
+                  </span>
                 </h2>
               </div>
 
-              <div className="border border-[#38BDF8]/50 bg-[#38BDF8]/10 px-4 py-2 text-[#38BDF8] font-mono text-xs uppercase tracking-label font-bold">
+              <div className="border border-[#38BDF8]/50 bg-[#38BDF8]/10 px-4 py-2 text-[#38BDF8] font-mono text-xs uppercase tracking-label font-bold w-full sm:w-auto text-center shrink-0">
                 Total assigned: {data.total}
               </div>
             </div>
@@ -365,7 +377,7 @@ export function WorkerExplorationsView() {
 
           <section className="border border-[#3a3a3a] bg-[#1a1a1a] p-4 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
+              <div className="md:col-span-2 min-w-0">
                 <label className="text-[#6B7280] block mb-1 uppercase text-[9px]">
                   Search exploration
                 </label>
@@ -386,7 +398,7 @@ export function WorkerExplorationsView() {
                 </div>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label className="text-[#6B7280] block mb-1 uppercase text-[9px]">
                   State
                 </label>
@@ -404,7 +416,7 @@ export function WorkerExplorationsView() {
                 </select>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <label className="text-[#6B7280] block mb-1 uppercase text-[9px]">
                   Risk
                 </label>
@@ -426,7 +438,7 @@ export function WorkerExplorationsView() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="px-3 py-2 border border-[#3a3a3a] text-[#C0C0C0] hover:border-[#E85D04] hover:text-[#E85D04] uppercase tracking-label transition-colors"
+                className="w-full sm:w-auto px-3 py-2 border border-[#3a3a3a] text-[#C0C0C0] hover:border-[#E85D04] hover:text-[#E85D04] uppercase tracking-label transition-colors"
               >
                 <X size={13} className="inline mr-1" />
                 Clear filters
@@ -435,8 +447,8 @@ export function WorkerExplorationsView() {
           </section>
 
           {error && (
-            <div className="border border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-label flex items-center gap-2">
-              <AlertTriangle size={15} />
+            <div className="border border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-label flex items-start sm:items-center gap-2 break-words">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 sm:mt-0" />
               {error}
             </div>
           )}
@@ -468,17 +480,17 @@ export function WorkerExplorationsView() {
               ))}
           </section>
 
-          <section className="p-4 border border-[#3a3a3a] bg-[#1a1a1a] flex justify-between items-center font-mono text-xs">
+          <section className="p-4 border border-[#3a3a3a] bg-[#1a1a1a] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 font-mono text-xs">
             <span className="text-[10px] text-[#6B7280] uppercase tracking-label">
               Page {data.page} of {data.totalPages || 1} // Total: {data.total}
             </span>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1"
+                className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap"
               >
                 <ChevronLeft size={13} />
                 Previous
@@ -490,7 +502,7 @@ export function WorkerExplorationsView() {
                   setPage(Math.min(data.totalPages || 1, page + 1))
                 }
                 disabled={page >= (data.totalPages || 1)}
-                className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1"
+                className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap"
               >
                 Next
                 <ChevronRight size={13} />
