@@ -38,14 +38,15 @@ const SECTION_ACCESS_BY_ROLE: Record<AppRole, string[]> = {
   //   dashboard | explorations | users | requests | inventory | warehouse
   //   camp | settings | worker-profile | worker-achievements | worker-tasks
   //   worker-production | worker-rations | worker-explorations
-  //   catalog-resources | catalog-professions | catalog-achievements
+  //   catalogs-main | catalog-resources | catalog-professions | catalog-achievements
   //   create-camp | global-dashboard
   //   resource-dashboard | inventory-main | stock-alerts | production | rations | inter-camp
 
   SYSTEM_ADMIN: [
     "global-dashboard",
     "create-camp",
-    // "catalog-resources",  → revisar estilo de tabla
+    "catalogs-main",
+    "catalog-resources",
     "catalog-professions",
     "catalog-achievements",
   ],
@@ -152,6 +153,19 @@ export function normalizeRoles(value: unknown): string[] {
     .filter(Boolean);
 }
 
+export function toOptionalNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
 export function hasAnyRole(
   roles: readonly string[] | undefined,
   allowedRoles: readonly string[],
@@ -202,12 +216,10 @@ export function getAuthContextFromToken(): AuthContext {
     payload.username ??
     payload.name ??
     "") as string;
-  const userId =
-    typeof payload.userId === "number" ? payload.userId : undefined;
+  const userId = toOptionalNumber(payload.userId ?? payload.user_id);
   const profession =
     typeof payload.profession === "string" ? payload.profession : undefined;
-  const campId =
-    typeof payload.camp_id === "number" ? payload.camp_id : undefined;
+  const campId = toOptionalNumber(payload.campId ?? payload.camp_id);
   const roles = normalizeRoles(payload.roles);
 
   return {
