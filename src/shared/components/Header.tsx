@@ -1,17 +1,27 @@
 ﻿import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../../router/routes";
 import { useNavigation } from "../app/NavigationContext";
 import { getRoleLabel } from "../utils/authAccess";
-import { useAuth } from "../app/AuthContext";
 import { NotificationBell } from "./NotificationBell";
+import { Menu } from "lucide-react";
 
-export default function Header() {
+type HeaderProps = {
+    isSidebarOpen: boolean;
+    onToggleSidebar: () => void;
+};
+
+export default function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
     const { authContext, activeCamp } = useNavigation();
-    const { logout } = useAuth();
-    const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
     const roleLabel = useMemo(() => getRoleLabel(authContext), [authContext]);
+    const campLabel = useMemo(() => {
+        const campCode = activeCamp?.code?.trim();
+
+        if (campCode) {
+            return campCode;
+        }
+
+        return "NOT RESOLVED";
+    }, [activeCamp]);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);
@@ -27,64 +37,68 @@ export default function Header() {
         return `${dd}/${mm}/${d.getFullYear()}`;
     };
 
-    const handleLogout = async () => {
-        await logout();
-        navigate(ROUTES.LOGIN);
-    };
-
     return (
         <header className="topbar">
             {/* Left: camp info + auth context */}
-            <div>
-                <div className="topbar-meta">
-                    <span>ADMIN: {authContext.name}</span>
-                    <span>|</span>
-                    <span>ROLE: {roleLabel}</span>
-                    {authContext.profession && (
-                        <>
-                            <span>|</span>
-                            <span>PROFILE: {authContext.profession}</span>
-                        </>
-                    )}
-                    {activeCamp?.location_x != null &&
-                        activeCamp?.location_y != null && (
+            <div className="topbar-left">
+                <button
+                    type="button"
+                    className="sidebar-toggle-btn"
+                    aria-label={isSidebarOpen ? "Ocultar navegacion" : "Mostrar navegacion"}
+                    aria-controls="app-sidebar"
+                    aria-expanded={isSidebarOpen}
+                    onClick={onToggleSidebar}
+                >
+                    <Menu size={18} aria-hidden="true" />
+                </button>
+                <div className="topbar-identity">
+                    <div className="topbar-meta">
+                        <span>ADMIN: {authContext.name}</span>
+                        <span className="topbar-meta-separator">|</span>
+                        <span className="topbar-meta-optional">ROLE: {roleLabel}</span>
+                        {authContext.profession && (
                             <>
-                                <span>|</span>
-                                <span>
-                                    COORDS: {activeCamp.location_x.toFixed(3)},{" "}
-                                    {activeCamp.location_y.toFixed(3)}
-                                </span>
+                                <span className="topbar-meta-separator topbar-meta-optional">|</span>
+                                <span className="topbar-meta-optional">PROFILE: {authContext.profession}</span>
                             </>
                         )}
-                </div>
-                <div className="topbar-title">
-                    <span>CAMP </span>
-                    <span className="topbar-camp-code">
-                        {activeCamp?.code ?? "ALPHA"}
-                    </span>
+                        {activeCamp?.location_x != null &&
+                            activeCamp?.location_y != null && (
+                                <>
+                                    <span className="topbar-meta-separator topbar-meta-optional">|</span>
+                                    <span className="topbar-meta-optional">
+                                        COORDS: {activeCamp.location_x.toFixed(3)},{" "}
+                                        {activeCamp.location_y.toFixed(3)}
+                                    </span>
+                                </>
+                            )}
+                    </div>
+                    <div className="topbar-title">
+                        <span>CAMP </span>
+                        <span className="topbar-camp-code">
+                            {campLabel}
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Right: notifications, clock, status, logout */}
+            {/* Right: notifications, clock, status */}
             <div className="topbar-right">
                 <NotificationBell />
                 <div className="topbar-clock">
                     <span>
-                        Time: <strong>{formatTime(currentDate)}</strong>
+                        <span className="topbar-clock-label">Time: </span><strong>{formatTime(currentDate)}</strong>
                     </span>
                     <span>
-                        Date: <strong>{formatDate(currentDate)}</strong>
+                        <span className="topbar-clock-label">Date: </span><strong>{formatDate(currentDate)}</strong>
                     </span>
                 </div>
-                <div className="flex flex-col justify-center items-center">
+                {/* <div className="topbar-presence">
                     <div className="topbar-status">
                         <div className="status-dot online" />
                         <span>Online</span>
                     </div>
-                    <button className="logout-btn" onClick={handleLogout}>
-                        [ Log Out ]
-                    </button>
-                </div>
+                </div> */}
             </div>
         </header>
     );
