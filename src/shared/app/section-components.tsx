@@ -44,27 +44,32 @@ export const WarehouseView = lazy(() =>
 );
 
 export const ResourcesPage = lazy(() =>
-    import("../../modules/management-modules/catalogs/pages/resources-page").then((m) => ({
+    import("../../modules/system-management-modules/catalogs/pages/resources-page").then((m) => ({
         default: m.ResourcesPage,
     })),
 );
 export const ProfessionsPage = lazy(() =>
-    import("../../modules/management-modules/catalogs/pages/professions-page").then((m) => ({
+    import("../../modules/system-management-modules/catalogs/pages/professions-page").then((m) => ({
         default: m.ProfessionsPage,
     })),
 );
 export const AchievementsPage = lazy(() =>
-    import("../../modules/management-modules/catalogs/pages/achievements-page").then((m) => ({
+    import("../../modules/system-management-modules/catalogs/pages/achievements-page").then((m) => ({
         default: m.AchievementsPage,
     })),
 );
+export const CatalogsMainPage = lazy(() =>
+    import("../../modules/system-management-modules/catalogs/pages/catalogs-main-page").then((m) => ({
+        default: m.CatalogsMainPage,
+    })),
+);
 export const CreateCampModulePage = lazy(() =>
-    import("../../modules/management-modules/camps/create-camp/pages/CreateCampModulePage").then((m) => ({
+    import("../../modules/system-management-modules/create-camps/pages/CreateCampPage").then((m) => ({
         default: m.CreateCampModulePage,
     })),
 );
 export const GlobalDashboardModulePage = lazy(() =>
-    import("../../modules/management-modules/dashboard/global-dashboard/pages/GlobalDashboardView").then((m) => ({
+    import("../../modules/system-management-modules/dashboard/pages/GlobalDashboardView").then((m) => ({
         default: m.GlobalDashboardView,
     })),
 );
@@ -80,7 +85,7 @@ export const InventoryMainPage = lazy(() =>
     })),
 );
 export const StockAlertsMainPage = lazy(() =>
-    import("../../modules/resource-management-modules/stock-alerts/pages/stock-alerts-main-page").then((m) => ({
+    import("../../modules/resource-management-modules/stock-alerts/stock-alerts-main-page").then((m) => ({
         default: m.StockAlertsMainPage,
     })),
 );
