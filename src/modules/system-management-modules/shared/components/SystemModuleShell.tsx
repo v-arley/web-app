@@ -60,6 +60,11 @@ export function SystemModuleShell<T extends string>({
                                     </span>
                                     <div className="rmm-module-tab-copy text-left">
                                         <div className="rmm-module-tab-label font-mono text-[10px] font-bold uppercase tracking-widest">{tab.label}</div>
+                                        {tab.description ? (
+                                            <div className="rmm-module-tab-desc text-[8px] text-txt-muted uppercase tracking-wide leading-tight">
+                                                {tab.description}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </button>
                             );
