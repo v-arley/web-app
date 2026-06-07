@@ -49,7 +49,7 @@ const SECTION_ACCESS_BY_ROLE: Record<AppRole, string[]> = {
     "catalog-professions",
     "catalog-achievements",
   ],
-  CAMP_ADMIN: ["dashboard", "users", "settings"],
+  CAMP_ADMIN: ["dashboard", "users", "inter-camp", "settings"],
   RESOURCE_MANAGER: [
     "resource-dashboard",
     "inventory-main",
