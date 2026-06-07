@@ -9,6 +9,21 @@ export type BackendResponse<T = unknown> = {
 
 export type BackendListPayload<TItem = unknown> = {
     items: TItem[];
+    pagination?: PaginationMeta;
+    facets?: unknown;
+};
+
+export type PaginationMeta = {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+};
+
+export type PaginatedResult<TItem, TFacets = unknown> = {
+    items: TItem[];
+    pagination: PaginationMeta;
+    facets?: TFacets;
 };
 
 export class Response {

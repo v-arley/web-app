@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosInstance } from "axios";
 import axiosClient from "../../api/axiosClient";
-import type { BackendListPayload, BackendResponse } from "../../shared/utils/Response";
+import type { BackendListPayload, BackendResponse, PaginatedResult, PaginationMeta } from "../../shared/utils/Response";
 
 export abstract class AxiosBaseService {
 	protected client: AxiosInstance;
@@ -30,6 +30,69 @@ export abstract class AxiosBaseService {
 		}
 
 		return [];
+	}
+
+	protected extractPaginatedItems<T, TFacets = unknown>(
+		data: BackendResponse<BackendListPayload<T>> | T[],
+		fallbackPage = 1,
+		fallbackLimit = 20,
+	): PaginatedResult<T, TFacets> {
+		if (Array.isArray(data)) {
+			return {
+				items: data,
+				pagination: {
+					page: fallbackPage,
+					limit: fallbackLimit,
+					total: data.length,
+					totalPages: Math.max(1, Math.ceil(data.length / fallbackLimit)),
+				},
+			};
+		}
+
+		if (data && typeof data === "object" && "resultado" in data) {
+			const payload = (data as BackendResponse<BackendListPayload<T>>).resultado;
+			const items = payload?.items ?? [];
+			const pagination = this.normalizePagination(payload?.pagination, items.length, fallbackPage, fallbackLimit);
+			return {
+				items,
+				pagination,
+				facets: payload?.facets as TFacets | undefined,
+			};
+		}
+
+		return {
+			items: [],
+			pagination: this.normalizePagination(undefined, 0, fallbackPage, fallbackLimit),
+		};
+	}
+
+	private normalizePagination(value: unknown, itemCount: number, fallbackPage: number, fallbackLimit: number): PaginationMeta {
+		if (value && typeof value === "object") {
+			const source = value as Record<string, unknown>;
+			const page = Number(source.page);
+			const limit = Number(source.limit);
+			const total = Number(source.total);
+			const totalPages = Number(source.totalPages);
+			if (
+				Number.isInteger(page) &&
+				page > 0 &&
+				Number.isInteger(limit) &&
+				limit > 0 &&
+				Number.isInteger(total) &&
+				total >= 0 &&
+				Number.isInteger(totalPages) &&
+				totalPages > 0
+			) {
+				return { page, limit, total, totalPages };
+			}
+		}
+
+		return {
+			page: fallbackPage,
+			limit: fallbackLimit,
+			total: itemCount,
+			totalPages: Math.max(1, Math.ceil(itemCount / fallbackLimit)),
+		};
 	}
 
 	protected extractErrorMessage(error: unknown, fallback: string): string {
