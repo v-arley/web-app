@@ -36,7 +36,7 @@ function BarList({ items }: { items: CountItem[] }) {
     if (!items.length) {
         return (
             <div className="flex h-32 items-center justify-center border border-border-default bg-bg-primary">
-                <span className="text-[11px] font-mono uppercase tracking-label text-txt-disabled">
+                <span className="text-[12px] font-mono uppercase tracking-[0.14em] text-txt-disabled">
                     No data available
                 </span>
             </div>
@@ -51,16 +51,16 @@ function BarList({ items }: { items: CountItem[] }) {
                 return (
                     <div key={item.label} className="space-y-2">
                         <div className="flex items-center justify-between gap-3">
-                            <span className="truncate text-[11px] font-mono uppercase tracking-label text-txt-secondary">
+                            <span className="truncate text-[12px] font-mono uppercase tracking-[0.14em] text-txt-primary">
                                 {item.label}
                             </span>
 
-                            <span className="text-[12px] font-mono font-bold text-txt-primary">
+                            <span className="text-[13px] font-mono font-bold text-txt-primary">
                                 {item.value}
                             </span>
                         </div>
 
-                        <div className="h-3 overflow-hidden bg-bg-primary">
+                        <div className="h-3.5 overflow-hidden bg-bg-primary">
                             <div
                                 className="h-full bg-accent transition-all"
                                 style={{ width: `${width}%` }}
@@ -80,14 +80,14 @@ function HealthSummary({ items }: { items: CountItem[] }) {
         main && total > 0 ? Math.round((main.value / total) * 100) : 0;
 
     return (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[190px_1fr]">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-[210px_minmax(0,1fr)]">
             <div className="flex items-center justify-center border border-border-default bg-bg-primary p-4">
                 <div className="flex h-32 w-32 flex-col items-center justify-center rounded-full border-[12px] border-accent">
                     <span className="text-3xl font-mono font-bold text-txt-primary">
                         {mainPercent}%
                     </span>
 
-                    <span className="mt-1 text-center text-[9px] font-mono uppercase tracking-label text-txt-disabled">
+                    <span className="mt-1 text-center text-[10px] font-mono uppercase tracking-[0.14em] text-txt-disabled">
                         {main?.label ?? "No data"}
                     </span>
                 </div>
@@ -108,33 +108,33 @@ function StaffDeficitBox({
     return (
         <div className="flex flex-col gap-4">
             <div className="border border-border-default bg-bg-primary p-4">
-                <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
+                <p className="text-[11px] font-mono uppercase tracking-[0.16em] text-txt-disabled">
                     Staff deficit
                 </p>
 
                 {staffDeficits.length === 0 ? (
-                    <div className="mt-4 rounded-lg border border-border-default bg-bg-secondary p-3">
-                        <p className="text-[12px] font-mono font-bold uppercase tracking-label text-txt-primary">
+                    <div className="mt-4 border border-border-default bg-bg-secondary px-4 py-3">
+                        <p className="text-[13px] font-mono font-bold uppercase tracking-[0.14em] text-txt-primary">
                             All professions covered
                         </p>
 
-                        <p className="mt-2 text-[11px] leading-relaxed text-txt-secondary">
+                        <p className="mt-2 text-[12px] leading-relaxed text-txt-secondary">
                             Every active profession has at least one active
                             assigned user.
                         </p>
                     </div>
                 ) : (
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-4 flex max-h-[360px] flex-col gap-3 overflow-y-auto pr-1">
                         {staffDeficits.map((item) => (
                             <div
                                 key={item.code}
-                                className="rounded-lg border border-accent bg-bg-secondary p-3"
+                                className="border border-accent bg-bg-secondary px-4 py-3"
                             >
-                                <p className="text-[12px] font-mono font-bold uppercase tracking-label text-accent">
+                                <p className="text-[13px] font-mono font-bold uppercase tracking-[0.16em] text-accent">
                                     ⚠ {item.name}
                                 </p>
 
-                                <p className="mt-1 text-[11px] text-txt-secondary">
+                                <p className="mt-2 text-[12px] text-txt-secondary">
                                     No active personnel assigned.
                                 </p>
                             </div>
@@ -176,12 +176,12 @@ export default function DashboardAnalyticsSection({
         <section className="border border-border-default bg-bg-secondary">
             <div className="flex flex-col gap-4 border-b border-border-default px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
-                    <p className="text-[11px] font-mono font-bold uppercase tracking-label text-txt-primary">
-                        Camp analytics
+                    <p className="text-[13px] font-mono font-bold uppercase tracking-[0.18em] text-txt-primary">
+                        CAMP ANALYTICS
                     </p>
 
-                    <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                        Professions, health and demographics
+                    <p className="mt-1 text-[11px] font-mono uppercase tracking-[0.16em] text-txt-disabled">
+                        PROFESSIONS, HEALTH AND DEMOGRAPHICS
                     </p>
                 </div>
 
@@ -192,10 +192,10 @@ export default function DashboardAnalyticsSection({
                             type="button"
                             onClick={() => setActiveTab(tab.id)}
                             className={[
-                                "px-4 py-2 text-[10px] font-mono uppercase tracking-label border transition-colors",
+                                "border px-5 py-2 text-[11px] font-mono uppercase tracking-[0.16em] transition-colors",
                                 activeTab === tab.id
-                                    ? "bg-accent text-black border-accent"
-                                    : "bg-bg-primary text-txt-disabled border-border-default hover:text-txt-primary",
+                                    ? "border-accent bg-accent text-black"
+                                    : "border-border-default bg-bg-primary text-txt-disabled hover:text-txt-primary",
                             ].join(" ")}
                         >
                             {tab.label}
@@ -204,12 +204,12 @@ export default function DashboardAnalyticsSection({
                 </div>
             </div>
 
-            <div className="p-5">
+            <div className="p-4">
                 {activeTab === "professions" && (
-                    <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_300px]">
+                    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
                         <div>
-                            <p className="mb-4 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                                Distribution by profession
+                            <p className="mb-4 text-[11px] font-mono uppercase tracking-[0.16em] text-txt-disabled">
+                                DISTRIBUTION BY PROFESSION
                             </p>
 
                             <BarList items={professionDistribution} />
@@ -226,8 +226,8 @@ export default function DashboardAnalyticsSection({
 
                 {activeTab === "health" && (
                     <div>
-                        <p className="mb-4 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            People by health condition
+                        <p className="mb-4 text-[11px] font-mono uppercase tracking-[0.16em] text-txt-disabled">
+                            PEOPLE BY HEALTH CONDITION
                         </p>
 
                         <HealthSummary items={healthDistribution} />

@@ -1,361 +1,418 @@
-import { useMemo, useState } from "react";
 import {
+  AlertTriangle,
   ClipboardList,
-  UserRoundSearch,
-  UserRoundPlus,
-  UserCheck,
-  UserRoundMinus,
-  UsersRound,
   Download,
-  RotateCcw,
+  FilterX,
+  RefreshCw,
+  Search,
+  UserPlus,
+  Users as UsersIcon,
 } from "lucide-react";
+
 import { UserCard } from "../components/UserCard";
 import { UserProfileModal } from "../components/UserProfileModal";
 import { AdmissionRequestsPanel } from "../components/AdmissionRequestsPanel";
 import { RegistrationPanel } from "./RegistrationPanel";
-import {
-  useUsersView,
-  type StatusFilter,
-  type HealthFilter,
-  type AgeFilter,
-} from "../hooks/useUsersView";
-
-type UsersPanel = "staff" | "admissions";
-
-const professionNameMap: Record<string, string> = {
-  "PROF-MED": "Medicine",
-  "PROF-LOG": "Logistics",
-  "PROF-AGR": "Agriculture",
-  "PROF-EXP": "Exploration",
-  "PROF-COC": "Cooking",
-  "PROF-COOK": "Cooking",
-
-  MEDICINA: "Medicine",
-  LOGISTICA: "Logistics",
-  LOGÍSTICA: "Logistics",
-  AGRICULTURA: "Agriculture",
-  EXPLORACION: "Exploration",
-  EXPLORACIÓN: "Exploration",
-  COCINA: "Cooking",
-  COOKING: "Cooking",
-};
-
-function formatProfessionName(value?: string | null) {
-  if (!value) return "No profession";
-
-  const normalized = value.trim().toUpperCase();
-
-  if (professionNameMap[normalized]) {
-    return professionNameMap[normalized];
-  }
-
-  return value
-    .replace(/^PROF[-_]/i, "")
-    .replace(/[-_]/g, " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
+import { useUsersView } from "../hooks/useUsersView";
+import { useToast } from "../hooks/useToast";
 
 export function UsersView() {
-  const [activePanel, setActivePanel] = useState<UsersPanel>("staff");
+  const { toast } = useToast();
 
   const {
+    displayedUsers,
     professions,
-    loading,
+    professionOptions,
+
     selectedUser,
     setSelectedUser,
+
     isRegistrationPanelOpen,
     setIsRegistrationPanelOpen,
-    statusFilter,
-    setStatusFilter,
-    professionFilter,
-    setProfessionFilter,
-    healthFilter,
-    setHealthFilter,
-    ageFilter,
-    setAgeFilter,
-    isStatusSelectFocused,
-    setIsStatusSelectFocused,
+
+    showAdmissions,
+    setShowAdmissions,
+
+    loading,
+    error,
+
     searchQuery,
     setSearchQuery,
-    filteredUsers,
-    statusTitleMap,
+
+    statusFilter,
+    setStatusFilter,
+
+    professionFilter,
+    setProfessionFilter,
+
+    healthFilter,
+    setHealthFilter,
+
+    ageFilter,
+    setAgeFilter,
+
     handleToggleUserActive,
     handleChangeProfession,
     handleUpdatePersonProfile,
-    formatProfession,
+
     loadUsers,
     resetFilters,
     exportFilteredUsers,
+
+    activeUsers,
+    inactiveUsers,
+    totalUsers,
+    totalFilteredUsers,
   } = useUsersView();
 
-  const professionFilterOptions = useMemo(() => {
-    const mergedProfessions = [...professions, "PROF-COC"];
+  const handleRefresh = async () => {
+    try {
+      await loadUsers();
+      toast({
+        tone: "success",
+        title: "Users refreshed",
+        message: "Users loaded successfully.",
+      });
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Refresh failed",
+        message: err instanceof Error ? err.message : "Users could not be loaded.",
+      });
+    }
+  };
 
-    return Array.from(new Set(mergedProfessions.filter(Boolean))).map(
-      (profession) => ({
-        rawValue: profession,
-        filterValue: formatProfession(profession),
-        label: formatProfessionName(profession),
-      }),
+  const handleExport = async () => {
+    try {
+      await exportFilteredUsers();
+      toast({
+        tone: "success",
+        title: "Export completed",
+        message: "Users exported successfully.",
+      });
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Export failed",
+        message: err instanceof Error ? err.message : "Users could not be exported.",
+      });
+    }
+  };
+
+  const handleToggleActiveWithToast = async () => {
+    try {
+      await handleToggleUserActive();
+      toast({
+        tone: "success",
+        title: "Status updated",
+        message: "User status updated successfully.",
+      });
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Update failed",
+        message: err instanceof Error ? err.message : "User status could not be updated.",
+      });
+    }
+  };
+
+  const handleChangeProfessionWithToast = async (
+    profession: string,
+    options?: { isTemporary: boolean; temporaryUntil?: string },
+  ) => {
+    try {
+      await handleChangeProfession(profession, options);
+      toast({
+        tone: "success",
+        title: "Profession updated",
+        message: options?.isTemporary
+          ? "Temporary profession assigned successfully."
+          : "Profession updated successfully.",
+      });
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Update failed",
+        message: err instanceof Error ? err.message : "Profession could not be updated.",
+      });
+    }
+  };
+
+  const handleUpdateProfileWithToast = async (
+    personId: number,
+    payload: {
+      photo?: string;
+      description?: string;
+      conditions?: string;
+    },
+  ) => {
+    try {
+      await handleUpdatePersonProfile(personId, payload);
+      toast({
+        tone: "success",
+        title: "Profile updated",
+        message: "User profile updated successfully.",
+      });
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Update failed",
+        message: err instanceof Error ? err.message : "Profile could not be updated.",
+      });
+    }
+  };
+
+  if (showAdmissions) {
+    return (
+      <div className="flex h-full min-h-0 w-full flex-col bg-bg-app">
+        <AdmissionRequestsPanel
+          onBackToStaff={() => setShowAdmissions(false)}
+          onAdmissionResolved={async () => {
+            await loadUsers();
+            toast({
+              tone: "success",
+              title: "Admission processed",
+              message: "Admission request processed successfully.",
+            });
+          }}
+        />
+      </div>
     );
-  }, [professions, formatProfession]);
+  }
 
-  const statusIcon =
-    statusFilter === "active" ? (
-      <UserCheck className="h-7 w-7 rounded-md bg-[#A6A6A6] p-1 text-[#343434]" />
-    ) : statusFilter === "inactive" ? (
-      <UserRoundMinus className="h-7 w-7 rounded-md bg-[#A6A6A6] p-1 text-[#343434]" />
-    ) : (
-      <UsersRound className="h-7 w-7 rounded-md bg-[#A6A6A6] p-1 text-[#343434]" />
-    );
+  const getUserAccessibleName = (user: any) => {
+    const fullName =
+      user.fullName ??
+      user.name ??
+      [user.firstName, user.lastName].filter(Boolean).join(" ") ??
+      [user.names, user.surnames].filter(Boolean).join(" ");
 
-  const filterSelectClass =
-    "h-9 w-full rounded-lg border border-[#2A2A2A] bg-black px-3 text-sm text-white outline-none transition-colors hover:border-[#FF6600] hover:text-[#FF6600] sm:w-auto";
-
-  const actionButtonClass =
-    "flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#2A2A2A] bg-black px-3 text-sm text-white transition-colors hover:border-[#FF6600] hover:text-[#FF6600] sm:w-auto";
+    return fullName?.trim() || user.dni || "selected user";
+  };
 
   return (
-    <>
-      <div className="flex h-[calc(100vh-95px)] min-h-[calc(100vh-95px)] flex-col gap-3 p-3 font-mono sm:p-4 lg:p-5">
-        <div className="rounded-2xl border border-[#242424] bg-[#111111] px-4 py-3 shadow-[0_8px_18px_rgba(0,0,0,0.22)]">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-              {activePanel === "staff" && (
-                <div className="group flex h-10 w-full flex-1 items-center gap-3 rounded-xl border border-[#303030] bg-[#D1D1D1] px-4 transition-colors focus-within:border-[#FF6600]">
-                  <UserRoundSearch className="h-5 w-5 shrink-0 text-gray-500 transition-colors group-focus-within:text-[#FF6600]" />
+    <div className="flex h-full min-h-0 w-full flex-col bg-bg-app">
+      <div className="shrink-0 border-b border-border-default bg-bg-secondary px-6 py-4">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-txt-disabled">
+              Camp population
+            </p>
 
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="Search staff by name, DNI, role or profession..."
-                    className="h-10 w-full bg-transparent text-sm text-gray-600 outline-none placeholder:text-gray-500"
-                  />
-                </div>
-              )}
+            <h1 className="mt-1 flex items-center gap-3 text-[24px] font-black uppercase tracking-[0.12em] text-txt-primary">
+              <UsersIcon size={24} className="text-accent" />
+              Users
+            </h1>
+          </div>
 
-              {activePanel === "admissions" && (
-                <div className="flex h-10 w-full flex-1 items-center rounded-xl border border-[#303030] bg-[#D1D1D1] px-4">
-                  <span className="text-sm font-semibold uppercase tracking-wide text-gray-600">
-                    Pending admission requests
-                  </span>
-                </div>
-              )}
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setShowAdmissions(true)}
+              className="flex items-center gap-2 border border-border-default bg-bg-tertiary px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-txt-secondary transition-colors hover:border-accent hover:text-accent"
+            >
+              <ClipboardList size={14} />
+              Admissions
+            </button>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setActivePanel("admissions")}
-                  className={`group flex h-10 w-full items-center justify-center gap-[10px] rounded-xl border px-4 text-sm transition-colors xl:w-auto ${
-                    activePanel === "admissions"
-                      ? "border-[#FF6600] bg-[#FF6600] text-black"
-                      : "border-[#2A2A2A] bg-black text-white hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black"
-                  }`}
-                >
-                  <ClipboardList
-                    className={`h-5 w-5 transition-colors ${
-                      activePanel === "admissions"
-                        ? "text-black"
-                        : "text-white group-hover:text-black"
-                    }`}
-                  />
-                  Admissions
-                </button>
+            <button
+              type="button"
+              onClick={() => void handleExport()}
+              className="flex items-center gap-2 border border-border-default bg-bg-tertiary px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-txt-secondary transition-colors hover:border-accent hover:text-accent"
+            >
+              <Download size={14} />
+              Export
+            </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActivePanel("staff");
-                    setIsRegistrationPanelOpen(true);
-                  }}
-                  className="group flex h-10 w-full items-center justify-center gap-[10px] rounded-xl border border-[#2A2A2A] bg-black px-4 text-sm text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black xl:w-auto"
-                >
-                  <UserRoundPlus className="h-5 w-5 text-white transition-colors group-hover:text-black" />
-                  Register staff
-                </button>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => void handleRefresh()}
+              className="flex items-center gap-2 border border-border-default bg-bg-tertiary px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-txt-secondary transition-colors hover:border-accent hover:text-accent"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              Refresh
+            </button>
 
-            {activePanel === "staff" && (
-              <div className="border-t border-[#242424] pt-3">
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
-                    Filters
-                  </p>
-
-                  <p className="text-xs text-gray-500">
-                    {filteredUsers.length} result
-                    {filteredUsers.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:flex xl:flex-wrap">
-                    <select
-                      value={statusFilter}
-                      onChange={(event) =>
-                        setStatusFilter(event.target.value as StatusFilter)
-                      }
-                      onFocus={() => setIsStatusSelectFocused(true)}
-                      onBlur={() => setIsStatusSelectFocused(false)}
-                      className={`h-9 w-full rounded-lg border px-3 text-sm outline-none transition-all duration-200 sm:w-auto ${
-                        isStatusSelectFocused
-                          ? "border-[#FF6600] bg-[#FF6600] text-black"
-                          : "border-[#2A2A2A] bg-black text-white hover:border-[#FF6600] hover:text-[#FF6600]"
-                      }`}
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="all">All status</option>
-                    </select>
-
-                    <select
-                      value={professionFilter}
-                      onChange={(event) =>
-                        setProfessionFilter(event.target.value)
-                      }
-                      className={filterSelectClass}
-                    >
-                      <option value="all">All professions</option>
-
-                      {professionFilterOptions.map((profession) => (
-                        <option
-                          key={profession.rawValue}
-                          value={profession.filterValue}
-                        >
-                          {profession.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <select
-                      value={healthFilter}
-                      onChange={(event) =>
-                        setHealthFilter(event.target.value as HealthFilter)
-                      }
-                      className={filterSelectClass}
-                    >
-                      <option value="all">All health</option>
-                      <option value="healthy">Healthy</option>
-                      <option value="has-condition">Has condition</option>
-                    </select>
-
-                    <select
-                      value={ageFilter}
-                      onChange={(event) =>
-                        setAgeFilter(event.target.value as AgeFilter)
-                      }
-                      className={filterSelectClass}
-                    >
-                      <option value="all">All ages</option>
-                      <option value="under-18">Under 18</option>
-                      <option value="18-30">18 - 30</option>
-                      <option value="31-50">31 - 50</option>
-                      <option value="51-plus">51+</option>
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:shrink-0">
-                    <button
-                      type="button"
-                      onClick={resetFilters}
-                      className={actionButtonClass}
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                      Reset
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={exportFilteredUsers}
-                      className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#FF6600] bg-[#FF6600] px-4 text-sm text-black transition-colors hover:bg-black hover:text-[#FF6600] sm:w-auto"
-                    >
-                      <Download className="h-4 w-4" />
-                      Export
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => setIsRegistrationPanelOpen(true)}
+              className="flex items-center gap-2 border border-accent bg-accent px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-accent-fg transition-colors hover:bg-accent-hover"
+            >
+              <UserPlus size={14} />
+              New user
+            </button>
           </div>
         </div>
 
-        {activePanel === "staff" && (
-          <div className="flex min-h-0 flex-1 flex-col gap-2">
-            <div className="flex w-full items-center gap-[10px] border-b border-[#B8B8B8] px-3 py-2 text-[#343434] shadow-[0_8px_8px_-8px_rgba(0,0,0,0.45)]">
-              {statusIcon}
-
-              <p className="text-sm">{statusTitleMap[statusFilter]}</p>
-
-              <span className="ml-auto text-xs text-gray-500">
-                {filteredUsers.length} result
-                {filteredUsers.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            <div className="grid min-h-0 flex-1 grid-cols-1 content-start gap-5 overflow-y-auto rounded-xl bg-transparent px-3 py-4 shadow-none md:grid-cols-2 xl:grid-cols-3">
-              {loading ? (
-                <div className="col-span-full flex items-center justify-center py-20">
-                  <span className="animate-pulse font-mono text-sm uppercase tracking-widest text-gray-500">
-                    Loading staff...
-                  </span>
-                </div>
-              ) : filteredUsers.length === 0 ? (
-                <div className="col-span-full flex items-center justify-center py-20">
-                  <span className="font-mono text-sm uppercase tracking-widest text-gray-500">
-                    No staff found
-                  </span>
-                </div>
-              ) : (
-                filteredUsers.map((user) => (
-                  <div
-                    key={user.idUser}
-                    className="relative transition-all duration-250 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_16px_28px_rgba(0,0,0,0.42),0_0_18px_rgba(51,19,1,0.55)]"
-                    onClick={() => setSelectedUser(user)}
-                  >
-                    <UserCard
-                      name={user.name}
-                      lastName={user.lastName}
-                      role={user.role}
-                      id={user.id}
-                      active={user.active}
-                      profession={formatProfessionName(user.profession)}
-                      imageUrl={user.imageUrl}
-                    />
-                  </div>
-                ))
-              )}
-            </div>
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="border border-border-default bg-bg-primary px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
+              Total
+            </p>
+            <p className="mt-1 text-[22px] font-black text-txt-primary">
+              {totalUsers}
+            </p>
           </div>
-        )}
 
-        {activePanel === "admissions" && (
-          <div className="flex min-h-0 flex-1 flex-col gap-2">
-            <div className="flex w-full items-center gap-[10px] border-b border-[#B8B8B8] px-3 py-2 text-[#343434] shadow-[0_8px_8px_-8px_rgba(0,0,0,0.45)]">
-              <ClipboardList className="h-7 w-7 rounded-md bg-[#A6A6A6] p-1 text-[#343434]" />
-              <p className="text-sm">PENDING ADMISSIONS</p>
-            </div>
+          <div className="border border-border-default bg-bg-primary px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
+              Active
+            </p>
+            <p className="mt-1 text-[22px] font-black text-status-ok">
+              {activeUsers.length}
+            </p>
+          </div>
 
-            <AdmissionRequestsPanel
-              onAdmissionResolved={loadUsers}
-              onBackToStaff={() => setActivePanel("staff")}
-            />
+          <div className="border border-border-default bg-bg-primary px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
+              Inactive
+            </p>
+            <p className="mt-1 text-[22px] font-black text-status-critical">
+              {inactiveUsers.length}
+            </p>
+          </div>
+
+          <div className="border border-border-default bg-bg-primary px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
+              Showing
+            </p>
+            <p className="mt-1 text-[22px] font-black text-accent">
+              {totalFilteredUsers}
+            </p>
+          </div>
+        </div>
+      </div>
+
+     <div className="shrink-0 border-b border-border-default bg-bg-primary px-6 py-4">
+  <div className="space-y-3">
+    <div className="relative">
+      <Search
+        size={16}
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-txt-disabled"
+      />
+
+      <input
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        placeholder="Search by name, DNI, role or profession..."
+        className="h-12 w-full border border-border-default bg-bg-tertiary pl-11 pr-4 text-[12px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none placeholder:text-txt-disabled focus:border-accent"
+      />
+    </div>
+
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1.1fr_1fr_1fr_auto]">
+      <select
+        aria-label="Filter users by status"
+        value={statusFilter}
+        onChange={(event) => setStatusFilter(event.target.value as any)}
+        className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+      >
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="all">All</option>
+        </select>
+
+          <select
+            aria-label="Filter users by profession"
+            value={professionFilter}
+            onChange={(event) => setProfessionFilter(event.target.value)}
+            className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+          >
+            <option value="all">All professions</option>
+            {professionOptions.map((profession) => (
+              <option key={profession} value={profession}>
+                {profession}
+              </option>
+            ))}
+          </select>
+
+          <select
+            aria-label="Filter users by health condition"
+            value={healthFilter}
+            onChange={(event) => setHealthFilter(event.target.value as any)}
+            className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+          >
+            <option value="all">All health</option>
+            <option value="healthy">Healthy</option>
+            <option value="has-condition">Has condition</option>
+          </select>
+
+          <select
+            aria-label="Filter users by age"
+            value={ageFilter}
+            onChange={(event) => setAgeFilter(event.target.value as any)}
+            className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+          >
+            <option value="all">All ages</option>
+            <option value="under-18">Under 18</option>
+            <option value="18-30">18 - 30</option>
+            <option value="31-50">31 - 50</option>
+            <option value="51-plus">51+</option>
+          </select>
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="flex h-10 items-center justify-center gap-2 border border-accent/60 bg-accent/10 px-5 text-[11px] font-black uppercase tracking-[0.16em] text-accent transition-colors hover:bg-accent hover:text-accent-fg"
+            >
+              <FilterX size={14} />
+              Clear filters
+            </button>
+          </div>
+        </div>
+    </div>
+      {error ? (
+        <div className="mx-6 mt-4 flex shrink-0 items-center gap-2 border border-status-critical bg-status-critical/10 px-4 py-3 text-[12px] font-bold uppercase tracking-[0.12em] text-status-critical">
+          <AlertTriangle size={16} />
+          {error}
+        </div>
+      ) : null}
+
+      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+        {loading ? (
+          <div className="flex h-full items-center justify-center text-[12px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
+            Loading users...
+          </div>
+        ) : displayedUsers.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-[12px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
+            No users found.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {displayedUsers.map((user) => (
+            <button
+              key={`${user.userId ?? "u"}-${user.personId ?? user.dni}`}
+              type="button"
+              aria-label={`Open user details for ${getUserAccessibleName(user)}`}
+              title={`Open user details for ${getUserAccessibleName(user)}`}
+              onClick={() => setSelectedUser(user)}
+              className="text-left"
+            >
+                <UserCard
+                  name={user.name}
+                  lastName={user.lastName}
+                  role={user.role}
+                  id={user.dni || user.id}
+                  active={user.active}
+                  profession={user.profession}
+                  temporaryProfession={user.temporaryProfession}
+                  temporaryUntil={user.temporaryUntil}
+                  imageUrl={user.imageUrl}
+                />
+              </button>
+            ))}
           </div>
         )}
       </div>
 
-      {selectedUser && (
+      {selectedUser ? (
         <UserProfileModal
           name={selectedUser.name}
           lastName={selectedUser.lastName}
           role={selectedUser.role}
           sex={selectedUser.sex}
-          id={selectedUser.id}
+          id={selectedUser.dni || selectedUser.id}
           active={selectedUser.active}
           profession={selectedUser.profession}
-          professions={[...professions, "PROF-COC"]}
+          professions={professions}
           registrationDate={selectedUser.registrationDate}
           birthdate={selectedUser.birthdate}
           imageUrl={selectedUser.imageUrl}
@@ -363,16 +420,27 @@ export function UsersView() {
           idCardUrl={selectedUser.idCardUrl}
           description={selectedUser.description}
           conditions={selectedUser.conditions}
-          onToggleActive={handleToggleUserActive}
-          onChangeProfession={handleChangeProfession}
-          onUpdatePersonProfile={handleUpdatePersonProfile}
+          onToggleActive={handleToggleActiveWithToast}
+          onChangeProfession={handleChangeProfessionWithToast}
+          onUpdatePersonProfile={handleUpdateProfileWithToast}
           onClose={() => setSelectedUser(null)}
         />
-      )}
+      ) : null}
 
-      {isRegistrationPanelOpen && (
-        <RegistrationPanel onClose={() => setIsRegistrationPanelOpen(false)} />
-      )}
-    </>
+      {isRegistrationPanelOpen ? (
+        <RegistrationPanel
+          onClose={() => setIsRegistrationPanelOpen(false)}
+          onSuccess={async () => {
+            setIsRegistrationPanelOpen(false);
+            await loadUsers();
+            toast({
+              tone: "success",
+              title: "User processed",
+              message: "User request created successfully.",
+            });
+          }}
+        />
+      ) : null}
+    </div>
   );
 }

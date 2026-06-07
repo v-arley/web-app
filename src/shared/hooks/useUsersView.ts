@@ -34,6 +34,8 @@ export type UserCardData = {
   dni: string;
   active: boolean;
   profession: string;
+  temporaryProfession?: string | null;
+  temporaryUntil?: string | null;
   imageUrl: string;
 
   description: string;
@@ -53,19 +55,30 @@ const statusTitleMap: Record<StatusFilter, string> = {
   all: "All staff",
 };
 
-const professionCodes = ["PROF-MED", "PROF-LOG", "PROF-AGR", "PROF-EXP"];
+const professionCodes = [
+  "PROF-MED",
+  "PROF-LOG",
+  "PROF-AGR",
+  "PROF-EXP",
+  "PROF-COC",
+];
 
 const professionLabels: Record<string, string> = {
   "PROF-MED": "Medicina",
   "PROF-LOG": "Logística",
   "PROF-AGR": "Agricultura",
   "PROF-EXP": "Exploración",
+  "PROF-COC": "Cocina",
+  "PROF-COOK": "Cocina",
+
   MEDICINA: "Medicina",
   LOGISTICA: "Logística",
   LOGÍSTICA: "Logística",
   AGRICULTURA: "Agricultura",
   EXPLORACION: "Exploración",
   EXPLORACIÓN: "Exploración",
+  COCINA: "Cocina",
+  COOKING: "Cocina",
   OPERACIONES: "Operaciones",
   OPERACION: "Operación",
   OPERACIÓN: "Operación",
@@ -79,6 +92,8 @@ const labelToProfessionCode: Record<string, string> = {
   AGRICULTURA: "PROF-AGR",
   EXPLORACION: "PROF-EXP",
   EXPLORACIÓN: "PROF-EXP",
+  COCINA: "PROF-COC",
+  COOKING: "PROF-COC",
 };
 
 const professionIds: Record<string, number> = {
@@ -86,6 +101,8 @@ const professionIds: Record<string, number> = {
   "PROF-LOG": 2,
   "PROF-AGR": 3,
   "PROF-EXP": 4,
+  "PROF-COC": 5,
+  "PROF-COOK": 5,
 };
 
 function formatProfession(value?: string | null) {
@@ -225,6 +242,73 @@ function getPersonForUser(user: any, peopleById: Map<number, any>) {
   return peopleById.get(personId) ?? embeddedPerson;
 }
 
+function isTemporaryAssignment(assignment: any) {
+  return (
+    assignment?.is_temporary === "Y" ||
+    assignment?.is_temporary === true ||
+    assignment?.isTemporary === true
+  );
+}
+
+function getProfessionFromAssignment(assignment: any) {
+  if (!assignment) return null;
+
+  return (
+    assignment.profession?.code ??
+    assignment.profession?.name ??
+    assignment.profession_code ??
+    assignment.professionCode ??
+    assignment.profession_name ??
+    assignment.professionName ??
+    null
+  );
+}
+
+function getTemporaryUntil(assignment: any) {
+  const value =
+    assignment?.temporary_until ??
+    assignment?.temporaryUntil ??
+    assignment?.until ??
+    null;
+
+  if (!value) return null;
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleDateString("en-GB");
+}
+
+function getTemporaryDataFromAssignments(assignments: any[]) {
+  const temporaryAssignment = assignments.find(isTemporaryAssignment);
+
+  return {
+    temporaryProfession: getProfessionFromAssignment(temporaryAssignment),
+    temporaryUntil: getTemporaryUntil(temporaryAssignment),
+  };
+}
+
+function getNormalProfessionFromAssignments(assignments: any[]) {
+  const normalAssignment = assignments.find(
+    (assignment) => !isTemporaryAssignment(assignment),
+  );
+
+  return getProfessionFromAssignment(normalAssignment);
+}
+
+async function getPersonProfessionAssignments(personId?: number) {
+  if (!personId) return [];
+
+  const response = await personProfessionService.findByPersonId(personId);
+
+  if (!response.getEstado()) return [];
+
+  return getList<any>(response);
+}
+
 function mapUser(user: User, peopleById: Map<number, any>): UserCardData {
   const raw = user as any;
   const person = getPersonForUser(raw, peopleById);
@@ -247,6 +331,8 @@ function mapUser(user: User, peopleById: Map<number, any>): UserCardData {
     dni,
     active,
     profession: formatProfession(raw.profession),
+    temporaryProfession: null,
+    temporaryUntil: null,
     imageUrl:
       person.photo ??
       person.photo_url ??
@@ -265,6 +351,73 @@ function mapUser(user: User, peopleById: Map<number, any>): UserCardData {
   };
 }
 
+async function addProfessionAssignmentsToUsers(users: UserCardData[]) {
+  return await Promise.all(
+    users.map(async (user) => {
+      const assignments = await getPersonProfessionAssignments(user.personId);
+
+      if (assignments.length === 0) {
+        return user;
+      }
+
+      const normalProfession = getNormalProfessionFromAssignments(assignments);
+      const temporaryData = getTemporaryDataFromAssignments(assignments);
+
+      return {
+        ...user,
+        profession: normalProfession
+          ? formatProfession(normalProfession)
+          : user.profession,
+        temporaryProfession: temporaryData.temporaryProfession
+          ? formatProfession(temporaryData.temporaryProfession)
+          : null,
+        temporaryUntil: temporaryData.temporaryUntil,
+      };
+    }),
+  );
+}
+
+function parseTemporaryDate(value?: string | null): Date | null {
+  if (!value) return null;
+
+  const raw = String(value).trim();
+
+  if (!raw) return null;
+
+  const directDate = new Date(raw);
+
+  if (!Number.isNaN(directDate.getTime())) {
+    return directDate;
+  }
+
+  const parts = raw.split(/[/-]/);
+
+  if (parts.length === 3) {
+    const [day, month, year] = parts.map(Number);
+    const parsedDate = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return parsedDate;
+    }
+  }
+
+  return null;
+}
+
+function hasActiveTemporaryProfession(user?: UserCardData | null): boolean {
+  if (!user?.temporaryProfession?.trim()) {
+    return false;
+  }
+
+  const untilDate = parseTemporaryDate(user.temporaryUntil);
+
+  if (!untilDate) {
+    return true;
+  }
+
+  return untilDate.getTime() >= Date.now();
+}
+
 function escapeCsv(value: unknown) {
   return `"${String(value ?? "").replace(/"/g, '""')}"`;
 }
@@ -276,6 +429,8 @@ function exportUsersToCsv(users: UserCardData[]) {
     "DNI",
     "Role",
     "Profession",
+    "Temporary profession",
+    "Temporary until",
     "State",
     "Condition",
     "Age",
@@ -287,6 +442,8 @@ function exportUsersToCsv(users: UserCardData[]) {
     user.dni,
     user.role,
     user.profession,
+    user.temporaryProfession ?? "",
+    user.temporaryUntil ?? "",
     user.active ? "Active" : "Inactive",
     normalizeHealth(user.conditions) === "healthy" ? "Healthy" : "Has condition",
     user.age ?? "",
@@ -315,12 +472,23 @@ async function replacePersonProfession(
   professionId: number,
   options?: ChangeProfessionOptions,
 ) {
+  if (options?.isTemporary) {
+    return await personProfessionService.save({
+      person_id: personId,
+      profession_id: professionId,
+      is_temporary: "Y",
+      temporary_until: options.temporaryUntil,
+    } as any);
+  }
+
   const currentResponse = await personProfessionService.findByPersonId(personId);
 
   if (currentResponse.getEstado()) {
     const currentAssignments = getList<any>(currentResponse);
 
     for (const assignment of currentAssignments) {
+      if (isTemporaryAssignment(assignment)) continue;
+
       const currentProfessionId = Number(
         assignment.profession_id ??
           assignment.professionId ??
@@ -336,14 +504,16 @@ async function replacePersonProfession(
   return await personProfessionService.save({
     person_id: personId,
     profession_id: professionId,
-    is_temporary: options?.isTemporary ? "Y" : "N",
-    temporary_until: options?.isTemporary ? options.temporaryUntil : null,
+    is_temporary: "N",
+    temporary_until: null,
   } as any);
 }
 
 export function useUsersView() {
   const [users, setUsers] = useState<UserCardData[]>([]);
-  const [admissionRequests, setAdmissionRequests] = useState<AdmissionRequest[]>([]);
+  const [admissionRequests, setAdmissionRequests] = useState<AdmissionRequest[]>(
+    [],
+  );
 
   const [selectedUser, setSelectedUser] = useState<UserCardData | null>(null);
   const [isRegistrationPanelOpen, setIsRegistrationPanelOpen] = useState(false);
@@ -360,51 +530,54 @@ export function useUsersView() {
   const [ageFilter, setAgeFilter] = useState<AgeFilter>("all");
 
   const loadUsers = async () => {
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    const [usersResponse, personsResponse, admissionsResponse] =
-      await Promise.allSettled([
-        userService.findAll(),
-        personService.findAll(),
-        admissionRequestService.findAll(),
-      ]);
+    try {
+      const [usersResponse, personsResponse, admissionsResponse] =
+        await Promise.allSettled([
+          userService.findAll(),
+          personService.findAll(),
+          admissionRequestService.findAll(),
+        ]);
 
-    const loadedUsers =
-      usersResponse.status === "fulfilled" && usersResponse.value.getEstado()
-        ? usersResponse.value.getResultado<User[]>("registros") ??
-          usersResponse.value.getResultado<User[]>("items") ??
-          []
-        : [];
+      const loadedUsers =
+        usersResponse.status === "fulfilled" && usersResponse.value.getEstado()
+          ? usersResponse.value.getResultado<User[]>("registros") ??
+            usersResponse.value.getResultado<User[]>("items") ??
+            []
+          : [];
 
-    const loadedPersons =
-      personsResponse.status === "fulfilled" && personsResponse.value.getEstado()
-        ? personsResponse.value.getResultado<any[]>("registros") ??
-          personsResponse.value.getResultado<any[]>("items") ??
-          []
-        : [];
+      const loadedPersons =
+        personsResponse.status === "fulfilled" && personsResponse.value.getEstado()
+          ? personsResponse.value.getResultado<any[]>("registros") ??
+            personsResponse.value.getResultado<any[]>("items") ??
+            []
+          : [];
 
-    const loadedAdmissions =
-      admissionsResponse.status === "fulfilled" &&
-      admissionsResponse.value.getEstado()
-        ? admissionsResponse.value.getResultado<AdmissionRequest[]>("registros") ??
-          admissionsResponse.value.getResultado<AdmissionRequest[]>("items") ??
-          []
-        : [];
+      const loadedAdmissions =
+        admissionsResponse.status === "fulfilled" &&
+        admissionsResponse.value.getEstado()
+          ? admissionsResponse.value.getResultado<AdmissionRequest[]>("registros") ??
+            admissionsResponse.value.getResultado<AdmissionRequest[]>("items") ??
+            []
+          : [];
 
-    const peopleById = buildPersonMap(loadedPersons);
+      const peopleById = buildPersonMap(loadedPersons);
+      const mappedUsers = loadedUsers.map((user) => mapUser(user, peopleById));
+      const usersWithProfessions =
+        await addProfessionAssignmentsToUsers(mappedUsers);
 
-    setUsers(loadedUsers.map((user) => mapUser(user, peopleById)));
-    setAdmissionRequests(loadedAdmissions);
-  } catch {
-    setError("No se pudo cargar la población del campamento.");
-    setUsers([]);
-    setAdmissionRequests([]);
-  } finally {
-    setLoading(false);
-  }
-};
+      setUsers(usersWithProfessions);
+      setAdmissionRequests(loadedAdmissions);
+    } catch {
+      setError("No se pudo cargar la población del campamento.");
+      setUsers([]);
+      setAdmissionRequests([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     void loadUsers();
@@ -412,7 +585,11 @@ export function useUsersView() {
 
   const professionOptions = useMemo(() => {
     return Array.from(
-      new Set(users.map((user) => user.profession).filter(Boolean)),
+      new Set(
+        users
+          .flatMap((user) => [user.profession, user.temporaryProfession])
+          .filter(Boolean) as string[],
+      ),
     ).sort((a, b) => a.localeCompare(b));
   }, [users]);
 
@@ -422,7 +599,15 @@ export function useUsersView() {
     return users.filter((user) => {
       const matchesSearch =
         !query ||
-        [user.name, user.lastName, user.dni, user.id, user.role, user.profession]
+        [
+          user.name,
+          user.lastName,
+          user.dni,
+          user.id,
+          user.role,
+          user.profession,
+          user.temporaryProfession ?? "",
+        ]
           .join(" ")
           .toLowerCase()
           .includes(query);
@@ -433,7 +618,9 @@ export function useUsersView() {
         (statusFilter === "inactive" && !user.active);
 
       const matchesProfession =
-        professionFilter === "all" || user.profession === professionFilter;
+        professionFilter === "all" ||
+        user.profession === professionFilter ||
+        user.temporaryProfession === professionFilter;
 
       const matchesHealth =
         healthFilter === "all" || normalizeHealth(user.conditions) === healthFilter;
@@ -449,15 +636,20 @@ export function useUsersView() {
   }, [users, searchQuery, statusFilter, professionFilter, healthFilter, ageFilter]);
 
   const handleToggleUserActive = async () => {
-    if (!selectedUser?.userId) return;
+    if (!selectedUser?.userId) {
+      const message = "No se encontró el usuario seleccionado.";
+      setError(message);
+      throw new Error(message);
+    }
 
     const response = await userService.update(selectedUser.userId, {
       state: selectedUser.active ? "I" : "A",
     } as any);
 
     if (!response.getEstado()) {
-      setError("No se pudo actualizar el usuario.");
-      return;
+      const message = "No se pudo actualizar el usuario.";
+      setError(message);
+      throw new Error(message);
     }
 
     setSelectedUser(null);
@@ -469,20 +661,32 @@ export function useUsersView() {
     options?: ChangeProfessionOptions,
   ) => {
     if (!selectedUser?.personId) {
-      setError("No se encontró la persona seleccionada.");
-      return;
+      const message = "No se encontró la persona seleccionada.";
+      setError(message);
+      throw new Error(message);
     }
 
     const professionId = getProfessionId(profession);
 
     if (!Number.isFinite(professionId) || professionId <= 0) {
-      setError("Profesión inválida.");
-      return;
+      const message = "Profesión inválida.";
+      setError(message);
+      throw new Error(message);
     }
 
     if (options?.isTemporary && !options.temporaryUntil) {
-      setError("Debe seleccionar una fecha final para la profesión temporal.");
-      return;
+      const message = "Debe seleccionar una fecha final para la profesión temporal.";
+      setError(message);
+      throw new Error(message);
+    }
+
+    if (options?.isTemporary && hasActiveTemporaryProfession(selectedUser)) {
+      const message = `Esta persona ya tiene una profesión temporal vigente${
+        selectedUser.temporaryUntil ? ` hasta ${selectedUser.temporaryUntil}` : ""
+      }. Debe esperar a que caduque antes de asignar otra.`;
+
+      setError(message);
+      throw new Error(message);
     }
 
     const response = await replacePersonProfession(
@@ -492,61 +696,71 @@ export function useUsersView() {
     );
 
     if (!response.getEstado()) {
-      setError("No se pudo cambiar la profesión.");
-      return;
+      const message = "No se pudo cambiar la profesión.";
+      setError(message);
+      throw new Error(message);
     }
 
-    setUsers((currentUsers) =>
-      currentUsers.map((user) =>
-        String(user.personId) === String(selectedUser.personId)
-          ? { ...user, profession: formatProfession(profession) }
-          : user,
-      ),
-    );
+    const formattedProfession = formatProfession(profession);
+    const formattedTemporaryUntil = options?.isTemporary
+      ? getTemporaryUntil({ temporary_until: options.temporaryUntil })
+      : null;
+
+    const patchUser = (user: UserCardData): UserCardData => {
+      if (String(user.personId) !== String(selectedUser.personId)) return user;
+
+      return {
+        ...user,
+        profession: options?.isTemporary ? user.profession : formattedProfession,
+        temporaryProfession: options?.isTemporary ? formattedProfession : null,
+        temporaryUntil: formattedTemporaryUntil,
+      };
+    };
+
+    setUsers((currentUsers) => currentUsers.map(patchUser));
 
     setSelectedUser((currentUser) =>
-      currentUser
-        ? { ...currentUser, profession: formatProfession(profession) }
-        : currentUser,
+      currentUser ? patchUser(currentUser) : currentUser,
     );
+
+    await loadUsers();
   };
 
   const handleUpdatePersonProfile = async (
-      personId: number,
-      payload: {
-        photo?: string;
-        description?: string;
-        conditions?: string;
-      },
-    ) => {
-      const response = await personService.update(personId, payload as any);
+    personId: number,
+    payload: {
+      photo?: string;
+      description?: string;
+      conditions?: string;
+    },
+  ) => {
+    const response = await personService.update(personId, payload as any);
 
-      if (!response.getEstado()) {
-        setError("No se pudo actualizar el perfil de la persona.");
-        return;
-      }
+    if (!response.getEstado()) {
+      const message = "No se pudo actualizar el perfil de la persona.";
+      setError(message);
+      throw new Error(message);
+    }
 
-      const patchUser = (user: UserCardData): UserCardData => {
-        if (String(user.personId) !== String(personId)) return user;
+    const patchUser = (user: UserCardData): UserCardData => {
+      if (String(user.personId) !== String(personId)) return user;
 
-        return {
-          ...user,
-          imageUrl: payload.photo !== undefined ? payload.photo : user.imageUrl,
-          description:
-            payload.description !== undefined
-              ? payload.description
-              : user.description,
-          conditions:
-            payload.conditions !== undefined ? payload.conditions : user.conditions,
-        };
+      return {
+        ...user,
+        imageUrl: payload.photo !== undefined ? payload.photo : user.imageUrl,
+        description:
+          payload.description !== undefined ? payload.description : user.description,
+        conditions:
+          payload.conditions !== undefined ? payload.conditions : user.conditions,
       };
-
-      setUsers((currentUsers) => currentUsers.map(patchUser));
-
-      setSelectedUser((currentUser) =>
-        currentUser ? patchUser(currentUser) : currentUser,
-      );
     };
+
+    setUsers((currentUsers) => currentUsers.map(patchUser));
+
+    setSelectedUser((currentUser) =>
+      currentUser ? patchUser(currentUser) : currentUser,
+    );
+  };
 
   const resetFilters = () => {
     setSearchQuery("");

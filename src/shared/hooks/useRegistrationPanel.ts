@@ -17,9 +17,13 @@ export const MAX_BIRTH_DATE = new Date().toISOString().split("T")[0];
 
 type UseRegistrationPanelParams = {
   onClose: () => void;
+  onSuccess?: () => void | Promise<void>;
 };
 
-export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
+export function useRegistrationPanel({
+  onClose,
+  onSuccess,
+}: UseRegistrationPanelParams) {
   const authContext = getAuthContextFromToken();
 
   const [step, setStep] = useState<RegistrationStep>("personal_data");
@@ -85,7 +89,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setErrorMessage("Debe seleccionar un archivo de imagen.");
+      setErrorMessage("Please select a valid image file.");
       return;
     }
 
@@ -106,7 +110,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         const ctx = canvas.getContext("2d");
 
         if (!ctx) {
-          setErrorMessage("No se pudo procesar la imagen.");
+          setErrorMessage("The selected image could not be processed.");
           return;
         }
 
@@ -119,14 +123,14 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
       };
 
       img.onerror = () => {
-        setErrorMessage("No se pudo cargar la imagen seleccionada.");
+        setErrorMessage("The selected image could not be loaded.");
       };
 
       img.src = String(reader.result);
     };
 
     reader.onerror = () => {
-      setErrorMessage("No se pudo leer la imagen seleccionada.");
+      setErrorMessage("The selected image could not be read.");
     };
 
     reader.readAsDataURL(file);
@@ -137,9 +141,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     setBirthDate(value);
 
     if (value && (value < MIN_BIRTH_DATE || value > MAX_BIRTH_DATE)) {
-      setErrorMessage(
-        "La fecha de nacimiento debe estar entre 1924 y el año actual.",
-      );
+      setErrorMessage("Birth date must be between 1924 and the current year.");
       return;
     }
 
@@ -151,16 +153,12 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     setSuccessMessage("");
 
     if (!isBirthDateValid) {
-      setErrorMessage(
-        "La fecha de nacimiento debe estar entre 1924 y el año actual.",
-      );
+      setErrorMessage("Birth date must be between 1924 and the current year.");
       return;
     }
 
     if (!isStepOneValid) {
-      setErrorMessage(
-        "Complete todos los campos de Personal Data antes de continuar.",
-      );
+      setErrorMessage("Complete all Personal Data fields before continuing.");
       return;
     }
 
@@ -184,7 +182,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
       `Sex: ${sex}`,
       `Birth date: ${birthDate}`,
       `Description: ${description.trim()}`,
-      `Conditions: ${conditions.trim() || "Sin condiciones declaradas"}`,
+      `Conditions: ${conditions.trim() || "No declared conditions"}`,
       "",
       `Background and history: ${background.trim()}`,
       `Specialized skills: ${skills.trim()}`,
@@ -199,26 +197,24 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
     setSuccessMessage("");
 
     if (!authContext.campId) {
-      setErrorMessage("No se pudo identificar el campamento del usuario.");
+      setErrorMessage("The current user's camp could not be identified.");
       return;
     }
 
     if (!isBirthDateValid) {
       setStep("personal_data");
-      setErrorMessage(
-        "La fecha de nacimiento debe estar entre 1924 y el año actual.",
-      );
+      setErrorMessage("Birth date must be between 1924 and the current year.");
       return;
     }
 
     if (!isStepOneValid) {
       setStep("personal_data");
-      setErrorMessage("Complete todos los campos de Personal Data.");
+      setErrorMessage("Complete all Personal Data fields.");
       return;
     }
 
     if (!isStepTwoValid) {
-      setErrorMessage("Complete todos los campos de AI Assistance.");
+      setErrorMessage("Complete all AI Assistance fields.");
       return;
     }
 
@@ -239,7 +235,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
 
       if (!personResp.getEstado()) {
         setErrorMessage(
-          personResp.getMensaje() || "No se pudo crear la persona.",
+          personResp.getMensaje() || "The person could not be created.",
         );
         return;
       }
@@ -248,7 +244,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         personResp.getResultado<{ id?: number }>("registro");
 
       if (!createdPerson?.id) {
-        setErrorMessage("La persona fue creada, pero no se recibió el ID.");
+        setErrorMessage("The person was created, but no ID was received.");
         return;
       }
 
@@ -261,7 +257,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
       if (!admissionResp.getEstado()) {
         setErrorMessage(
           admissionResp.getMensaje() ||
-            "No se pudo crear la solicitud de admisión.",
+            "The admission request could not be created.",
         );
         return;
       }
@@ -270,7 +266,9 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
         admissionResp.getResultado<{ id?: number }>("registro");
 
       if (!createdAdmissionRequest?.id) {
-        setErrorMessage("La solicitud fue creada, pero no se recibió el ID.");
+        setErrorMessage(
+          "The admission request was created, but no ID was received.",
+        );
         return;
       }
 
@@ -281,7 +279,7 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
 
       if (!promptResp.getEstado()) {
         setErrorMessage(
-          promptResp.getMensaje() || "No se pudo crear el prompt de IA.",
+          promptResp.getMensaje() || "The AI prompt could not be created.",
         );
         return;
       }
@@ -293,19 +291,20 @@ export function useRegistrationPanel({ onClose }: UseRegistrationPanelParams) {
       if (!evaluationResp.getEstado()) {
         setErrorMessage(
           evaluationResp.getMensaje() ||
-            "La solicitud fue creada, pero no se pudo ejecutar la evaluación de IA.",
+            "The request was created, but the AI evaluation could not be executed.",
         );
         return;
       }
 
-      setSuccessMessage("Solicitud enviada y evaluada por IA correctamente.");
+      setSuccessMessage("Person registered successfully.");
 
       window.setTimeout(() => {
+        void onSuccess?.();
         onClose();
-      }, 900);
+      }, 700);
     } catch (error) {
       console.error(error);
-      setErrorMessage("Ocurrió un error inesperado al enviar el análisis.");
+      setErrorMessage("An unexpected error occurred while submitting the analysis.");
     } finally {
       setSubmitting(false);
     }

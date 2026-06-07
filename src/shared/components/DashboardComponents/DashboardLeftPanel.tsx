@@ -10,12 +10,6 @@ import type { Person } from "../../../models/Person";
 import type { Resource } from "../../../models/Resource";
 import type { Task } from "../../../models/Task";
 
-import {
-    DonutChart,
-    MiniGauge,
-    VerticalBarChart,
-} from "./DashboardCharts";
-
 type Props = {
     loading: boolean;
     persons: Person[];
@@ -36,6 +30,97 @@ type Props = {
     inactivePersons: number;
 };
 
+function PanelCard({
+    title,
+    icon,
+    children,
+}: {
+    title: string;
+    icon?: React.ReactNode;
+    children: React.ReactNode;
+}) {
+    return (
+        <section className="border border-border-default bg-bg-secondary">
+            <div className="flex items-center justify-between border-b border-border-subtle px-4 py-3">
+                <p className="text-[12px] font-bold uppercase tracking-[0.17em] text-txt-primary">
+                    {title}
+                </p>
+
+                {icon ? (
+                    <div className="text-accent">
+                        {icon}
+                    </div>
+                ) : null}
+            </div>
+
+            <div className="p-4">
+                {children}
+            </div>
+        </section>
+    );
+}
+
+function StatusLine({
+    label,
+    value,
+    colorClass,
+}: {
+    label: string;
+    value: number;
+    colorClass: string;
+}) {
+    return (
+        <div className="flex items-center justify-between border-b border-border-subtle/60 py-2 last:border-b-0">
+            <div className="flex items-center gap-2">
+                <span className={`h-2.5 w-2.5 ${colorClass}`} />
+
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+                    {label}
+                </span>
+            </div>
+
+            <span className="text-[13px] font-bold text-txt-primary">
+                {value}
+            </span>
+        </div>
+    );
+}
+
+function PriorityBar({
+    label,
+    value,
+    max,
+    colorClass,
+}: {
+    label: string;
+    value: number;
+    max: number;
+    colorClass: string;
+}) {
+    const width = max > 0 ? Math.max((value / max) * 100, value > 0 ? 10 : 2) : 2;
+
+    return (
+        <div className="space-y-1">
+            <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-txt-disabled">
+                    {label}
+                </span>
+
+                <span className="text-[12px] font-bold text-txt-primary">
+                    {value}
+                </span>
+            </div>
+
+            <div className="h-2.5 bg-bg-primary">
+                <div
+                    className={`h-full ${colorClass}`}
+                    style={{ width: `${width}%` }}
+                />
+            </div>
+        </div>
+    );
+}
+
 export default function DashboardLeftPanel({
     loading,
     persons,
@@ -46,196 +131,190 @@ export default function DashboardLeftPanel({
     activePersons,
     inactivePersons,
 }: Props) {
-    return (
-        <div className="flex flex-col gap-3">
-            <div className="bg-bg-primary border border-border-default p-3 flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                        Resources
-                    </span>
+    const criticalCount = resourcesByStatus.C.length;
+    const moderateCount = resourcesByStatus.M.length;
+    const okCount = resourcesByStatus.O.length;
+    const noneCount = resourcesByStatus.none.length;
 
-                    <Package size={12} className="text-accent" />
-                </div>
+    const maxPriority = Math.max(
+        tasksByPriority.H.length,
+        tasksByPriority.M.length,
+        tasksByPriority.L.length,
+        tasks.length - tasksByPriority.H.length - tasksByPriority.M.length - tasksByPriority.L.length,
+        1,
+    );
 
-                {loading ? (
-                    <span className="text-[11px] font-mono text-txt-disabled animate-pulse">
-                        Loading...
-                    </span>
-                ) : totalResources === 0 ? (
-                    <span className="text-[11px] font-mono text-txt-disabled uppercase tracking-label">
-                        No resources.
-                    </span>
-                ) : (
-                    <DonutChart
-                        size={110}
-                        strokeWidth={14}
-                        segments={[
-                            {
-                                label: "Critical",
-                                value: resourcesByStatus.C.length,
-                                color: "#E85D04",
-                            },
-                            {
-                                label: "Moderate",
-                                value: resourcesByStatus.M.length,
-                                color: "#FACC15",
-                            },
-                            {
-                                label: "Ok",
-                                value: resourcesByStatus.O.length,
-                                color: "#F59E0B",
-                            },
-                            ...(resourcesByStatus.none.length > 0
-                                ? [
-                                      {
-                                          label: "N/A",
-                                          value: resourcesByStatus.none.length,
-                                          color: "#555555",
-                                      },
-                                  ]
-                                : []),
-                        ]}
-                        centerValue={totalResources}
-                        centerLabel="Total"
+    const noPriorityCount = Math.max(
+        tasks.length -
+            tasksByPriority.H.length -
+            tasksByPriority.M.length -
+            tasksByPriority.L.length,
+        0,
+    );
+
+    const totalPersons = Math.max(persons.length, 1);
+    const activePercent = Math.round((activePersons / totalPersons) * 100);
+    const inactivePercent = Math.round((inactivePersons / totalPersons) * 100);
+
+    if (loading) {
+        return (
+            <div className="flex h-full flex-col gap-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                    <div
+                        key={index}
+                        className="h-28 animate-pulse border border-border-default bg-bg-secondary"
                     />
-                )}
+                ))}
             </div>
+        );
+    }
 
-            <div className="bg-bg-primary border border-border-default p-3 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                        Critical Resources
-                    </span>
+    return (
+        <div className="flex h-full flex-col gap-4">
+            <PanelCard
+                title="Resources"
+                icon={<Package size={15} />}
+            >
+                <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4">
+                    <div className="flex h-24 w-24 flex-col items-center justify-center border border-border-default bg-bg-primary">
+                        <span className="text-[30px] font-bold leading-none text-txt-primary">
+                            {totalResources}
+                        </span>
 
-                    <AlertTriangle
-                        size={12}
-                        className="text-status-critical"
-                    />
-                </div>
-
-                {loading ? (
-                    <span className="text-[11px] font-mono text-txt-disabled animate-pulse">
-                        Loading...
-                    </span>
-                ) : resourcesByStatus.C.length === 0 ? (
-                    <div className="flex items-center gap-2 py-1">
-                        <CheckCircle2
-                            size={11}
-                            className="text-status-ok"
-                        />
-
-                        <span className="text-[10px] font-mono text-status-ok uppercase tracking-label">
-                            All clear
+                        <span className="mt-2 text-[10px] uppercase tracking-[0.14em] text-txt-disabled">
+                            Total
                         </span>
                     </div>
-                ) : (
-                    <div className="flex flex-col gap-1">
+
+                    <div className="min-w-0">
+                        <StatusLine
+                            label="Critical"
+                            value={criticalCount}
+                            colorClass="bg-status-critical"
+                        />
+
+                        <StatusLine
+                            label="Moderate"
+                            value={moderateCount}
+                            colorClass="bg-status-warning"
+                        />
+
+                        <StatusLine
+                            label="Ok"
+                            value={okCount}
+                            colorClass="bg-status-ok"
+                        />
+
+                        <StatusLine
+                            label="N/A"
+                            value={noneCount}
+                            colorClass="bg-txt-disabled"
+                        />
+                    </div>
+                </div>
+            </PanelCard>
+
+            <PanelCard
+                title="Critical Resources"
+                icon={<AlertTriangle size={15} />}
+            >
+                {criticalCount > 0 ? (
+                    <div className="space-y-2">
                         {resourcesByStatus.C.slice(0, 4).map((resource) => (
                             <div
                                 key={resource.id}
-                                className="flex items-center justify-between py-1 border-b border-border-subtle last:border-0"
+                                className="flex items-center justify-between border border-status-critical/40 bg-bg-primary px-3 py-2"
                             >
-                                <span className="text-[11px] font-mono font-bold text-txt-primary uppercase truncate">
+                                <span className="truncate text-[11px] font-bold uppercase tracking-[0.14em] text-status-critical">
                                     {resource.name}
                                 </span>
 
-                                <span className="text-[9px] font-mono font-bold text-status-critical bg-status-critical/10 px-1.5 py-0.5 uppercase shrink-0">
-                                    CRIT
+                                <span className="text-[10px] uppercase tracking-[0.12em] text-txt-disabled">
+                                    {resource.code}
                                 </span>
                             </div>
                         ))}
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-status-ok">
+                        <CheckCircle2 size={15} />
 
-                        {resourcesByStatus.C.length > 4 && (
-                            <span className="text-[9px] font-mono text-txt-disabled uppercase tracking-label">
-                                +{resourcesByStatus.C.length - 4} more
-                            </span>
-                        )}
+                        <span className="text-[12px] font-bold uppercase tracking-[0.14em]">
+                            All clear
+                        </span>
                     </div>
                 )}
-            </div>
+            </PanelCard>
 
-            <div className="bg-bg-primary border border-border-default p-3 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                        Tasks by Priority
-                    </span>
-
-                    <ClipboardList size={12} className="text-accent" />
-                </div>
-
-                {loading ? (
-                    <span className="text-[11px] font-mono text-txt-disabled animate-pulse">
-                        Loading...
-                    </span>
-                ) : tasks.length === 0 ? (
-                    <span className="text-[11px] font-mono text-txt-disabled uppercase tracking-label">
-                        No tasks.
-                    </span>
-                ) : (
-                    <VerticalBarChart
-                        bars={[
-                            {
-                                label: "High",
-                                value: tasksByPriority.H.length,
-                                color: "#E85D04",
-                            },
-                            {
-                                label: "Med",
-                                value: tasksByPriority.M.length,
-                                color: "#FACC15",
-                            },
-                            {
-                                label: "Low",
-                                value: tasksByPriority.L.length,
-                                color: "#F59E0B",
-                            },
-                            {
-                                label: "N/A",
-                                value: tasks.filter((task) => !task.priority)
-                                    .length,
-                                color: "#555555",
-                            },
-                        ]}
-                        height={90}
+            <PanelCard
+                title="Tasks by Priority"
+                icon={<ClipboardList size={15} />}
+            >
+                <div className="space-y-3">
+                    <PriorityBar
+                        label="High"
+                        value={tasksByPriority.H.length}
+                        max={maxPriority}
+                        colorClass="bg-accent"
                     />
-                )}
-            </div>
 
-            <div className="bg-bg-primary border border-border-default p-3 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                        Personnel
-                    </span>
+                    <PriorityBar
+                        label="Med"
+                        value={tasksByPriority.M.length}
+                        max={maxPriority}
+                        colorClass="bg-status-warning"
+                    />
 
-                    <Users size={12} className="text-accent" />
+                    <PriorityBar
+                        label="Low"
+                        value={tasksByPriority.L.length}
+                        max={maxPriority}
+                        colorClass="bg-status-info"
+                    />
+
+                    <PriorityBar
+                        label="N/A"
+                        value={noPriorityCount}
+                        max={maxPriority}
+                        colorClass="bg-txt-disabled"
+                    />
                 </div>
+            </PanelCard>
 
-                {loading ? (
-                    <span className="text-[11px] font-mono text-txt-disabled animate-pulse">
-                        Loading...
-                    </span>
-                ) : persons.length === 0 ? (
-                    <span className="text-[11px] font-mono text-txt-disabled uppercase tracking-label">
-                        No personnel.
-                    </span>
-                ) : (
-                    <div className="flex items-center justify-center gap-4">
-                        <MiniGauge
-                            value={activePersons}
-                            max={persons.length}
-                            label="Active"
-                            color="#F59E0B"
-                        />
+            <PanelCard
+                title="Personnel"
+                icon={<Users size={15} />}
+            >
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="border border-border-subtle bg-bg-primary px-3 py-3 text-center">
+                        <p className="text-[24px] font-bold leading-none text-status-ok">
+                            {activePercent}%
+                        </p>
 
-                        <MiniGauge
-                            value={inactivePersons}
-                            max={persons.length}
-                            label="Inactive"
-                            color="#6B7280"
-                        />
+                        <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-txt-disabled">
+                            Active
+                        </p>
+
+                        <p className="mt-1 text-[12px] font-bold text-txt-primary">
+                            {activePersons}
+                        </p>
                     </div>
-                )}
-            </div>
+
+                    <div className="border border-border-subtle bg-bg-primary px-3 py-3 text-center">
+                        <p className="text-[24px] font-bold leading-none text-txt-disabled">
+                            {inactivePercent}%
+                        </p>
+
+                        <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-txt-disabled">
+                            Inactive
+                        </p>
+
+                        <p className="mt-1 text-[12px] font-bold text-txt-primary">
+                            {inactivePersons}
+                        </p>
+                    </div>
+                </div>
+            </PanelCard>
         </div>
     );
 }

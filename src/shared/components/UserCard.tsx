@@ -1,7 +1,4 @@
-import { Activity } from "lucide-react";
-import { LineDotRightHorizontal } from "lucide-react";
-import { IdCard } from "lucide-react";
-import { UserRoundX } from "lucide-react";
+import { Activity, BriefcaseBusiness, IdCard, Timer } from "lucide-react";
 
 type UserCardProps = {
   name: string;
@@ -9,25 +6,22 @@ type UserCardProps = {
   role: string;
   id: string;
   active: boolean;
-  profession: string;
-  imageUrl: string;
+  profession?: string;
+  temporaryProfession?: string | null;
+  temporaryUntil?: string | null;
+  imageUrl?: string;
 };
 
-function getProfessionLabel(profession?: string) {
-  const value = profession?.trim();
+function formatTemporaryDate(value?: string | null) {
+  if (!value) return "";
 
-  if (!value) return "Sin profesión";
+  const date = new Date(value);
 
-  const normalized = value.toUpperCase();
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
 
-  const labels: Record<string, string> = {
-    "PROF-MED": "Medicina",
-    "PROF-LOG": "Logística",
-    "PROF-AGR": "Agricultura",
-    "PROF-EXP": "Exploración",
-  };
-
-  return labels[normalized] ?? value;
+  return date.toLocaleDateString("en-GB");
 }
 
 export function UserCard({
@@ -37,74 +31,112 @@ export function UserCard({
   id,
   active,
   profession,
+  temporaryProfession,
+  temporaryUntil,
   imageUrl,
 }: UserCardProps) {
-  const professionLabel = getProfessionLabel(profession);
+  const hasTemporaryProfession = Boolean(temporaryProfession?.trim());
 
   return (
-    <div className="bg-[#1d1d1d] font-mono">
-      <div className="relative overflow-visible">
-        <div className="absolute right-3 top-3 z-10 flex min-w-[140px] items-center justify-between rounded-full bg-black/60 px-4 py-2 text-white sm:min-w-[150px] sm:px-[19px] sm:py-[10.5px]">
-          {active ? (
-            <Activity className="h-6 w-6 text-[#00cc00] sm:h-7 sm:w-7" />
-          ) : (
-            <LineDotRightHorizontal className="h-6 w-6 text-[#ff3131] sm:h-7 sm:w-7" />
-          )}
+    <article
+      className={`group overflow-hidden border bg-bg-secondary transition-colors ${
+        active
+          ? "border-border-default hover:border-accent"
+          : "border-border-default opacity-70 hover:border-status-critical"
+      }`}
+    >
+      <div className="relative h-[205px] overflow-hidden bg-bg-primary">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={`${name} ${lastName}`}
+            className={`h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-[1.03] ${
+              active ? "opacity-85" : "grayscale opacity-55"
+            }`}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-bg-primary">
+            <IdCard className="h-14 w-14 text-txt-disabled" />
+          </div>
+        )}
 
-          <p
-            className={
-              active ? "text-[#66ff66] text-sm" : "text-[#ff3131] text-sm"
-            }
-          >
-            {active ? "Activo" : "Inactivo"}
-          </p>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-bg-secondary/55 to-transparent" />
 
-        <img
-          src={imageUrl}
-          alt={name}
-          className={`block h-[260px] w-full object-cover object-center sm:h-[295px] ${
-            active ? "" : "grayscale"
+        <div
+          className={`absolute right-4 top-4 flex items-center gap-2 border px-4 py-2 text-[12px] font-bold uppercase tracking-[0.14em] ${
+            active
+              ? "border-accent/50 bg-bg-primary/85 text-accent"
+              : "border-status-critical/50 bg-bg-primary/85 text-status-critical"
           }`}
-        />
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#1d1d1d] via-[rgb(29_29_29_/_0.6)] to-transparent" />
-      </div>
-
-      <div className="flex flex-col gap-2.5 p-5 sm:p-[30px]">
-        <div>
-          <h2 className={active ? "text-white" : "text-[#a6a6a6]"}>{name}</h2>
-          <h2 className={active ? "text-white" : "text-[#a6a6a6]"}>
-            {lastName}
-          </h2>
+        >
+          <Activity size={15} />
+          {active ? "Active" : "Inactive"}
         </div>
 
-        <div className="border-b border-[#737373]">
-          <p className={active ? "text-[#ff6600]" : "text-[#a6a6a6]"}>
-            {professionLabel}
+        <div className="absolute bottom-4 left-5 right-5">
+          <p className="text-[14px] font-bold uppercase tracking-[0.18em] text-accent">
+            {profession || "No profession"}
           </p>
 
-          <p className="text-[#c0c0c0]">{role}</p>
+          <h3 className="mt-2 text-[24px] font-bold uppercase leading-tight tracking-[0.14em] text-txt-primary">
+            {name} {lastName}
+          </h3>
         </div>
+      </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[#a6a6a6]">ID</p>
-            <p className="text-[#d9d9d9]">{id}</p>
-          </div>
+      <div className="border-t border-border-default px-5 py-4">
+        <div className="flex items-start gap-3">
+          <BriefcaseBusiness size={18} className="mt-0.5 shrink-0 text-accent" />
 
-          <div>
-            {active ? (
-              <IdCard
-                strokeWidth={1.25}
-                className="h-9 w-9 text-[#ff6600] sm:h-10 sm:w-10"
-              />
-            ) : (
-              <UserRoundX className="h-9 w-9 text-[#a6a6a6] sm:h-10 sm:w-10" />
-            )}
+          <div className="min-w-0 flex-1">
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-disabled">
+              Role assignment
+            </p>
+
+            <p className="mt-2 text-[15px] font-black uppercase tracking-[0.12em] text-txt-primary">
+              {role || "No role"}
+            </p>
+
+            {hasTemporaryProfession ? (
+              <div className="mt-3 border border-accent/40 bg-accent/10 px-3 py-2">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-accent">
+                  <Timer size={12} />
+                  Temporary profession
+                </div>
+
+                <p className="mt-1 text-[13px] font-black uppercase tracking-[0.12em] text-txt-primary">
+                  {temporaryProfession}
+                </p>
+
+                {temporaryUntil ? (
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-txt-secondary">
+                    Until: {formatTemporaryDate(temporaryUntil)}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="border-t border-border-default px-5 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-disabled">
+              Identity
+            </p>
+
+            <p className="mt-2 truncate text-[15px] font-black uppercase tracking-[0.12em] text-txt-primary">
+              {id || "N/A"}
+            </p>
+          </div>
+
+          <IdCard
+            size={24}
+            className={active ? "shrink-0 text-accent" : "shrink-0 text-txt-disabled"}
+          />
+        </div>
+      </div>
+    </article>
   );
 }

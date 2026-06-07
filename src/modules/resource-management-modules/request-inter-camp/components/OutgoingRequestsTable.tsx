@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, X, Eye } from "lucide-react";
+import { Check, Eye, X } from "lucide-react";
 import type { CampRequestFormValues } from "../schemas/camp-request.schema";
 import { RequestDetailModal } from "./RequestDetailModal";
 
@@ -10,122 +10,182 @@ interface OutgoingRequestsTableProps {
   isLoading?: boolean;
 }
 
+function formatStatus(status?: string | null) {
+  const value = status ?? "P";
+
+  const styles: Record<string, string> = {
+    P: "border-status-warning/40 bg-status-warning/10 text-status-warning",
+    A: "border-status-ok/40 bg-status-ok/10 text-status-ok",
+    R: "border-status-critical/40 bg-status-critical/10 text-status-critical",
+  };
+
+  const labels: Record<string, string> = {
+    P: "Pending",
+    A: "Approved",
+    R: "Rejected",
+  };
+
+  return (
+    <span
+      className={[
+        "inline-flex min-w-[92px] justify-center border px-3 py-1.5",
+        "text-[12px] font-bold uppercase tracking-[0.12em]",
+        styles[value] ?? styles.P,
+      ].join(" ")}
+    >
+      {labels[value] ?? value}
+    </span>
+  );
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return "No date";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "No date";
+  }
+
+  return date.toLocaleDateString("en-US");
+}
+
 export function OutgoingRequestsTable({
   requests,
   onApprove,
   onReject,
   isLoading = false,
 }: OutgoingRequestsTableProps) {
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<CampRequestFormValues | null>(null);
 
   if (requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-txt-secondary">
-          NO OUTGOING REQUESTS RECORDED
+      <div className="flex min-h-[360px] flex-col items-center justify-center border border-border-default bg-bg-secondary px-6 py-10">
+        <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
+          No outgoing requests recorded
+        </p>
+
+        <p className="mt-2 text-[13px] font-bold tracking-[0.04em] text-txt-secondary">
+          Sent inter-camp requests will appear here.
         </p>
       </div>
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      P: "bg-status-warning/10 text-status-warning border-status-warning/30",
-      A: "bg-status-ok/10 text-status-ok border-status-ok/30",
-      R: "bg-status-critical/10 text-status-critical border-status-critical/30",
-    };
-    const labels = {
-      P: "P",
-      A: "A",
-      R: "R",
-    };
-    return (
-      <span className={`px-2 py-1 font-mono text-[9px] font-bold uppercase tracking-widest border ${styles[status as keyof typeof styles]}`}>
-        {labels[status as keyof typeof labels]}
-      </span>
-    );
-  };
-
   return (
     <>
-      <div className="bg-bg-tertiary border border-border-default overflow-hidden">
-        <div className="bg-bg-primary border-b border-border-default px-4 py-3 grid grid-cols-[1fr_1.5fr_0.9fr_0.9fr_1fr] gap-4">
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">DESTINATION</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">DESCRIPTION</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">STATUS</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">DATE</div>
-          <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-right">ACTIONS</div>
+      <div className="overflow-hidden border border-border-default bg-bg-secondary">
+        <div className="grid grid-cols-[1.1fr_2fr_1.1fr_1fr_1fr] gap-4 border-b border-border-default bg-bg-primary px-5 py-4">
+          <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+            Destination
+          </div>
+
+          <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+            Description
+          </div>
+
+          <div className="text-center text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+            Status
+          </div>
+
+          <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+            Date
+          </div>
+
+          <div className="text-right text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+            Actions
+          </div>
         </div>
 
         <div className="divide-y divide-border-default">
-          {requests.map((request) => (
-            <div 
-              key={request.id} 
-              className="px-4 py-3 grid grid-cols-[1fr_1.5fr_0.9fr_0.9fr_1fr] gap-4 items-center hover:bg-bg-primary/30 transition-colors"
-            >
-              <div>
-                <div className="font-mono text-[10px] font-bold text-txt-primary">
-                  CAMP #{request.destination_camp_id}
+          {requests.map((request) => {
+            const requestId = request.id;
+            const currentStatus =
+              request.origin_approval_status ?? request.status ?? "P";
+
+            return (
+              <div
+                key={requestId}
+                className="grid grid-cols-[1.1fr_2fr_1.1fr_1fr_1fr] items-center gap-4 px-5 py-4 transition-colors hover:bg-bg-primary/40"
+              >
+                <div>
+                  <p className="text-[15px] font-bold uppercase tracking-[0.08em] text-txt-primary">
+                    Camp #{request.destination_camp_id}
+                  </p>
+                </div>
+
+                <div className="min-w-0">
+                  <p
+                    className="line-clamp-2 text-[14px] font-bold leading-relaxed tracking-[0.03em] text-txt-secondary"
+                    title={request.description || ""}
+                  >
+                    {request.description || "No description"}
+                  </p>
+                </div>
+
+                <div className="flex justify-center">
+                  {formatStatus(currentStatus)}
+                </div>
+
+                <div>
+                  <span className="text-[14px] font-bold tracking-[0.04em] text-txt-primary">
+                    {formatDate(request.created_at)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => requestId && setSelectedRequest(request)}
+                    className="flex h-10 w-10 items-center justify-center border border-accent/40 bg-accent/10 text-accent transition-colors hover:bg-accent hover:text-accent-fg"
+                    title="View request detail"
+                    aria-label="View request detail"
+                  >
+                    <Eye size={17} />
+                  </button>
+
+                  {currentStatus === "P" ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => requestId && onApprove(requestId)}
+                        disabled={isLoading}
+                        className="flex h-10 w-10 items-center justify-center border border-status-ok/40 bg-status-ok/10 text-status-ok transition-colors hover:bg-status-ok hover:text-accent-fg disabled:cursor-not-allowed disabled:opacity-50"
+                        title="Approve request"
+                        aria-label="Approve request"
+                      >
+                        <Check size={17} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => requestId && onReject(requestId)}
+                        disabled={isLoading}
+                        className="flex h-10 w-10 items-center justify-center border border-status-critical/40 bg-status-critical/10 text-status-critical transition-colors hover:bg-status-critical hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        title="Reject request"
+                        aria-label="Reject request"
+                      >
+                        <X size={17} />
+                      </button>
+                    </>
+                  ) : null}
                 </div>
               </div>
-              
-              <div>
-                <p className="font-mono text-[9px] text-txt-secondary line-clamp-1" title={request.description || ""}>
-                  {request.description || "No description"}
-                </p>
-              </div>
-              
-              <div className="flex justify-center">
-                {getStatusBadge(request.origin_approval_status || 'P')}
-              </div>
-              
-              <div>
-                <span className="font-mono text-[9px] text-txt-secondary">
-                  {new Date(request.created_at || '').toLocaleDateString('en-US')}
-                </span>
-              </div>
-              
-              <div className="flex justify-end items-center gap-2">
-                <button
-                  onClick={() => setSelectedRequestId(request.id!)}
-                  className="p-1.5 hover:bg-accent/10 border border-accent/30 transition-all"
-                  title="View resources"
-                >
-                  <Eye className="h-3 w-3 text-accent" />
-                </button>
-                
-                {request.origin_approval_status === 'P' && (
-                  <>
-                    <button
-                      onClick={() => onApprove(request.id!)}
-                      disabled={isLoading}
-                      className="p-1.5 hover:bg-status-ok/10 border border-status-ok/30 transition-all disabled:opacity-50"
-                      title="Approve Request"
-                    >
-                      <Check className="h-3 w-3 text-status-ok" />
-                    </button>
-                    <button
-                      onClick={() => onReject(request.id!)}
-                      disabled={isLoading}
-                      className="p-1.5 hover:bg-status-critical/10 border border-status-critical/30 transition-all disabled:opacity-50"
-                      title="Reject Request"
-                    >
-                      <X className="h-3 w-3 text-status-critical" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {selectedRequestId && (
-        <RequestDetailModal 
-          requestId={selectedRequestId} 
-          onClose={() => setSelectedRequestId(null)} 
+      {selectedRequest?.id ? (
+        <RequestDetailModal
+          requestId={selectedRequest.id}
+          description={selectedRequest.description}
+          originLabel={`Camp #${selectedRequest.origin_camp_id}`}
+          destinationLabel={`Camp #${selectedRequest.destination_camp_id}`}
+          onClose={() => setSelectedRequest(null)}
         />
-      )}
+      ) : null}
     </>
   );
 }

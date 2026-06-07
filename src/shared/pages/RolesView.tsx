@@ -1,13 +1,102 @@
-﻿import { Plus, Shield, Trash2, Key, Search } from "lucide-react";
+﻿import {
+  useEffect,
+  useRef,
+  type KeyboardEvent,
+  type ReactNode,
+  type Ref,
+} from "react";
+import { Key, Plus, RotateCcw, Search, Shield, Trash2 } from "lucide-react";
+
 import { ModalPerms } from "./ModalPerms";
-import { TextFieldFloat } from "../components/TextFielFloat";
+import { useToast } from "../hooks/useToast";
 import {
   ACTION_COLOR,
   PERMS_LIST,
   useRolesView,
 } from "../hooks/useRolesView";
 
+function sanitizeRoleName(value: string) {
+  return value
+    .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .replace(/^\s+/g, "")
+    .toUpperCase();
+}
+
+function FieldLabel({
+  children,
+  htmlFor,
+  required = false,
+}: {
+  children: ReactNode;
+  htmlFor: string;
+  required?: boolean;
+}) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="text-[13px] font-bold uppercase tracking-[0.14em] text-txt-primary"
+    >
+      {children}
+      {required ? <span className="ml-1 text-status-critical">*</span> : null}
+    </label>
+  );
+}
+
+function FormField({
+  id,
+  label,
+  value,
+  readOnly,
+  required = false,
+  placeholder,
+  inputRef,
+  onKeyDown,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string | number;
+  readOnly?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  inputRef?: Ref<HTMLInputElement>;
+  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onChange?: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <FieldLabel htmlFor={id} required={required}>
+        {label}
+      </FieldLabel>
+
+      <input
+        ref={inputRef}
+        id={id}
+        aria-label={label}
+        title={label}
+        type="text"
+        value={value}
+        readOnly={readOnly}
+        placeholder={placeholder}
+        onKeyDown={onKeyDown}
+        onChange={(event) => onChange?.(event.target.value)}
+        className={[
+          "h-12 w-full border border-border-default bg-bg-tertiary px-4",
+          "text-[15px] font-bold tracking-[0.05em] text-txt-primary",
+          "outline-none transition-all placeholder:text-txt-disabled",
+          "focus:border-accent focus:shadow-[0_0_0_2px_rgba(232,93,4,0.22)]",
+          readOnly ? "cursor-default opacity-70" : "",
+        ].join(" ")}
+      />
+    </div>
+  );
+}
+
 export function RolesView() {
+  const { toast } = useToast();
+  const firstFieldRef = useRef<HTMLInputElement | null>(null);
+
   const {
     selectedId,
     editMode,
@@ -16,12 +105,13 @@ export function RolesView() {
     page,
     isModalOpen,
     modalRole,
-
     selectedRole,
     rolePermissions,
     filtered,
     totalPages,
     pageItems,
+    loading,
+    error,
 
     handleSearchChange,
     handleRowClick,
@@ -36,240 +126,412 @@ export function RolesView() {
     handleClosePermissionsModal,
   } = useRolesView();
 
+  const canEditForm = !selectedId || editMode;
+  const canSave = (!selectedId || editMode) && form.name.trim().length > 0;
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      firstFieldRef.current?.focus();
+    }, 80);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
+
+  const handleEnterToNextField = (
+    event: KeyboardEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+
+    const formContainer = event.currentTarget.closest("[data-enter-form]");
+
+    if (!formContainer) return;
+
+    const fields = Array.from(
+      formContainer.querySelectorAll<
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | HTMLSelectElement
+        | HTMLButtonElement
+      >(
+        "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])",
+      ),
+    ).filter((field) => field.offsetParent !== null);
+
+    const currentIndex = fields.indexOf(event.currentTarget);
+
+    if (currentIndex < 0) return;
+
+    fields[currentIndex + 1]?.focus();
+  };
+
+  const handleSaveWithToast = async () => {
+    const result = await handleSave();
+
+    if (!result) return;
+
+    toast({
+      tone: "success",
+      title: result === "updated" ? "Role updated" : "Role created",
+      message:
+        result === "updated"
+          ? "Role updated successfully."
+          : "Role created successfully.",
+    });
+
+    window.setTimeout(() => {
+      firstFieldRef.current?.focus();
+    }, 80);
+  };
+
+  const handleDeleteWithToast = async () => {
+    const deleted = await handleDelete();
+
+    if (!deleted) return;
+
+    toast({
+      tone: "success",
+      title: "Role deleted",
+      message: "Role deleted successfully.",
+    });
+
+    window.setTimeout(() => {
+      firstFieldRef.current?.focus();
+    }, 80);
+  };
+
+  const handleClearAndFocus = () => {
+    handleClear();
+
+    window.setTimeout(() => {
+      firstFieldRef.current?.focus();
+    }, 80);
+  };
+
   return (
-    <div className="flex flex-row flex-1 min-h-0 w-full h-full overflow-hidden border border-border-default">
-      <div
-        className="flex flex-col bg-[#FBFBFB] shrink-0 p-6 gap-2"
-        style={{ width: "54%" }}
-      >
-        <div className="relative w-full shrink-0">
+    <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden border border-border-default bg-bg-app font-mono">
+      <section className="flex w-[54%] shrink-0 flex-col border-r border-border-default bg-bg-secondary p-5">
+        <div className="relative shrink-0">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-txt-secondary"
-            size={16}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-txt-secondary"
+            size={18}
           />
+
           <input
             type="text"
-            placeholder="SEARCH BY ID OR ROLE NAME..."
+            aria-label="Search roles"
+            title="Search roles"
+            placeholder="Search by ID or role name..."
             value={searchTerm}
             onChange={(event) => handleSearchChange(event.target.value)}
-            className="w-full bg-bg-tertiary pl-9 pr-4 py-2 font-mono text-sm font-bold tracking-wide uppercase text-txt-primary border border-border-default rounded-none outline-none focus:border-border-accent transition-colors placeholder:text-txt-disabled"
+            className="h-12 w-full border border-border-default bg-bg-tertiary pl-12 pr-4 text-[15px] font-bold uppercase tracking-[0.06em] text-txt-primary outline-none transition-colors placeholder:text-txt-disabled focus:border-accent"
           />
         </div>
 
-        <div className="flex items-stretch h-8 gap-2 shrink-0">
-          <div className="flex-1 bg-bg-secondary border border-border-default flex items-center px-4">
-            <span className="text-txt-primary font-bold font-mono text-sm tracking-wide uppercase">
-              LIST
+        <div className="mt-4 flex h-11 shrink-0 items-stretch gap-3">
+          <div className="flex flex-1 items-center border border-border-default bg-bg-primary px-4">
+            <span className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
+              List
             </span>
           </div>
-          <div className="bg-[#E85D04] px-4 flex items-center justify-center">
-            <span className="text-accent-fg font-mono text-sm font-bold tracking-wide">
-              PG&#8209;{String(page + 1).padStart(2, "0")}
+
+          <div className="flex items-center justify-center bg-accent px-5">
+            <span className="text-[14px] font-bold uppercase tracking-[0.12em] text-accent-fg">
+              PG-{String(page + 1).padStart(2, "0")}
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-[0.7fr_2fr_3fr] px-1 py-1 border-b border-border-default shrink-0">
-          {["ID", "ROLE NAME", "DESCRIPTION"].map((header) => (
-            <div
-              key={header}
-              className="text-xs font-mono font-bold tracking-label text-txt-secondary uppercase text-center"
-            >
-              {header}
-            </div>
-          ))}
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {pageItems.map((role) => {
-            const isSelected = selectedId === role.id;
-
-            return (
+        <div className="mt-4 min-h-0 flex-1 overflow-hidden border border-border-default bg-bg-primary">
+          <div className="grid grid-cols-[0.8fr_1.7fr_2.6fr] border-b border-border-default bg-bg-secondary px-4 py-3">
+            {["ID", "Role Name", "Description"].map((header) => (
               <div
-                key={role.id}
-                onClick={() => handleRowClick(role)}
-                className={`grid grid-cols-[0.7fr_2fr_3fr] px-1 py-1.5 cursor-pointer select-none text-center border-b border-border-subtle transition-colors ${
-                  isSelected
-                    ? "bg-bg-selected border-l-2 border-l-accent"
-                    : "hover:bg-bg-tertiary border-l-2 border-l-transparent"
-                }`}
+                key={header}
+                className="text-center text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary"
               >
-                <div className="font-mono text-xs font-bold text-txt-secondary flex items-center justify-center">
-                  {role.id}
-                </div>
-                <div className="font-mono text-xs text-txt-secondary uppercase flex items-center justify-center">
-                  {role.name}
-                </div>
-                <div className="font-mono text-xs text-txt-secondary flex items-center justify-center truncate px-1">
-                  {role.description}
-                </div>
+                {header}
               </div>
-            );
-          })}
+            ))}
+          </div>
 
-          {pageItems.length === 0 && (
-            <div className="py-10 text-center font-mono text-xs text-txt-disabled uppercase tracking-label">
-              No roles found.
-            </div>
-          )}
+          <div className="h-full overflow-y-auto pb-10">
+            {loading ? (
+              <div className="flex h-full min-h-[240px] items-center justify-center text-[14px] font-bold uppercase tracking-[0.15em] text-txt-disabled">
+                Loading roles...
+              </div>
+            ) : pageItems.length === 0 ? (
+              <div className="flex h-full min-h-[240px] items-center justify-center text-[14px] font-bold uppercase tracking-[0.15em] text-txt-disabled">
+                No roles found.
+              </div>
+            ) : (
+              pageItems.map((role) => {
+                const isSelected = selectedId === role.id;
+
+                return (
+                  <button
+                    key={role.id}
+                    type="button"
+                    onClick={() => handleRowClick(role)}
+                    className={[
+                      "grid w-full grid-cols-[0.8fr_1.7fr_2.6fr] border-b border-border-default px-4 py-4 text-left transition-colors",
+                      isSelected
+                        ? "border-l-2 border-l-accent bg-bg-tertiary"
+                        : "border-l-2 border-l-transparent hover:bg-bg-tertiary/70",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-center justify-center text-[14px] font-bold tracking-[0.08em] text-accent">
+                      R-{String(role.id).padStart(3, "0")}
+                    </div>
+
+                    <div className="flex items-center justify-center px-2 text-[14px] font-bold uppercase tracking-[0.07em] text-txt-primary">
+                      {role.name}
+                    </div>
+
+                    <div className="flex items-center justify-center truncate px-2 text-[13px] font-bold tracking-[0.04em] text-txt-secondary">
+                      {role.description}
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
         </div>
 
-        <div className="bg-bg-secondary border-t border-border-default px-4 py-1.5 shrink-0">
-          <span className="font-mono text-xs text-txt-secondary tracking-wide uppercase">
-            FOUND: {String(filtered.length).padStart(4, "0")}
+        <div className="mt-4 flex h-10 shrink-0 items-center border border-border-default bg-bg-primary px-4">
+          <span className="text-[13px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
+            Found: {String(filtered.length).padStart(4, "0")}
           </span>
         </div>
 
-        <div className="flex gap-2 h-10 shrink-0">
+        <div className="mt-3 flex h-11 shrink-0 gap-3">
           <button
+            type="button"
             onClick={handlePrevPage}
             disabled={page === 0}
-            className="flex-1 bg-bg-tertiary border border-border-default text-txt-primary font-mono font-bold text-sm tracking-wide uppercase hover:bg-bg-selected hover:border-accent transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-default rounded-none"
+            className="flex-1 border border-border-default bg-bg-secondary text-[14px] font-bold uppercase tracking-[0.13em] text-txt-primary transition-colors hover:border-accent hover:bg-bg-tertiary hover:text-accent disabled:cursor-default disabled:opacity-40"
           >
-            PREV
+            Prev
           </button>
 
           <button
+            type="button"
             onClick={handleNextPage}
             disabled={page >= totalPages - 1}
-            className="flex-1 bg-accent text-accent-fg font-mono font-bold text-sm tracking-wide uppercase hover:bg-accent-hover transition-colors disabled:opacity-40 cursor-pointer disabled:cursor-default rounded-none"
+            className="flex-1 border border-accent bg-accent text-[14px] font-bold uppercase tracking-[0.13em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-default disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-40"
           >
-            NEXT
+            Next
           </button>
         </div>
-      </div>
+      </section>
 
-      <div className="flex flex-col flex-1 bg-bg-secondary border-l border-border-default relative min-h-0">
-        <div className="flex items-center justify-between px-6 py-3 border-b border-border-default shrink-0">
-          <div className="flex items-center gap-2">
-            <Shield size={14} className="text-accent" />
-            <span className="font-mono text-xs font-bold text-txt-secondary uppercase tracking-label">
-              {selectedId ? "Role Details" : "New Role"}
-            </span>
+      <section className="flex min-h-0 flex-1 flex-col bg-bg-secondary">
+        <div className="flex shrink-0 items-center justify-between border-b border-border-default px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Shield size={18} className="text-accent" />
+
+            <div>
+              <p className="text-[18px] font-bold uppercase tracking-[0.18em] text-txt-primary">
+                {selectedId ? "Role Details" : "New Role"}
+              </p>
+
+              <p className="mt-1 text-[12px] uppercase tracking-[0.16em] text-txt-secondary">
+                Role registry / permissions control
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {selectedId && (
-              <>
-                <button
-                  onClick={handleOpenPermissionsModal}
-                  className="p-1.5 font-mono text-xs text-txt-secondary hover:text-accent border border-border-subtle hover:border-accent rounded-none transition-colors cursor-pointer"
-                  title="Manage Permissions"
-                >
-                  <Key size={14} />
-                </button>
-
-                <button
-                  onClick={handleDelete}
-                  className="p-1.5 font-mono text-xs text-txt-secondary hover:text-status-critical border border-border-subtle hover:border-status-critical rounded-none transition-colors cursor-pointer"
-                  title="Delete Role"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </>
-            )}
+          <div className="flex items-center gap-3">
+            {selectedId ? (
+              <button
+                type="button"
+                onClick={handleOpenPermissionsModal}
+                className="flex h-10 items-center justify-center gap-2 border border-border-default bg-bg-primary px-4 text-[12px] font-bold uppercase tracking-[0.13em] text-txt-primary transition-colors hover:border-accent hover:bg-bg-tertiary hover:text-accent"
+                title="Manage permissions"
+              >
+                <Key size={15} />
+                Permissions
+              </button>
+            ) : null}
 
             <button
+              type="button"
               onClick={selectedId ? handleEditToggle : undefined}
               disabled={!selectedId}
-              className={`px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-label rounded-none transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-default ${
+              className={[
+                "h-10 border px-5 text-[12px] font-bold uppercase tracking-[0.13em] transition-colors",
                 editMode
-                  ? "bg-bg-tertiary text-txt-primary border border-border-default hover:border-border-strong"
-                  : "bg-accent text-accent-fg hover:bg-accent-hover"
-              }`}
+                  ? "border-border-default bg-bg-primary text-txt-primary hover:border-accent hover:bg-bg-tertiary hover:text-accent"
+                  : "border-accent bg-accent text-accent-fg hover:bg-accent-hover",
+                "disabled:cursor-default disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-40",
+              ].join(" ")}
             >
               {editMode ? "Cancel" : "Edit"}
             </button>
           </div>
         </div>
 
-        <div className="flex-1 px-8 pt-8 pb-4 flex flex-col gap-3 overflow-y-auto">
-          <TextFieldFloat label="ID" value={selectedId ?? ""} readOnly />
+        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-7">
+          <div className="flex min-h-full flex-col">
+            {error ? (
+              <div className="mb-5 border border-status-critical/40 bg-status-critical/10 px-5 py-4 text-[13px] font-bold uppercase tracking-[0.12em] text-status-critical">
+                {error}
+              </div>
+            ) : null}
 
-          <TextFieldFloat
-            label="ROLE NAME"
-            value={form.name}
-            readOnly={!editMode && !!selectedId}
-            onChange={(event) =>
-              handleFormFieldChange("name", event.target.value)
-            }
-          />
+            <div className="border border-border-default bg-bg-primary px-6 py-6">
+              <div className="mb-6 flex items-center justify-between border-b border-border-default pb-4">
+                <div>
+                  <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
+                    Role Information
+                  </p>
 
-          <TextFieldFloat
-            label="DESCRIPTION"
-            value={form.description}
-            readOnly={!editMode && !!selectedId}
-            onChange={(event) =>
-              handleFormFieldChange("description", event.target.value)
-            }
-          />
+                  <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-txt-secondary">
+                    Register role name and description
+                  </p>
+                </div>
 
-          {selectedRole && (
-            <div className="mt-4 flex flex-col gap-2">
-              <div className="flex items-center gap-2 pb-2 border-b border-border-default">
-                <Key size={12} className="text-accent" />
-                <span className="text-[9px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                  Assigned Permissions
-                </span>
-                <span className="ml-auto text-[8px] font-mono font-bold text-txt-disabled">
-                  {rolePermissions.length} / {PERMS_LIST.length}
-                </span>
+                <div className="border border-accent/50 bg-accent/10 px-5 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+                    Mode
+                  </p>
+
+                  <p className="mt-1 text-[14px] font-bold uppercase tracking-[0.08em] text-txt-primary">
+                    {selectedId
+                      ? editMode
+                        ? "Editing"
+                        : "Viewing"
+                      : "Creating"}
+                  </p>
+                </div>
               </div>
 
-              {rolePermissions.length === 0 ? (
-                <span className="text-[9px] font-mono text-txt-disabled uppercase tracking-label py-3">
-                  No permissions assigned to this role.
-                </span>
-              ) : (
-                <div className="flex flex-col gap-1 max-h-[220px] overflow-y-auto pr-1">
-                  {rolePermissions.map((permission) => (
-                    <div
-                      key={permission.id}
-                      className="flex items-center justify-between py-1.5 px-3 bg-bg-tertiary border border-border-subtle"
-                    >
-                      <div className="flex flex-col gap-0.5 min-w-0">
-                        <span className="text-[9px] font-mono font-bold text-txt-primary uppercase truncate">
-                          {permission.resource}
-                        </span>
-                        <span className="text-[7px] font-mono text-txt-disabled uppercase tracking-label">
-                          {permission.id}
+              <div className="space-y-6" data-enter-form>
+                <FormField
+                  id="role-name"
+                  label="Role Name"
+                  value={form.name}
+                  required
+                  readOnly={!canEditForm}
+                  inputRef={firstFieldRef}
+                  onKeyDown={handleEnterToNextField}
+                  placeholder="Example: LOGISTICS OFFICER"
+                  onChange={(value) =>
+                    handleFormFieldChange("name", sanitizeRoleName(value))
+                  }
+                />
+
+                <FormField
+                  id="role-description"
+                  label="Description"
+                  value={form.description}
+                  readOnly={!canEditForm}
+                  onKeyDown={handleEnterToNextField}
+                  placeholder="Describe role responsibilities..."
+                  onChange={(value) =>
+                    handleFormFieldChange("description", value)
+                  }
+                />
+              </div>
+            </div>
+
+            {selectedRole ? (
+              <div className="mt-5 border border-border-default bg-bg-primary">
+                <div className="flex items-center gap-3 border-b border-border-default px-5 py-4">
+                  <Key size={16} className="text-accent" />
+
+                  <span className="text-[14px] font-bold uppercase tracking-[0.15em] text-txt-primary">
+                    Assigned Permissions
+                  </span>
+
+                  <span className="ml-auto text-[12px] font-bold uppercase tracking-[0.12em] text-txt-disabled">
+                    {rolePermissions.length} / {PERMS_LIST.length}
+                  </span>
+                </div>
+
+                {rolePermissions.length === 0 ? (
+                  <div className="px-5 py-6 text-[13px] font-bold uppercase tracking-[0.13em] text-txt-disabled">
+                    No permissions assigned to this role.
+                  </div>
+                ) : (
+                  <div className="max-h-[260px] divide-y divide-border-default overflow-y-auto">
+                    {rolePermissions.map((permission) => (
+                      <div
+                        key={permission.id}
+                        className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-bg-secondary"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-[14px] font-bold uppercase tracking-[0.08em] text-txt-primary">
+                            {permission.resource}
+                          </p>
+
+                          <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.12em] text-txt-disabled">
+                            Permission ID: {permission.id}
+                          </p>
+                        </div>
+
+                        <span
+                          className={[
+                            "shrink-0 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em]",
+                            ACTION_COLOR[permission.action] ??
+                              "bg-bg-tertiary text-txt-secondary",
+                          ].join(" ")}
+                        >
+                          {permission.action}
                         </span>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
 
-                      <span
-                        className={`text-[8px] font-mono font-bold px-2 py-0.5 uppercase shrink-0 ${
-                          ACTION_COLOR[permission.action] ??
-                          "text-txt-secondary bg-bg-selected"
-                        }`}
-                      >
-                        {permission.action}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            <div className="flex-1" />
+          </div>
         </div>
 
-        <div className="px-8 py-6 shrink-0 flex flex-col gap-2">
+        <div className="grid shrink-0 grid-cols-[1fr_180px] gap-4 border-t border-border-default bg-bg-primary px-8 py-5">
           <button
-            onClick={handleSave}
-            disabled={(!!selectedId && !editMode) || !form.name}
-            className="w-full bg-accent text-accent-fg font-mono font-bold text-sm uppercase tracking-label py-2.5 hover:bg-accent-hover transition-colors rounded-none disabled:opacity-30 disabled:cursor-default cursor-pointer"
+            type="button"
+            onClick={() => void handleSaveWithToast()}
+            disabled={!canSave || loading}
+            className="flex h-12 items-center justify-center gap-2 border border-accent bg-accent text-[14px] font-bold uppercase tracking-[0.13em] text-accent-fg shadow-[0_0_12px_rgba(232,93,4,0.18)] transition-colors hover:bg-accent-hover disabled:cursor-default disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-45 disabled:shadow-none"
           >
-            <Plus size={14} className="inline mr-2" />
+            <Plus size={16} />
             {selectedId ? "Save Changes" : "Create Role"}
           </button>
 
           <button
-            onClick={handleClear}
-            className="w-full bg-transparent text-txt-secondary font-mono text-xs uppercase tracking-label py-2 border border-border-default hover:border-border-strong hover:text-txt-primary transition-colors rounded-none cursor-pointer"
+            type="button"
+            onClick={handleClearAndFocus}
+            className="flex h-12 items-center justify-center border border-border-strong bg-bg-secondary text-[14px] font-bold uppercase tracking-[0.13em] text-txt-primary transition-colors hover:border-accent hover:bg-bg-tertiary hover:text-accent"
           >
             Clear
           </button>
+
+          {selectedId ? (
+            <button
+              type="button"
+              onClick={() => void handleDeleteWithToast()}
+              className="col-span-2 flex h-10 items-center justify-center gap-2 border border-status-critical/40 bg-status-critical/10 text-[12px] font-bold uppercase tracking-[0.16em] text-status-critical transition-colors hover:bg-status-critical hover:text-white"
+            >
+              <Trash2 size={14} />
+              Delete Role
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleClearAndFocus}
+              className="col-span-2 flex h-10 items-center justify-center gap-2 border border-border-default bg-transparent text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary transition-colors hover:border-accent hover:text-accent"
+            >
+              <RotateCcw size={14} />
+              Refresh List
+            </button>
+          )}
         </div>
-      </div>
+      </section>
 
       <ModalPerms
         isOpen={isModalOpen}

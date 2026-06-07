@@ -7,7 +7,6 @@ import {
   Save,
   X,
   Camera,
-  BriefcaseBusiness,
   UserRound,
 } from "lucide-react";
 import { useUserProfileModal } from "../hooks/useUserProfileModal";
@@ -112,6 +111,18 @@ function formatDate(value: Date) {
   return date.toLocaleDateString("en-GB");
 }
 
+const labelClass =
+  "text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary";
+
+const valueClass =
+  "mt-2 text-[16px] font-bold leading-relaxed tracking-[0.04em] text-txt-primary";
+
+const inputClass =
+  "h-12 w-full border border-border-default bg-bg-tertiary px-4 text-[15px] font-bold tracking-[0.05em] text-txt-primary outline-none transition-all placeholder:text-txt-disabled focus:border-accent focus:shadow-[0_0_0_2px_rgba(232,93,4,0.22)] disabled:cursor-not-allowed disabled:opacity-70";
+
+const textareaClass =
+  "min-h-[100px] w-full resize-none border border-border-default bg-bg-tertiary px-4 py-3 text-[15px] font-bold leading-relaxed tracking-[0.04em] text-txt-primary outline-none transition-all placeholder:text-txt-disabled focus:border-accent focus:shadow-[0_0_0_2px_rgba(232,93,4,0.22)] disabled:cursor-not-allowed disabled:opacity-70";
+
 export function UserProfileModal({
   name,
   lastName,
@@ -138,13 +149,12 @@ export function UserProfileModal({
   const [selectedProfession, setSelectedProfession] = useState(profession);
   const [isTemporary, setIsTemporary] = useState(false);
   const [temporaryUntil, setTemporaryUntil] = useState("");
-
+  const today = new Date().toISOString().split("T")[0];
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editedPhoto, setEditedPhoto] = useState(imageUrl ?? "");
   const [editedDescription, setEditedDescription] = useState(description);
   const [editedConditions, setEditedConditions] = useState(conditions);
-  const [isSavingProfile, setIsSavingProfile] = useState(false);
-  const [isSavingProfession, setIsSavingProfession] = useState(false);
+  const [isSavingChanges, setIsSavingChanges] = useState(false);
 
   const {
     isToggleAnimating,
@@ -185,6 +195,29 @@ export function UserProfileModal({
     setEditedConditions(conditions ?? "");
   }, [imageUrl, description, conditions]);
 
+  const displayedPhoto = isEditingProfile ? editedPhoto : imageUrl;
+  const canOpenIdCard = Boolean(idCardUrl || personId);
+  const canEditProfile = Boolean(personId && onUpdatePersonProfile);
+
+  const profileChanged =
+    editedDescription !== (description ?? "") ||
+    editedConditions !== (conditions ?? "") ||
+    editedPhoto !== (imageUrl ?? "");
+
+  const professionChanged =
+    selectedProfession !== profession ||
+    isTemporary ||
+    temporaryUntil.trim() !== "";
+
+  const hasChanges = profileChanged || professionChanged;
+
+  const canSaveChanges =
+    isEditingProfile &&
+    hasChanges &&
+    !isSavingChanges &&
+    selectedProfession.trim() !== "" &&
+    (!isTemporary || temporaryUntil.trim() !== "");
+
   const handleSelectPhoto = (file?: File) => {
     if (!file) return;
 
@@ -198,43 +231,35 @@ export function UserProfileModal({
     reader.readAsDataURL(file);
   };
 
-  const handleApplyProfession = async () => {
-    if (isTemporary && !temporaryUntil) return;
+  const handleSaveChanges = async () => {
+    if (!canSaveChanges) return;
 
-    setIsSavingProfession(true);
-
-    try {
-      await onChangeProfession(selectedProfession, {
-        isTemporary,
-        temporaryUntil: isTemporary ? temporaryUntil : undefined,
-      });
-
-      setIsEditingProfile(false);
-    } finally {
-      setIsSavingProfession(false);
-    }
-  };
-
-  const handleSaveProfile = async () => {
-    if (!personId || !onUpdatePersonProfile) return;
-
-    setIsSavingProfile(true);
+    setIsSavingChanges(true);
 
     try {
-      const payload: UpdatePersonProfilePayload = {
-        description: editedDescription,
-        conditions: editedConditions,
-      };
+      if (profileChanged && personId && onUpdatePersonProfile) {
+        const payload: UpdatePersonProfilePayload = {
+          description: editedDescription,
+          conditions: editedConditions,
+        };
 
-      if (editedPhoto !== (imageUrl ?? "")) {
-        payload.photo = editedPhoto;
+        if (editedPhoto !== (imageUrl ?? "")) {
+          payload.photo = editedPhoto;
+        }
+
+        await onUpdatePersonProfile(personId, payload);
       }
 
-      await onUpdatePersonProfile(personId, payload);
+      if (professionChanged) {
+        await onChangeProfession(selectedProfession, {
+          isTemporary,
+          temporaryUntil: isTemporary ? temporaryUntil : undefined,
+        });
+      }
 
       setIsEditingProfile(false);
     } finally {
-      setIsSavingProfile(false);
+      setIsSavingChanges(false);
     }
   };
 
@@ -258,36 +283,27 @@ export function UserProfileModal({
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const isApplyDisabled =
-    !isEditingProfile ||
-    isSavingProfession ||
-    (isTemporary && !temporaryUntil);
-
-  const canOpenIdCard = Boolean(idCardUrl || personId);
-  const canEditProfile = Boolean(personId && onUpdatePersonProfile);
-  const displayedPhoto = isEditingProfile ? editedPhoto : imageUrl;
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 font-mono backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="flex h-[92vh] w-full max-w-6xl overflow-hidden rounded-2xl border border-[#3A3A3A] bg-[#F3F3F3] shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
-        onClick={(e) => e.stopPropagation()}
+        className="flex max-h-[92vh] w-full max-w-6xl overflow-hidden border border-border-default bg-bg-secondary shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
+        onClick={(event) => event.stopPropagation()}
       >
-        <div className="relative hidden w-[360px] shrink-0 bg-[#2E2F2F] md:block">
+        <aside className="relative hidden w-[320px] shrink-0 border-r border-border-default bg-bg-primary md:block">
           <div
-            className={`absolute left-1/2 top-0 h-[88px] w-20 -translate-x-1/2 ${
-              active ? "bg-[#FF6600]" : "bg-[#777777]"
+            className={`absolute left-1/2 top-0 h-[86px] w-[88px] -translate-x-1/2 ${
+              active ? "bg-accent" : "bg-bg-tertiary"
             }`}
           />
 
-          <div className="flex h-full items-center justify-center px-10 py-10">
-            <div className="flex w-full max-w-[290px] flex-col items-center rounded-xl border border-[#686868] bg-[#1D1F1F] px-8 py-7 shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
-              <div className="mb-10 h-2 w-full rounded-full bg-[#3D3D3D]" />
+          <div className="flex h-full items-center justify-center px-7 py-9">
+            <div className="flex w-full max-w-[260px] flex-col items-center border border-border-strong bg-bg-secondary px-6 py-7 shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+              <div className="mb-8 h-2 w-full bg-bg-tertiary" />
 
-              <div className="relative h-[240px] w-full overflow-hidden rounded-xl bg-black">
+              <div className="relative h-[230px] w-full overflow-hidden bg-black">
                 {displayedPhoto ? (
                   <img
                     src={displayedPhoto}
@@ -297,17 +313,19 @@ export function UserProfileModal({
                     }`}
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-[#111111]">
-                    <UserRound className="h-20 w-20 text-[#666666]" />
+                  <div className="flex h-full w-full items-center justify-center bg-bg-primary">
+                    <UserRound className="h-20 w-20 text-txt-disabled" />
                   </div>
                 )}
 
-                {canEditProfile && isEditingProfile && (
+                {canEditProfile && isEditingProfile ? (
                   <>
                     <input
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
+                      aria-label="Profile photo file"
+                      title="Profile photo file"
                       className="hidden"
                       onChange={(event) =>
                         handleSelectPhoto(event.target.files?.[0])
@@ -317,368 +335,363 @@ export function UserProfileModal({
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="absolute bottom-3 right-3 flex items-center gap-2 rounded-full bg-black/80 px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#FF6600] transition hover:bg-[#FF6600] hover:text-black"
+                      aria-label="Change profile photo"
+                      title="Change profile photo"
+                      className="absolute bottom-3 right-3 flex items-center gap-2 bg-black/80 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.13em] text-accent transition-colors hover:bg-accent hover:text-accent-fg"
                     >
-                      <Camera size={13} />
+                      <Camera size={14} />
                       Photo
                     </button>
                   </>
-                )}
+                ) : null}
               </div>
 
               <p
-                className={`mt-5 text-sm font-bold uppercase tracking-[0.18em] ${
-                  active ? "text-[#FF6600]" : "text-[#9A9A9A]"
+                className={`mt-5 text-[13px] font-bold uppercase tracking-[0.18em] ${
+                  active ? "text-accent" : "text-txt-disabled"
                 }`}
               >
                 {role || "Worker"}
               </p>
 
-              <p className="mt-3 text-center text-lg font-bold text-white">
+              <p className="mt-3 text-center text-[21px] font-bold uppercase tracking-[0.08em] text-txt-primary">
                 {name} {lastName}
               </p>
 
-              <p className="mt-2 text-center text-xs uppercase tracking-[0.18em] text-[#A0A0A0]">
-                {formatProfessionName(profession)}
+              <p className="mt-2 text-center text-[13px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
+                {formatProfessionName(selectedProfession)}
               </p>
 
-              <div className="mt-6 flex h-11 w-11 items-center justify-center rounded-xl border border-[#FF6600] text-[#FF6600]">
+              <div className="mt-6 flex h-12 w-12 items-center justify-center border border-accent text-accent">
                 <ProfessionIcon
-                  className={`h-6 w-6 ${iconColorClass || "text-[#FF6600]"}`}
+                  className={`h-6 w-6 ${iconColorClass || "text-accent"}`}
                 />
               </div>
 
               <span
-                className={`mt-6 rounded-full px-4 py-1 text-xs font-bold uppercase tracking-[0.16em] ${
+                className={`mt-6 px-5 py-1.5 text-[12px] font-bold uppercase tracking-[0.16em] ${
                   active
-                    ? "bg-green-500/15 text-green-400"
-                    : "bg-red-500/15 text-red-400"
+                    ? "bg-status-ok/15 text-status-ok"
+                    : "bg-status-critical/15 text-status-critical"
                 }`}
               >
                 {active ? "Active" : "Inactive"}
               </span>
             </div>
           </div>
-        </div>
+        </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col bg-[#F3F3F3]">
-          <div className="flex shrink-0 items-center justify-between border-b border-[#D5D5D5] px-6 py-5 md:px-10">
+        <section className="flex max-h-[92vh] min-w-0 flex-1 flex-col bg-bg-secondary">
+          <header className="flex shrink-0 items-center justify-between border-b border-border-default bg-bg-primary px-7 py-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.26em] text-[#777777]">
+              <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-txt-disabled">
                 Staff Profile
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold text-black">
+              <h2 className="mt-1 text-[28px] font-bold uppercase tracking-[0.08em] text-txt-primary">
                 {isEditingProfile ? "Edit Person Profile" : "Person Information"}
               </h2>
             </div>
 
             <div className="flex items-center gap-3">
-              {!isEditingProfile && (
+              {!isEditingProfile ? (
                 <button
                   type="button"
                   disabled={!canEditProfile}
                   onClick={() => setIsEditingProfile(true)}
-                  className={`inline-flex h-11 items-center justify-center gap-2 rounded-xl border px-5 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
-                    canEditProfile
-                      ? "border-[#FF6600] bg-transparent text-[#FF6600] hover:bg-[#FF6600] hover:text-black"
-                      : "cursor-not-allowed border-[#CFCFCF] bg-[#E6E6E6] text-[#9A9A9A]"
-                  }`}
+                  aria-label="Edit profile"
+                  title="Edit profile"
+                  className="flex h-11 items-center justify-center gap-2 border border-accent bg-accent px-5 text-[13px] font-bold uppercase tracking-[0.13em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-50"
                 >
-                  <Pencil size={14} />
+                  <Pencil size={15} />
                   Edit Profile
                 </button>
-              )}
+              ) : null}
 
               <button
                 type="button"
                 onClick={onClose}
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-black text-black transition hover:border-[#FF6600] hover:bg-[#FF6600]"
+                aria-label="Close profile modal"
+                title="Close profile modal"
+                className="flex h-11 w-11 items-center justify-center border border-border-strong text-txt-primary transition-colors hover:border-accent hover:bg-accent hover:text-accent-fg"
               >
                 <X size={20} />
               </button>
             </div>
-          </div>
+          </header>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-7 md:px-10">
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div className="lg:col-span-2">
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                  ID
-                </p>
-                <p className="mt-1 font-mono text-xl font-bold text-black">
-                  {id}
-                </p>
-              </div>
+          <div className="overflow-y-auto px-7 py-6">
+            <div className="border border-border-default bg-bg-primary px-5 py-5">
+              <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
+                <div className="border-r border-border-default pr-5">
+                  <p className={labelClass}>ID</p>
 
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                  First Name
-                </p>
-                <p className="mt-1 font-mono text-base font-semibold text-black">
-                  {name}
-                </p>
-              </div>
-
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                  Last Name
-                </p>
-                <p className="mt-1 font-mono text-base font-semibold text-black">
-                  {lastName}
-                </p>
-              </div>
-
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                  Sex
-                </p>
-                <p className="mt-1 font-mono text-base font-semibold text-black">
-                  {formatSex(sex)}
-                </p>
-              </div>
-
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                  Birth Date
-                </p>
-                <p className="mt-1 font-mono text-base font-semibold text-black">
-                  {formatDate(birthdate)}
-                </p>
-              </div>
-            </div>
-
-            <div className="my-7 border-t border-[#C7C7C7]" />
-
-            {!isEditingProfile ? (
-              <div className="space-y-5">
-                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  <div className="rounded-xl border border-[#D1D1D1] bg-white/70 p-5">
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                      Profession
-                    </p>
-                    <p className="mt-2 font-mono text-lg font-bold text-black">
-                      {formatProfessionName(profession)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-[#D1D1D1] bg-white/70 p-5">
-                    <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                      Role
-                    </p>
-                    <p className="mt-2 font-mono text-lg font-bold text-black">
-                      {role || "Worker"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-[#D1D1D1] bg-white/70 p-5">
-                  <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                    Description
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap font-mono text-sm leading-relaxed text-black">
-                    {description || "No description registered."}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-[#D1D1D1] bg-white/70 p-5">
-                  <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                    Conditions
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap font-mono text-sm leading-relaxed text-black">
-                    {conditions || "No conditions registered."}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="rounded-2xl border border-[#D1D1D1] bg-white/60 p-5">
-                  <div className="mb-5 flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#777777]">
-                        Editable Fields
-                      </p>
-                      <h3 className="mt-1 font-mono text-lg font-bold text-black">
-                        Profile Details
-                      </h3>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleCancelEdit}
-                      className="text-[#555555] transition hover:text-[#FF6600]"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-
-                  <div className="space-y-5">
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                        Description
-                      </p>
-                      <textarea
-                        value={editedDescription}
-                        onChange={(e) => setEditedDescription(e.target.value)}
-                        className="mt-2 min-h-[95px] w-full resize-none rounded-lg border border-[#D1D1D1] bg-[#E8E8E8] px-4 py-3 font-mono text-sm font-semibold text-black outline-none transition focus:border-[#FF6600] focus:bg-white focus:shadow-[0_0_0_3px_rgba(255,102,0,0.18)]"
-                        placeholder="Description"
-                      />
-                    </div>
-
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                        Conditions
-                      </p>
-                      <textarea
-                        value={editedConditions}
-                        onChange={(e) => setEditedConditions(e.target.value)}
-                        className="mt-2 min-h-[95px] w-full resize-none rounded-lg border border-[#D1D1D1] bg-[#E8E8E8] px-4 py-3 font-mono text-sm font-semibold text-black outline-none transition focus:border-[#FF6600] focus:bg-white focus:shadow-[0_0_0_3px_rgba(255,102,0,0.18)]"
-                        placeholder="Health conditions"
-                      />
-                    </div>
-
-                    <div className="flex justify-end gap-3">
-                      <button
-                        type="button"
-                        onClick={handleCancelEdit}
-                        className="inline-flex h-11 items-center justify-center rounded-lg border border-black bg-white px-5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-black transition hover:border-[#FF6600] hover:bg-[#FF6600]"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        type="button"
-                        disabled={isSavingProfile}
-                        onClick={handleSaveProfile}
-                        className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg border px-5 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
-                          isSavingProfile
-                            ? "cursor-not-allowed border-[#CFCFCF] bg-[#E6E6E6] text-[#9A9A9A]"
-                            : "border-[#FF6600] bg-[#FF6600] text-black hover:bg-black hover:text-[#FF6600]"
-                        }`}
-                      >
-                        <Save size={14} />
-                        {isSavingProfile ? "Saving..." : "Save Changes"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-[#D1D1D1] bg-white/60 p-5">
-                  <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                    Profession Assignment
+                  <p className="mt-2 break-all text-[25px] font-bold uppercase tracking-[0.08em] text-txt-primary">
+                    {id}
                   </p>
 
-                  <select
-                    value={selectedProfession}
-                    onChange={(e) => setSelectedProfession(e.target.value)}
-                    className="mt-2 h-12 w-full rounded-lg border border-[#D1D1D1] bg-[#E8E8E8] px-4 font-mono text-sm font-semibold text-black outline-none transition focus:border-[#FF6600] focus:bg-white focus:shadow-[0_0_0_3px_rgba(255,102,0,0.18)]"
-                  >
-                    {displayedProfessionOptions.map((item) => (
-                      <option key={item} value={item}>
-                        {formatProfessionName(item)}
-                      </option>
-                    ))}
-                  </select>
-
-                  <label className="mt-4 flex items-center gap-3 font-mono text-sm text-black">
-                    <input
-                      type="checkbox"
-                      checked={isTemporary}
-                      onChange={(e) => {
-                        setIsTemporary(e.target.checked);
-
-                        if (!e.target.checked) {
-                          setTemporaryUntil("");
-                        }
-                      }}
-                      className="h-4 w-4 accent-[#FF6600]"
-                    />
-                    Temporary assignment
-                  </label>
-
-                  {isTemporary && (
-                    <div className="mt-4">
-                      <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                        Temporary Until
-                      </p>
-                      <input
-                        type="date"
-                        value={temporaryUntil}
-                        onChange={(e) => setTemporaryUntil(e.target.value)}
-                        className="mt-2 h-12 w-full rounded-lg border border-[#D1D1D1] bg-[#E8E8E8] px-4 font-mono text-sm font-semibold text-black outline-none transition focus:border-[#FF6600] focus:bg-white focus:shadow-[0_0_0_3px_rgba(255,102,0,0.18)]"
-                      />
-                    </div>
-                  )}
-
-                  <div className="mt-5 flex justify-end">
-                    <button
-                      type="button"
-                      disabled={isApplyDisabled}
-                      onClick={handleApplyProfession}
-                      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg border px-5 font-mono text-xs font-bold uppercase tracking-[0.18em] transition ${
-                        isApplyDisabled
-                          ? "cursor-not-allowed border-[#CFCFCF] bg-[#E6E6E6] text-[#9A9A9A]"
-                          : "border-[#FF6600] bg-transparent text-[#FF6600] hover:bg-[#FF6600] hover:text-black"
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <span
+                      className={`border px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] ${
+                        active
+                          ? "border-status-ok/40 bg-status-ok/10 text-status-ok"
+                          : "border-status-critical/40 bg-status-critical/10 text-status-critical"
                       }`}
                     >
-                      <BriefcaseBusiness size={15} />
-                      {isSavingProfession ? "Applying..." : "Apply Assignment"}
-                    </button>
+                      {active ? "Active" : "Inactive"}
+                    </span>
+
+                    <span className="border border-accent/40 bg-accent/10 px-3 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-accent">
+                      {role || "Worker"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid gap-x-8 gap-y-5 md:grid-cols-2">
+                  <div>
+                    <p className={labelClass}>First Name</p>
+                    <p className={valueClass}>{name}</p>
+                  </div>
+
+                  <div>
+                    <p className={labelClass}>Last Name</p>
+                    <p className={valueClass}>{lastName}</p>
+                  </div>
+
+                  <div>
+                    <p className={labelClass}>Sex</p>
+                    <p className={valueClass}>{formatSex(sex)}</p>
+                  </div>
+
+                  <div>
+                    <p className={labelClass}>Birth Date</p>
+                    <p className={valueClass}>{formatDate(birthdate)}</p>
+                  </div>
+
+                  <div>
+                    <p className={labelClass}>Registration Date</p>
+                    <p className={valueClass}>{formatDate(registrationDate)}</p>
+                  </div>
+
+                  <div>
+                    <p className={labelClass}>Current Profession</p>
+                    <p className={valueClass}>
+                      {formatProfessionName(selectedProfession)}
+                    </p>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            <div className="my-7 border-t border-[#C7C7C7]" />
+            <div className="mt-5 border border-border-default bg-bg-primary px-5 py-5">
+              <div className="mb-4 flex items-center justify-between gap-4 border-b border-border-default pb-4">
+                <div>
+                  <p className="text-[16px] font-bold uppercase tracking-[0.16em] text-txt-primary">
+                    Profile Details
+                  </p>
 
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[#777777]">
-                  Registration Date
-                </p>
-                <p className="mt-1 font-mono text-lg font-semibold text-[#555555]">
-                  {formatDate(registrationDate)}
-                </p>
+                  <p className="mt-1 text-[12px] font-bold uppercase tracking-[0.14em] text-txt-disabled">
+                    Description / conditions / profession assignment
+                  </p>
+                </div>
+
+                {isEditingProfile ? (
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    aria-label="Cancel profile editing"
+                    title="Cancel profile editing"
+                    className="flex h-10 w-10 items-center justify-center border border-border-strong text-txt-primary transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <X size={18} />
+                  </button>
+                ) : null}
               </div>
 
-              <div className="flex flex-col items-start justify-end gap-3 lg:items-end">
-                <button
-                  type="button"
-                  disabled={!canOpenIdCard}
-                  onClick={handleOpenIdCard}
-                  className={`inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border px-5 font-mono text-xs font-bold uppercase tracking-[0.18em] transition lg:w-auto ${
-                    canOpenIdCard
-                      ? "border-[#FF6600] bg-transparent text-[#FF6600] hover:bg-[#FF6600] hover:text-black"
-                      : "cursor-not-allowed border-[#CFCFCF] bg-[#E6E6E6] text-[#9A9A9A]"
-                  }`}
-                >
-                  <IdCard size={16} />
-                  View ID Card
-                </button>
+              <div className="grid gap-5">
+                <div className="grid gap-5 xl:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="profile-description" className={labelClass}>
+                      Description
+                    </label>
 
-                <button
-                  onClick={handleToggleClick}
-                  className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg px-5 font-mono text-sm font-bold uppercase tracking-[0.12em] transition lg:w-auto ${
-                    isTextWhite
-                      ? "user-profile-toggle-text-white"
-                      : defaultButtonText
-                  } ${
-                    isToggleAnimating
-                      ? `${transitionButtonBackground} user-profile-toggle-scale-active`
-                      : `${defaultButtonBackground} user-profile-toggle-scale-normal`
-                  }`}
-                >
-                  {active ? (
-                    <PowerOff className="h-5 w-5" />
-                  ) : (
-                    <Power className="h-5 w-5" />
-                  )}
-                  {active ? "Deactivate Profile" : "Activate Profile"}
-                </button>
+                    <textarea
+                      id="profile-description"
+                      aria-label="Profile description"
+                      title="Profile description"
+                      value={editedDescription}
+                      disabled={!isEditingProfile}
+                      onChange={(event) =>
+                        setEditedDescription(event.target.value)
+                      }
+                      placeholder="No description registered."
+                      className={textareaClass}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="profile-conditions" className={labelClass}>
+                      Conditions
+                    </label>
+
+                    <textarea
+                      id="profile-conditions"
+                      aria-label="Profile conditions"
+                      title="Profile conditions"
+                      value={editedConditions}
+                      disabled={!isEditingProfile}
+                      onChange={(event) =>
+                        setEditedConditions(event.target.value)
+                      }
+                      placeholder="No conditions registered."
+                      className={textareaClass}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_220px]">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="profile-profession" className={labelClass}>
+                      Profession Assignment
+                    </label>
+
+                    <select
+                      id="profile-profession"
+                      aria-label="Profession assignment"
+                      title="Profession assignment"
+                      value={selectedProfession}
+                      disabled={!isEditingProfile}
+                      onChange={(event) =>
+                        setSelectedProfession(event.target.value)
+                      }
+                      className={inputClass}
+                    >
+                      {displayedProfessionOptions.map((item) => (
+                        <option key={item} value={item}>
+                          {formatProfessionName(item)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex items-end">
+                    <label className="flex h-12 w-full items-center justify-center gap-3 border border-border-default bg-bg-tertiary px-4 text-[14px] font-bold tracking-[0.04em] text-txt-primary">
+                      <input
+                        type="checkbox"
+                        checked={isTemporary}
+                        disabled={!isEditingProfile}
+                        aria-label="Temporary assignment"
+                        title="Temporary assignment"
+                        onChange={(event) => {
+                          setIsTemporary(event.target.checked);
+
+                          if (!event.target.checked) {
+                            setTemporaryUntil("");
+                          }
+                        }}
+                        className="h-4 w-4 accent-[#FF6600]"
+                      />
+                      Temporary
+                    </label>
+                  </div>
+                </div>
+
+                {isTemporary ? (
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="temporary-until" className={labelClass}>
+                      Temporary Until
+                    </label>
+                    <input
+                      id="temporary-until"
+                      type="date"
+                      aria-label="Temporary assignment end date"
+                      title="Temporary assignment end date"
+                      value={temporaryUntil}
+                      min={today}
+                      disabled={!isEditingProfile}
+                      onChange={(event) => {
+                        const selectedDate = event.target.value;
+
+                        if (selectedDate && selectedDate < today) {
+                          setTemporaryUntil(today);
+                          return;
+                        }
+
+                        setTemporaryUntil(selectedDate);
+                      }}
+                      className={inputClass}
+                    />
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
-        </div>
+
+          <footer className="flex shrink-0 flex-col gap-3 border-t border-border-default bg-bg-primary px-7 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                disabled={!canOpenIdCard}
+                onClick={handleOpenIdCard}
+                aria-label="View ID card"
+                title="View ID card"
+                className="flex h-11 items-center justify-center gap-2 border border-accent bg-bg-secondary px-5 text-[13px] font-bold uppercase tracking-[0.13em] text-accent transition-colors hover:bg-accent hover:text-accent-fg disabled:cursor-not-allowed disabled:border-border-default disabled:text-txt-disabled disabled:opacity-50"
+              >
+                <IdCard size={16} />
+                View ID Card
+              </button>
+
+              <button
+                type="button"
+                onClick={handleToggleClick}
+                aria-label={active ? "Deactivate profile" : "Activate profile"}
+                title={active ? "Deactivate profile" : "Activate profile"}
+                className={`flex h-11 items-center justify-center gap-2 border px-5 text-[13px] font-bold uppercase tracking-[0.13em] transition-transform ${
+                  isTextWhite
+                    ? "user-profile-toggle-text-white"
+                    : defaultButtonText
+                } ${
+                  isToggleAnimating
+                    ? `${transitionButtonBackground} user-profile-toggle-scale-active`
+                    : `${defaultButtonBackground} user-profile-toggle-scale-normal`
+                }`}
+              >
+                {active ? (
+                  <PowerOff className="h-5 w-5" />
+                ) : (
+                  <Power className="h-5 w-5" />
+                )}
+                {active ? "Deactivate Profile" : "Activate Profile"}
+              </button>
+            </div>
+
+            {isEditingProfile ? (
+              <div className="flex flex-wrap gap-3 lg:justify-end">
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  aria-label="Cancel changes"
+                  title="Cancel changes"
+                  className="flex h-11 items-center justify-center border border-border-strong bg-bg-secondary px-6 text-[13px] font-bold uppercase tracking-[0.13em] text-txt-primary transition-colors hover:border-accent hover:text-accent"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  disabled={!canSaveChanges}
+                  onClick={handleSaveChanges}
+                  aria-label="Save profile changes"
+                  title="Save profile changes"
+                  className="flex h-11 items-center justify-center gap-2 border border-accent bg-accent px-6 text-[13px] font-bold uppercase tracking-[0.13em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-50"
+                >
+                  <Save size={15} />
+                  {isSavingChanges ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            ) : null}
+          </footer>
+        </section>
       </div>
     </div>
   );

@@ -53,8 +53,8 @@ function isDateInCurrentWeek(value?: string | Date | null) {
     const today = new Date();
     const firstDay = new Date(today);
     const day = today.getDay();
-
     const diffToMonday = day === 0 ? -6 : 1 - day;
+
     firstDay.setDate(today.getDate() + diffToMonday);
     firstDay.setHours(0, 0, 0, 0);
 
@@ -64,28 +64,90 @@ function isDateInCurrentWeek(value?: string | Date | null) {
     return date >= firstDay && date < lastDay;
 }
 
-function isTemporaryActive(item: PersonProfession) {
-    if (item.is_temporary !== "Y") return false;
-
-    if (!item.temporary_until) return true;
-
-    const limitDate = new Date(item.temporary_until);
-    if (Number.isNaN(limitDate.getTime())) return true;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return limitDate >= today;
+function getDateValue(item: Record<string, unknown>) {
+    return (
+        item.created_at ??
+        item.createdAt ??
+        item.requested_at ??
+        item.requestedAt ??
+        item.resolved_at ??
+        item.resolvedAt ??
+        null
+    );
 }
 
-function calculateAge(value?: string | Date | null) {
+function normalizeState(value?: string | boolean | null) {
+    if (typeof value === "boolean") return value ? "A" : "I";
+
+    const normalized = String(value ?? "").toUpperCase();
+
+    if (normalized === "ACTIVE" || normalized === "ACTIVO") return "A";
+    if (normalized === "INACTIVE" || normalized === "INACTIVO") return "I";
+
+    return normalized;
+}
+
+function normalizeExplorationState(value?: string | null) {
+    const normalized = String(value ?? "").toUpperCase();
+
+    if (normalized === "PENDING" || normalized === "PENDIENTE") return "P";
+    if (normalized === "ACTIVE" || normalized === "ACTIVA") return "A";
+    if (normalized === "FINISHED" || normalized === "FINALIZADA") return "F";
+    if (normalized === "CANCELLED" || normalized === "CANCELADA") return "C";
+
+    return normalized;
+}
+
+function normalizePriority(value?: string | null) {
+    const normalized = String(value ?? "").toUpperCase();
+
+    if (normalized === "HIGH" || normalized === "ALTA") return "H";
+    if (normalized === "MEDIUM" || normalized === "MEDIA") return "M";
+    if (normalized === "LOW" || normalized === "BAJA") return "L";
+
+    return normalized;
+}
+
+function normalizeResourceStatus(value?: string | null) {
+    const normalized = String(value ?? "").toUpperCase();
+
+    if (normalized === "CRITICAL" || normalized === "CRITICO") return "C";
+    if (normalized === "MODERATE" || normalized === "MODERADO") return "M";
+    if (normalized === "OK" || normalized === "NORMAL") return "O";
+
+    return normalized;
+}
+
+function normalizeAdmissionStatus(value?: string | null) {
+    const normalized = String(value ?? "").toUpperCase();
+
+    if (normalized === "PENDING" || normalized === "PENDIENTE") return "P";
+    if (normalized === "APPROVED" || normalized === "ACCEPTED") return "A";
+    if (normalized === "REJECTED" || normalized === "DENIED") return "R";
+
+    return normalized;
+}
+
+function normalizeHealthCondition(value?: string | null) {
+    const normalized = String(value ?? "").trim();
+
+    if (!normalized) return "No condition";
+
+    return (
+        normalized
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)[0] ?? "No condition"
+    );
+}
+
+function getAge(value?: string | Date | null) {
     if (!value) return null;
 
     const birthDate = new Date(value);
     if (Number.isNaN(birthDate.getTime())) return null;
 
     const today = new Date();
-
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
 
@@ -101,81 +163,48 @@ function calculateAge(value?: string | Date | null) {
 
 function getAverageAge(persons: Person[]) {
     const ages = persons
-        .map((person) => calculateAge(person.date_of_birth ?? person.date_birth))
-        .filter((age): age is number => typeof age === "number");
+        .map((person) =>
+            getAge(person.date_birth ?? person.date_of_birth ?? null),
+        )
+        .filter((age): age is number => age != null);
 
     if (!ages.length) return 0;
 
     return Math.round(ages.reduce((sum, age) => sum + age, 0) / ages.length);
 }
 
-function normalizeHealthCondition(value?: string | null) {
-    const condition = value?.trim().toUpperCase();
-
-    if (!condition) return "HEALTHY";
-
-    if (
-        condition.includes("SANO") ||
-        condition.includes("SANA") ||
-        condition.includes("APTO") ||
-        condition.includes("APTA") ||
-        condition.includes("SALUDABLE") ||
-        condition.includes("BIEN") ||
-        condition.includes("NONE") ||
-        condition.includes("NO CONDITION") ||
-        condition.includes("SIN CONDICION") ||
-        condition.includes("SIN CONDICIÓN")
-    ) {
-        return "HEALTHY";
-    }
-
-    return "HAS CONDITION";
-}
-
-function getProfessionLabel(profession?: string | null) {
-    const value = profession?.trim();
-
-    if (!value) return "No profession";
-
-    const normalized = value.toUpperCase();
-
-    const labels: Record<string, string> = {
-        "PROF-MED": "Medicina",
-        "PROF-LOG": "Logística",
-        "PROF-AGR": "Agricultura",
-        "PROF-EXP": "Exploración",
-        MEDICINA: "Medicina",
-        LOGISTICA: "Logística",
-        LOGÍSTICA: "Logística",
-        AGRICULTURA: "Agricultura",
-        EXPLORACION: "Exploración",
-        EXPLORACIÓN: "Exploración",
-    };
-
-    return labels[normalized] ?? value;
-}
-
-function normalizeProfessionKey(profession?: string | null) {
-    return profession?.trim().toUpperCase() ?? "";
-}
-
-function countBy(values: string[]) {
-    return values.reduce<Record<string, number>>((acc, value) => {
-        const key = value.trim() || "No data";
-        acc[key] = (acc[key] ?? 0) + 1;
+function countBy<T extends string>(items: T[]) {
+    return items.reduce<Record<string, number>>((acc, item) => {
+        acc[item] = (acc[item] ?? 0) + 1;
         return acc;
     }, {});
 }
 
 function toCountItems(record: Record<string, number>): CountItem[] {
     return Object.entries(record)
-        .map(([label, value]) => ({ label, value }))
+        .map(([label, value]) => ({
+            label,
+            value,
+        }))
         .sort((a, b) => b.value - a.value);
 }
 
-function formatRefresh(date: Date) {
-    return date.toLocaleTimeString("en-US", {
-        hour12: false,
+function getProfessionLabel(profession?: Profession | null) {
+    if (!profession) return "No profession";
+
+    return profession.name || profession.code || `PROF-${profession.id ?? "N/A"}`;
+}
+
+function getPersonProfessionId(item: PersonProfession) {
+    return Number(item.profession_id ?? item.profession?.id ?? 0);
+}
+
+function getPersonIdFromProfession(item: PersonProfession) {
+    return Number(item.person_id ?? item.person?.id ?? 0);
+}
+
+function formatRefresh(value: Date) {
+    return value.toLocaleTimeString("es-CR", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -281,121 +310,193 @@ export function DashboardView() {
             );
         }
 
-        setLoading(false);
         setLastRefresh(new Date());
     };
 
-    const handleRefresh = () => {
-        setLoading(true);
-        void loadAll();
-    };
-
     useEffect(() => {
-        void loadAll();
+        void (async () => {
+            setLoading(true);
+
+            try {
+                await loadAll();
+            } finally {
+                setLoading(false);
+            }
+        })();
     }, []);
 
-    const activeUsers = users.filter((user) => user.state === "A").length;
-    const inactiveUsers = users.filter((user) => user.state === "I").length;
+    const handleRefresh = async () => {
+        setLoading(true);
 
-    const activePersons =
-        persons.length > 0
-            ? persons.filter((person) => person.state === "A").length
-            : activeUsers;
+        try {
+            await loadAll();
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    const inactivePersons =
-        persons.length > 0
-            ? persons.filter((person) => person.state === "I").length
-            : inactiveUsers;
+    const activePersons = persons.filter(
+        (person) => normalizeState(person.state) === "A",
+    ).length;
 
-    const totalPopulation =
-        persons.length > 0 ? persons.length : activeUsers + inactiveUsers;
+    const inactivePersons = Math.max(persons.length - activePersons, 0);
 
     const totalCampCapacity = camps.reduce(
-        (total, camp) => total + (Number(camp.capacity) || 0),
+        (sum, camp) => sum + Number(camp.capacity ?? 0),
         0,
     );
 
-    const populationCapacityText =
-        totalCampCapacity > 0
-            ? `${totalPopulation} / ${totalCampCapacity}`
-            : `${totalPopulation}`;
-
     const capacityPercent =
         totalCampCapacity > 0
-            ? Math.round((totalPopulation / totalCampCapacity) * 100)
+            ? Math.min(Math.round((activePersons / totalCampCapacity) * 100), 100)
             : 0;
 
-    const resourcesByStatus = {
-        C: resources.filter((resource) => resource.status === "C"),
-        M: resources.filter((resource) => resource.status === "M"),
-        O: resources.filter((resource) => resource.status === "O"),
-        none: resources.filter((resource) => !resource.status),
-    };
+    const populationCapacityText =
+        totalCampCapacity > 0
+            ? `${activePersons} / ${totalCampCapacity}`
+            : `${activePersons} / N/A`;
 
     const totalResources = resources.length;
 
-    const explorationsByState = {
-        P: explorations.filter((exploration) => exploration.state === "P"),
-        A: explorations.filter((exploration) => exploration.state === "A"),
-        F: explorations.filter((exploration) => exploration.state === "F"),
-        C: explorations.filter((exploration) => exploration.state === "C"),
+    const resourcesByStatus = {
+        C: resources.filter(
+            (resource) => normalizeResourceStatus(resource.status) === "C",
+        ),
+        M: resources.filter(
+            (resource) => normalizeResourceStatus(resource.status) === "M",
+        ),
+        O: resources.filter(
+            (resource) => normalizeResourceStatus(resource.status) === "O",
+        ),
+        none: resources.filter((resource) => {
+            const status = normalizeResourceStatus(resource.status);
+            return status !== "C" && status !== "M" && status !== "O";
+        }),
     };
-
-    const tasksByPriority = {
-        H: tasks.filter((task) => task.priority === "H"),
-        M: tasks.filter((task) => task.priority === "M"),
-        L: tasks.filter((task) => task.priority === "L"),
-    };
-
-    const pendingAdmissions = admissionRequests.filter(
-        (admission) => admission.request_status === "P",
-    ).length;
-
-    const acceptedAdmissionsThisWeek = admissionRequests.filter(
-        (admission) =>
-            admission.request_status === "A" &&
-            isDateInCurrentWeek(admission.requested_at),
-    ).length;
-
-    const rejectedAdmissionsThisWeek = admissionRequests.filter(
-        (admission) =>
-            admission.request_status === "R" &&
-            isDateInCurrentWeek(admission.requested_at),
-    ).length;
-
-    const activeTemporaryAssignments = personProfessions.filter(
-        isTemporaryActive,
-    ).length;
 
     const consumableResources = resources.filter(
         (resource) => resource.consumable,
     ).length;
 
     const inactiveResources = resources.filter(
-        (resource) => resource.state === "I",
+        (resource) => normalizeState(resource.state) !== "A",
     ).length;
 
-    const professionDistribution = toCountItems(
-        countBy(
-            users
-                .filter((user) => user.state === "A")
-                .map((user) => getProfessionLabel(user.profession)),
+    const explorationsByState = {
+        P: explorations.filter(
+            (exploration) => normalizeExplorationState(exploration.state) === "P",
         ),
+        A: explorations.filter(
+            (exploration) => normalizeExplorationState(exploration.state) === "A",
+        ),
+        F: explorations.filter(
+            (exploration) => normalizeExplorationState(exploration.state) === "F",
+        ),
+        C: explorations.filter(
+            (exploration) => normalizeExplorationState(exploration.state) === "C",
+        ),
+    };
+
+    const tasksByPriority = {
+        H: tasks.filter((task) => normalizePriority(task.priority) === "H"),
+        M: tasks.filter((task) => normalizePriority(task.priority) === "M"),
+        L: tasks.filter((task) => normalizePriority(task.priority) === "L"),
+    };
+
+    const pendingAdmissions = admissionRequests.filter(
+        (request) => normalizeAdmissionStatus(request.request_status) === "P",
+    ).length;
+
+    const acceptedAdmissionsThisWeek = admissionRequests.filter(
+        (request) =>
+            normalizeAdmissionStatus(request.request_status) === "A" &&
+            isDateInCurrentWeek(
+                getDateValue(request as unknown as Record<string, unknown>) as
+                    | string
+                    | Date
+                    | null,
+            ),
+    ).length;
+
+    const rejectedAdmissionsThisWeek = admissionRequests.filter(
+        (request) =>
+            normalizeAdmissionStatus(request.request_status) === "R" &&
+            isDateInCurrentWeek(
+                getDateValue(request as unknown as Record<string, unknown>) as
+                    | string
+                    | Date
+                    | null,
+            ),
+    ).length;
+
+    const activeTemporaryAssignments = personProfessions.filter((item) => {
+        const temporary =
+            item.is_temporary === "Y" ||
+            String(item.is_temporary ?? "").toUpperCase() === "TRUE";
+
+        if (!temporary) return false;
+
+        if (!item.temporary_until) return true;
+
+        const until = new Date(item.temporary_until);
+
+        if (Number.isNaN(until.getTime())) return true;
+
+        return until >= new Date();
+    }).length;
+
+    const activeUsers = users.filter(
+        (user) =>
+            user.active === true ||
+            normalizeState(user.state ?? (user.active ? "A" : "I")) === "A",
+    ).length;
+
+    const inactiveUsers = Math.max(users.length - activeUsers, 0);
+
+    const professionById = new Map(
+        professions
+            .filter((profession) => profession.id != null)
+            .map((profession) => [Number(profession.id), profession]),
     );
 
-    const activeProfessionCodes = new Set(
-        users
-            .filter((user) => user.state === "A")
-            .map((user) => normalizeProfessionKey(user.profession))
+    const activePersonIds = new Set(
+        persons
+            .filter((person) => normalizeState(person.state) === "A")
+            .map((person) => Number(person.id ?? 0))
+            .filter(Boolean),
+    );
+
+    const professionCounts = personProfessions.reduce<Record<string, number>>(
+        (acc, item) => {
+            const personId = getPersonIdFromProfession(item);
+
+            if (!activePersonIds.has(personId)) return acc;
+
+            const profession = professionById.get(getPersonProfessionId(item));
+            const label = getProfessionLabel(profession);
+
+            acc[label] = (acc[label] ?? 0) + 1;
+
+            return acc;
+        },
+        {},
+    );
+
+    const professionDistribution = toCountItems(professionCounts);
+
+    const coveredProfessionIds = new Set(
+        personProfessions
+            .filter((item) => activePersonIds.has(getPersonIdFromProfession(item)))
+            .map((item) => getPersonProfessionId(item))
             .filter(Boolean),
     );
 
     const staffDeficits: StaffDeficitItem[] = professions
-        .filter((profession) => profession.state === "A")
-        .filter(
-            (profession) =>
-                !activeProfessionCodes.has(profession.code.toUpperCase()),
-        )
+        .filter((profession) => normalizeState(profession.state) === "A")
+        .filter((profession) => {
+            const id = Number(profession.id ?? 0);
+            return id > 0 && !coveredProfessionIds.has(id);
+        })
         .map((profession) => ({
             code: profession.code,
             name: profession.name,
@@ -424,183 +525,195 @@ export function DashboardView() {
 
     const recentActivity = sortRecentActivity(auditLogs).slice(0, 5);
 
-   return (
-    <div className="w-full h-full flex flex-col bg-[#FBFBFB] overflow-hidden">
-        <div className="w-full bg-bg-secondary border-b border-border-default px-5 py-2.5 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+    return (
+        <div className="camp-admin-dashboard flex h-full min-h-0 w-full flex-col overflow-hidden bg-bg-app font-mono text-txt-primary">
+            <div className="flex w-full shrink-0 items-center justify-between border-b border-border-default bg-bg-secondary px-5 py-3">
+                <div className="flex min-w-0 items-center gap-3">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent shadow-[0_0_10px_rgba(232,93,4,0.7)]" />
 
-                <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                    System Overview
-                </span>
-
-                <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                    Dashboard and camp indicators
-                </span>
-            </div>
-
-            <button
-                type="button"
-                onClick={handleRefresh}
-                className="flex items-center gap-2 text-[10px] font-mono text-txt-disabled hover:text-accent uppercase tracking-label transition-colors"
-            >
-                <RefreshCw
-                    size={10}
-                    className={loading ? "animate-spin" : ""}
-                />
-
-                {loading
-                    ? "Loading..."
-                    : `Updated ${formatRefresh(lastRefresh)}`}
-            </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto min-h-0">
-            <div className="flex flex-col gap-4 p-4 w-full">
-                <DashboardKpiSection
-                    loading={loading}
-                    activePersons={activePersons}
-                    inactivePersons={inactivePersons}
-                    totalResources={totalResources}
-                    criticalResources={resourcesByStatus.C.length}
-                    activeExplorations={explorationsByState.A.length}
-                    pendingExplorations={explorationsByState.P.length}
-                    highPriorityTasks={tasksByPriority.H.length}
-                    totalTasks={tasks.length}
-                />
-
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            Population / capacity
+                    <div className="min-w-0">
+                        <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-txt-primary">
+                            SYSTEM OVERVIEW
                         </p>
 
-                        <p className="mt-2 text-2xl font-bold text-txt-primary">
-                            {loading ? "..." : populationCapacityText}
-                        </p>
-
-                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            {totalCampCapacity > 0
-                                ? `${capacityPercent}% occupied`
-                                : "capacity not set"}
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            Pending admissions
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-txt-primary">
-                            {loading ? "..." : pendingAdmissions}
-                        </p>
-
-                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            waiting review
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            Accepted this week
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-txt-primary">
-                            {loading ? "..." : acceptedAdmissionsThisWeek}
-                        </p>
-
-                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            approved admissions
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            Rejected this week
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-txt-primary">
-                            {loading ? "..." : rejectedAdmissionsThisWeek}
-                        </p>
-
-                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            denied admissions
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            Temporary assignments
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-txt-primary">
-                            {loading ? "..." : activeTemporaryAssignments}
-                        </p>
-
-                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            active reassignments
-                        </p>
-                    </div>
-
-                    <div className="rounded-xl border border-border-default bg-bg-secondary p-4">
-                        <p className="text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            Active users
-                        </p>
-
-                        <p className="mt-2 text-2xl font-bold text-txt-primary">
-                            {loading ? "..." : activeUsers}
-                        </p>
-
-                        <p className="mt-2 text-[10px] font-mono uppercase tracking-label text-txt-disabled">
-                            {inactiveUsers} inactive
+                        <p className="mt-0.5 hidden text-[11px] uppercase tracking-[0.18em] text-txt-disabled sm:block">
+                            DASHBOARD AND CAMP INDICATORS
                         </p>
                     </div>
                 </div>
 
-                <DashboardAnalyticsSection
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    professionDistribution={professionDistribution}
-                    healthDistribution={healthDistribution}
-                    staffDeficits={staffDeficits}
-                    averageAge={averageAge}
-                    maleCount={maleCount}
-                    femaleCount={femaleCount}
-                    otherSexCount={otherSexCount}
-                    totalPersons={totalPersons}
-                    activeTemporaryAssignments={activeTemporaryAssignments}
-                />
-
-                <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr_280px] gap-4">
-                    <DashboardLeftPanel
-                        loading={loading}
-                        persons={persons}
-                        resourcesByStatus={resourcesByStatus}
-                        totalResources={totalResources}
-                        tasks={tasks}
-                        tasksByPriority={tasksByPriority}
-                        activePersons={activePersons}
-                        inactivePersons={inactivePersons}
+                <button
+                    type="button"
+                    onClick={handleRefresh}
+                    className="flex shrink-0 items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-txt-disabled transition-colors hover:text-accent"
+                >
+                    <RefreshCw
+                        size={12}
+                        className={loading ? "animate-spin" : ""}
                     />
 
-                    <DashboardMapSection
-                        loading={loading}
-                        camps={camps}
-                        explorations={explorations}
-                        explorationsByState={explorationsByState}
-                    />
+                    {loading
+                        ? "LOADING..."
+                        : `UPDATED ${formatRefresh(lastRefresh)}`}
+                </button>
+            </div>
 
-                    <DashboardRightPanel
-                        loading={loading}
-                        cancelledExplorations={explorationsByState.C.length}
-                        finishedExplorations={explorationsByState.F.length}
-                        consumableResources={consumableResources}
-                        inactiveResources={inactiveResources}
-                        recentActivity={recentActivity}
-                    />
+            <div className="min-h-0 flex-1 overflow-y-auto bg-bg-app">
+                <div className="grid w-full grid-cols-12 gap-4 p-4">
+                    <div className="col-span-12">
+                        <DashboardKpiSection
+                            loading={loading}
+                            activePersons={activePersons}
+                            inactivePersons={inactivePersons}
+                            totalResources={totalResources}
+                            criticalResources={resourcesByStatus.C.length}
+                            activeExplorations={explorationsByState.A.length}
+                            pendingExplorations={explorationsByState.P.length}
+                            highPriorityTasks={tasksByPriority.H.length}
+                            totalTasks={tasks.length}
+                        />
+                    </div>
+
+                    <div className="col-span-12 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
+                        <div className="border border-border-default bg-bg-secondary px-5 py-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-txt-secondary">
+                                POPULATION / CAPACITY
+                            </p>
+
+                            <p className="mt-3 text-3xl font-bold leading-none text-txt-primary">
+                                {loading ? "..." : populationCapacityText}
+                            </p>
+
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                                {totalCampCapacity > 0
+                                    ? `${capacityPercent}% OCCUPIED`
+                                    : "CAPACITY NOT SET"}
+                            </p>
+                        </div>
+
+                        <div className="border border-border-default bg-bg-secondary px-5 py-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-txt-secondary">
+                                PENDING ADMISSIONS
+                            </p>
+
+                            <p className="mt-3 text-3xl font-bold leading-none text-txt-primary">
+                                {loading ? "..." : pendingAdmissions}
+                            </p>
+
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                                WAITING REVIEW
+                            </p>
+                        </div>
+
+                        <div className="border border-border-default bg-bg-secondary px-5 py-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-txt-secondary">
+                                ACCEPTED THIS WEEK
+                            </p>
+
+                            <p className="mt-3 text-3xl font-bold leading-none text-txt-primary">
+                                {loading ? "..." : acceptedAdmissionsThisWeek}
+                            </p>
+
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                                APPROVED ADMISSIONS
+                            </p>
+                        </div>
+
+                        <div className="border border-border-default bg-bg-secondary px-5 py-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-txt-secondary">
+                                REJECTED THIS WEEK
+                            </p>
+
+                            <p className="mt-3 text-3xl font-bold leading-none text-txt-primary">
+                                {loading ? "..." : rejectedAdmissionsThisWeek}
+                            </p>
+
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                                DENIED ADMISSIONS
+                            </p>
+                        </div>
+
+                        <div className="border border-border-default bg-bg-secondary px-5 py-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-txt-secondary">
+                                TEMPORARY ASSIGNMENTS
+                            </p>
+
+                            <p className="mt-3 text-3xl font-bold leading-none text-txt-primary">
+                                {loading ? "..." : activeTemporaryAssignments}
+                            </p>
+
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                                ACTIVE REASSIGNMENTS
+                            </p>
+                        </div>
+
+                        <div className="border border-border-default bg-bg-secondary px-5 py-4">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-txt-secondary">
+                                ACTIVE USERS
+                            </p>
+
+                            <p className="mt-3 text-3xl font-bold leading-none text-txt-primary">
+                                {loading ? "..." : activeUsers}
+                            </p>
+
+                            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                                {inactiveUsers} INACTIVE
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="col-span-12">
+                        <DashboardAnalyticsSection
+                            activeTab={activeTab}
+                            setActiveTab={setActiveTab}
+                            professionDistribution={professionDistribution}
+                            healthDistribution={healthDistribution}
+                            staffDeficits={staffDeficits}
+                            averageAge={averageAge}
+                            maleCount={maleCount}
+                            femaleCount={femaleCount}
+                            otherSexCount={otherSexCount}
+                            totalPersons={totalPersons}
+                            activeTemporaryAssignments={activeTemporaryAssignments}
+                        />
+                    </div>
+
+                    <div className="col-span-12 grid grid-cols-1 gap-4 2xl:grid-cols-[360px_minmax(0,1fr)_380px]">
+                        <div className="min-h-0">
+                            <DashboardLeftPanel
+                                loading={loading}
+                                persons={persons}
+                                resourcesByStatus={resourcesByStatus}
+                                totalResources={totalResources}
+                                tasks={tasks}
+                                tasksByPriority={tasksByPriority}
+                                activePersons={activePersons}
+                                inactivePersons={inactivePersons}
+                            />
+                        </div>
+
+                        <div className="min-h-0">
+                            <DashboardMapSection
+                                loading={loading}
+                                camps={camps}
+                                explorations={explorations}
+                                explorationsByState={explorationsByState}
+                            />
+                        </div>
+
+                        <div className="min-h-0">
+                            <DashboardRightPanel
+                                loading={loading}
+                                cancelledExplorations={explorationsByState.C.length}
+                                finishedExplorations={explorationsByState.F.length}
+                                consumableResources={consumableResources}
+                                inactiveResources={inactiveResources}
+                                recentActivity={recentActivity}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
 }

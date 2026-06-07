@@ -15,22 +15,25 @@ type Props = {
     explorationsByState: Record<ExploreStateKey, Exploration[]>;
 };
 
-const EXPLORE_STATE: Record<ExploreStateKey, { label: string; color: string }> = {
+const EXPLORE_STATE: Record<
+    ExploreStateKey,
+    { label: string; textClass: string }
+> = {
     P: {
         label: "Pending",
-        color: "text-status-warning bg-status-warning/10",
+        textClass: "text-status-warning",
     },
     A: {
         label: "Active",
-        color: "text-status-ok bg-status-ok/10",
+        textClass: "text-status-ok",
     },
     F: {
         label: "Finished",
-        color: "text-status-info bg-status-info/10",
+        textClass: "text-status-info",
     },
     C: {
         label: "Cancelled",
-        color: "text-txt-disabled bg-bg-tertiary",
+        textClass: "text-txt-disabled",
     },
 };
 
@@ -41,101 +44,114 @@ export default function DashboardMapSection({
     explorationsByState,
 }: Props) {
     const mappedCamps = camps.filter(
-        (camp) => camp.location_x && camp.location_y,
+        (camp) =>
+            camp.location_x != null &&
+            camp.location_y != null &&
+            (camp.location_x !== 0 || camp.location_y !== 0),
     ).length;
 
     return (
-        <div className="flex flex-col gap-3">
-            <div className="bg-bg-primary border border-border-default flex flex-col flex-1 min-h-0">
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-default">
-                    <div className="flex items-center gap-2">
-                        <MapPin size={13} className="text-accent" />
+        <section className="flex flex-col border border-border-default bg-bg-secondary">
+            <div className="flex shrink-0 items-center justify-between border-b border-border-default px-5 py-3">
+                <div className="flex items-center gap-2">
+                    <MapPin size={15} className="text-accent" />
 
-                        <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                            Camp Locations
-                        </span>
+                    <div>
+                        <p className="text-[13px] font-bold uppercase tracking-[0.18em] text-txt-primary">
+                            CAMP LOCATIONS
+                        </p>
+
+                        <p className="mt-1 text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                            STRATEGIC MAP / CAMP POSITIONS
+                        </p>
                     </div>
-
-                    <span className="text-[11px] font-mono text-txt-disabled uppercase tracking-label">
-                        {mappedCamps} mapped
-                    </span>
                 </div>
 
+                <span className="border border-status-info/30 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-status-info">
+                    {mappedCamps} MAPPED
+                </span>
+            </div>
+
+            <div className="shrink-0 bg-bg-primary">
                 {loading ? (
-                    <div className="h-[520px] flex items-center justify-center">
-                        <span className="text-[11px] font-mono text-txt-disabled animate-pulse uppercase tracking-widest">
-                            Loading map...
+                    <div className="flex h-[430px] items-center justify-center">
+                        <span className="text-[12px] uppercase tracking-[0.18em] text-txt-disabled animate-pulse">
+                            LOADING MAP...
                         </span>
                     </div>
                 ) : (
-                    <CampMap camps={camps} height={520} />
+                    <CampMap camps={camps} height={430} />
                 )}
             </div>
 
-            <div className="bg-bg-primary border border-border-default p-3 flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-label">
-                        Exploration Summary
+            <div className="shrink-0 border-t border-border-default bg-bg-secondary px-5 py-4">
+                <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <TrendingUp size={14} className="text-accent" />
+
+                        <p className="text-[13px] font-bold uppercase tracking-[0.18em] text-txt-primary">
+                            EXPLORATION SUMMARY
+                        </p>
+                    </div>
+
+                    <span className="text-[11px] uppercase tracking-[0.16em] text-txt-disabled">
+                        TOTAL: {explorations.length}
                     </span>
-
-                    <TrendingUp size={12} className="text-accent" />
                 </div>
 
-                <div className="grid grid-cols-4 gap-2">
-                    {(["P", "A", "F", "C"] as ExploreStateKey[]).map(
-                        (state) => {
-                            const info = EXPLORE_STATE[state];
+                <div className="grid grid-cols-4 gap-3">
+                    {(["P", "A", "F", "C"] as ExploreStateKey[]).map((state) => {
+                        const info = EXPLORE_STATE[state];
 
-                            return (
-                                <div
-                                    key={state}
-                                    className="flex flex-col items-center gap-1 py-2 bg-bg-secondary border border-border-subtle"
+                        return (
+                            <div
+                                key={state}
+                                className="border border-border-subtle bg-bg-primary px-3 py-3 text-center"
+                            >
+                                <p
+                                    className={`text-2xl font-bold leading-none ${info.textClass}`}
                                 >
-                                    <span
-                                        className={`text-lg font-mono font-bold ${
-                                            info.color.split(" ")[0]
-                                        }`}
-                                    >
-                                        {explorationsByState[state].length}
-                                    </span>
+                                    {explorationsByState[state].length}
+                                </p>
 
-                                    <span className="text-[9px] font-mono text-txt-disabled uppercase tracking-label">
-                                        {info.label}
-                                    </span>
-                                </div>
-                            );
-                        },
-                    )}
+                                <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-txt-disabled">
+                                    {info.label}
+                                </p>
+                            </div>
+                        );
+                    })}
                 </div>
 
-                {!loading && explorations.length > 0 && (
-                    <HorizontalStackedBar
-                        segments={[
-                            {
-                                label: "Pending",
-                                value: explorationsByState.P.length,
-                                color: "#FACC15",
-                            },
-                            {
-                                label: "Active",
-                                value: explorationsByState.A.length,
-                                color: "#F59E0B",
-                            },
-                            {
-                                label: "Finished",
-                                value: explorationsByState.F.length,
-                                color: "#38BDF8",
-                            },
-                            {
-                                label: "Cancelled",
-                                value: explorationsByState.C.length,
-                                color: "#555555",
-                            },
-                        ]}
-                        height={10}
-                    />
-                )}
+                {!loading && explorations.length > 0 ? (
+                    <div className="mt-4">
+                        <HorizontalStackedBar
+                            segments={[
+                                {
+                                    label: "Pending",
+                                    value: explorationsByState.P.length,
+                                    color: "#FACC15",
+                                },
+                                {
+                                    label: "Active",
+                                    value: explorationsByState.A.length,
+                                    color: "#F59E0B",
+                                },
+                                {
+                                    label: "Finished",
+                                    value: explorationsByState.F.length,
+                                    color: "#38BDF8",
+                                },
+                                {
+                                    label: "Cancelled",
+                                    value: explorationsByState.C.length,
+                                    color: "#6B7280",
+                                },
+                            ]}
+                            height={14}
+                        />
+                    </div>
+                ) : null}
             </div>
-        </div>
+        </section>
     );
 }
