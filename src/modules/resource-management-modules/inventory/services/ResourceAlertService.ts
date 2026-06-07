@@ -1,18 +1,23 @@
 ﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
-import type { BackendListPayload, BackendResponse } from "../../../../shared/utils/Response";
+import type { BackendListPayload, BackendResponse, PaginatedResult } from "../../../../shared/utils/Response";
 import { resourceAlertSchema, type ResourceAlertFormValues } from "../schemas/resource-alert.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aun no existe o el contrato no es valido.";
 
 export class ResourceAlertService extends AxiosBaseService {
-    async getAlerts(campId: number, resolved: "Y" | "N" = "N"): Promise<ResourceAlertFormValues[]> {
+    async getAlerts(campId: number, resolved: "Y" | "N" = "N", pagination?: { page?: number; limit?: number }): Promise<PaginatedResult<ResourceAlertFormValues>> {
         try {
+            const page = pagination?.page ?? 1;
+            const limit = pagination?.limit ?? 20;
             const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>(
-                `/camps/${campId}/resource-alerts?resolved=${resolved}`
+                `/camps/${campId}/resource-alerts?resolved=${resolved}&page=${page}&limit=${limit}`
             );
-            const items = this.extractItems<unknown>(data);
+            const result = this.extractPaginatedItems<unknown>(data, page, limit);
             
-            return items.map((item) => this.normalizeAlert(item));
+            return {
+                items: result.items.map((item) => this.normalizeAlert(item)),
+                pagination: result.pagination,
+            };
         } catch (error) {
             throw new Error(this.resolveInventoryError(error));
         }
@@ -21,6 +26,17 @@ export class ResourceAlertService extends AxiosBaseService {
     async resolveAlert(alertId: number): Promise<void> {
         try {
             await this.client.patch(`/resource-alerts/${alertId}/resolve`);
+        } catch (error) {
+            throw new Error(this.resolveInventoryError(error));
+        }
+    }
+
+    async syncAlerts(campId: number): Promise<number> {
+        try {
+            const { data } = await this.client.post<{ resultado?: { created?: number } }>(
+                `/camps/${campId}/resource-alerts/sync`
+            );
+            return data?.resultado?.created ?? 0;
         } catch (error) {
             throw new Error(this.resolveInventoryError(error));
         }

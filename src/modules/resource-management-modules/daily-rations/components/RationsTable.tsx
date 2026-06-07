@@ -21,15 +21,15 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
     };
 
     return (
-        <div className="table-system-wrap h-full">
-            <table className="table-system">
-                <thead className="table-system-head">
+        <div className="rmm-table">
+            <table className="">
+                <thead className="">
                     <tr>
-                        <th className="table-system-th">Id</th>
-                        <th className="table-system-th">Person</th>
-                        <th className="table-system-th">Date</th>
-                        <th className="table-system-th">Status</th>
-                        <th className="table-system-th">Notes</th>
+                        <th className="">Id</th>
+                        <th className="">Person</th>
+                        <th className="">Date</th>
+                        <th className="">Status</th>
+                        <th className="">Notes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -41,30 +41,30 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                         return (
                             <tr
                                 key={ration.id}
-                                className={`table-system-row ${isSelected ? 'table-system-row--selected' : ''}`}
+                                className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
                                 onClick={() => ration.id && handleRowClick(ration.id)}
                             >
-                                <td className="table-system-td table-system-td--primary">
+                                <td>
                                     <div className="flex items-center justify-center gap-2 uppercase">
                                         {ration.id}
                                     </div>
                                 </td>
-                                <td className="table-system-td table-system-td--primary">
+                                <td>
                                     <div className="flex items-center justify-center gap-2 uppercase">
                                         {personName}
                                     </div>
                                 </td>
-                                <td className="table-system-td table-system-td--time">
+                                <td>
                                     {new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('en-US')}
                                 </td>
-                                <td className="table-system-td">
+                                <td>
                                     {isDelivered ? (
                                         <span className="table-system-badge table-system-badge--online">DELIVERED</span>
                                     ) : (
                                         <span className="table-system-badge table-system-badge--pending">PENDING</span>
                                     )}
                                 </td>
-                                <td className="table-system-td uppercase">
+                                <td>
                                     {ration.notes || '—'}
                                 </td>
                             </tr>

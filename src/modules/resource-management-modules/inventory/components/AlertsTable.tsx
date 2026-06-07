@@ -1,11 +1,8 @@
-import { CheckCircle, Eye } from "lucide-react";
 import type { ResourceAlertFormValues } from "../schemas/resource-alert.schema";
 
 type Props = {
     alerts: ResourceAlertFormValues[];
-    onResolve: (alertId: number) => Promise<void>;
-    onViewDetail?: (warehouseId: number, resourceId: number) => void;
-    showResolveButton?: boolean;
+    onRowDoubleClick?: (alert: ResourceAlertFormValues) => void;
 };
 
 function formatDate(value?: string | null) {
@@ -15,7 +12,7 @@ function formatDate(value?: string | null) {
     return date.toLocaleString("es-CR");
 }
 
-export function AlertsTable({ alerts = [], onResolve, onViewDetail, showResolveButton = true }: Props) {
+export function AlertsTable({ alerts = [], onRowDoubleClick }: Props) {
     if (alerts.length === 0) {
         return (
             <div className="py-20 text-center relative border border-status-ok/20 bg-status-ok/5">
@@ -39,14 +36,15 @@ export function AlertsTable({ alerts = [], onResolve, onViewDetail, showResolveB
                     <th className="text-right">Actual</th>
                     <th className="text-right">Min_Cap</th>
                     <th>Trigger Date</th>
-                    <th className="text-right">Operations</th>
                 </tr>
             </thead>
             <tbody>
                 {alerts.map((alert, idx) => (
                     <tr
                         key={alert.id ?? `${alert.warehouse_id}-${alert.resource_id}`}
-                        className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical"
+                        className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
+                        onDoubleClick={() => onRowDoubleClick?.(alert)}
+                        title="Double-click to view detail"
                     >
                         <td>
                             <span className="font-tech text-accent opacity-50">
@@ -74,30 +72,6 @@ export function AlertsTable({ alerts = [], onResolve, onViewDetail, showResolveB
                             <span className="font-mono text-[10px] text-txt-muted">
                                 {formatDate(alert.alert_date)}
                             </span>
-                        </td>
-                        <td className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                                {onViewDetail && (
-                                    <button
-                                        type="button"
-                                        onClick={() => onViewDetail(alert.warehouse_id, alert.resource_id)}
-                                        className="rmm-btn rmm-btn-outline p-1.5!"
-                                        title="Audit Detail"
-                                    >
-                                        <Eye size={12} />
-                                    </button>
-                                )}
-                                {alert.id != null && showResolveButton && (
-                                    <button
-                                        type="button"
-                                        onClick={() => onResolve(alert.id!)}
-                                        className="rmm-btn rmm-btn-accent p-1.5! bg-status-ok! hover:bg-status-ok/80!"
-                                        title="Acknowledge & Resolve"
-                                    >
-                                        <CheckCircle size={12} />
-                                    </button>
-                                )}
-                            </div>
                         </td>
                     </tr>
                 ))}

@@ -80,11 +80,8 @@ export function MinStockConfigForm({
             onSubmit={form.handleSubmit(async (values) => onSubmit(values))}
             className="flex flex-1 min-h-0 flex-col relative"
         >
-            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 shrink-0">
-                <div className="rmm-section-header mb-0 border-none pb-0">
-                    <span className="rmm-section-title">Safety Stock</span>
-                    <span className="rmm-section-id">INV_CFG_STK</span>
-                </div>
+            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
+                <span className="rmm-section-title font-abril">Safety Stock</span>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">

@@ -37,13 +37,13 @@ export function StockTable({ items = [], isLoading }: StockTableProps) {
 
     return (
         <table className="rmm-table">
-            <thead>
+            <thead className="">
                 <tr>
-                    <th>RESOURCE_ID / CODE</th>
-                    <th className="text-right">QTY</th>
-                    <th className="text-right">LIMIT</th>
-                    <th className="text-center">STATUS</th>
-                    <th className="text-right">LAST_EVENT</th>
+                    <th className="">RESOURCE_ID / CODE</th>
+                    <th className="">QTY</th>
+                    <th className="">LIMIT</th>
+                    <th className="">STATUS</th>
+                    <th className="">LAST_EVENT</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,31 +51,31 @@ export function StockTable({ items = [], isLoading }: StockTableProps) {
                     <tr key={`${item.resource_code}-${index}`}>
                         <td>
                             <div className="flex flex-col">
-                                <span className="font-tech text-accent text-[10px] tracking-widest">{item.resource_code}</span>
-                                <span className="font-mono font-bold text-txt-primary uppercase text-[10px]">{item.resource_name}</span>
+                                <span className="font-tech text-accent text-[11px] tracking-widest">{item.resource_code}</span>
+                                <span className="font-mono font-bold text-txt-primary uppercase text-[11px]">{item.resource_name}</span>
                             </div>
                         </td>
-                        <td className="text-right">
-                            <span className="font-mono font-bold text-txt-primary text-[12px]">{item.amount}</span>
+                        <td>
+                            <span className="font-mono font-bold text-txt-primary text-[11px]">{item.amount}</span>
                         </td>
-                        <td className="text-right">
+                        <td>
                             <span className="font-mono text-txt-secondary text-[11px]">{item.min_quantity}</span>
                         </td>
-                        <td className="text-center">
+                        <td>
                             <span
-                                className={`inline-block px-2 py-0.5 text-[9px] font-mono font-bold uppercase tracking-tighter border-l-2 ${
+                                className={`inline-block px-2 py-0.5 text-[11px] font-mono font-bold uppercase tracking-tighter ${
                                     item.stock_status === "CRITICAL"
-                                        ? "bg-status-critical/10 border-status-critical text-status-critical"
+                                        ? "text-status-critical"
                                         : item.stock_status === "LOW"
-                                        ? "bg-status-warning/10 border-status-warning text-status-warning"
-                                        : "bg-status-ok/10 border-status-ok text-status-ok"
+                                        ? "text-status-warning"
+                                        : "text-[#08DC86]"
                                 }`}
                             >
                                 {item.stock_status}
                             </span>
                         </td>
-                        <td className="text-right">
-                            <span className="font-mono text-[9px] text-txt-muted">
+                        <td>
+                            <span className="font-mono text-[11px] text-txt-muted">
                                 {new Date(item.date_last_movement).toISOString().split('T')[0]}
                             </span>
                         </td>

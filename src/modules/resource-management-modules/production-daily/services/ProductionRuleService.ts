@@ -1,16 +1,21 @@
 ﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
+import type { BackendResponse, BackendListPayload, PaginatedResult } from "../../../../shared/utils/Response";
 import { productionRuleSchema, type ProductionRuleFormValues } from "../schemas/production-rule.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
 export class ProductionRuleService extends AxiosBaseService {
-    async getProductionRules(campId: number): Promise<ProductionRuleFormValues[]> {
+    async getProductionRules(campId: number, pagination?: { page?: number; limit?: number }): Promise<PaginatedResult<ProductionRuleFormValues>> {
         try {
-            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/camp-production-rules/camp/${campId}` );
+            const page = pagination?.page ?? 1;
+            const limit = pagination?.limit ?? 20;
+            const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/camp-production-rules/camp/${campId}?page=${page}&limit=${limit}` );
             
-            const items = this.extractItems<unknown>(data);
-            return items.map((item) => this.normalizeRule(item));
+            const result = this.extractPaginatedItems<unknown>(data, page, limit);
+            return {
+                items: result.items.map((item) => this.normalizeRule(item)),
+                pagination: result.pagination,
+            };
         } catch (error) {
             throw new Error(this.resolveError(error));
         }

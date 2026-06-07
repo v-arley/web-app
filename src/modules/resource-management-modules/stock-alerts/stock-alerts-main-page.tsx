@@ -1,4 +1,4 @@
-import { AlertsPage as InventoryAlertsPage } from "../../inventory";
+import { AlertsPage as InventoryAlertsPage } from "../inventory";
 
 /**
  * Página principal de Alertas de Stock Mínimo

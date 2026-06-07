@@ -3,11 +3,12 @@ import { useState } from "react";
 import type { ProductionExecutionFormValues, ProductionExecutionResult } from "../schemas/production-execution.schema";
 
 type Props = {
+    campId: number;
     warehouseOptions: { id: number; label: string }[];
     onExecute: (data: ProductionExecutionFormValues) => Promise<ProductionExecutionResult>;
 };
 
-export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props) {
+export function ProductionExecutionPanel({ campId, warehouseOptions, onExecute }: Props) {
     const [selectedWarehouse, setSelectedWarehouse] = useState(0);
     const [productionDate, setProductionDate] = useState(new Date().toISOString().split('T')[0]);
     const [forceExecution, setForceExecution] = useState(false);
@@ -21,7 +22,6 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
         setResult(null);
 
         try {
-            const campId = 1; // TODO: Obtener del contexto
             const data: ProductionExecutionFormValues = {
                 camp_id: campId,
                 warehouse_id: selectedWarehouse,
@@ -42,7 +42,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
         <div className="space-y-6">
             <div className="bg-bg-secondary border border-border-default">
                 <div className="px-5 py-4 border-b border-border-default bg-bg-secondary/50">
-                    <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em]">
+                    <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-label">
                         Execute Daily Production
                     </div>
                 </div>
@@ -102,7 +102,7 @@ export function ProductionExecutionPanel({ warehouseOptions, onExecute }: Props)
             {result && (
                 <div className={`bg-bg-secondary border ${result.success ? 'border-status-ok' : 'border-status-critical'}`}>
                     <div className={`px-5 py-4 border-b ${result.success ? 'border-status-ok bg-status-ok/10' : 'border-status-critical bg-status-critical/10'}`}>
-                        <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.15em]">
+                        <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-label">
                             {result.success ? (
                                 <>
                                     <CheckCircle2 className="w-4 h-4 text-status-ok" />

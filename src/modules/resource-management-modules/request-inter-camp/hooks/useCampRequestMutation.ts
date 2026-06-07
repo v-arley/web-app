@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { campRequestService } from "../services/CampRequestService";
 import { CAMP_REQUESTS_QUERY_KEY } from "./useCampRequestsQuery";
 import type { CampRequestFormValues } from "../schemas/camp-request.schema";
-import { useToast } from "../../../../shared/hooks/useToast";
 
 export function useCampRequestMutation() {
     const queryClient = useQueryClient();

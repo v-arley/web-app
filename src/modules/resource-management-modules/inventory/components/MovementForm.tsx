@@ -75,15 +75,10 @@ export function MovementForm({
             onSubmit={form.handleSubmit(async (values) => onSubmit(values))}
             className="flex flex-1 min-h-0 flex-col relative"
         >
-            <div className="absolute top-0 right-0 p-2 opacity-5 pointer-events-none">
-                <span className="font-mono text-[40px] font-bold">MOVE_STK</span>
-            </div>
+            
 
-            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20">
-                <div className="rmm-section-header mb-0 border-none pb-0">
-                    <span className="rmm-section-title">Movement Record</span>
-                    <span className="rmm-section-id">INV_CMD_01</span>
-                </div>
+            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
+                <span className="rmm-section-title font-abril">Movement Record</span>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -105,7 +100,7 @@ export function MovementForm({
                     </select>
                 </Field>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="Operation" required id="OPS_TYPE" error={errors.movement_type?.message}>
                         <select {...form.register("movement_type")} className={fieldClass}>
                             <option value="E">IN</option>

@@ -4,6 +4,7 @@ import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { PersonService } from "../../../../services/PersonService";
 import { useRationsQuery } from "../hooks/useRationsQuery";
 import { RationHistoryTable } from "../components/RationHistoryTable";
+import PaginationFooter from "../../shared/components/PaginationFooter";
 
 const personService = new PersonService();
 
@@ -11,7 +12,14 @@ export function RationHistoryPage() {
     const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
     
+    const todayStr = new Date().toISOString().split("T")[0];
+    const sevenDaysAgoStr = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
     const [statusFilter, setStatusFilter] = useState<'Y' | 'N' | ''>('');
+    const [dateFrom, setDateFrom] = useState(sevenDaysAgoStr);
+    const [dateTo, setDateTo] = useState(todayStr);
+    const [page, setPage] = useState(1);
+    const pageSize = 30;
 
     // Obtener raciones
     const { data: rations, isLoading: isLoadingRations } = useRationsQuery(
@@ -36,123 +44,109 @@ export function RationHistoryPage() {
         return new Map(personsData?.map((p) => [p.id, p.name]) ?? []);
     }, [personsData]);
 
+    // Filtrado por fecha (client-side)
+    const filteredRations = useMemo(() => {
+        return (rations ?? []).filter((r) => {
+            if (!r.ration_date) return true;
+            const d = r.ration_date.slice(0, 10);
+            if (dateFrom && d < dateFrom) return false;
+            if (dateTo && d > dateTo) return false;
+            return true;
+        });
+    }, [rations, dateFrom, dateTo]);
+
     // Estadísticas
-    const totalRations = rations?.length ?? 0;
-    const deliveredCount = rations?.filter((r) => r.completed === 'Y').length ?? 0;
-    const pendingCount = rations?.filter((r) => r.completed === 'N').length ?? 0;
+    const totalRations = filteredRations.length;
+    const deliveredCount = filteredRations.filter((r) => r.completed === 'Y').length;
+    const pendingCount = filteredRations.filter((r) => r.completed === 'N').length;
     const deliveryRate = totalRations > 0 ? ((deliveredCount / totalRations) * 100).toFixed(1) : '0';
 
+    const totalPages = Math.max(1, Math.ceil(totalRations / pageSize));
+    const pagedRations = filteredRations.slice((page - 1) * pageSize, page * pageSize);
+
     return (
-        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
-            {/* <div className="flex items-center justify-between">
-                <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
-                    Raciones Diarias / Historial de Raciones
-                </div>
-                <History className="h-5 w-5 text-accent" />
-            </div> */}
-
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default shadow-2xl">
-                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
-                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
-                
-                <div className="flex-1 overflow-y-auto p-6">
-                    <div className="max-w-7xl mx-auto space-y-6">
-                {/* Header */}
-                {/* <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                        <div className="p-3 bg-accent-tertiary/10 border border-accent-tertiary/30">
-                            <History className="w-6 h-6 text-accent-tertiary" />
-                        </div>
-                        <div>
-                            <h1 className="font-mono text-xl font-bold text-txt-primary uppercase tracking-wide">
-                                Historial de Raciones
-                            </h1>
-                            <p className="font-mono text-xs text-txt-secondary mt-1">
-                                Consulta y análisis de raciones distribuidas
-                            </p>
-                        </div>
+        <article className="flex flex-1 min-h-0 flex-col bg-transparent overflow-hidden">
+            {/* Filter bar */}
+            <div className="rmm-filter-shell shrink-0 px-4 pt-4 pb-0">
+                <div className="rmm-filter-row bg-bg-secondary border border-border-default px-4 py-3">
+                    <div className="flex items-center gap-2">
+                        <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">Status</label>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => { setStatusFilter(e.target.value as 'Y' | 'N' | ''); setPage(1); }}
+                            className="rmm-input text-[11px]!"
+                        >
+                            <option value="">All</option>
+                            <option value="Y">Delivered</option>
+                            <option value="N">Pending</option>
+                        </select>
                     </div>
-
-                    <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2" />
-                        Exportar
-                    </Button>
-                </div> */}
-
-                {/* Filtros */}
-                <div className="bg-bg-secondary border border-border-default p-5">
-                    <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-3">
-                        Search Filters
+                    <span className="hidden sm:block w-px h-5 bg-border-default opacity-40 shrink-0" />
+                    <div className="flex items-center gap-2">
+                        <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">From</label>
+                        <input
+                            type="date"
+                            value={dateFrom}
+                            onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
+                            className="rmm-input text-[11px]!"
+                        />
                     </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                        <div>
-                            <label className="block font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                                Status
-                            </label>
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value as 'Y' | 'N' | '')}
-                                className="rmm-input w-full text-[11px]!"
-                            >
-                                <option value="">All</option>
-                                <option value="Y">Delivered</option>
-                                <option value="N">Pending</option>
-                            </select>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">To</label>
+                        <input
+                            type="date"
+                            value={dateTo}
+                            onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
+                            className="rmm-input text-[11px]!"
+                        />
                     </div>
                 </div>
-
-                {/* Estadísticas */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-bg-secondary border border-border-default p-5">
-                        <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Total Rations
-                        </div>
-                        <div className="font-mono text-3xl font-bold text-txt-primary">
-                            {totalRations}
-                        </div>
-                    </div>
-
-                    <div className="bg-bg-secondary border border-status-success p-5">
-                        <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Delivered
-                        </div>
-                        <div className="font-mono text-3xl font-bold text-status-success">
-                            {deliveredCount}
-                        </div>
-                    </div>
-
-                    <div className="bg-bg-secondary border border-status-warning p-5">
-                        <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Pending
-                        </div>
-                        <div className="font-mono text-3xl font-bold text-status-warning">
-                            {pendingCount}
-                        </div>
-                    </div>
-
-                    <div className="bg-bg-secondary border border-accent-primary p-5">
-                        <div className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                            Delivery Rate
-                        </div>
-                        <div className="font-mono text-3xl font-bold text-accent-primary">
-                            {deliveryRate}%
-                        </div>
-                    </div>
-                </div>
-
-                {/* Tabla de historial */}
-                {isLoadingRations ? (
-                    <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                        Loading history...
-                    </div>
-                ) : (
-                    <RationHistoryTable rations={rations ?? []} personMap={personMap} />
-                )}
             </div>
-        </div>
+
+            {/* Main area: stats | table */}
+            <div className="rmm-responsive-columns rmm-responsive-columns--two flex-1">
+                {/* Stats column */}
+                <div className="rmm-responsive-aside rmm-kpi-stack">
+                    <div className="rmm-kpi-card bg-bg-secondary border border-border-default">
+                        <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Total Rations</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-txt-primary">{totalRations}</div>
+                    </div>
+                    <div className="rmm-kpi-card bg-bg-secondary border border-status-success">
+                        <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Delivered</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-status-success">{deliveredCount}</div>
+                    </div>
+                    <div className="rmm-kpi-card bg-bg-secondary border border-status-warning">
+                        <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Pending</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-status-warning">{pendingCount}</div>
+                    </div>
+                    <div className="rmm-kpi-card bg-bg-secondary border border-accent">
+                        <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Rate</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-accent">{deliveryRate}%</div>
+                    </div>
+                </div>
+
+                {/* Table + footer */}
+                <div className="rmm-responsive-main flex flex-col">
+                    {isLoadingRations ? (
+                        <div className="flex-1 flex items-center justify-center text-txt-disabled font-mono text-xs">
+                            Loading history...
+                        </div>
+                    ) : (
+                        <div className="flex-1 overflow-auto">
+                            <RationHistoryTable rations={pagedRations} personMap={personMap} />
+                        </div>
+                    )}
+
+                    {/* Pagination footer */}
+                    <PaginationFooter
+                        page={page}
+                        setPage={setPage}
+                        totalPages={totalPages}
+                        totalRecords={totalRations}
+                    />
+                </div>
             </div>
-        </div>
+        </article>
     );
 }
+

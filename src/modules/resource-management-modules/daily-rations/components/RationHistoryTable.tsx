@@ -35,8 +35,8 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                 const pendingCount = dayRations.filter((r) => r.completed === 'N').length;
 
                 return (
-                    <div key={date} className="bg-bg-secondary border border-border-default">
-                        <div className="px-5 py-3 border-b border-border-default bg-bg-secondary/50 flex items-center justify-between">
+                    <div key={date} className="border border-border-default">
+                        <div className="px-5 py-3 border-b border-border-default flex items-center justify-between">
                             <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] flex items-center gap-2">
                                 <Calendar className="w-4 h-4" />
                                 {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
@@ -59,24 +59,16 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                         </div>
 
                         <div className="overflow-x-auto">
-                            <table className="w-full font-mono text-[11px]">
-                                <thead className="bg-bg-tertiary/50 border-b border-border-default">
+                            <table className="rmm-table">
+                                <thead className="">
                                     <tr>
-                                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Person
-                                        </th>
-                                        <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Status
-                                        </th>
-                                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Notes
-                                        </th>
-                                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Record
-                                        </th>
+                                        <th className="">Person</th>
+                                        <th className="">Status</th>
+                                        <th className="">Notes</th>
+                                        <th className="">Record</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border-default">
+                                <tbody>
                                     {dayRations.map((ration) => {
                                         const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
                                         const isDelivered = ration.completed === 'Y';
@@ -85,25 +77,23 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                         return (
                                             <tr
                                                 key={ration.id}
-                                                className={`hover:bg-bg-tertiary/30 transition-colors ${
-                                                    isDelivered ? 'bg-status-success/5' : 'bg-status-warning/5'
-                                                }`}
+                                                className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
                                             >
-                                                <td className="px-4 py-3 text-txt-primary">
+                                                <td>
                                                     {personName}
                                                 </td>
-                                                <td className="px-4 py-3 text-center">
+                                                <td>
                                                     {isDelivered ? (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-success/10 text-status-success border border-status-success/30 text-[10px] font-bold uppercase tracking-wider">
-                                                            <div className="w-1.5 h-1.5 bg-status-success" /> DELIVERED
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-status-success text-[10px] font-bold uppercase tracking-wider">
+                                                            <div className="w-1.5 h-1.5" /> DELIVERED
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-warning/10 text-status-warning border border-status-warning/30 text-[10px] font-bold uppercase tracking-wider">
-                                                            <div className="w-1.5 h-1.5 bg-status-warning animate-pulse" /> PENDING
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-status-warning text-[10px] font-bold uppercase tracking-wider">
+                                                            <div className="w-1.5 h-1.5" /> PENDING
                                                         </span>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-3 text-txt-secondary text-[10px]">
+                                                <td>
                                                     {hasNotes ? (
                                                         <div className="flex items-start gap-2">
                                                             <FileText className="w-3 h-3 text-txt-disabled shrink-0 mt-0.5" />
@@ -113,7 +103,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                                         <span className="text-txt-disabled">-</span>
                                                     )}
                                                 </td>
-                                                <td className="px-4 py-3 text-txt-disabled text-[10px]">
+                                                <td>
                                                     {ration.created_at ? new Date(ration.created_at).toLocaleString('es-CR') : '-'}
                                                 </td>
                                             </tr>

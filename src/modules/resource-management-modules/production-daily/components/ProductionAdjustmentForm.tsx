@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, AlertTriangle, RotateCcw } from "lucide-react";
+import { Save, RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { productionRecordSchema, type ProductionRecordFormValues, EMPTY_PRODUCTION_RECORD } from "../schemas/production-record.schema";
 
@@ -59,21 +59,17 @@ export function ProductionAdjustmentForm({
     };
 
     return (
-        <div className="bg-bg-secondary border border-border-default">
-            <div className="px-5 py-4 border-b border-border-default bg-status-warning/10">
-                <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-status-warning uppercase tracking-[0.15em]">
-                    <AlertTriangle className="w-4 h-4" />
-                    Manual Production Adjustment
-                </div>
-                <div className="text-[10px] font-mono text-txt-secondary mt-1">
-                    Use only when a worker was unable to meet the objective for justifiable reasons
-                </div>
-            </div>
 
-            <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="p-5 space-y-4"
-            >
+        <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex flex-1 min-h-0 flex-col relative"
+        >
+
+            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
+                <span className="rmm-section-title font-abril">Adjustment Record</span>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <Field label="Worker" required error={errors.person_id?.message}>
                     <select {...form.register("person_id", { valueAsNumber: true })} className={fieldClass}>
                         <option value={0}>[ SELECT WORKER ]</option>
@@ -127,27 +123,28 @@ export function ProductionAdjustmentForm({
                         className={fieldClass}
                     />
                 </Field>
+            </div>
 
-                <div className="flex gap-2">
-                    <button
-                        type="button"
-                        onClick={handleClear}
-                        disabled={isSubmitting}
-                        className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
-                    >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        CLEAR
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="flex-1 flex items-center justify-center gap-2 bg-status-warning border border-status-warning px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-status-warning/90 transition-all disabled:opacity-50"
-                    >
-                        <Save className="w-4 h-4" />
-                        {isSubmitting ? "..." : "SAVE"}
-                    </button>
-                </div>
-            </form>
-        </div>
+
+            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2">
+                <button
+                    type="button"
+                    onClick={handleClear}
+                    disabled={isSubmitting}
+                    className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    CLEAR
+                </button>
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 flex items-center justify-center gap-2 bg-status-warning border border-status-warning px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-status-warning/90 transition-all disabled:opacity-50"
+                >
+                    <Save className="w-4 h-4" />
+                    {isSubmitting ? "..." : "SAVE"}
+                </button>
+            </footer>
+        </form>
     );
 }

@@ -6,6 +6,7 @@ import { useRationsQuery } from "../hooks/useRationsQuery";
 import { RationsTable } from "../components/RationsTable";
 import { RationResourcesDetail } from "../components/RationResourcesDetail";
 import { Package } from "lucide-react";
+import PaginationFooter from "../../shared/components/PaginationFooter";
 
 const personService = new PersonService();
 
@@ -15,6 +16,8 @@ export function DeliverRationsPage() {
 
     const [statusFilter, setStatusFilter] = useState<'Y' | 'N' | ''>('');
     const [selectedRationId, setSelectedRationId] = useState<number | null>(null);
+    const [page, setPage] = useState(1);
+    const pageSize = 20;
 
     // Obtener raciones
     const { data: rations, isLoading: isLoadingRations } = useRationsQuery(
@@ -42,18 +45,22 @@ export function DeliverRationsPage() {
     const deliveredCount = rations?.filter((r) => r.completed === 'Y').length ?? 0;
     const pendingCount = rations?.filter((r) => r.completed === 'N').length ?? 0;
 
+    const totalRecords = rations?.length ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
+    const pagedRations = (rations ?? []).slice((page - 1) * pageSize, page * pageSize);
+
     return (
-        <div className="flex flex-1 min-h-0 flex-col bg-transparent overflow-hidden">
+        <article className="flex flex-1 min-h-0 flex-col bg-transparent overflow-hidden">
             {/* Filter bar */}
-            <div className="shrink-0 px-4 pt-4 pb-0">
-                <div className="bg-bg-secondary border border-border-default px-4 py-3 flex items-center gap-6">
+            <div className="rmm-filter-shell shrink-0 px-4 pt-4 pb-0">
+                <div className="rmm-filter-row bg-bg-secondary border border-border-default px-4 py-3">
                     <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">
                         Status
                     </label>
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as 'Y' | 'N' | '')}
-                        className="rmm-input w-48 text-[11px]!"
+                        className="rmm-input text-[11px]!"
                     >
                         <option value="">All</option>
                         <option value="Y">Delivered</option>
@@ -63,42 +70,49 @@ export function DeliverRationsPage() {
             </div>
 
             {/* Main area: stats | table | allocated resources */}
-            <div className="flex flex-1 min-h-0 gap-0 p-4">
+            <div className="rmm-responsive-columns flex-1">
 
                 {/* Stats column */}
-                <div className="flex flex-col gap-3 shrink-0 w-40 mr-4">
-                    <div className="bg-bg-secondary border border-border-default p-4">
+                <div className="rmm-responsive-aside rmm-kpi-stack">
+                    <div className="rmm-kpi-card bg-bg-secondary border border-border-default">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Total Rations</div>
-                        <div className="font-mono text-3xl font-bold text-txt-primary">{rations?.length ?? 0}</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-txt-primary">{rations?.length ?? 0}</div>
                     </div>
-                    <div className="bg-bg-secondary border border-status-success p-4">
+                    <div className="rmm-kpi-card bg-bg-secondary border border-status-success">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Delivered</div>
-                        <div className="font-mono text-3xl font-bold text-status-success">{deliveredCount}</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-status-success">{deliveredCount}</div>
                     </div>
-                    <div className="bg-bg-secondary border border-status-warning p-4">
+                    <div className="rmm-kpi-card bg-bg-secondary border border-status-warning">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Pending</div>
-                        <div className="font-mono text-3xl font-bold text-status-warning">{pendingCount}</div>
+                        <div className="rmm-kpi-value font-mono font-bold text-status-warning">{pendingCount}</div>
                     </div>
                 </div>
 
                 {/* Table */}
-                <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
+                <div className="rmm-responsive-main flex flex-col">
                     {isLoadingRations ? (
                         <div className="flex items-center justify-center h-full text-txt-disabled font-mono text-xs">
                             Loading rations...
                         </div>
                     ) : (
                         <RationsTable
-                            rations={rations ?? []}
+                            rations={pagedRations}
                             personMap={personMap}
                             selectedRationId={selectedRationId}
                             onRationSelect={setSelectedRationId}
                         />
                     )}
+                    {/* Pagination footer */}
+                    <PaginationFooter
+                        page={page}
+                        setPage={setPage}
+                        totalPages={totalPages}
+                        totalRecords={totalRecords}
+                    />
                 </div>
 
                 {/* Allocated Resources panel */}
-                <div className="shrink-0 w-55 ml-4 flex flex-col bg-bg-secondary border border-border-default overflow-hidden">
+                <div className="rmm-responsive-aside flex flex-col bg-bg-secondary border border-border-default overflow-hidden">
                     <div className="px-4 py-3 border-b border-border-default shrink-0">
                         <span className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
                             Allocated Resources
@@ -118,6 +132,6 @@ export function DeliverRationsPage() {
                     </div>
                 </div>
             </div>
-        </div>
+        </article>
     );
 }
