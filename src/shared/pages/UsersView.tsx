@@ -1,17 +1,8 @@
-import {
-  AlertTriangle,
-  ClipboardList,
-  Download,
-  FilterX,
-  RefreshCw,
-  Search,
-  UserPlus,
-  Users as UsersIcon,
-} from "lucide-react";
+import { AlertTriangle, ClipboardList, Download, FilterX, RefreshCw, Search, UserPlus, Users as UsersIcon,} from "lucide-react";
 
-import { UserCard } from "../components/UserCard";
-import { UserProfileModal } from "../components/UserProfileModal";
-import { AdmissionRequestsPanel } from "../components/AdmissionRequestsPanel";
+import { UserCard } from "../components/UsersComponents/UserCard";
+import { UserProfileModal } from "../components/UsersComponents/UserProfileModal";
+import { AdmissionRequestsPanel } from "../components/UsersComponents/AdmissionRequestsPanel";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { useUsersView } from "../hooks/useUsersView";
 import { useToast } from "../hooks/useToast";

@@ -3,17 +3,17 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Lock,
   ShieldCheck,
-  UserCheck,
   X,
 } from "lucide-react";
 
-import type { AdmissionRequest } from "../../models/AdmissionRequest";
-import type { Profession } from "../../models/Profession";
-import type { Role } from "../../models/Role";
-import { ProfessionService } from "../../services/ProfessionService";
-import { RoleService } from "../../services/RoleService";
+import type { AdmissionRequest } from "../../../models/AdmissionRequest";
+import type { Profession } from "../../../models/Profession";
+import type { Role } from "../../../models/Role";
+import { ProfessionService } from "../../../services/ProfessionService";
+import { RoleService } from "../../../services/RoleService";
+import { AdmissionApprovalSidebar } from "./AdmissionApprovalSidebar";
+import { AdmissionApprovalStepContent } from "./AdmissionApprovalStepContent";
 
 type AiEvaluationView = {
   evaluation: {
@@ -48,12 +48,6 @@ type Props = {
 
 const roleService = new RoleService();
 const professionService = new ProfessionService();
-
-const inputClass =
-  "h-12 w-full border border-border-default bg-bg-tertiary px-4 text-[15px] font-bold tracking-[0.04em] text-txt-primary outline-none transition-all placeholder:text-txt-disabled focus:border-accent focus:shadow-[0_0_0_2px_rgba(232,93,4,0.22)]";
-
-const selectClass =
-  "h-12 w-full border border-border-default bg-bg-tertiary px-4 text-[15px] font-bold tracking-[0.04em] text-txt-primary outline-none transition-all focus:border-accent focus:shadow-[0_0_0_2px_rgba(232,93,4,0.22)]";
 
 function getListFromResponse<T>(response: ServiceResponse): T[] {
   const registros = response.getResultado("registros");
@@ -178,6 +172,7 @@ function findRecommendedProfessionId(
 
   const partialMatch = professions.find((profession) => {
     const professionText = getProfessionSearchText(profession);
+
     return (
       professionText.includes(recommendedText) ||
       recommendedText.includes(professionText)
@@ -185,40 +180,6 @@ function findRecommendedProfessionId(
   });
 
   return partialMatch?.id ? String(partialMatch.id) : "";
-}
-
-function FieldLabel({
-  children,
-  htmlFor,
-  required = false,
-}: {
-  children: React.ReactNode;
-  htmlFor: string;
-  required?: boolean;
-}) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className="text-[13px] font-bold uppercase tracking-[0.13em] text-txt-primary"
-    >
-      {children}
-      {required ? <span className="ml-1 text-status-critical">*</span> : null}
-    </label>
-  );
-}
-
-function SummaryLine({
-  label,
-  value,
-}: {
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <p className="text-[14px] font-bold tracking-[0.04em] text-txt-secondary">
-      {label}: <span className="text-txt-primary">{value}</span>
-    </p>
-  );
 }
 
 export function AdmissionApprovalModal({
@@ -233,17 +194,13 @@ export function AdmissionApprovalModal({
   const usernameRef = useRef<HTMLInputElement | null>(null);
 
   const [step, setStep] = useState<1 | 2>(1);
-
   const [roles, setRoles] = useState<Role[]>([]);
   const [professions, setProfessions] = useState<Profession[]>([]);
-
   const [roleId, setRoleId] = useState("");
   const [professionId, setProfessionId] = useState("");
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [loadingCatalogs, setLoadingCatalogs] = useState(true);
   const [localError, setLocalError] = useState("");
 
@@ -400,65 +357,11 @@ export function AdmissionApprovalModal({
         className="flex max-h-[88vh] w-full max-w-5xl overflow-hidden border border-border-default bg-bg-primary shadow-[0_30px_60px_rgba(0,0,0,0.55)]"
         onClick={(event) => event.stopPropagation()}
       >
-        <aside className="hidden w-72 shrink-0 flex-col border-r border-border-default bg-bg-secondary px-7 py-7 md:flex">
-          <div className="mb-7 flex h-14 w-14 items-center justify-center bg-accent text-accent-fg">
-            <UserCheck className="h-7 w-7" strokeWidth={2.3} />
-          </div>
-
-          <h2 className="text-[25px] font-bold uppercase leading-tight tracking-[0.12em] text-txt-primary">
-            Confirm
-            <br />
-            Admission
-          </h2>
-
-          <p className="mt-4 text-[13px] font-bold leading-relaxed tracking-[0.04em] text-txt-secondary">
-            Request #{admission.id ?? "--"} · {personLabel ?? "Selected person"}
-          </p>
-
-          <div className="mt-8 flex flex-col gap-6">
-            <div
-              className={`flex items-center gap-4 border-b pb-4 transition-all ${
-                step === 1
-                  ? "border-accent text-accent shadow-[0_8px_12px_-10px_rgba(232,93,4,0.95)]"
-                  : "border-border-default text-txt-disabled"
-              }`}
-            >
-              <UserCheck
-                className={`h-11 w-11 border bg-transparent p-2 ${
-                  step === 1
-                    ? "border-accent text-accent shadow-[0_0_12px_rgba(232,93,4,0.7)]"
-                    : "border-border-strong text-txt-disabled"
-                }`}
-                strokeWidth={2.5}
-              />
-
-              <p className="text-[15px] font-bold leading-relaxed tracking-[0.07em]">
-                Role and Profession
-              </p>
-            </div>
-
-            <div
-              className={`flex items-center gap-4 border-b pb-4 transition-all ${
-                step === 2
-                  ? "border-accent text-accent shadow-[0_8px_12px_-10px_rgba(232,93,4,0.95)]"
-                  : "border-border-default text-txt-disabled"
-              }`}
-            >
-              <Lock
-                className={`h-11 w-11 border bg-transparent p-2 ${
-                  step === 2
-                    ? "border-accent text-accent shadow-[0_0_12px_rgba(232,93,4,0.7)]"
-                    : "border-border-strong text-txt-disabled"
-                }`}
-                strokeWidth={2.5}
-              />
-
-              <p className="text-[15px] font-bold leading-relaxed tracking-[0.07em]">
-                Access Credentials
-              </p>
-            </div>
-          </div>
-        </aside>
+        <AdmissionApprovalSidebar
+          step={step}
+          admissionId={admission.id}
+          personLabel={personLabel}
+        />
 
         <section className="flex min-w-0 flex-1 flex-col bg-bg-primary">
           <div className="flex shrink-0 items-center justify-between border-b border-border-default bg-bg-secondary px-6 py-4 md:px-8">
@@ -494,148 +397,30 @@ export function AdmissionApprovalModal({
               </div>
             ) : null}
 
-            {step === 1 ? (
-              <div className="space-y-5">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="border border-border-default bg-bg-secondary px-4 py-4">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-txt-disabled">
-                      Person
-                    </p>
-
-                    <p className="mt-2 text-[17px] font-bold tracking-[0.04em] text-txt-primary">
-                      {personLabel ?? `Person #${admission.person_id}`}
-                    </p>
-                  </div>
-
-                  <div className="border border-accent/50 bg-accent/10 px-4 py-4">
-                    <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-accent">
-                      Suggested Profession
-                    </p>
-
-                    <p className="mt-2 text-[17px] font-bold uppercase tracking-[0.04em] text-txt-primary">
-                      {recommendedProfession || "Not suggested"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid gap-5 md:grid-cols-2">
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel htmlFor="approvalRole" required>
-                      System Role
-                    </FieldLabel>
-
-                    <select
-                      id="approvalRole"
-                      ref={roleSelectRef}
-                      aria-label="System role"
-                      title="System role"
-                      value={roleId}
-                      onChange={(event) => setRoleId(event.target.value)}
-                      disabled={loadingCatalogs || isSubmitting}
-                      className={selectClass}
-                    >
-                      {roles.length === 0 ? (
-                        <option value="">No operational roles available</option>
-                      ) : (
-                        roles.map((role) => (
-                          <option key={role.id} value={role.id}>
-                            {getRoleLabel(role)}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel htmlFor="approvalProfession" required>
-                      Camp Profession
-                    </FieldLabel>
-
-                    <select
-                      id="approvalProfession"
-                      aria-label="Camp profession"
-                      title="Camp profession"
-                      value={professionId}
-                      onChange={(event) => setProfessionId(event.target.value)}
-                      disabled={loadingCatalogs || isSubmitting}
-                      className={selectClass}
-                    >
-                      {professions.length === 0 ? (
-                        <option value="">No professions available</option>
-                      ) : (
-                        professions.map((profession) => (
-                          <option key={profession.id} value={profession.id}>
-                            {getProfessionLabel(profession)}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <div className="grid gap-5">
-                  <div className="flex flex-col gap-2">
-                    <FieldLabel htmlFor="approvalUsername" required>
-                      Username
-                    </FieldLabel>
-
-                    <input
-                      id="approvalUsername"
-                      ref={usernameRef}
-                      aria-label="Username"
-                      title="Username"
-                      type="text"
-                      value={username}
-                      onChange={(event) => setUsername(event.target.value)}
-                      disabled={isSubmitting}
-                      className={inputClass}
-                    />
-                  </div>
-
-                  <div className="grid gap-5 md:grid-cols-2">
-                    <div className="flex flex-col gap-2">
-                      <FieldLabel htmlFor="approvalPassword" required>
-                        Password
-                      </FieldLabel>
-
-                      <input
-                        id="approvalPassword"
-                        aria-label="Password"
-                        title="Password"
-                        type="password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        placeholder="Minimum 8 characters"
-                        disabled={isSubmitting}
-                        className={inputClass}
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <FieldLabel htmlFor="approvalConfirmPassword" required>
-                        Confirm Password
-                      </FieldLabel>
-
-                      <input
-                        id="approvalConfirmPassword"
-                        aria-label="Confirm password"
-                        title="Confirm password"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(event) =>
-                          setConfirmPassword(event.target.value)
-                        }
-                        placeholder="Repeat password"
-                        disabled={isSubmitting}
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            <AdmissionApprovalStepContent
+              step={step}
+              admission={admission}
+              personLabel={personLabel}
+              recommendedProfession={recommendedProfession}
+              roles={roles}
+              professions={professions}
+              roleId={roleId}
+              professionId={professionId}
+              username={username}
+              password={password}
+              confirmPassword={confirmPassword}
+              loadingCatalogs={loadingCatalogs}
+              isSubmitting={isSubmitting}
+              roleSelectRef={roleSelectRef}
+              usernameRef={usernameRef}
+              getRoleLabel={getRoleLabel}
+              getProfessionLabel={getProfessionLabel}
+              onRoleChange={setRoleId}
+              onProfessionChange={setProfessionId}
+              onUsernameChange={setUsername}
+              onPasswordChange={setPassword}
+              onConfirmPasswordChange={setConfirmPassword}
+            />
           </div>
 
           <div className="flex shrink-0 flex-col gap-3 border-t border-border-default bg-bg-secondary px-6 py-4 sm:flex-row sm:items-center sm:justify-between md:px-8">

@@ -72,10 +72,13 @@ export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {
                             )}
                         </div>
                     </div>
-                    <button 
+                    <button
+                        type="button"
                         onClick={onClose}
+                        aria-label="Close permissions modal"
+                        title="Close permissions modal"
                         className="p-1.5 text-txt-disabled hover:text-txt-primary hover:bg-bg-tertiary transition-colors"
-                    >
+                        >
                         <X size={20} />
                     </button>
                 </div>
@@ -85,8 +88,10 @@ export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {
                         <thead className="sticky top-0 bg-bg-primary z-10">
                             <tr className="bg-bg-secondary">
                                 <th className="px-6 py-3 w-16 text-center">
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Select all permissions"
+                                        title="Select all permissions"
                                         className="w-4 h-4 text-accent focus:ring-accent cursor-pointer"
                                         checked={selectedPerms.length === AVAILABLE_PERMS.length && selectedPerms.length > 0}
                                         onChange={handleToggleAll}
@@ -101,8 +106,10 @@ export function ModalPerms({ isOpen, onClose, roleName }: ModalPermsProps) {
                             {AVAILABLE_PERMS.map(perm => (
                                 <tr key={perm.id} className="hover:bg-bg-tertiary transition-colors border-b border-border-subtle">
                                     <td className="px-6 py-3 text-center">
-                                        <input 
-                                            type="checkbox" 
+                                       <input
+                                            type="checkbox"
+                                            aria-label={`Select permission ${perm.resource} ${perm.action}`}
+                                            title={`Select permission ${perm.resource} ${perm.action}`}
                                             className="w-4 h-4 text-accent focus:ring-accent cursor-pointer"
                                             checked={selectedPerms.includes(perm.id)}
                                             onChange={() => handleTogglePerm(perm.id)}

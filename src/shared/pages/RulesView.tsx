@@ -1,11 +1,18 @@
-﻿import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type Ref,} from "react";
-import { AlertTriangle, CheckCircle2, GitMerge, Pencil, Plus, RotateCcw, Search, Trash2,} from "lucide-react";
+﻿import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 
 import { useRules } from "../hooks/useRule";
 import { useToast } from "../hooks/useToast";
 import { getAuthContextFromToken } from "../utils/authAccess";
 import { RuleService } from "../../services/RuleService";
 import type { CreateRule, Rule, UpdateRule } from "../../models/Rule";
+import { RulesListPanel } from "../components/RulesComponents/RulesListPanel";
+import { RuleFormPanel } from "../components/RulesComponents/RuleFormPanel";
 
 const PAGE_SIZE = 7;
 const ruleService = new RuleService();
@@ -37,94 +44,6 @@ function formatRuleName(value?: string) {
 
 function normalizeRuleName(value: string) {
   return value.trim().toUpperCase();
-}
-
-function FormField({
-  id,
-  label,
-  value,
-  placeholder,
-  required,
-  readOnly,
-  inputRef,
-  onKeyDown,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  placeholder: string;
-  required?: boolean;
-  readOnly?: boolean;
-  inputRef?: Ref<HTMLInputElement>;
-  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="block" htmlFor={id}>
-      <span className="mb-2 block text-[13px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-        {label}
-        {required ? <span className="text-accent"> *</span> : null}
-      </span>
-
-      <input
-        ref={inputRef}
-        id={id}
-        value={value}
-        readOnly={readOnly}
-        placeholder={placeholder}
-        onKeyDown={onKeyDown}
-        onChange={(event) => onChange(event.target.value)}
-        className={`h-12 w-full border border-border-default bg-bg-tertiary px-4 text-[13px] font-bold uppercase tracking-[0.12em] text-txt-primary outline-none placeholder:text-txt-disabled/70 transition-colors focus:border-accent ${
-          readOnly ? "cursor-not-allowed opacity-60" : ""
-        }`}
-      />
-    </label>
-  );
-}
-
-function FormTextarea({
-  id,
-  label,
-  value,
-  placeholder,
-  required,
-  readOnly,
-  rows = 4,
-  onKeyDown,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  placeholder: string;
-  required?: boolean;
-  readOnly?: boolean;
-  rows?: number;
-  onKeyDown?: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="block" htmlFor={id}>
-      <span className="mb-2 block text-[13px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-        {label}
-        {required ? <span className="text-accent"> *</span> : null}
-      </span>
-
-      <textarea
-        id={id}
-        value={value}
-        readOnly={readOnly}
-        rows={rows}
-        placeholder={placeholder}
-        onKeyDown={onKeyDown}
-        onChange={(event) => onChange(event.target.value)}
-        className={`w-full resize-none border border-border-default bg-bg-tertiary px-4 py-3 text-[13px] font-bold uppercase leading-relaxed tracking-[0.1em] text-txt-primary outline-none placeholder:text-txt-disabled/70 transition-colors focus:border-accent ${
-          readOnly ? "cursor-not-allowed opacity-60" : ""
-        }`}
-      />
-    </label>
-  );
 }
 
 export function RulesView() {
@@ -188,7 +107,9 @@ export function RulesView() {
   }, [page, totalPages]);
 
   const handleEnterToNextField = (
-    event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    event: KeyboardEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     if (event.key !== "Enter") return;
 
@@ -200,7 +121,10 @@ export function RulesView() {
 
     const fields = Array.from(
       formContainer.querySelectorAll<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLButtonElement
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | HTMLSelectElement
+        | HTMLButtonElement
       >(
         "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])",
       ),
@@ -229,6 +153,13 @@ export function RulesView() {
       condition: rule.condition ?? "",
       status: rule.status === "I" ? "I" : "A",
     });
+  };
+
+  const handleFormFieldChange = (field: keyof RuleFormState, value: string) => {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+    }));
   };
 
   const handleClear = () => {
@@ -361,327 +292,38 @@ export function RulesView() {
 
   return (
     <div className="flex h-full min-h-0 w-full flex-row overflow-hidden border border-border-default bg-bg-app">
-      <section
-        className="flex shrink-0 flex-col gap-4 border-r border-border-default bg-bg-secondary p-6"
-        style={{ width: "52%" }}
-      >
-        <div className="relative shrink-0">
-          <Search
-            size={16}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-txt-disabled"
-          />
+      <RulesListPanel
+        searchTerm={searchTerm}
+        page={page}
+        selectedId={selectedId}
+        filteredCount={filteredRules.length}
+        totalPages={totalPages}
+        pageItems={pageItems}
+        isLoading={isLoading}
+        onSearchChange={handleSearchChange}
+        onSelectRule={handleSelectRule}
+        onPrevPage={handlePrevPage}
+        onNextPage={handleNextPage}
+      />
 
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) => handleSearchChange(event.target.value)}
-            placeholder="SEARCH BY RULE NAME, CONDITION OR DESCRIPTION..."
-            className="h-12 w-full border border-border-default bg-bg-tertiary pl-11 pr-4 text-[13px] font-bold uppercase tracking-[0.12em] text-txt-primary outline-none placeholder:text-txt-disabled focus:border-accent"
-          />
-        </div>
-
-        <div className="flex h-11 shrink-0 items-stretch gap-3">
-          <div className="flex flex-1 items-center border border-border-default bg-bg-primary px-5">
-            <span className="text-[14px] font-bold uppercase tracking-[0.18em] text-txt-primary">
-              List
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center bg-accent px-6">
-            <span className="text-[13px] font-black uppercase tracking-[0.12em] text-accent-fg">
-              PG-{String(page + 1).padStart(2, "0")}
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-[190px_minmax(0,1fr)_90px] gap-5 border-b border-border-default px-4 py-3 text-left text-[11px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
-          <div>Rule Name</div>
-          <div>Condition</div>
-          <div>Status</div>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto border border-border-default bg-bg-primary">
-          {isLoading ? (
-            <div className="flex h-full items-center justify-center text-[12px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
-              Loading rules...
-            </div>
-          ) : pageItems.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-[12px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
-              No rules found.
-            </div>
-          ) : (
-            pageItems.map((rule) => {
-              const isSelected = rule.id === selectedId;
-              const isActive = rule.status !== "I";
-
-              return (
-                <button
-                  key={rule.id}
-                  type="button"
-                  onClick={() => handleSelectRule(rule)}
-                  className={`grid w-full grid-cols-[190px_minmax(0,1fr)_90px] items-start gap-5 border-b border-border-subtle px-4 py-4 text-left transition-colors ${
-                    isSelected
-                      ? "border-l-2 border-l-accent bg-accent/10"
-                      : "border-l-2 border-l-transparent hover:bg-bg-secondary"
-                  }`}
-                >
-                  <div className="min-w-0 text-[12px] font-bold uppercase tracking-[0.08em] text-accent">
-                    <span className="block leading-relaxed">
-                      {formatRuleName(rule.name)}
-                    </span>
-                  </div>
-
-                  <div className="min-w-0 whitespace-normal break-words text-[12px] font-medium leading-relaxed tracking-[0.05em] text-txt-secondary">
-                    {rule.condition}
-                  </div>
-
-                  <div
-                    className={`text-[12px] font-bold uppercase tracking-[0.08em] ${
-                      isActive ? "text-status-ok" : "text-status-inactive"
-                    }`}
-                  >
-                    {isActive ? "Active" : "Inactive"}
-                  </div>
-                </button>
-              );
-            })
-          )}
-        </div>
-
-        <div className="flex h-10 shrink-0 items-center border border-border-default bg-bg-primary px-5">
-          <span className="text-[13px] font-bold uppercase tracking-[0.18em] text-txt-primary">
-            Found: {String(filteredRules.length).padStart(4, "0")}
-          </span>
-        </div>
-
-        <div className="grid h-12 shrink-0 grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={handlePrevPage}
-            disabled={page === 0}
-            className="border border-border-default bg-bg-tertiary text-[13px] font-bold uppercase tracking-[0.18em] text-txt-secondary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            Prev
-          </button>
-
-          <button
-            type="button"
-            onClick={handleNextPage}
-            disabled={page >= totalPages - 1}
-            className="border border-border-default bg-bg-tertiary text-[13px] font-bold uppercase tracking-[0.18em] text-txt-secondary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            Next
-          </button>
-        </div>
-      </section>
-
-      <section className="flex min-w-0 flex-1 flex-col bg-bg-secondary">
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-border-default px-8">
-          <div className="flex items-center gap-3">
-            <GitMerge size={16} className="text-accent" />
-
-            <div>
-              <h2 className="text-[18px] font-bold uppercase tracking-[0.18em] text-txt-primary">
-                {selectedId ? "Rule Detail" : "New Rule"}
-              </h2>
-
-              <p className="mt-1 text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
-                Rule registry / camp control
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            disabled={!selectedId}
-            onClick={() => setEditMode((current) => !current)}
-            className={`flex h-10 items-center gap-2 border px-5 text-[12px] font-bold uppercase tracking-[0.15em] transition-colors ${
-              selectedId
-                ? editMode
-                  ? "border-status-critical/50 bg-status-critical/10 text-status-critical hover:bg-status-critical hover:text-txt-primary"
-                  : "border-border-default bg-bg-tertiary text-txt-secondary hover:border-accent hover:text-accent"
-                : "cursor-not-allowed border-border-default bg-bg-tertiary text-txt-disabled opacity-40"
-            }`}
-          >
-            <Pencil size={14} />
-            {editMode ? "Cancel" : "Edit"}
-          </button>
-        </div>
-
-        <div className="min-h-0 flex-1 overflow-y-auto px-8 py-7">
-          <div className="flex min-h-full flex-col">
-            {(error || feedback) && (
-              <div
-                className={`mb-5 flex items-center gap-3 border px-5 py-4 text-[13px] font-bold uppercase tracking-[0.12em] ${
-                  feedback?.type === "success"
-                    ? "border-status-ok/40 bg-status-ok/10 text-status-ok"
-                    : "border-status-critical/40 bg-status-critical/10 text-status-critical"
-                }`}
-              >
-                {feedback?.type === "success" ? (
-                  <CheckCircle2 size={17} />
-                ) : (
-                  <AlertTriangle size={17} />
-                )}
-
-                {feedback?.message ?? error}
-              </div>
-            )}
-
-            <div className="border border-border-default bg-bg-primary px-6 py-6">
-              <div className="mb-6 flex items-center justify-between border-b border-border-default pb-4">
-                <div>
-                  <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-                    Rule Information
-                  </p>
-
-                  <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-txt-secondary">
-                    Register rule name, description and condition
-                  </p>
-                </div>
-
-                <div className="border border-accent/50 bg-accent/10 px-5 py-3">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
-                    Mode
-                  </p>
-
-                  <p className="mt-1 text-[14px] font-bold uppercase tracking-[0.08em] text-txt-primary">
-                    {selectedId
-                      ? editMode
-                        ? "Editing"
-                        : "Viewing"
-                      : "Creating"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-6" data-enter-form>
-                <FormField
-                  id="rule-name"
-                  label="Rule Name"
-                  value={form.name}
-                  required
-                  readOnly={!canEditForm}
-                  inputRef={firstFieldRef}
-                  onKeyDown={handleEnterToNextField}
-                  placeholder="Example: Daily Ration Required"
-                  onChange={(value) =>
-                    setForm((current) => ({
-                      ...current,
-                      name: value,
-                    }))
-                  }
-                />
-
-                <FormTextarea
-                  id="rule-description"
-                  label="Description"
-                  value={form.description}
-                  required
-                  readOnly={!canEditForm}
-                  onKeyDown={handleEnterToNextField}
-                  placeholder="Describe rule purpose..."
-                  rows={3}
-                  onChange={(value) =>
-                    setForm((current) => ({
-                      ...current,
-                      description: value,
-                    }))
-                  }
-                />
-
-                <FormTextarea
-                  id="rule-condition"
-                  label="Condition"
-                  value={form.condition}
-                  required
-                  readOnly={!canEditForm}
-                  onKeyDown={handleEnterToNextField}
-                  placeholder="Example: Every assigned person must receive daily ration"
-                  rows={4}
-                  onChange={(value) =>
-                    setForm((current) => ({
-                      ...current,
-                      condition: value,
-                    }))
-                  }
-                />
-
-                {selectedId ? (
-                  <label className="block" htmlFor="rule-status">
-                    <span className="mb-2 block text-[13px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-                      Status
-                    </span>
-
-                    <select
-                      id="rule-status"
-                      aria-label="Rule status"
-                      value={form.status}
-                      disabled={!canEditForm}
-                      onKeyDown={handleEnterToNextField}
-                      onChange={(event) =>
-                        setForm((current) => ({
-                          ...current,
-                          status: event.target.value as "A" | "I",
-                        }))
-                      }
-                      className="h-12 w-full border border-border-default bg-bg-tertiary px-4 text-[13px] font-bold uppercase tracking-[0.12em] text-txt-primary outline-none transition-colors focus:border-accent disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      <option value="A">Active</option>
-                      <option value="I">Inactive</option>
-                    </select>
-                  </label>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid shrink-0 grid-cols-[1fr_160px] gap-4 border-t border-border-default bg-bg-primary px-8 py-5">
-          <button
-            type="button"
-            onClick={() => void handleSave()}
-            disabled={!canEditForm || !canSubmit || isSaving}
-            className="flex h-12 items-center justify-center gap-2 border border-accent bg-accent text-[13px] font-bold uppercase tracking-[0.18em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            <Plus size={15} />
-            {isSaving
-              ? "Saving..."
-              : selectedId && editMode
-                ? "Update Rule"
-                : "Create Rule"}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleClear}
-            className="h-12 border border-border-default bg-bg-tertiary text-[13px] font-bold uppercase tracking-[0.18em] text-txt-primary transition-colors hover:border-accent hover:text-accent"
-          >
-            Clear
-          </button>
-
-          {selectedId ? (
-            <button
-              type="button"
-              onClick={() => void handleDelete()}
-              disabled={isSaving}
-              className="col-span-2 flex h-10 items-center justify-center gap-2 border border-status-critical/40 bg-status-critical/10 text-[12px] font-bold uppercase tracking-[0.16em] text-status-critical transition-colors hover:bg-status-critical hover:text-txt-primary disabled:cursor-not-allowed disabled:opacity-30"
-            >
-              <Trash2 size={14} />
-              Delete Rule
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void reload()}
-              className="col-span-2 flex h-10 items-center justify-center gap-2 border border-border-default bg-transparent text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary transition-colors hover:border-accent hover:text-accent"
-            >
-              <RotateCcw size={14} />
-              Refresh List
-            </button>
-          )}
-        </div>
-      </section>
+      <RuleFormPanel
+        selectedId={selectedId}
+        editMode={editMode}
+        form={form}
+        feedback={feedback}
+        error={error}
+        canEditForm={canEditForm}
+        canSubmit={canSubmit}
+        isSaving={isSaving}
+        firstFieldRef={firstFieldRef}
+        onToggleEdit={() => setEditMode((current) => !current)}
+        onFormFieldChange={handleFormFieldChange}
+        onEnterToNextField={handleEnterToNextField}
+        onSave={() => void handleSave()}
+        onClear={handleClear}
+        onDelete={() => void handleDelete()}
+        onReload={() => void reload()}
+      />
     </div>
   );
 }
