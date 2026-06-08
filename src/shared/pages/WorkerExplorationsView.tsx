@@ -90,34 +90,34 @@ function getRiskLabel(exploration: Exploration) {
 
 function getStateStyle(state?: string) {
   if (state === "A") {
-    return "bg-[#E85D04]/10 border-[#E85D04]/60 text-[#E85D04]";
+    return "bg-black/60 border-[#E85D04]/60 text-[#E85D04]";
   }
 
   if (state === "F") {
-    return "bg-[#22C55E]/10 border-[#22C55E]/50 text-[#22C55E]";
+    return "bg-black/60 border-[#22C55E]/50 text-[#22C55E]";
   }
 
   if (state === "C") {
-    return "bg-[#EF4444]/10 border-[#EF4444]/50 text-[#EF4444]";
+    return "bg-black/60 border-[#EF4444]/50 text-[#EF4444]";
   }
 
-  return "bg-[#FACC15]/10 border-[#FACC15]/50 text-[#FACC15]";
+  return "bg-black/60 border-[#FACC15]/50 text-[#FACC15]";
 }
 
 function getRiskStyle(risk?: string) {
   if (risk === "H") {
-    return "bg-[#EF4444]/10 border-[#EF4444]/60 text-[#EF4444]";
+    return "bg-black/60 border-[#EF4444]/60 text-[#EF4444]";
   }
 
   if (risk === "M") {
-    return "bg-[#FACC15]/10 border-[#FACC15]/50 text-[#FACC15]";
+    return "bg-black/60 border-[#FACC15]/50 text-[#FACC15]";
   }
 
   if (risk === "L") {
-    return "bg-[#22C55E]/10 border-[#22C55E]/50 text-[#22C55E]";
+    return "bg-black/60 border-[#22C55E]/50 text-[#22C55E]";
   }
 
-  return "bg-[#111111] border-[#3a3a3a] text-[#6B7280]";
+  return "bg-black/60 border-white/10 text-[#9A9A9A]";
 }
 
 function ExplorationCard({
@@ -133,26 +133,26 @@ function ExplorationCard({
   const duration = getDuration(exploration);
 
   return (
-    <article className="border border-[#3a3a3a] bg-[#1a1a1a] overflow-hidden hover:border-[#E85D04]/50 transition-colors shadow-[0_0_18px_rgba(0,0,0,0.35)]">
+    <article className="border border-white/10 bg-black/70 backdrop-blur-sm overflow-hidden hover:border-[#E85D04]/50 transition-colors">
       <button
         type="button"
         onClick={onToggle}
-        className="w-full p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-[#242424]/60 transition-colors text-left"
+        className="w-full p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-[#E85D04]/10 transition-colors text-left"
       >
         <div className="space-y-2 flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 font-mono min-w-0">
-            <span className="text-[#E85D04] font-bold text-xs uppercase tracking-label break-all">
+            <span className="text-[#E85D04] font-bold text-xs uppercase tracking-[0.16em] break-all">
               {exploration.code || `EXP-${exploration.id}`}
             </span>
 
-            <span className="text-[#6B7280] shrink-0">//</span>
+            <span className="text-[#7C7C7C] shrink-0">//</span>
 
-            <span className="text-white font-bold text-sm uppercase tracking-label break-words min-w-0">
+            <span className="text-white font-bold text-sm uppercase tracking-[0.16em] break-words min-w-0">
               {exploration.name || "Exploración sin nombre"}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#C0C0C0] font-mono">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#D0D0D0] font-mono">
             <span className="flex items-center gap-1 min-w-0">
               <UserCheck size={14} className="text-[#38BDF8] shrink-0" />
               <span className="shrink-0">Rol:</span>{" "}
@@ -161,7 +161,7 @@ function ExplorationCard({
               </strong>
             </span>
 
-            <span className="text-[#3a3a3a] font-bold hidden sm:inline">
+            <span className="text-white/15 font-bold hidden sm:inline">
               •
             </span>
 
@@ -173,7 +173,7 @@ function ExplorationCard({
               </strong>
             </span>
 
-            <span className="text-[#3a3a3a] font-bold hidden sm:inline">
+            <span className="text-white/15 font-bold hidden sm:inline">
               •
             </span>
 
@@ -189,7 +189,7 @@ function ExplorationCard({
 
         <div className="shrink-0 flex flex-wrap items-center gap-3 w-full md:w-auto justify-start md:justify-end">
           <span
-            className={`px-2.5 py-0.5 tracking-label font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getRiskStyle(
+            className={`px-2.5 py-0.5 tracking-[0.14em] font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getRiskStyle(
               risk,
             )}`}
           >
@@ -197,7 +197,7 @@ function ExplorationCard({
           </span>
 
           <span
-            className={`px-2.5 py-0.5 tracking-label font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getStateStyle(
+            className={`px-2.5 py-0.5 tracking-[0.14em] font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getStateStyle(
               exploration.state,
             )}`}
           >
@@ -211,9 +211,9 @@ function ExplorationCard({
       </button>
 
       {expanded && (
-        <div className="border-t border-[#3a3a3a] bg-[#111111] p-4 sm:p-5 font-mono text-xs text-[#C0C0C0] space-y-4">
-          <div className="p-3 bg-[#1a1a1a] border border-[#3a3a3a] leading-normal">
-            <span className="text-[#6B7280] text-[10px] uppercase block mb-1 font-bold tracking-label">
+        <div className="border-t border-white/10 bg-black/65 backdrop-blur-sm p-4 sm:p-5 font-mono text-xs text-[#D0D0D0] space-y-4">
+          <div className="p-3 bg-black/70 border border-white/10 leading-normal">
+            <span className="text-[#9A9A9A] text-[10px] uppercase block mb-1 font-bold tracking-[0.14em]">
               Objetivo
             </span>
 
@@ -223,28 +223,28 @@ function ExplorationCard({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-[#3a3a3a] p-3 bg-[#1a1a1a] min-w-0">
-              <span className="text-[#6B7280] text-[9px] block uppercase tracking-label">
+            <div className="border border-white/10 p-3 bg-black/70 min-w-0">
+              <span className="text-[#9A9A9A] text-[9px] block uppercase tracking-[0.14em]">
                 Calendario
               </span>
 
               <div className="mt-2 space-y-2 font-medium text-white">
-                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-[#3a3a3a] pb-1">
-                  <span className="text-[#6B7280]">Asignación</span>
+                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-white/10 pb-1">
+                  <span className="text-[#9A9A9A]">Asignación</span>
                   <span className="text-[#38BDF8] break-words sm:text-right">
                     {formatDateTime(exploration.assignedAt)}
                   </span>
                 </p>
 
-                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-[#3a3a3a] pb-1">
-                  <span className="text-[#6B7280]">Salida</span>
+                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-white/10 pb-1">
+                  <span className="text-[#9A9A9A]">Salida</span>
                   <span className="break-words sm:text-right">
                     {formatDateTime(getDepartureDate(exploration))}
                   </span>
                 </p>
 
                 <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
-                  <span className="text-[#6B7280]">Retorno</span>
+                  <span className="text-[#9A9A9A]">Retorno</span>
                   <span className="break-words sm:text-right">
                     {formatDateTime(getReturnDate(exploration))}
                   </span>
@@ -252,20 +252,20 @@ function ExplorationCard({
               </div>
             </div>
 
-            <div className="border border-[#3a3a3a] p-3 bg-[#1a1a1a] md:col-span-2 min-w-0">
-              <span className="text-[#6B7280] text-[9px] block uppercase tracking-label">
+            <div className="border border-white/10 p-3 bg-black/70 md:col-span-2 min-w-0">
+              <span className="text-[#9A9A9A] text-[9px] block uppercase tracking-[0.14em]">
                 Notas
               </span>
 
-              <p className="mt-2 text-xs text-[#FACC15] bg-[#FACC15]/10 p-3 border border-[#FACC15]/30 leading-relaxed break-words">
+              <p className="mt-2 text-xs text-[#FACC15] bg-black/65 p-3 border border-[#FACC15]/30 leading-relaxed break-words">
                 {exploration.notes || "Sin notas registradas."}
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
-              <span className="text-[#6B7280] block text-[9px] uppercase">
+            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
+              <span className="text-[#9A9A9A] block text-[9px] uppercase">
                 ID
               </span>
               <strong className="text-[#38BDF8] break-words">
@@ -273,8 +273,8 @@ function ExplorationCard({
               </strong>
             </div>
 
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
-              <span className="text-[#6B7280] block text-[9px] uppercase">
+            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
+              <span className="text-[#9A9A9A] block text-[9px] uppercase">
                 Estado
               </span>
               <strong className="text-white break-words">
@@ -282,8 +282,8 @@ function ExplorationCard({
               </strong>
             </div>
 
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
-              <span className="text-[#6B7280] block text-[9px] uppercase">
+            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
+              <span className="text-[#9A9A9A] block text-[9px] uppercase">
                 Riesgo
               </span>
               <strong className="text-white break-words">
@@ -291,8 +291,8 @@ function ExplorationCard({
               </strong>
             </div>
 
-            <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3 min-w-0">
-              <span className="text-[#6B7280] block text-[9px] uppercase">
+            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
+              <span className="text-[#9A9A9A] block text-[9px] uppercase">
                 Creada
               </span>
               <strong className="text-white break-words">
@@ -331,13 +331,13 @@ export function WorkerExplorationsView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#111111] overflow-hidden min-w-0">
-      <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
+    <div className="w-full h-full flex flex-col bg-transparent overflow-hidden min-w-0">
+      <div className="w-full bg-black/60 backdrop-blur-sm border-b border-white/10 px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
         <div className="flex flex-col min-w-0">
-          <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label break-words">
+          <span className="text-[12px] font-mono font-bold text-white uppercase tracking-[0.18em] break-words">
             Exploraciones
           </span>
-          <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label break-words">
+          <span className="text-[10px] font-mono text-[#9A9A9A] uppercase tracking-[0.14em] break-words">
             Worker exploration registry / assigned expeditions
           </span>
         </div>
@@ -345,19 +345,19 @@ export function WorkerExplorationsView() {
         <button
           type="button"
           onClick={() => void reload()}
-          className="flex items-center gap-2 text-[11px] font-mono text-[#6B7280] hover:text-[#E85D04] uppercase tracking-label transition-colors shrink-0"
+          className="flex items-center gap-2 border border-white/10 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono text-[#C0C0C0] hover:text-[#E85D04] hover:border-[#E85D04]/40 uppercase tracking-[0.14em] transition-colors shrink-0"
         >
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
           {loading ? "Loading..." : "Refresh"}
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div className="flex-1 overflow-y-auto min-h-0 bg-transparent">
         <div className="p-3 sm:p-4 space-y-4">
-          <section className="border border-[#E85D04]/45 bg-[#1a1a1a] p-4 sm:p-5 shadow-[0_0_18px_rgba(232,93,4,0.1)]">
+          <section className="border border-[#E85D04]/35 bg-black/65 backdrop-blur-sm p-4 sm:p-5">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="min-w-0">
-                <span className="text-[10px] text-[#6B7280] font-mono tracking-label block uppercase break-words">
+                <span className="text-[10px] text-[#9A9A9A] font-mono tracking-[0.14em] block uppercase break-words">
                   Reconnaissance directory // expedition log
                 </span>
 
@@ -369,16 +369,16 @@ export function WorkerExplorationsView() {
                 </h2>
               </div>
 
-              <div className="border border-[#38BDF8]/50 bg-[#38BDF8]/10 px-4 py-2 text-[#38BDF8] font-mono text-xs uppercase tracking-label font-bold w-full sm:w-auto text-center shrink-0">
+              <div className="border border-[#38BDF8]/50 bg-black/60 px-4 py-2 text-[#38BDF8] font-mono text-xs uppercase tracking-[0.14em] font-bold w-full sm:w-auto text-center shrink-0">
                 Total assigned: {data.total}
               </div>
             </div>
           </section>
 
-          <section className="border border-[#3a3a3a] bg-[#1a1a1a] p-4 font-mono text-xs">
+          <section className="border border-white/10 bg-black/65 backdrop-blur-sm p-4 font-mono text-xs">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2 min-w-0">
-                <label className="text-[#6B7280] block mb-1 uppercase text-[9px]">
+                <label className="text-[#9A9A9A] block mb-1 uppercase text-[9px] tracking-[0.14em]">
                   Search exploration
                 </label>
 
@@ -388,25 +388,25 @@ export function WorkerExplorationsView() {
                     placeholder="Exploration name"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
-                    className="w-full bg-[#111111] border border-[#3a3a3a] focus:border-[#E85D04] p-3 pl-9 outline-none text-white text-xs placeholder:text-[#6B7280]"
+                    className="w-full bg-black/70 border border-white/10 focus:border-[#E85D04]/70 p-3 pl-9 outline-none text-white text-xs placeholder:text-[#7C7C7C]"
                   />
 
                   <Search
                     size={15}
-                    className="absolute left-3 top-3 text-[#6B7280]"
+                    className="absolute left-3 top-3 text-[#7C7C7C]"
                   />
                 </div>
               </div>
 
               <div className="min-w-0">
-                <label className="text-[#6B7280] block mb-1 uppercase text-[9px]">
+                <label className="text-[#9A9A9A] block mb-1 uppercase text-[9px] tracking-[0.14em]">
                   State
                 </label>
 
                 <select
                   value={state}
                   onChange={(event) => setState(event.target.value)}
-                  className="w-full bg-[#111111] border border-[#3a3a3a] focus:border-[#E85D04] p-3 outline-none text-white text-xs"
+                  className="w-full bg-black/70 border border-white/10 focus:border-[#E85D04]/70 p-3 outline-none text-white text-xs"
                 >
                   <option value="">All</option>
                   <option value="P">Pending</option>
@@ -417,14 +417,14 @@ export function WorkerExplorationsView() {
               </div>
 
               <div className="min-w-0">
-                <label className="text-[#6B7280] block mb-1 uppercase text-[9px]">
+                <label className="text-[#9A9A9A] block mb-1 uppercase text-[9px] tracking-[0.14em]">
                   Risk
                 </label>
 
                 <select
                   value={riskLevel}
                   onChange={(event) => setRiskLevel(event.target.value)}
-                  className="w-full bg-[#111111] border border-[#3a3a3a] focus:border-[#E85D04] p-3 outline-none text-white text-xs"
+                  className="w-full bg-black/70 border border-white/10 focus:border-[#E85D04]/70 p-3 outline-none text-white text-xs"
                 >
                   <option value="">All</option>
                   <option value="L">Low</option>
@@ -438,7 +438,7 @@ export function WorkerExplorationsView() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="w-full sm:w-auto px-3 py-2 border border-[#3a3a3a] text-[#C0C0C0] hover:border-[#E85D04] hover:text-[#E85D04] uppercase tracking-label transition-colors"
+                className="w-full sm:w-auto px-3 py-2 border border-white/10 bg-black/60 text-[#C0C0C0] hover:border-[#E85D04]/50 hover:text-[#E85D04] uppercase tracking-[0.14em] transition-colors"
               >
                 <X size={13} className="inline mr-1" />
                 Clear filters
@@ -447,7 +447,7 @@ export function WorkerExplorationsView() {
           </section>
 
           {error && (
-            <div className="border border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-label flex items-start sm:items-center gap-2 break-words">
+            <div className="border border-[#E85D04]/50 bg-black/70 backdrop-blur-sm text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-[0.14em] flex items-start sm:items-center gap-2 break-words">
               <AlertTriangle size={15} className="shrink-0 mt-0.5 sm:mt-0" />
               {error}
             </div>
@@ -455,15 +455,15 @@ export function WorkerExplorationsView() {
 
           <section className="space-y-4">
             {loading && (
-              <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-6 text-[#6B7280] font-mono text-xs uppercase tracking-label">
+              <div className="border border-white/10 bg-black/70 backdrop-blur-sm p-6 text-[#9A9A9A] font-mono text-xs uppercase tracking-[0.14em]">
                 Loading exploration data...
               </div>
             )}
 
             {!loading && data.items.length === 0 && (
-              <div className="border border-[#FACC15]/40 bg-[#FACC15]/10 p-8 text-center space-y-2 font-mono">
+              <div className="border border-[#FACC15]/40 bg-black/70 backdrop-blur-sm p-8 text-center space-y-2 font-mono">
                 <ShieldAlert size={28} className="text-[#FACC15] mx-auto" />
-                <p className="text-sm text-[#FACC15] uppercase">
+                <p className="text-sm text-[#FACC15] uppercase tracking-[0.14em]">
                   No explorations found with current filters.
                 </p>
               </div>
@@ -480,8 +480,8 @@ export function WorkerExplorationsView() {
               ))}
           </section>
 
-          <section className="p-4 border border-[#3a3a3a] bg-[#1a1a1a] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 font-mono text-xs">
-            <span className="text-[10px] text-[#6B7280] uppercase tracking-label">
+          <section className="p-4 border border-white/10 bg-black/65 backdrop-blur-sm flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 font-mono text-xs">
+            <span className="text-[10px] text-[#9A9A9A] uppercase tracking-[0.14em]">
               Page {data.page} of {data.totalPages || 1} // Total: {data.total}
             </span>
 
@@ -490,7 +490,7 @@ export function WorkerExplorationsView() {
                 type="button"
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap"
+                className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
               >
                 <ChevronLeft size={13} />
                 Previous
@@ -502,7 +502,7 @@ export function WorkerExplorationsView() {
                   setPage(Math.min(data.totalPages || 1, page + 1))
                 }
                 disabled={page >= (data.totalPages || 1)}
-                className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap"
+                className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
               >
                 Next
                 <ChevronRight size={13} />
