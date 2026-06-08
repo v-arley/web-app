@@ -104,11 +104,8 @@ export function ShipmentsPage() {
         ) : (
          <ShipmentsTable
           shipments={pagedShipments}
-          onView={(id) => {
-            const shipment = pagedShipments.find((item) => item.id === id);
-            if (shipment) {
-              setSelectedShipment(shipment);
-            }
+          onViewDetail={(shipment) => {
+            setSelectedShipment(shipment);
           }}
           isLoading={
             startTransit.isPending ||
