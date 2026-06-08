@@ -9,7 +9,6 @@ export function useRules() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // ── Cargar lista ─────────────────────────────────────────
     const load = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -30,7 +29,6 @@ export function useRules() {
         }
     }, []);
 
-    // ── Crear ────────────────────────────────────────────────
     const create = useCallback(async (payload: CreateRule): Promise<boolean> => {
         try {
             const res = await service.save(payload);
@@ -46,7 +44,6 @@ export function useRules() {
         }
     }, [load]);
 
-    // ── Actualizar ───────────────────────────────────────────
     const update = useCallback(async (id: number, payload: UpdateRule): Promise<boolean> => {
         try {
             const res = await service.update(id, payload);
@@ -62,7 +59,6 @@ export function useRules() {
         }
     }, [load]);
 
-    // ── Eliminar ─────────────────────────────────────────────
     const remove = useCallback(async (id: number): Promise<boolean> => {
         try {
             const res = await service.remove(id);

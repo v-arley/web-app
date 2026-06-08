@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Pencil,
-  Power,
-  PowerOff,
-  Save,
-  X,
-} from "lucide-react";
+import {IdCard, Pencil, Power, PowerOff, Save, X, KeyRound,} from "lucide-react";
+
 import { useUserProfileModal } from "../../hooks/useUserProfileModal";
 import { UserProfileSidebar } from "./UserProfileSidebar";
 import { UserProfileDetailsPanel } from "./UserProfileDetailsPanel";
@@ -38,6 +33,7 @@ type UserDetailModalProps = {
   idCardUrl?: string;
   description?: string;
   conditions?: string;
+  onOpenCredentials?: () => void;
   onToggleActive: () => void;
   onUpdatePersonProfile?: (
     personId: number,
@@ -57,10 +53,6 @@ const professionNameMap: Record<string, string> = {
   "PROF-EXP": "Exploration",
   "PROF-COC": "Cooking",
   "PROF-COOK": "Cooking",
-  "PROF-SEC": "Security",
-  "PROF-COM": "Communication",
-  "PROF-ENG": "Engineering",
-  "PROF-SCI": "Science",
 
   MEDICINA: "Medicine",
   LOGISTICA: "Logistics",
@@ -126,6 +118,7 @@ export function UserProfileModal({
   idCardUrl,
   description = "",
   conditions = "",
+  onOpenCredentials,
   onToggleActive,
   onUpdatePersonProfile,
   onChangeProfession,
@@ -295,35 +288,57 @@ export function UserProfileModal({
         />
 
         <section className="flex min-w-0 flex-1 flex-col">
-          <header className="flex shrink-0 items-center justify-between border-b border-border-default bg-bg-primary px-6 py-5 md:px-8">
+          <header className="flex shrink-0 items-center justify-between border-b border-border-default bg-bg-primary px-7 py-5">
             <div>
               <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-txt-disabled">
-                User Profile
+                Staff Profile
               </p>
 
-              <h2 className="mt-1 text-[28px] font-bold uppercase tracking-[0.08em] text-txt-primary">
-                {name} {lastName}
+              <h2 className="mt-2 text-[30px] font-bold uppercase tracking-[0.16em] text-txt-primary">
+                Person Information
               </h2>
-
-              <p className="mt-2 text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
-                {formatProfessionName(selectedProfession)} / {active ? "Active" : "Inactive"}
-              </p>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close user profile"
-              title="Close user profile"
-              className="flex h-12 w-12 items-center justify-center border border-border-strong text-txt-primary transition-colors hover:border-accent hover:bg-accent hover:text-accent-fg"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-5">
+              {!isEditingProfile ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEditingProfile(true)}
+                  className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.16em] text-txt-primary transition-colors hover:text-accent"
+                >
+                  <Pencil size={15} />
+                  Edit Profile
+                </button>
+              ) : null}
+                <button
+                  type="button"
+                  onClick={onOpenCredentials}
+                  aria-label="Update credentials"
+                  title="Update credentials"
+                  className="flex h-11 items-center justify-center gap-2 border border-accent bg-bg-secondary px-5 text-[13px] font-bold uppercase tracking-[0.13em] text-accent transition-colors hover:bg-accent hover:text-accent-fg"
+                >
+                  <KeyRound size={15} />
+                  Update Credentials
+                </button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close user profile"
+                title="Close user profile"
+                className="text-txt-primary transition-colors hover:text-accent"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </header>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 md:px-8">
+          <div className="min-h-0 flex-1 overflow-y-auto px-7 py-6">
             <UserProfileDetailsPanel
               id={id}
+              name={name}
+              lastName={lastName}
+              role={role}
+              active={active}
               sex={formatSex(sex)}
               registrationDate={formatDate(registrationDate)}
               birthdate={formatDate(birthdate)}
@@ -336,11 +351,9 @@ export function UserProfileModal({
               isTemporary={isTemporary}
               temporaryUntil={temporaryUntil}
               today={today}
-              canOpenIdCard={canOpenIdCard}
               canEditProfile={canEditProfile}
               isEditingProfile={isEditingProfile}
               formatProfessionName={formatProfessionName}
-              onOpenIdCard={handleOpenIdCard}
               onDescriptionChange={setEditedDescription}
               onConditionsChange={setEditedConditions}
               onProfessionChange={setSelectedProfession}
@@ -349,52 +362,53 @@ export function UserProfileModal({
             />
           </div>
 
-          <footer className="grid shrink-0 grid-cols-[1fr_180px] gap-4 border-t border-border-default bg-bg-primary px-6 py-5 md:px-8">
-            {isEditingProfile ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => void handleSaveChanges()}
-                  disabled={!canSaveChanges}
-                  className="flex h-12 items-center justify-center gap-2 border border-accent bg-accent text-[13px] font-bold uppercase tracking-[0.18em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <Save size={15} />
-                  {isSavingChanges ? "Saving..." : "Save Changes"}
-                </button>
+          <footer className="flex shrink-0 items-center justify-between border-t border-border-default bg-bg-primary px-7 py-5">
+            <button
+              type="button"
+              onClick={handleOpenIdCard}
+              disabled={!canOpenIdCard}
+              className="flex h-12 items-center justify-center gap-2 text-[13px] font-bold uppercase tracking-[0.16em] text-txt-primary transition-colors hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <IdCard size={15} />
+              View ID Card
+            </button>
 
+            {isEditingProfile ? (
+              <div className="flex gap-4">
                 <button
                   type="button"
                   onClick={handleCancelEdit}
                   disabled={isSavingChanges}
-                  className="h-12 border border-border-default bg-bg-tertiary text-[13px] font-bold uppercase tracking-[0.18em] text-txt-primary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
+                  className="h-12 border border-border-default bg-bg-tertiary px-8 text-[13px] font-bold uppercase tracking-[0.18em] text-txt-primary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingProfile(true)}
-                  className="flex h-12 items-center justify-center gap-2 border border-accent bg-accent text-[13px] font-bold uppercase tracking-[0.18em] text-accent-fg transition-colors hover:bg-accent-hover"
-                >
-                  <Pencil size={15} />
-                  Edit Profile
                 </button>
 
                 <button
                   type="button"
-                  onClick={handleToggleClick}
-                  className={[
-                    "flex h-12 items-center justify-center gap-2 border text-[13px] font-bold uppercase tracking-[0.18em] transition-colors",
-                    isToggleAnimating ? transitionButtonBackground : defaultButtonBackground,
-                    isTextWhite ? "text-white" : defaultButtonText,
-                  ].join(" ")}
+                  onClick={() => void handleSaveChanges()}
+                  disabled={!canSaveChanges}
+                  className="flex h-12 items-center justify-center gap-2 border border-accent bg-accent px-8 text-[13px] font-bold uppercase tracking-[0.18em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {active ? <PowerOff size={15} /> : <Power size={15} />}
-                  {active ? "Deactivate" : "Activate"}
+                  <Save size={15} />
+                  {isSavingChanges ? "Saving..." : "Save Changes"}
                 </button>
-              </>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleToggleClick}
+                className={[
+                  "flex h-12 items-center justify-center gap-2 px-8 text-[13px] font-bold uppercase tracking-[0.18em] transition-colors",
+                  isToggleAnimating
+                    ? transitionButtonBackground
+                    : defaultButtonBackground,
+                  isTextWhite ? "text-white" : defaultButtonText,
+                ].join(" ")}
+              >
+                {active ? <PowerOff size={15} /> : <Power size={15} />}
+                {active ? "Deactivate Profile" : "Activate Profile"}
+              </button>
             )}
           </footer>
         </section>

@@ -1,14 +1,27 @@
+import { useState } from "react";
 import { AlertTriangle, ClipboardList, Download, FilterX, RefreshCw, Search, UserPlus, Users as UsersIcon,} from "lucide-react";
 
 import { UserCard } from "../components/UsersComponents/UserCard";
 import { UserProfileModal } from "../components/UsersComponents/UserProfileModal";
 import { AdmissionRequestsPanel } from "../components/UsersComponents/AdmissionRequestsPanel";
+import { UserCredentialsModal } from "../components/UsersComponents/UserCredentialsModal";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { useUsersView } from "../hooks/useUsersView";
 import { useToast } from "../hooks/useToast";
+import { UserService } from "../../services/UserService";
+
+type SelectedCredentials = {
+  userId?: number;
+  username?: string;
+};
+
+const userService = new UserService();
 
 export function UsersView() {
   const { toast } = useToast();
+
+  const [selectedCredentials, setSelectedCredentials] =
+    useState<SelectedCredentials | null>(null);
 
   const {
     displayedUsers,
@@ -56,6 +69,16 @@ export function UsersView() {
     totalFilteredUsers,
   } = useUsersView();
 
+  const getUserAccessibleName = (user: any) => {
+    const fullName =
+      user.fullName ??
+      user.name ??
+      [user.firstName, user.lastName].filter(Boolean).join(" ") ??
+      [user.names, user.surnames].filter(Boolean).join(" ");
+
+    return fullName?.trim() || user.dni || "selected user";
+  };
+
   const handleRefresh = async () => {
     try {
       await loadUsers();
@@ -68,7 +91,8 @@ export function UsersView() {
       toast({
         tone: "error",
         title: "Refresh failed",
-        message: err instanceof Error ? err.message : "Users could not be loaded.",
+        message:
+          err instanceof Error ? err.message : "Users could not be loaded.",
       });
     }
   };
@@ -85,7 +109,8 @@ export function UsersView() {
       toast({
         tone: "error",
         title: "Export failed",
-        message: err instanceof Error ? err.message : "Users could not be exported.",
+        message:
+          err instanceof Error ? err.message : "Users could not be exported.",
       });
     }
   };
@@ -102,7 +127,10 @@ export function UsersView() {
       toast({
         tone: "error",
         title: "Update failed",
-        message: err instanceof Error ? err.message : "User status could not be updated.",
+        message:
+          err instanceof Error
+            ? err.message
+            : "User status could not be updated.",
       });
     }
   };
@@ -124,7 +152,10 @@ export function UsersView() {
       toast({
         tone: "error",
         title: "Update failed",
-        message: err instanceof Error ? err.message : "Profession could not be updated.",
+        message:
+          err instanceof Error
+            ? err.message
+            : "Profession could not be updated.",
       });
     }
   };
@@ -148,7 +179,50 @@ export function UsersView() {
       toast({
         tone: "error",
         title: "Update failed",
-        message: err instanceof Error ? err.message : "Profile could not be updated.",
+        message:
+          err instanceof Error ? err.message : "Profile could not be updated.",
+      });
+    }
+  };
+
+  const handleUpdateCredentials = async (newPassword: string) => {
+    if (!selectedCredentials?.userId) {
+      toast({
+        tone: "error",
+        title: "Update failed",
+        message: "Selected user could not be identified.",
+      });
+      return;
+    }
+
+    try {
+      const response = await userService.update(selectedCredentials.userId, {
+        password: newPassword,
+      } as any);
+
+      if (!response.getEstado()) {
+        toast({
+          tone: "error",
+          title: "Update failed",
+          message: response.getMensaje() || "Password could not be updated.",
+        });
+        return;
+      }
+
+      toast({
+        tone: "success",
+        title: "Password updated",
+        message: "User password updated successfully.",
+      });
+
+      setSelectedCredentials(null);
+      await loadUsers();
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Update failed",
+        message:
+          err instanceof Error ? err.message : "Password could not be updated.",
       });
     }
   };
@@ -170,16 +244,6 @@ export function UsersView() {
       </div>
     );
   }
-
-  const getUserAccessibleName = (user: any) => {
-    const fullName =
-      user.fullName ??
-      user.name ??
-      [user.firstName, user.lastName].filter(Boolean).join(" ") ??
-      [user.names, user.surnames].filter(Boolean).join(" ");
-
-    return fullName?.trim() || user.dni || "selected user";
-  };
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col bg-bg-app">
@@ -274,71 +338,72 @@ export function UsersView() {
         </div>
       </div>
 
-     <div className="shrink-0 border-b border-border-default bg-bg-primary px-6 py-4">
-  <div className="space-y-3">
-    <div className="relative">
-      <Search
-        size={16}
-        className="absolute left-4 top-1/2 -translate-y-1/2 text-txt-disabled"
-      />
+      <div className="shrink-0 border-b border-border-default bg-bg-primary px-6 py-4">
+        <div className="space-y-3">
+          <div className="relative">
+            <Search
+              size={16}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-txt-disabled"
+            />
 
-      <input
-        value={searchQuery}
-        onChange={(event) => setSearchQuery(event.target.value)}
-        placeholder="Search by name, DNI, role or profession..."
-        className="h-12 w-full border border-border-default bg-bg-tertiary pl-11 pr-4 text-[12px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none placeholder:text-txt-disabled focus:border-accent"
-      />
-    </div>
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search by name, DNI, role or profession..."
+              className="h-12 w-full border border-border-default bg-bg-tertiary pl-11 pr-4 text-[12px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none placeholder:text-txt-disabled focus:border-accent"
+            />
+          </div>
 
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1.1fr_1fr_1fr_auto]">
-      <select
-        aria-label="Filter users by status"
-        value={statusFilter}
-        onChange={(event) => setStatusFilter(event.target.value as any)}
-        className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
-      >
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-        <option value="all">All</option>
-        </select>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1.1fr_1fr_1fr_auto]">
+            <select
+              aria-label="Filter users by status"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as any)}
+              className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="all">All</option>
+            </select>
 
-          <select
-            aria-label="Filter users by profession"
-            value={professionFilter}
-            onChange={(event) => setProfessionFilter(event.target.value)}
-            className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
-          >
-            <option value="all">All professions</option>
-            {professionOptions.map((profession) => (
-              <option key={profession} value={profession}>
-                {profession}
-              </option>
-            ))}
-          </select>
+            <select
+              aria-label="Filter users by profession"
+              value={professionFilter}
+              onChange={(event) => setProfessionFilter(event.target.value)}
+              className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+            >
+              <option value="all">All professions</option>
+              {professionOptions.map((profession) => (
+                <option key={profession} value={profession}>
+                  {profession}
+                </option>
+              ))}
+            </select>
 
-          <select
-            aria-label="Filter users by health condition"
-            value={healthFilter}
-            onChange={(event) => setHealthFilter(event.target.value as any)}
-            className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
-          >
-            <option value="all">All health</option>
-            <option value="healthy">Healthy</option>
-            <option value="has-condition">Has condition</option>
-          </select>
+            <select
+              aria-label="Filter users by health condition"
+              value={healthFilter}
+              onChange={(event) => setHealthFilter(event.target.value as any)}
+              className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+            >
+              <option value="all">All health</option>
+              <option value="healthy">Healthy</option>
+              <option value="has-condition">Has condition</option>
+            </select>
 
-          <select
-            aria-label="Filter users by age"
-            value={ageFilter}
-            onChange={(event) => setAgeFilter(event.target.value as any)}
-            className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
-          >
-            <option value="all">All ages</option>
-            <option value="under-18">Under 18</option>
-            <option value="18-30">18 - 30</option>
-            <option value="31-50">31 - 50</option>
-            <option value="51-plus">51+</option>
-          </select>
+            <select
+              aria-label="Filter users by age"
+              value={ageFilter}
+              onChange={(event) => setAgeFilter(event.target.value as any)}
+              className="h-10 border border-border-default bg-bg-tertiary px-3 text-[11px] font-bold uppercase tracking-[0.08em] text-txt-primary outline-none focus:border-accent"
+            >
+              <option value="all">All ages</option>
+              <option value="under-18">Under 18</option>
+              <option value="18-30">18 - 30</option>
+              <option value="31-50">31 - 50</option>
+              <option value="51-plus">51+</option>
+            </select>
+
             <button
               type="button"
               onClick={resetFilters}
@@ -349,7 +414,8 @@ export function UsersView() {
             </button>
           </div>
         </div>
-    </div>
+      </div>
+
       {error ? (
         <div className="mx-6 mt-4 flex shrink-0 items-center gap-2 border border-status-critical bg-status-critical/10 px-4 py-3 text-[12px] font-bold uppercase tracking-[0.12em] text-status-critical">
           <AlertTriangle size={16} />
@@ -368,7 +434,7 @@ export function UsersView() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {displayedUsers.map((user) => (
+           {displayedUsers.map((user) => (
             <button
               key={`${user.userId ?? "u"}-${user.personId ?? user.dni}`}
               type="button"
@@ -377,25 +443,25 @@ export function UsersView() {
               onClick={() => setSelectedUser(user)}
               className="text-left"
             >
-                <UserCard
-                  name={user.name}
-                  lastName={user.lastName}
-                  role={user.role}
-                  id={user.dni || user.id}
-                  active={user.active}
-                  profession={user.profession}
-                  temporaryProfession={user.temporaryProfession}
-                  temporaryUntil={user.temporaryUntil}
-                  imageUrl={user.imageUrl}
-                />
-              </button>
-            ))}
+              <UserCard
+                name={user.name}
+                lastName={user.lastName}
+                role={user.role}
+                id={user.dni || user.id}
+                active={user.active}
+                profession={user.profession}
+                temporaryProfession={user.temporaryProfession}
+                temporaryUntil={user.temporaryUntil}
+                imageUrl={user.imageUrl}
+              />
+            </button>
+          ))}
           </div>
         )}
       </div>
 
       {selectedUser ? (
-        <UserProfileModal
+       <UserProfileModal
           name={selectedUser.name}
           lastName={selectedUser.lastName}
           role={selectedUser.role}
@@ -411,10 +477,32 @@ export function UsersView() {
           idCardUrl={selectedUser.idCardUrl}
           description={selectedUser.description}
           conditions={selectedUser.conditions}
+          onOpenCredentials={() =>
+            setSelectedCredentials({
+              userId: selectedUser.userId ?? selectedUser.idUser,
+              username: selectedUser.username ?? selectedUser.dni ?? selectedUser.id,
+            })
+          }
           onToggleActive={handleToggleActiveWithToast}
           onChangeProfession={handleChangeProfessionWithToast}
           onUpdatePersonProfile={handleUpdateProfileWithToast}
           onClose={() => setSelectedUser(null)}
+        />
+      ) : null}
+
+      {selectedCredentials ? (
+        <UserCredentialsModal
+          username={selectedCredentials.username}
+          onClose={() => setSelectedCredentials(null)}
+          onSubmit={handleUpdateCredentials}
+        />
+      ) : null}
+
+      {selectedCredentials ? (
+        <UserCredentialsModal
+          username={selectedCredentials.username}
+          onClose={() => setSelectedCredentials(null)}
+          onSubmit={handleUpdateCredentials}
         />
       ) : null}
 
