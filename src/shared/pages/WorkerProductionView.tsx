@@ -281,10 +281,10 @@ export function WorkerProductionView() {
                         setSelectedRuleIndex(index);
                         setAmountValue("");
                       }}
-                      className={`text-left border p-3 transition-colors font-mono min-w-0 ${
+                      className={`text-left border-2 p-3 transition-all font-mono min-w-0 ${
                         selected
-                          ? "border-[#E85D04] bg-[#E85D04]/10 text-white"
-                          : "border-[#3a3a3a] bg-[#111111] text-[#C0C0C0] hover:border-[#38BDF8]/70"
+                          ? "border-[#E85D04] bg-[#E85D04]/10 text-white shadow-[inset_0_0_0_1px_rgba(232,93,4,0.35)] hover:shadow-[inset_0_0_0_1px_rgba(232,93,4,0.45),0_0_16px_rgba(232,93,4,0.35)]"
+                          : "border-[#38BDF8] bg-[#111111] text-[#C0C0C0] shadow-[inset_0_0_0_1px_rgba(56,189,248,0.25)] hover:shadow-[inset_0_0_0_1px_rgba(56,189,248,0.35),0_0_16px_rgba(56,189,248,0.35)]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -453,7 +453,7 @@ export function WorkerProductionView() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="min-w-0">
                     <label className="text-[#C0C0C0] block mb-1 uppercase font-bold">
-                      Amount produced
+                      Amount produced <span className="text-[#EF4444]">*</span>
                     </label>
 
                     <div className="relative">
