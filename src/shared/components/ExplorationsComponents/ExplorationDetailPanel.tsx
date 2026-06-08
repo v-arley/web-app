@@ -1,11 +1,18 @@
-import { BadgeAlert, Pencil, ShieldCheck, Boxes, Play, Flag, Ban, } from "lucide-react";
+import {
+    BadgeAlert,
+    Ban,
+    Boxes,
+    Flag,
+    Pencil,
+    Play,
+    ShieldCheck,
+    UsersRound,
+} from "lucide-react";
 
 import type { ExplorationRow } from "./explorationHelpers";
 import {
     getCampLabel,
     getDuration,
-    getRiskLabel,
-    getStateLabel,
 } from "./explorationHelpers";
 
 type Props = {
@@ -19,10 +26,26 @@ type Props = {
     ) => void;
 };
 
-const detailCardClass = "bg-white/5 px-4 py-3";
+const detailCardClass =
+    "border border-[#3a3a3a] bg-[#111111] p-4 transition-colors hover:border-[#E85D04]/50";
 
 const detailLabelClass =
-    "text-[10px] uppercase tracking-[0.25em] text-[#9CA3AF]";
+    "text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]";
+
+function getEnglishStateLabel(state?: ExplorationRow["state"]) {
+    if (state === "P") return "Pending";
+    if (state === "A") return "Active";
+    if (state === "F") return "Finished";
+    if (state === "C") return "Cancelled";
+    return "Unknown";
+}
+
+function getEnglishRiskLabel(risk?: ExplorationRow["risk_level"]) {
+    if (risk === "L") return "Low";
+    if (risk === "M") return "Medium";
+    if (risk === "H") return "High";
+    return "Unknown";
+}
 
 export default function ExplorationDetailPanel({
     selectedExploration,
@@ -34,30 +57,38 @@ export default function ExplorationDetailPanel({
     const hasSelectedExploration = Boolean(selectedExploration);
     const canStart = selectedExploration?.state === "P";
     const canFinish = selectedExploration?.state === "A";
-    const canCancel = selectedExploration?.state === "P" || selectedExploration?.state === "A";
+    const canCancel =
+        selectedExploration?.state === "P" ||
+        selectedExploration?.state === "A";
     const canEdit = selectedExploration?.state === "P";
 
     return (
         <aside className="w-full xl:max-w-[360px] xl:self-start">
-            <div className="flex h-[calc(100vh-270px)] min-h-[460px] flex-col overflow-hidden rounded-xl bg-[#232323] text-white shadow-[0_0_18px_rgba(0,0,0,0.35)]">
-                <div className="shrink-0 border-b border-white/10 p-5">
-                    
-
+            <section className="flex h-[calc(100vh-270px)] min-h-[460px] flex-col overflow-hidden border border-[#3a3a3a] bg-[#1a1a1a] text-white shadow-[0_0_18px_rgba(0,0,0,0.35)]">
+                <div className="shrink-0 border-b border-[#3a3a3a] bg-[#242424] p-5">
                     <div className="flex items-start gap-3">
-                        <BadgeAlert className="mt-1 shrink-0 text-[#FF6600]" />
+                        <div className="border border-[#E85D04]/60 bg-[#E85D04]/10 p-2 text-[#E85D04]">
+                            <BadgeAlert size={18} />
+                        </div>
 
                         <div className="min-w-0 flex-1">
-                            <p className={detailLabelClass}>Exploration detail</p>
-                            <h3 className="mt-1 break-words text-2xl leading-tight">
-                                {selectedExploration?.name ?? "----"}
+                            <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04]">
+                                Exploration detail
+                            </p>
+
+                            <h3 className="mt-2 break-words text-2xl font-mono font-black uppercase leading-tight tracking-wide text-white">
+                                {selectedExploration?.name ?? "No exploration"}
                             </h3>
+
+                            <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                                Field record / assignment / status control
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+                <div className="min-h-0 flex-1 overflow-y-auto p-5">
                     <div className="space-y-4 text-sm">
-
                         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                             <button
                                 type="button"
@@ -67,47 +98,51 @@ export default function ExplorationDetailPanel({
                                         onEditExploration(selectedExploration);
                                     }
                                 }}
-                                className="flex items-center justify-center gap-2 border border-[#FF6600] bg-[#FF6600] px-3 py-3 text-xs uppercase tracking-[0.18em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600] disabled:cursor-not-allowed disabled:border-[#555] disabled:bg-[#555] disabled:text-[#999]"
+                                className="flex items-center justify-center gap-2 border border-[#E85D04] bg-[#E85D04] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-[#FF6A10] disabled:cursor-not-allowed disabled:border-[#3a3a3a] disabled:bg-[#2a2a2a] disabled:text-[#6B7280]"
                             >
                                 <Pencil size={14} />
-                                Editar
+                                Edit
                             </button>
 
                             <button
                                 type="button"
                                 disabled={!hasSelectedExploration}
                                 onClick={onManagePeople}
-                                className="flex items-center justify-center gap-2 border border-[#FF6600] px-3 py-3 text-xs uppercase tracking-[0.18em] text-[#FF6600] transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:border-[#555] disabled:text-[#777]"
+                                className="flex items-center justify-center gap-2 border border-[#E85D04]/70 px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04] transition-colors hover:bg-[#E85D04] hover:text-[#111111] disabled:cursor-not-allowed disabled:border-[#3a3a3a] disabled:text-[#6B7280]"
                             >
-                                Personas
+                                <UsersRound size={14} />
+                                People
                             </button>
 
                             <button
                                 type="button"
                                 disabled={!hasSelectedExploration}
                                 onClick={onManageResources}
-                                className="flex items-center justify-center gap-2 border border-[#FF6600] px-3 py-3 text-xs uppercase tracking-[0.18em] text-[#FF6600] transition-colors hover:bg-[#FF6600] hover:text-black disabled:cursor-not-allowed disabled:border-[#555] disabled:text-[#777]"
+                                className="flex items-center justify-center gap-2 border border-[#E85D04]/70 px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04] transition-colors hover:bg-[#E85D04] hover:text-[#111111] disabled:cursor-not-allowed disabled:border-[#3a3a3a] disabled:text-[#6B7280]"
                             >
                                 <Boxes size={14} />
-                                Recursos
+                                Resources
                             </button>
                         </div>
 
                         {(canStart || canFinish || canCancel) && (
-                            <div className="grid grid-cols-1 gap-2 border-t border-white/10 pt-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-2 border-t border-[#3a3a3a] pt-4 sm:grid-cols-2">
                                 {canStart && (
                                     <button
                                         type="button"
                                         disabled={!selectedExploration}
                                         onClick={() => {
                                             if (selectedExploration) {
-                                                onChangeExplorationState(selectedExploration, "A");
+                                                onChangeExplorationState(
+                                                    selectedExploration,
+                                                    "A",
+                                                );
                                             }
                                         }}
-                                        className="flex items-center justify-center gap-2 border border-green-500 bg-green-500 px-3 py-3 text-xs uppercase tracking-[0.18em] text-black transition-colors hover:bg-transparent hover:text-green-400 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="flex items-center justify-center gap-2 border border-[#22C55E] bg-[#22C55E] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-transparent hover:text-[#22C55E] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <Play size={14} />
-                                        Iniciar
+                                        Start
                                     </button>
                                 )}
 
@@ -117,13 +152,16 @@ export default function ExplorationDetailPanel({
                                         disabled={!selectedExploration}
                                         onClick={() => {
                                             if (selectedExploration) {
-                                                onChangeExplorationState(selectedExploration, "F");
+                                                onChangeExplorationState(
+                                                    selectedExploration,
+                                                    "F",
+                                                );
                                             }
                                         }}
-                                        className="flex items-center justify-center gap-2 border border-blue-500 bg-blue-500 px-3 py-3 text-xs uppercase tracking-[0.18em] text-black transition-colors hover:bg-transparent hover:text-blue-400 disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="flex items-center justify-center gap-2 border border-[#38BDF8] bg-[#38BDF8] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-transparent hover:text-[#38BDF8] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <Flag size={14} />
-                                        Finalizar
+                                        Finish
                                     </button>
                                 )}
 
@@ -133,13 +171,16 @@ export default function ExplorationDetailPanel({
                                         disabled={!selectedExploration}
                                         onClick={() => {
                                             if (selectedExploration) {
-                                                onChangeExplorationState(selectedExploration, "C");
+                                                onChangeExplorationState(
+                                                    selectedExploration,
+                                                    "C",
+                                                );
                                             }
                                         }}
-                                        className="flex items-center justify-center gap-2 border border-red-500 px-3 py-3 text-xs uppercase tracking-[0.18em] text-red-400 transition-colors hover:bg-red-500 hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="flex items-center justify-center gap-2 border border-red-500 px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-red-400 transition-colors hover:bg-red-500 hover:text-[#111111] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <Ban size={14} />
-                                        Cancelar
+                                        Cancel
                                     </button>
                                 )}
                             </div>
@@ -147,65 +188,72 @@ export default function ExplorationDetailPanel({
 
                         <div className={detailCardClass}>
                             <p className={detailLabelClass}>Objective</p>
-                            <p className="mt-2 whitespace-pre-wrap break-words text-white">
-                                {selectedExploration?.objective || "Sin objetivo"}
+                            <p className="mt-2 whitespace-pre-wrap break-words font-mono text-[13px] leading-relaxed text-[#C0C0C0]">
+                                {selectedExploration?.objective ||
+                                    "No objective registered."}
                             </p>
                         </div>
 
                         <div className={detailCardClass}>
                             <p className={detailLabelClass}>Notes</p>
-                            <p className="mt-2 whitespace-pre-wrap break-words text-white">
-                                {selectedExploration?.notes || "Sin notas"}
+                            <p className="mt-2 whitespace-pre-wrap break-words font-mono text-[13px] leading-relaxed text-[#C0C0C0]">
+                                {selectedExploration?.notes ||
+                                    "No notes registered."}
                             </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className={detailCardClass}>
                                 <p className={detailLabelClass}>Risk</p>
-                                <p className="mt-2 text-lg">
-                                    {getRiskLabel(selectedExploration?.risk_level)}
+                                <p className="mt-2 font-mono text-lg font-bold text-[#FACC15]">
+                                    {getEnglishRiskLabel(
+                                        selectedExploration?.risk_level,
+                                    )}
                                 </p>
                             </div>
 
                             <div className={detailCardClass}>
-                                <p className={detailLabelClass}>State</p>
-                                <p className="mt-2 text-lg">
-                                    {getStateLabel(selectedExploration?.state)}
+                                <p className={detailLabelClass}>Status</p>
+                                <p className="mt-2 font-mono text-lg font-bold text-[#38BDF8]">
+                                    {getEnglishStateLabel(
+                                        selectedExploration?.state,
+                                    )}
                                 </p>
                             </div>
                         </div>
 
                         <div className={detailCardClass}>
                             <p className={detailLabelClass}>Departure / Return</p>
-                            <p className="mt-2">
-                                {selectedExploration?.departure_date || "--"}
+                            <p className="mt-2 font-mono text-[13px] text-white">
+                                {selectedExploration?.departure_date || "N/A"}
                             </p>
-                            <p className="text-[#bdbdbd]">
-                                {selectedExploration?.estimated_return_date || "--"}
+                            <p className="font-mono text-[13px] text-[#9CA3AF]">
+                                {selectedExploration?.estimated_return_date ||
+                                    "N/A"}
                             </p>
                         </div>
 
                         <div className={detailCardClass}>
                             <p className={detailLabelClass}>Duration</p>
-                            <p className="mt-2">
+                            <p className="mt-2 font-mono text-[13px] text-white">
                                 {getDuration(selectedExploration?.duration_days)}
                             </p>
                         </div>
 
                         <div className={detailCardClass}>
                             <p className={detailLabelClass}>Camp</p>
-                            <p className="mt-2">
+                            <p className="mt-2 font-mono text-[13px] text-white">
                                 {getCampLabel(selectedExploration?.camp_id)}
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-2 border-t border-white/10 pt-4 text-[11px] uppercase tracking-[0.25em] text-[#9CA3AF]">
-                            <ShieldCheck className="h-4 w-4 shrink-0 text-green-400" />
+                        <div className="flex items-center gap-2 border-t border-[#3a3a3a] pt-4 text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]">
+                            <ShieldCheck className="h-4 w-4 shrink-0 text-[#22C55E]" />
                             <span>Exploration record available</span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </aside>
     );
 }

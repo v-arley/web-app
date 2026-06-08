@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { RefreshCw } from "lucide-react";
 
 import ExplorationStats from "../components/ExplorationsComponents/ExplorationStats";
 import ExplorationFilters from "../components/ExplorationsComponents/ExplorationFilters";
@@ -185,7 +186,7 @@ export function ExplorationsView() {
             return false;
         }
 
-        setSuccessMessage("Exploración creada correctamente.");
+        setSuccessMessage("Exploration created successfully.");
         setShowCreateForm(false);
         await loadExplorations();
         setSaving(false);
@@ -195,7 +196,7 @@ export function ExplorationsView() {
 
     const handleUpdateExploration = async (payload: CreateExploration) => {
         if (!editingExploration?.id) {
-            setErrorMessage("No se encontró la exploración seleccionada.");
+            setErrorMessage("The selected exploration was not found.");
             return false;
         }
 
@@ -215,7 +216,7 @@ export function ExplorationsView() {
             return false;
         }
 
-        setSuccessMessage("Exploración actualizada correctamente.");
+        setSuccessMessage("Exploration updated successfully.");
         setEditingExploration(null);
         await loadExplorations();
         setSaving(false);
@@ -245,9 +246,9 @@ export function ExplorationsView() {
         }
 
         const messageByState = {
-            A: "Exploración iniciada correctamente.",
-            F: "Exploración finalizada correctamente.",
-            C: "Exploración cancelada correctamente.",
+            A: "Exploration started successfully.",
+            F: "Exploration finished successfully.",
+            C: "Exploration cancelled successfully.",
         };
 
         setSuccessMessage(messageByState[newState]);
@@ -301,321 +302,345 @@ export function ExplorationsView() {
     ).length;
 
     return (
-        <div className="h-full overflow-y-auto pb-24 flex flex-col gap-6 p-4 font-mono sm:gap-7 sm:p-6 lg:p-[30px]">
-            <ExplorationStats
-                totalExplorations={explorations.length}
-                activeCount={activeCount}
-                highRiskCount={highRiskCount}
-            />
+        <div className="w-full h-full flex flex-col bg-[#111111] overflow-hidden font-mono">
+            <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-6 py-3 flex items-center justify-between shrink-0">
+                <div className="flex flex-col">
+                    <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label">
+                        Exploration control
+                    </span>
+                    <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label">
+                        Expeditions / target resources / supply return
+                    </span>
+                </div>
 
-            <div className="flex flex-col gap-6 xl:flex-row">
-                <section className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-4">
-                        <ExplorationFilters
-                            search={search}
-                            riskFilter={riskFilter}
-                            stateFilter={stateFilter}
-                            onSearchChange={(value) => {
-                                setSearch(value);
-                                setCurrentPage(1);
-                            }}
-                            onRiskFilterChange={(value) => {
-                                setRiskFilter(value);
-                                setCurrentPage(1);
-                            }}
-                            onStateFilterChange={(value) => {
-                                setStateFilter(value);
-                                setCurrentPage(1);
-                            }}
-                            onCreateClick={() => {
+                <button
+                    type="button"
+                    onClick={() => void loadExplorations()}
+                    className="flex items-center gap-2 text-[11px] font-mono text-[#6B7280] hover:text-[#E85D04] uppercase tracking-label transition-colors"
+                >
+                    <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
+                    {loading ? "Loading..." : "Refresh"}
+                </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="p-4 flex flex-col gap-4">
+                    <ExplorationStats
+                        totalExplorations={explorations.length}
+                        activeCount={activeCount}
+                        highRiskCount={highRiskCount}
+                    />
+
+                    <div className="flex flex-col gap-4 xl:flex-row">
+                        <section className="min-w-0 flex-1">
+                            <div className="flex flex-col gap-4">
+                                <ExplorationFilters
+                                    search={search}
+                                    riskFilter={riskFilter}
+                                    stateFilter={stateFilter}
+                                    onSearchChange={(value) => {
+                                        setSearch(value);
+                                        setCurrentPage(1);
+                                    }}
+                                    onRiskFilterChange={(value) => {
+                                        setRiskFilter(value);
+                                        setCurrentPage(1);
+                                    }}
+                                    onStateFilterChange={(value) => {
+                                        setStateFilter(value);
+                                        setCurrentPage(1);
+                                    }}
+                                    onCreateClick={() => {
+                                        setSuccessMessage("");
+                                        setErrorMessage("");
+                                        setFormValidationMessage("");
+                                        setShowCreateForm(true);
+                                    }}
+                                />
+
+                                {showCreateForm && (
+                                    <ExplorationForm
+                                        mode="create"
+                                        campId={currentCampId}
+                                        saving={saving}
+                                        onCancel={() => setShowCreateForm(false)}
+                                        onSubmit={handleCreateExploration}
+                                    />
+                                )}
+
+                                {editingExploration && (
+                                    <ExplorationForm
+                                        mode="edit"
+                                        campId={editingExploration.camp_id ?? currentCampId}
+                                        saving={saving}
+                                        initialData={editingExploration}
+                                        onCancel={() => setEditingExploration(null)}
+                                        onSubmit={handleUpdateExploration}
+                                    />
+                                )}
+
+                                {showPeoplePanel && (
+                                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 py-6">
+                                        <div className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#FF6600]/40 bg-[#232323] p-5 shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                            <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4 text-white">
+                                                <div>
+                                                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#9CA3AF]">
+                                                        People management
+                                                    </p>
+                                                    <h3 className="mt-1 text-2xl">
+                                                        {selectedExploration?.name ?? "Exploration"}
+                                                    </h3>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPeoplePanel(false)}
+                                                    className="rounded-lg border border-white/10 px-4 py-2 text-sm uppercase tracking-[0.2em] text-[#9CA3AF] transition-colors hover:border-[#FF6600] hover:text-[#FF6600]"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+
+                                            <ExplorationPeoplePanel
+                                                selectedExploration={selectedExploration}
+                                                campId={currentCampId}
+                                                onChanged={loadExplorations}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {showResourcesPanel && (
+                                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 py-6">
+                                        <div className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#FF6600]/40 bg-[#232323] p-5 shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                            <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4 text-white">
+                                                <div>
+                                                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#9CA3AF]">
+                                                        Resource management
+                                                    </p>
+                                                    <h3 className="mt-1 text-2xl">
+                                                        {selectedExploration?.name ?? "Exploration"}
+                                                    </h3>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowResourcesPanel(false)}
+                                                    className="rounded-lg border border-white/10 px-4 py-2 text-sm uppercase tracking-[0.2em] text-[#9CA3AF] transition-colors hover:border-[#FF6600] hover:text-[#FF6600]"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+
+                                            <ExplorationResourcesPanel
+                                                selectedExploration={selectedExploration}
+                                                onChanged={loadExplorations}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {stateAction && (
+                                    <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 px-4">
+                                        <div className="w-full max-w-md rounded-xl border border-[#FF6600]/40 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                            <p className="text-[10px] uppercase tracking-[0.25em] text-[#FF6600]">
+                                                Confirm action
+                                            </p>
+
+                                            <h3 className="mt-2 text-xl font-bold">
+                                                {stateAction.newState === "A" && "Start exploration"}
+                                                {stateAction.newState === "F" && "Finish exploration"}
+                                                {stateAction.newState === "C" && "Cancel exploration"}
+                                            </h3>
+
+                                            <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
+                                                Do you want to change the status of exploration{" "}
+                                                <span className="font-bold text-white">
+                                                    {stateAction.exploration.name}
+                                                </span>
+                                                ?
+                                            </p>
+
+                                            <div className="mt-6 flex justify-end gap-3">
+                                                <button
+                                                    type="button"
+                                                    disabled={saving}
+                                                    onClick={() => setStateAction(null)}
+                                                    className="border border-[#555] px-4 py-3 text-sm uppercase tracking-[0.2em] text-[#ccc] transition-colors hover:border-white hover:text-white disabled:opacity-60"
+                                                >
+                                                    Cancel
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    disabled={saving}
+                                                    onClick={handleChangeExplorationState}
+                                                    className="border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600] disabled:opacity-60"
+                                                >
+                                                    {saving ? "Processing..." : "Confirm"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {successMessage && (
+                                    <div className="border border-[#22C55E]/50 bg-[#22C55E]/10 px-4 py-3 font-mono text-xs uppercase tracking-label text-[#22C55E]">
+                                        {successMessage}
+                                    </div>
+                                )}
+
+                                {loading && (
+                                    <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-6 font-mono text-xs uppercase tracking-label text-[#6B7280]">
+                                        Loading explorations...
+                                    </div>
+                                )}
+
+                                {!loading && errorMessage && (
+                                    <div className="border border-[#E85D04] bg-[#E85D04]/10 px-4 py-3 font-mono text-xs uppercase tracking-label text-[#E85D04]">
+                                        {errorMessage}
+                                    </div>
+                                )}
+
+                                {!loading && !errorMessage && (
+                                    <ExplorationsTable
+                                        explorations={paginatedExplorations}
+                                        selectedExploration={selectedExploration}
+                                        onSelectExploration={setSelectedExploration}
+                                        currentPage={safeCurrentPage}
+                                        totalPages={totalPages}
+                                        totalItems={filteredExplorations.length}
+                                        onPageChange={setCurrentPage}
+                                    />
+                                )}
+
+                                {startValidationMessage && (
+                                    <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/70 px-4">
+                                        <div className="w-full max-w-md rounded-xl border border-[#FF6600]/50 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                            <p className="text-[10px] uppercase tracking-[0.25em] text-[#FF6600]">
+                                                Exploration validation
+                                            </p>
+
+                                            <h3 className="mt-2 text-xl font-bold">
+                                                Cannot start exploration
+                                            </h3>
+
+                                            <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
+                                                {startValidationMessage}
+                                            </p>
+
+                                            <div className="mt-6 flex justify-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setStartValidationMessage("")}
+                                                    className="border border-[#FF6600] bg-[#FF6600] px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600]"
+                                                >
+                                                    Understood
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {formValidationMessage && (
+                                    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/70 px-4">
+                                        <div className="w-full max-w-md rounded-xl border border-red-500/50 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                                            <p className="text-[10px] uppercase tracking-[0.25em] text-red-400">
+                                                Exploration validation
+                                            </p>
+
+                                            <h3 className="mt-2 text-xl font-bold">
+                                                Could not save
+                                            </h3>
+
+                                            <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
+                                                {formValidationMessage}
+                                            </p>
+
+                                            <div className="mt-6 flex justify-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormValidationMessage("")}
+                                                    className="border border-red-500 bg-red-500 px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-red-400"
+                                                >
+                                                    Understood
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        <ExplorationDetailPanel
+                            selectedExploration={selectedExploration}
+                            onEditExploration={(exploration) => {
                                 setSuccessMessage("");
                                 setErrorMessage("");
                                 setFormValidationMessage("");
-                                setShowCreateForm(true);
+                                setShowCreateForm(false);
+                                setShowPeoplePanel(false);
+                                setShowResourcesPanel(false);
+                                setEditingExploration(exploration);
+                            }}
+                            onManagePeople={() => {
+                                setSuccessMessage("");
+                                setErrorMessage("");
+                                setShowCreateForm(false);
+                                setEditingExploration(null);
+                                setShowResourcesPanel(false);
+                                setShowPeoplePanel(true);
+                            }}
+                            onManageResources={() => {
+                                setSuccessMessage("");
+                                setErrorMessage("");
+                                setShowCreateForm(false);
+                                setEditingExploration(null);
+                                setShowPeoplePanel(false);
+                                setShowResourcesPanel(true);
+                            }}
+                            onChangeExplorationState={(exploration, newState) => {
+                                setSuccessMessage("");
+                                setErrorMessage("");
+                                setShowCreateForm(false);
+                                setEditingExploration(null);
+                                setShowPeoplePanel(false);
+                                setShowResourcesPanel(false);
+
+                                if (newState === "A") {
+                                    const peopleCount = exploration.people_count ?? 0;
+                                    const resourceCount = exploration.resource_count ?? 0;
+
+                                    if (peopleCount === 0 && resourceCount === 0) {
+                                        setStartValidationMessage(
+                                            "This exploration cannot be started because it has no assigned people or target resources.",
+                                        );
+                                        return;
+                                    }
+
+                                    if (peopleCount === 0) {
+                                        setStartValidationMessage(
+                                            "This exploration cannot be started because it has no assigned people.",
+                                        );
+                                        return;
+                                    }
+
+                                    if (resourceCount === 0) {
+                                        setStartValidationMessage(
+                                            "This exploration cannot be started because it has no assigned target resources.",
+                                        );
+                                        return;
+                                    }
+                                }
+
+                                setStateAction({
+                                    exploration,
+                                    newState,
+                                });
                             }}
                         />
-
-                        {showCreateForm && (
-                            <ExplorationForm
-                                mode="create"
-                                campId={currentCampId}
-                                saving={saving}
-                                onCancel={() => setShowCreateForm(false)}
-                                onSubmit={handleCreateExploration}
-                            />
-                        )}
-
-                        {editingExploration && (
-                            <ExplorationForm
-                                mode="edit"
-                                campId={editingExploration.camp_id ?? currentCampId}
-                                saving={saving}
-                                initialData={editingExploration}
-                                onCancel={() => setEditingExploration(null)}
-                                onSubmit={handleUpdateExploration}
-                            />
-                        )}
-
-                        {showPeoplePanel && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 py-6">
-                                <div className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#FF6600]/40 bg-[#232323] p-5 shadow-[0_0_30px_rgba(0,0,0,0.65)]">
-                                    <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4 text-white">
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-[0.25em] text-[#9CA3AF]">
-                                                Gestión de personal
-                                            </p>
-                                            <h3 className="mt-1 text-2xl">
-                                                {selectedExploration?.name ?? "Exploración"}
-                                            </h3>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPeoplePanel(false)}
-                                            className="rounded-lg border border-white/10 px-4 py-2 text-sm uppercase tracking-[0.2em] text-[#9CA3AF] transition-colors hover:border-[#FF6600] hover:text-[#FF6600]"
-                                        >
-                                            Cerrar
-                                        </button>
-                                    </div>
-
-                                    <ExplorationPeoplePanel
-                                        selectedExploration={selectedExploration}
-                                        campId={currentCampId}
-                                        onChanged={loadExplorations}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {showResourcesPanel && (
-                            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 py-6">
-                                <div className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#FF6600]/40 bg-[#232323] p-5 shadow-[0_0_30px_rgba(0,0,0,0.65)]">
-                                    <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4 text-white">
-                                        <div>
-                                            <p className="text-[10px] uppercase tracking-[0.25em] text-[#9CA3AF]">
-                                                Gestión de recursos
-                                            </p>
-                                            <h3 className="mt-1 text-2xl">
-                                                {selectedExploration?.name ?? "Exploración"}
-                                            </h3>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowResourcesPanel(false)}
-                                            className="rounded-lg border border-white/10 px-4 py-2 text-sm uppercase tracking-[0.2em] text-[#9CA3AF] transition-colors hover:border-[#FF6600] hover:text-[#FF6600]"
-                                        >
-                                            Cerrar
-                                        </button>
-                                    </div>
-
-                                    <ExplorationResourcesPanel
-                                        selectedExploration={selectedExploration}
-                                        onChanged={loadExplorations}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        {stateAction && (
-                            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 px-4">
-                                <div className="w-full max-w-md rounded-xl border border-[#FF6600]/40 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
-                                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#FF6600]">
-                                        Confirmar acción
-                                    </p>
-
-                                    <h3 className="mt-2 text-xl font-bold">
-                                        {stateAction.newState === "A" && "Iniciar exploración"}
-                                        {stateAction.newState === "F" && "Finalizar exploración"}
-                                        {stateAction.newState === "C" && "Cancelar exploración"}
-                                    </h3>
-
-                                    <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
-                                        ¿Deseas cambiar el estado de la exploración{" "}
-                                        <span className="font-bold text-white">
-                                            {stateAction.exploration.name}
-                                        </span>
-                                        ?
-                                    </p>
-
-                                    <div className="mt-6 flex justify-end gap-3">
-                                        <button
-                                            type="button"
-                                            disabled={saving}
-                                            onClick={() => setStateAction(null)}
-                                            className="border border-[#555] px-4 py-3 text-sm uppercase tracking-[0.2em] text-[#ccc] transition-colors hover:border-white hover:text-white disabled:opacity-60"
-                                        >
-                                            Cancelar
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            disabled={saving}
-                                            onClick={handleChangeExplorationState}
-                                            className="border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600] disabled:opacity-60"
-                                        >
-                                            {saving ? "Procesando..." : "Confirmar"}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {successMessage && (
-                            <div className="rounded-xl border border-green-500/40 bg-green-500/10 p-4 text-sm text-green-300">
-                                {successMessage}
-                            </div>
-                        )}
-
-                        {loading && (
-                            <div className="rounded-xl bg-[#1A1A1A] p-6 text-sm uppercase tracking-[0.2em] text-[#A6A6A6]">
-                                Cargando exploraciones...
-                            </div>
-                        )}
-
-                        {!loading && errorMessage && (
-                            <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-6 text-sm text-red-300">
-                                {errorMessage}
-                            </div>
-                        )}
-
-                        {!loading && !errorMessage && (
-                            <ExplorationsTable
-                                explorations={paginatedExplorations}
-                                selectedExploration={selectedExploration}
-                                onSelectExploration={setSelectedExploration}
-                                currentPage={safeCurrentPage}
-                                totalPages={totalPages}
-                                totalItems={filteredExplorations.length}
-                                onPageChange={setCurrentPage}
-                            />
-                        )}
-
-                        {startValidationMessage && (
-                            <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/70 px-4">
-                                <div className="w-full max-w-md rounded-xl border border-[#FF6600]/50 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
-                                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#FF6600]">
-                                        Validación de exploración
-                                    </p>
-
-                                    <h3 className="mt-2 text-xl font-bold">
-                                        No se puede iniciar
-                                    </h3>
-
-                                    <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
-                                        {startValidationMessage}
-                                    </p>
-
-                                    <div className="mt-6 flex justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={() => setStartValidationMessage("")}
-                                            className="border border-[#FF6600] bg-[#FF6600] px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600]"
-                                        >
-                                            Entendido
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {formValidationMessage && (
-                            <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/70 px-4">
-                                <div className="w-full max-w-md rounded-xl border border-red-500/50 bg-[#232323] p-6 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
-                                    <p className="text-[10px] uppercase tracking-[0.25em] text-red-400">
-                                        Validación de exploración
-                                    </p>
-
-                                    <h3 className="mt-2 text-xl font-bold">
-                                        No se pudo guardar
-                                    </h3>
-
-                                    <p className="mt-4 text-sm leading-relaxed text-[#cfcfcf]">
-                                        {formValidationMessage}
-                                    </p>
-
-                                    <div className="mt-6 flex justify-end">
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormValidationMessage("")}
-                                            className="border border-red-500 bg-red-500 px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-red-400"
-                                        >
-                                            Entendido
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
-                </section>
-
-                <ExplorationDetailPanel
-                    selectedExploration={selectedExploration}
-                    onEditExploration={(exploration) => {
-                        setSuccessMessage("");
-                        setErrorMessage("");
-                        setFormValidationMessage("");
-                        setShowCreateForm(false);
-                        setShowPeoplePanel(false);
-                        setShowResourcesPanel(false);
-                        setEditingExploration(exploration);
-                    }}
-                    onManagePeople={() => {
-                        setSuccessMessage("");
-                        setErrorMessage("");
-                        setShowCreateForm(false);
-                        setEditingExploration(null);
-                        setShowResourcesPanel(false);
-                        setShowPeoplePanel(true);
-                    }}
-                    onManageResources={() => {
-                        setSuccessMessage("");
-                        setErrorMessage("");
-                        setShowCreateForm(false);
-                        setEditingExploration(null);
-                        setShowPeoplePanel(false);
-                        setShowResourcesPanel(true);
-                    }}
-                    onChangeExplorationState={(exploration, newState) => {
-                        setSuccessMessage("");
-                        setErrorMessage("");
-                        setShowCreateForm(false);
-                        setEditingExploration(null);
-                        setShowPeoplePanel(false);
-                        setShowResourcesPanel(false);
-
-                        if (newState === "A") {
-                            const peopleCount = exploration.people_count ?? 0;
-                            const resourceCount = exploration.resource_count ?? 0;
-
-                            if (peopleCount === 0 && resourceCount === 0) {
-                                setStartValidationMessage(
-                                    "No se puede iniciar la exploración porque no tiene personas ni recursos objetivo asignados.",
-                                );
-                                return;
-                            }
-
-                            if (peopleCount === 0) {
-                                setStartValidationMessage(
-                                    "No se puede iniciar la exploración porque no tiene personas asignadas.",
-                                );
-                                return;
-                            }
-
-                            if (resourceCount === 0) {
-                                setStartValidationMessage(
-                                    "No se puede iniciar la exploración porque no tiene recursos objetivo asignados.",
-                                );
-                                return;
-                            }
-                        }
-
-                        setStateAction({
-                            exploration,
-                            newState,
-                        });
-                    }}
-                />
+                </div>
             </div>
         </div>
     );
