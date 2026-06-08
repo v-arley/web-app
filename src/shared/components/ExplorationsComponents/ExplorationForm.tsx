@@ -235,7 +235,7 @@ export default function ExplorationForm({
                                 <select
                                     className={inputClass}
                                     value={state}
-                                    disabled={!isEditMode}
+                                    disabled
                                     onChange={(event) =>
                                         setState(
                                             event.target.value as
@@ -246,10 +246,10 @@ export default function ExplorationForm({
                                         )
                                     }
                                 >
-                                    <option value="P">Pending</option>
-                                    <option value="A">Active</option>
-                                    <option value="F">Finished</option>
-                                    <option value="C">Cancelled</option>
+                                    {state === "P" && <option value="P">Pending</option>}
+                                    {state === "A" && <option value="A">Active</option>}
+                                    {state === "F" && <option value="F">Finished</option>}
+                                    {state === "C" && <option value="C">Cancelled</option>}
                                 </select>
                             </div>
                         </div>

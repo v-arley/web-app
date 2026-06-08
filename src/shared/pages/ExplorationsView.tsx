@@ -241,7 +241,14 @@ export function ExplorationsView() {
 
         if (!response.getEstado()) {
             setSaving(false);
-            setErrorMessage(response.getMensaje());
+
+            if (newState === "A") {
+                setStartValidationMessage(response.getMensaje());
+            } else {
+                setErrorMessage(response.getMensaje());
+            }
+
+            setStateAction(null);
             return;
         }
 
