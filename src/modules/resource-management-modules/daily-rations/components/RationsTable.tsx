@@ -21,8 +21,9 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
     };
 
     return (
-        <div className="rmm-table">
-            <table className="">
+        <>
+        <div className="hidden min-w-0 overflow-x-auto md:block">
+            <table className="rmm-table w-full">
                 <thead className="">
                     <tr>
                         <th className="">Id</th>
@@ -41,7 +42,13 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                         return (
                             <tr
                                 key={ration.id}
-                                className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
+                                className={`transition-colors border-l-2 cursor-pointer select-none ${
+                                    isSelected
+                                        ? "bg-accent/10 border-l-accent"
+                                        : isDelivered
+                                            ? "bg-status-success/5 hover:bg-status-success/10 border-l-status-success"
+                                            : "bg-status-warning/5 hover:bg-status-warning/10 border-l-status-warning"
+                                }`}
                                 onClick={() => ration.id && handleRowClick(ration.id)}
                             >
                                 <td>
@@ -65,7 +72,7 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                                     )}
                                 </td>
                                 <td>
-                                    {ration.notes || '—'}
+                                    {ration.notes || '-'}
                                 </td>
                             </tr>
                         );
@@ -73,5 +80,54 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                 </tbody>
             </table>
         </div>
+        <div className="grid gap-3 md:hidden">
+            {rations.map((ration) => {
+                const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
+                const isDelivered = ration.completed === 'Y';
+                const isSelected = selectedRationId === ration.id;
+
+                return (
+                    <button
+                        key={ration.id}
+                        type="button"
+                        onClick={() => ration.id && handleRowClick(ration.id)}
+                        className={`border-l-2 p-3 text-left transition-colors ${
+                            isSelected
+                                ? "border-l-accent bg-accent/10"
+                                : isDelivered
+                                    ? "border-l-status-success bg-status-success/5"
+                                    : "border-l-status-warning bg-status-warning/5"
+                        } border border-border-default`}
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <div className="font-mono text-[10px] text-txt-disabled uppercase tracking-widest">
+                                    Ration #{ration.id}
+                                </div>
+                                <div className="mt-1 break-words font-mono text-xs font-bold uppercase text-txt-primary">
+                                    {personName}
+                                </div>
+                            </div>
+                            {isDelivered ? (
+                                <span className="table-system-badge table-system-badge--online shrink-0">DELIVERED</span>
+                            ) : (
+                                <span className="table-system-badge table-system-badge--pending shrink-0">PENDING</span>
+                            )}
+                        </div>
+                        <div className="mt-3 grid gap-2 font-mono text-[11px] text-txt-secondary">
+                            <div className="flex justify-between gap-3">
+                                <span className="text-txt-disabled uppercase">Date</span>
+                                <span>{new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('en-US')}</span>
+                            </div>
+                            <div className="border-t border-border-default pt-2">
+                                <span className="block text-txt-disabled uppercase">Notes</span>
+                                <span className="mt-1 block break-words text-txt-secondary">{ration.notes || '-'}</span>
+                            </div>
+                        </div>
+                    </button>
+                );
+            })}
+        </div>
+        </>
     );
 }

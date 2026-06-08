@@ -5,8 +5,9 @@ import { LoginPage } from "../pages/LoginPage";
 import { RequireTemporalUser } from "./RequireTemporalUser";
 import { PublicGuard } from "./PublicGuard";
 import { SECTIONS } from "./sections";
-import { NotFoundPage } from "./section-components";
+import { ForbiddenPage, NotFoundPage } from "./section-components";
 import { ROUTES } from "../../router/routes";
+import { AppIndexRedirect } from "./AppIndexRedirect";
 
 // Rutas hijas para /app generadas desde SECTIONS :::
 // Convierte la ruta absoluta "/app/foo/bar" en la ruta relativa "foo/bar"
@@ -20,7 +21,7 @@ const sectionRoutes = SECTIONS.map((section) => ({
 
 // Definición del router :::
 export const router = createBrowserRouter([
-    // Raíz → redirige a login. PublicGuard redirige al dashboard si ya hay sesión activa.
+    // Raíz → redirige a login. PublicGuard redirige a la sección inicial si ya hay sesión activa.
     {
         path: "/",
         element: <Navigate to={ROUTES.LOGIN} replace />,
@@ -48,10 +49,14 @@ export const router = createBrowserRouter([
                 path: ROUTES.APP,
                 element: <AppLayout />,
                 children: [
-                    // Sin sección explícita → redirige al dashboard
+                    // Sin sección explícita → redirige a la primera sección permitida para el rol.
                     {
                         index: true,
-                        element: <Navigate to={ROUTES.DASHBOARD} replace />,
+                        element: <AppIndexRedirect />,
+                    },
+                    {
+                        path: ROUTES.FORBIDDEN.replace(/^\/app\//, ""),
+                        element: <ForbiddenPage />,
                     },
                     // Una ruta por sección, generadas automáticamente desde SECTIONS
                     ...sectionRoutes,

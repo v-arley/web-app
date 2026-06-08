@@ -7,19 +7,27 @@ interface ShipmentsTableProps {
 }
 
 const STATUS_META: Record<string, { label: string; style: string }> = {
-  P: { label: "PENDING",    style: "text-status-warning" },
+  P: { label: "PENDING", style: "text-status-warning" },
   I: { label: "IN TRANSIT", style: "text-accent" },
-  D: { label: "DELIVERED",  style: "text-status-ok" },
-  C: { label: "CANCELLED",  style: "text-status-critical" },
+  D: { label: "DELIVERED", style: "text-status-ok" },
+  C: { label: "CANCELLED", style: "text-status-critical" },
 };
 
-function getShipmentCampLabel(shipment: ShipmentFormValues, side: "origin" | "destination") {
+function getShipmentCampLabel(
+  shipment: ShipmentFormValues,
+  side: "origin" | "destination",
+) {
   const request = shipment.request;
-  const camp = side === "origin" ? request?.origin_camp : request?.destination_camp;
+  const camp =
+    side === "origin" ? request?.origin_camp : request?.destination_camp;
+
   return camp?.code || camp?.description || "UNRESOLVED CAMP";
 }
 
-export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps) {
+export function ShipmentsTable({
+  shipments,
+  onViewDetail,
+}: ShipmentsTableProps) {
   if (shipments.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -32,24 +40,26 @@ export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps)
 
   return (
     <table className="rmm-table">
-      <thead className="">
+      <thead>
         <tr>
-          <th className="">ID</th>
-          <th className="">Request</th>
-          <th className="">Sender</th>
-          <th className="">Receiver</th>
-          <th className="">Status</th>
-          <th className="">Departure</th>
-          <th className="">Arrival</th>
+          <th>ID</th>
+          <th>Request</th>
+          <th>Sender</th>
+          <th>Receiver</th>
+          <th>Status</th>
+          <th>Departure</th>
+          <th>Arrival</th>
         </tr>
       </thead>
+
       <tbody>
         {shipments.map((shipment) => {
-          const meta = STATUS_META[shipment.status] ?? STATUS_META["P"];
+          const meta = STATUS_META[shipment.status] ?? STATUS_META.P;
+
           return (
             <tr
               key={shipment.id}
-              className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
+              className="cursor-pointer select-none border-l-2 border-l-status-critical bg-status-critical/5 transition-colors hover:bg-status-critical/10"
               onDoubleClick={() => onViewDetail(shipment)}
               title="Double-click to view detail"
             >
@@ -58,32 +68,50 @@ export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps)
                   {String(shipment.id ?? "")}
                 </span>
               </td>
+
               <td>
-                <span className="font-mono text-[12px] text-txt-secondary">REQ-{shipment.request_id}</span>
-              </td>
-              <td>
-                <span className="font-mono text-[12px] font-bold text-txt-primary">
-                  {getShipmentCampLabel(shipment, "destination")}
+                <span className="font-mono text-[12px] text-txt-secondary">
+                  REQ-{shipment.request_id}
                 </span>
               </td>
+
               <td>
                 <span className="font-mono text-[12px] font-bold text-txt-primary">
                   {getShipmentCampLabel(shipment, "origin")}
                 </span>
               </td>
+
               <td>
-                <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>
+                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  {getShipmentCampLabel(shipment, "destination")}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}
+                >
                   {meta.label}
                 </span>
               </td>
+
               <td>
                 <span className="font-mono text-[12px] text-txt-secondary">
-                  {shipment.departure_date ? new Date(shipment.departure_date).toLocaleDateString("es-ES") : "—"}
+                  {shipment.departure_date
+                    ? new Date(shipment.departure_date).toLocaleDateString(
+                        "es-ES",
+                      )
+                    : "—"}
                 </span>
               </td>
+
               <td>
                 <span className="font-mono text-[12px] text-txt-secondary">
-                  {shipment.arrival_date ? new Date(shipment.arrival_date).toLocaleDateString("es-ES") : "—"}
+                  {shipment.arrival_date
+                    ? new Date(shipment.arrival_date).toLocaleDateString(
+                        "es-ES",
+                      )
+                    : "—"}
                 </span>
               </td>
             </tr>

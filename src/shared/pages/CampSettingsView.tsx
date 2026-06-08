@@ -1,5 +1,22 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type Ref,} from "react";
-import { AlertTriangle, Map, Power, RotateCcw, Save, Search, Shield } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+  type Ref,
+} from "react";
+
+import {
+  AlertTriangle,
+  Map,
+  Power,
+  RotateCcw,
+  Save,
+  Search,
+  Shield,
+} from "lucide-react";
 
 import { ModalSearchPerson } from "./ModalSearchPerson";
 import { CampService } from "../../services/CampService";
@@ -7,6 +24,8 @@ import { useNavigation } from "../app/NavigationContext";
 import { useToast } from "../hooks/useToast";
 import type { Camp, UpdateCamp } from "../../models/Camp";
 import type { Person } from "../../models/Person";
+import { CampInformationPanel } from "../components/CampComponents/CampInformationPanel";
+import { CampAdminControlPanel } from "../components/CampComponents/CampAdminControlPanel";
 
 type CampSettingsForm = {
   campId: string;
@@ -85,90 +104,6 @@ function mapCampToForm(camp: Camp): CampSettingsForm {
   };
 }
 
-function getPersonDisplayName(person: Person | null, fallbackId: number | null) {
-  if (!person) {
-    return fallbackId ? `Administrator ID: ${fallbackId}` : "No administrator selected";
-  }
-
-  const raw = person as any;
-  const name = raw.name ?? "";
-  const surname = raw.surname ?? raw.lastName ?? "";
-
-  return `${name} ${surname}`.trim() || `Administrator ID: ${fallbackId}`;
-}
-
-function FieldLabel({
-  children,
-  htmlFor,
-  required = false,
-}: {
-  children: ReactNode;
-  htmlFor: string;
-  required?: boolean;
-}) {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className="text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary"
-    >
-      {children}
-      {required ? <span className="ml-1 text-accent">*</span> : null}
-    </label>
-  );
-}
-
-function FormField({
-  id,
-  label,
-  value,
-  type = "text",
-  readOnly = false,
-  required = false,
-  placeholder,
-  inputRef,
-  onKeyDown,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  type?: string;
-  readOnly?: boolean;
-  required?: boolean;
-  placeholder?: string;
-  inputRef?: Ref<HTMLInputElement>;
-  onKeyDown?: (event: KeyboardEvent<HTMLInputElement>) => void;
-  onChange?: (value: string) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <FieldLabel htmlFor={id} required={required}>
-        {label}
-      </FieldLabel>
-
-      <input
-        ref={inputRef}
-        id={id}
-        type={type}
-        aria-label={label}
-        title={label}
-        value={value}
-        readOnly={readOnly}
-        placeholder={placeholder}
-        onKeyDown={onKeyDown}
-        onChange={(event) => onChange?.(event.target.value)}
-        className={[
-          "h-12 w-full border border-border-default bg-bg-tertiary px-4",
-          "font-mono text-[14px] font-bold uppercase tracking-[0.06em]",
-          "text-txt-primary outline-none transition-colors",
-          "placeholder:text-txt-disabled focus:border-accent",
-          readOnly ? "cursor-not-allowed opacity-60" : "",
-        ].join(" ")}
-      />
-    </div>
-  );
-}
-
 export function CampSettingsView() {
   const { toast } = useToast();
   const { authContext } = useNavigation();
@@ -225,8 +160,9 @@ export function CampSettingsView() {
         }
 
         camp =
-          getList<Camp>(response).find((item: any) => Number(item.id) === campId) ??
-          null;
+          getList<Camp>(response).find(
+            (item: any) => Number(item.id) === campId,
+          ) ?? null;
       }
 
       if (!camp) {
@@ -249,7 +185,9 @@ export function CampSettingsView() {
   }, [loadCamp]);
 
   const handleEnterToNextField = (
-    event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    event: KeyboardEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     if (event.key !== "Enter") return;
 
@@ -261,7 +199,10 @@ export function CampSettingsView() {
 
     const fields = Array.from(
       formContainer.querySelectorAll<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLButtonElement
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | HTMLSelectElement
+        | HTMLButtonElement
       >(
         "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])",
       ),
@@ -288,7 +229,10 @@ export function CampSettingsView() {
     setSelectedAdmin(person);
     setForm((current) => ({
       ...current,
-      adminId: Number.isFinite(personId) && personId > 0 ? personId : current.adminId,
+      adminId:
+        Number.isFinite(personId) && personId > 0
+          ? personId
+          : current.adminId,
     }));
     setIsSearchOpen(false);
 
@@ -364,7 +308,8 @@ export function CampSettingsView() {
       const response = await campService.update(campDbId, payload);
 
       if (!response.getEstado()) {
-        const message = response.getMensaje() || "No se pudo actualizar el campamento.";
+        const message =
+          response.getMensaje() || "No se pudo actualizar el campamento.";
         setError(message);
 
         toast({
@@ -424,228 +369,21 @@ export function CampSettingsView() {
         ) : null}
 
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 overflow-y-auto px-8 py-7 xl:grid-cols-[1fr_1fr]">
-          <section className="flex min-h-0 flex-col">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center border border-accent/50 bg-accent/10 text-accent">
-                <Map size={20} />
-              </div>
+          <CampInformationPanel
+            form={form}
+            loading={loading}
+            firstFieldRef={firstFieldRef}
+            onFieldChange={handleFieldChange}
+            onEnterToNextField={handleEnterToNextField}
+          />
 
-              <div>
-                <h2 className="text-[18px] font-bold uppercase tracking-[0.18em] text-txt-primary">
-                  Information
-                </h2>
-
-                <p className="mt-1 text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
-                  Camp registry / base configuration
-                </p>
-              </div>
-            </div>
-
-            <div className="border border-border-default bg-bg-primary px-6 py-6">
-              <div className="mb-6 border-b border-border-default pb-4">
-                <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-                  Camp Information
-                </p>
-
-                <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-txt-secondary">
-                  Register camp identity, capacity and location
-                </p>
-              </div>
-
-              {loading ? (
-                <div className="flex h-64 items-center justify-center text-[12px] font-bold uppercase tracking-[0.18em] text-txt-disabled">
-                  Loading camp settings...
-                </div>
-              ) : (
-                <div className="space-y-5" data-enter-form>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    <FormField
-                      id="camp-id"
-                      label="Camp ID"
-                      value={form.campId}
-                      readOnly
-                    />
-
-                    <FormField
-                      id="camp-code"
-                      label="Code"
-                      value={form.code}
-                      readOnly={false}
-                      onKeyDown={handleEnterToNextField}
-                      onChange={(value) =>
-                        handleFieldChange("code", value.toUpperCase())
-                      }
-                    />
-
-                    <FormField
-                      id="creation-date"
-                      label="Creation Date"
-                      value={form.creationDate}
-                      readOnly
-                    />
-                  </div>
-
-                  <FormField
-                    id="camp-designation"
-                    label="Camp Designation"
-                    value={form.designation}
-                    required
-                    inputRef={firstFieldRef}
-                    onKeyDown={handleEnterToNextField}
-                    placeholder="Example: CAMP ALPHA"
-                    onChange={(value) =>
-                      handleFieldChange("designation", value.toUpperCase())
-                    }
-                  />
-
-                  <FormField
-                    id="max-capacity"
-                    label="Max Capacity"
-                    type="number"
-                    value={form.maxCapacity}
-                    required
-                    onKeyDown={handleEnterToNextField}
-                    placeholder="Example: 250"
-                    onChange={(value) => handleFieldChange("maxCapacity", value)}
-                  />
-
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <FormField
-                      id="latitude"
-                      label="Latitude"
-                      value={form.latitude}
-                      onKeyDown={handleEnterToNextField}
-                      placeholder="Example: -70.000"
-                      onChange={(value) => handleFieldChange("latitude", value)}
-                    />
-
-                    <FormField
-                      id="longitude"
-                      label="Longitude"
-                      value={form.longitude}
-                      onKeyDown={handleEnterToNextField}
-                      placeholder="Example: 10.000"
-                      onChange={(value) => handleFieldChange("longitude", value)}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="flex min-h-0 flex-col">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center border border-border-default bg-bg-tertiary text-txt-secondary">
-                <Shield size={20} />
-              </div>
-
-              <div>
-                <h2 className="text-[18px] font-bold uppercase tracking-[0.18em] text-txt-primary">
-                  Administrative Control
-                </h2>
-
-                <p className="mt-1 text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
-                  Master administrator / node status
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-5">
-              <div className="border border-border-default bg-bg-primary px-6 py-6">
-                <div className="mb-6 border-b border-border-default pb-4">
-                  <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-                    Master Administrator
-                  </p>
-
-                  <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-txt-secondary">
-                    Select the main user assigned to this camp
-                  </p>
-                </div>
-
-                <div>
-                  <p className="mb-2 text-[12px] font-bold uppercase tracking-[0.16em] text-txt-secondary">
-                    Selected Administrator
-                  </p>
-
-                  <div className="flex h-12 border border-border-default bg-bg-tertiary">
-                    <div className="flex min-w-0 flex-1 items-center px-4 font-mono text-[13px] font-bold uppercase tracking-[0.08em] text-txt-primary">
-                      <span className="truncate">
-                        {getPersonDisplayName(selectedAdmin, form.adminId)}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      aria-label="Search administrator"
-                      title="Search administrator"
-                      onClick={() => setIsSearchOpen(true)}
-                      className="flex w-14 items-center justify-center border-l border-border-default text-txt-secondary transition-colors hover:bg-accent hover:text-accent-fg"
-                    >
-                      <Search size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border border-border-default bg-bg-primary px-6 py-6">
-                <div className="mb-6 border-b border-border-default pb-4">
-                  <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-                    System Node Status
-                  </p>
-
-                  <p className="mt-1 text-[12px] uppercase tracking-[0.14em] text-txt-secondary">
-                    Main connectivity toggle
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleToggleNode}
-                  className={`flex w-full items-center justify-between border px-5 py-4 transition-colors ${
-                    nodeOnline
-                      ? "border-status-ok/40 bg-status-ok/10"
-                      : "border-status-critical/40 bg-status-critical/10"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center ${
-                        nodeOnline
-                          ? "bg-status-ok/10 text-status-ok"
-                          : "bg-status-critical/10 text-status-critical"
-                      }`}
-                    >
-                      <Power size={20} />
-                    </div>
-
-                    <div className="text-left">
-                      <p className="text-[13px] font-bold uppercase tracking-[0.12em] text-txt-primary">
-                        {nodeOnline ? "Online" : "Offline"}
-                      </p>
-
-                      <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-                        {nodeOnline
-                          ? "System node is active"
-                          : "System node is disabled"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`flex h-8 w-16 items-center px-1 transition-colors ${
-                      nodeOnline ? "bg-status-ok" : "bg-status-critical"
-                    }`}
-                  >
-                    <div
-                      className={`h-6 w-6 bg-white shadow transition-transform ${
-                        nodeOnline ? "translate-x-8" : "translate-x-0"
-                      }`}
-                    />
-                  </div>
-                </button>
-              </div>
-            </div>
-          </section>
+          <CampAdminControlPanel
+            form={form}
+            selectedAdmin={selectedAdmin}
+            nodeOnline={nodeOnline}
+            onOpenAdminSearch={() => setIsSearchOpen(true)}
+            onToggleNode={handleToggleNode}
+          />
         </div>
 
         <div className="grid shrink-0 grid-cols-[1fr_180px] gap-4 border-t border-border-default bg-bg-primary px-8 py-5">

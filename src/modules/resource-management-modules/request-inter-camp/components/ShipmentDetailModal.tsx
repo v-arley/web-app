@@ -34,8 +34,8 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
     const meta = STATUS_META[shipment.status] ?? STATUS_META["P"];
     const id = shipment.id;
     const requestId = shipment.request_id;
-    const requesterLabel = shipment.request?.origin_camp?.code || shipment.request?.origin_camp?.description || "UNRESOLVED CAMP";
-    const providerLabel = shipment.request?.destination_camp?.code || shipment.request?.destination_camp?.description || "UNRESOLVED CAMP";
+    const senderLabel = shipment.request?.origin_camp?.code || shipment.request?.origin_camp?.description || "UNRESOLVED CAMP";
+    const receiverLabel = shipment.request?.destination_camp?.code || shipment.request?.destination_camp?.description || "UNRESOLVED CAMP";
 
     const { data: resources = [], isLoading: resourcesLoading } = useRequestResourcesQuery(requestId);
 
@@ -88,13 +88,13 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
                             <div>
                                 <div className="font-mono text-[11px] text-txt-disabled uppercase tracking-widest mb-1">Sender</div>
                                 <div className="font-mono text-[11px] font-bold text-txt-primary">
-                                    {providerLabel}
+                                    {senderLabel}
                                 </div>
                             </div>
                             <div>
                                 <div className="font-mono text-[11px] text-txt-disabled uppercase tracking-widest mb-1">Receiver</div>
                                 <div className="font-mono text-[11px] font-bold text-txt-primary">
-                                    {requesterLabel}
+                                    {receiverLabel}
                                 </div>
                             </div>
                             <div>

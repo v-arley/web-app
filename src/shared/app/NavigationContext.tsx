@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
     createContext,
     useCallback,
@@ -15,6 +16,7 @@ import {
     getAvailableSections,
     type AuthContext,
 } from "../utils/authAccess";
+import { ROUTES } from "../../router/routes";
 import { SECTIONS } from "./sections";
 import { useAuth } from "./AuthContext";
 
@@ -31,6 +33,10 @@ type NavigationContextValue = {
 const NavigationContext = createContext<NavigationContextValue | null>(null);
 
 const campSvc = new CampService();
+
+function pathMatchesRoute(pathname: string, routePath: string) {
+    return pathname === routePath || pathname.startsWith(routePath + "/");
+}
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth();
@@ -50,23 +56,25 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     // activeKey derivado de la URL actual :::
     const activeKey = useMemo(() => {
         const matched = availableSections.find(
-            (s) =>
-                location.pathname === s.path ||
-                location.pathname.startsWith(s.path + "/"),
+            (s) => pathMatchesRoute(location.pathname, s.path),
         );
-        return matched?.key ?? availableSections[0]?.key ?? "";
+        return matched?.key ?? "";
     }, [location.pathname, availableSections]);
 
-    // Redirige a la primera sección accesible si la URL actual no lo está :::
+    // Ruta registrada sin permiso -> 403. Ruta no registrada -> queda para el 404 del router.
     useEffect(() => {
-        if (availableSections.length === 0) return;
+        if (location.pathname === ROUTES.FORBIDDEN) return;
+
         const accessible = availableSections.some(
-            (s) =>
-                location.pathname === s.path ||
-                location.pathname.startsWith(s.path + "/"),
+            (s) => pathMatchesRoute(location.pathname, s.path),
         );
-        if (!accessible) {
-            routerNavigate(availableSections[0].path, { replace: true });
+        if (accessible) return;
+
+        const registeredSection = SECTIONS.some(
+            (s) => pathMatchesRoute(location.pathname, s.path),
+        );
+        if (registeredSection) {
+            routerNavigate(ROUTES.FORBIDDEN, { replace: true });
         }
     }, [location.pathname, availableSections, routerNavigate]);
 

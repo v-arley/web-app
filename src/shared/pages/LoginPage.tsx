@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ROUTES } from "../../router/routes";
 import { useAuth } from "../app/AuthContext";
+import { SECTIONS } from "../app/sections";
+import { getInitialSectionPath } from "../utils/authAccess";
 
 export function LoginPage() {
     const navigate = useNavigate();
@@ -16,8 +17,8 @@ export function LoginPage() {
         setError("");
         setLoading(true);
         try {
-            await login(username, password);
-            navigate(ROUTES.DASHBOARD);
+            const user = await login(username, password);
+            navigate(getInitialSectionPath(SECTIONS, user));
         } catch {
             setError("INVALID CREDENTIALS OR SERVER ERROR");
         } finally {

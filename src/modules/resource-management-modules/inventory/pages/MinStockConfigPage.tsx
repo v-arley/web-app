@@ -96,9 +96,16 @@ export function MinStockConfigPage() {
     const pagination = stockQuery.data?.pagination ?? { page, limit: pageSize, total: 0, totalPages: 1 };
 
     const handleStockSelect = (warehouseId: number, resourceId: number) => {
+        const selectedStock = stockRecords.find(
+            (record) => record.warehouse_id === warehouseId && record.resource_id === resourceId,
+        );
         setSelectedWarehouseId(warehouseId);
         setSelectedResourceId(resourceId);
-        setInitialData({ warehouse_id: warehouseId, resource_id: resourceId });
+        setInitialData({
+            warehouse_id: warehouseId,
+            resource_id: resourceId,
+            min_quantity: selectedStock?.min_quantity ?? 0,
+        });
         setIsFormOpen(true);
     };
 

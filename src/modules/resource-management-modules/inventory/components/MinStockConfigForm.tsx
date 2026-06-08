@@ -64,6 +64,12 @@ export function MinStockConfigForm({
         defaultValues: { ...EMPTY_MIN_STOCK, ...initialData },
     });
     const errors = form.formState.errors;
+    const selectedWarehouseId = form.watch("warehouse_id");
+    const selectedResourceId = form.watch("resource_id");
+    const selectedWarehouseLabel =
+        warehouseOptions.find((opt) => opt.id === selectedWarehouseId)?.label ?? "[ SELECT WAREHOUSE ]";
+    const selectedResourceLabel =
+        resourceOptions.find((opt) => opt.id === selectedResourceId)?.label ?? "[ SELECT RESOURCE ]";
 
     useEffect(() => {
         form.reset({ ...EMPTY_MIN_STOCK, ...initialData });
@@ -86,21 +92,23 @@ export function MinStockConfigForm({
 
             <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
                 <Field label="Warehouse Node" required id="WH_LOC" error={errors.warehouse_id?.message}>
-                    <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT WAREHOUSE ]</option>
-                        {warehouseOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                    <input type="hidden" {...form.register("warehouse_id", { valueAsNumber: true })} />
+                    <input
+                        type="text"
+                        value={selectedWarehouseLabel}
+                        disabled
+                        className={`${fieldClass} cursor-not-allowed opacity-80`}
+                    />
                 </Field>
 
                 <Field label="Base Resource" required id="RES_TARGET" error={errors.resource_id?.message}>
-                    <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT RESOURCE ]</option>
-                        {resourceOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                    <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
+                    <input
+                        type="text"
+                        value={selectedResourceLabel}
+                        disabled
+                        className={`${fieldClass} cursor-not-allowed opacity-80`}
+                    />
                 </Field>
 
                 <Field label="Alert Threshold" required id="MIN_LVL" error={errors.min_quantity?.message}>

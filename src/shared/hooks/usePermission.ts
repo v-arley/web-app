@@ -9,7 +9,6 @@ export function usePermissions() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // ── Cargar lista ─────────────────────────────────────────
     const load = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -30,7 +29,6 @@ export function usePermissions() {
         }
     }, []);
 
-    // ── Crear ────────────────────────────────────────────────
     const create = useCallback(async (payload: CreatePermission): Promise<boolean> => {
         try {
             const res = await service.save(payload);
@@ -46,7 +44,6 @@ export function usePermissions() {
         }
     }, [load]);
 
-    // ── Actualizar ───────────────────────────────────────────
     const update = useCallback(async (id: number, payload: UpdatePermission): Promise<boolean> => {
         try {
             const res = await service.update(id, payload);
@@ -62,7 +59,6 @@ export function usePermissions() {
         }
     }, [load]);
 
-    // ── Eliminar ─────────────────────────────────────────────
     const remove = useCallback(async (id: number): Promise<boolean> => {
         try {
             const res = await service.remove(id);

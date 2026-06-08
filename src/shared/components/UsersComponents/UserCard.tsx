@@ -1,4 +1,4 @@
-import { Activity, BriefcaseBusiness, IdCard, Timer } from "lucide-react";
+import {Activity, BriefcaseBusiness, IdCard, Timer,} from "lucide-react";
 
 type UserCardProps = {
   name: string;
@@ -86,7 +86,10 @@ export function UserCard({
 
       <div className="border-t border-border-default px-5 py-4">
         <div className="flex items-start gap-3">
-          <BriefcaseBusiness size={18} className="mt-0.5 shrink-0 text-accent" />
+          <BriefcaseBusiness
+            size={18}
+            className="mt-0.5 shrink-0 text-accent"
+          />
 
           <div className="min-w-0 flex-1">
             <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-disabled">
@@ -133,7 +136,9 @@ export function UserCard({
 
           <IdCard
             size={24}
-            className={active ? "shrink-0 text-accent" : "shrink-0 text-txt-disabled"}
+            className={
+              active ? "shrink-0 text-accent" : "shrink-0 text-txt-disabled"
+            }
           />
         </div>
       </div>

@@ -2,27 +2,25 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/routes";
 import { useNavigation } from "../app/NavigationContext";
 
-export default function NotFoundPage() {
+export default function ForbiddenPage() {
     const navigate = useNavigate();
     const { sections } = useNavigation();
     const fallbackPath = sections[0]?.path ?? ROUTES.LOGIN;
 
     return (
         <div className="w-full h-full flex flex-col bg-bg-app overflow-hidden">
-            {/* Header bar — mismo estilo que otras vistas */}
             <div className="w-full bg-bg-secondary border-b border-border-default px-8 py-3 flex items-center justify-between shrink-0">
                 <div className="text-[12px] font-mono tracking-wide text-txt-secondary uppercase font-bold">
-                    Error
+                    Access Control
                 </div>
             </div>
 
-            {/* Body */}
             <div className="flex flex-1 flex-col items-center justify-center gap-6">
                 <span className="font-mono text-8xl font-bold text-[#E85D04] tracking-tight select-none">
-                    404
+                    403
                 </span>
                 <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-txt-secondary">
-                    ROUTE NOT FOUND
+                    ACCESS DENIED
                 </span>
                 <button
                     onClick={() => navigate(fallbackPath, { replace: true })}
@@ -34,5 +32,3 @@ export default function NotFoundPage() {
         </div>
     );
 }
-
-

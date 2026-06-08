@@ -8,16 +8,23 @@ import type { ShipmentFormValues } from "../schemas/shipment.schema";
 import { FilterBar } from "../../shared/components/FilterBar";
 import PaginationFooter from "../../shared/components/PaginationFooter";
 import PageHeader from "../../shared/components/PageHeader";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 
 export function ShipmentsPage() {
   const { toast } = useToast();
+  const { authContext } = useNavigation();
+  const originCampId = authContext.campId ?? 0;
   const [statusFilter, setStatusFilter] = useState<'P' | 'I' | 'D' | 'C' | ''>('');
   const [page, setPage] = useState(1);
   const [selectedShipment, setSelectedShipment] = useState<ShipmentFormValues | null>(null);
   const pageSize = 20;
 
   const { data: shipments = [], isLoading } = useShipmentsQuery(
-    statusFilter ? { status: statusFilter } : {}
+    {
+      originCampId,
+      ...(statusFilter ? { status: statusFilter } : {}),
+    },
+    originCampId > 0,
   );
 
   const totalRecords = shipments.length;
@@ -95,15 +102,17 @@ export function ShipmentsPage() {
             <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING SHIPMENTS...</p>
           </div>
         ) : (
-          <ShipmentsTable
-            shipments={pagedShipments}
-            onViewDetail={setSelectedShipment}
-            isLoading={
-              startTransit.isPending ||
-              confirmDelivery.isPending ||
-              cancelShipment.isPending
-            }
-          />
+         <ShipmentsTable
+          shipments={pagedShipments}
+          onViewDetail={(shipment) => {
+            setSelectedShipment(shipment);
+          }}
+          isLoading={
+            startTransit.isPending ||
+            confirmDelivery.isPending ||
+            cancelShipment.isPending
+          }
+        />
         )}
       </section>
       <PaginationFooter

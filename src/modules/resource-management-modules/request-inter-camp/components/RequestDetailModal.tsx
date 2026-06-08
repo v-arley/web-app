@@ -21,15 +21,27 @@ interface RequestDetailModalProps {
   onReject?: () => void;
   requestStatus?: string;
   isLoading?: boolean;
+  canViewResourceAvailability?: boolean;
 }
 
-export function RequestDetailModal({ requestId, onClose, onApprove, onReject, requestStatus, isLoading = false }: RequestDetailModalProps) {
+export function RequestDetailModal({
+  requestId,
+  onClose,
+  onApprove,
+  onReject,
+  requestStatus,
+  isLoading = false,
+  canViewResourceAvailability = false,
+}: RequestDetailModalProps) {
   const [resourceSearch, setResourceSearch] = useState("");
   const [showOnlyShortages, setShowOnlyShortages] = useState(false);
   const statusMeta = STATUS_META[requestStatus ?? "P"] ?? STATUS_META.P;
   const { data: request } = useCampRequestByIdQuery(requestId);
   const { data: resources = [] } = useRequestResourcesQuery(requestId);
-  const { data: availability } = useRequestResourceAvailabilityQuery(requestId);
+  const { data: availability, isLoading: isAvailabilityLoading } = useRequestResourceAvailabilityQuery(
+    requestId,
+    canViewResourceAvailability,
+  );
 
   const { data: availableResources = [] } = useQuery({
     queryKey: ["resources-list"],
@@ -54,14 +66,14 @@ export function RequestDetailModal({ requestId, onClose, onApprove, onReject, re
     return resources.map((resource) => {
       const item = availabilityByResourceId.get(resource.resource_id);
       const requestedAmount = item?.requested_amount ?? resource.amount;
-      const availableAmount = item?.available_amount ?? 0;
+      const availableAmount = item?.available_amount ?? null;
       return {
         resource_id: resource.resource_id,
         name: resourceNameById.get(resource.resource_id) || `ID: ${resource.resource_id}`,
         requestedAmount,
         availableAmount,
-        missingAmount: Math.max(requestedAmount - availableAmount, 0),
-        enough: item?.enough ?? true,
+        missingAmount: availableAmount == null ? null : Math.max(requestedAmount - availableAmount, 0),
+        enough: item?.enough ?? null,
       };
     });
   }, [availabilityByResourceId, resourceNameById, resources]);
@@ -76,9 +88,20 @@ export function RequestDetailModal({ requestId, onClose, onApprove, onReject, re
   }, [availabilityRows, resourceSearch, showOnlyShortages]);
 
   const totalRequested = availabilityRows.reduce((sum, item) => sum + item.requestedAmount, 0);
-  const totalAvailable = availabilityRows.reduce((sum, item) => sum + item.availableAmount, 0);
-  const shortageCount = availabilityRows.filter((item) => !item.enough).length;
-  const isApproveDisabled = isLoading || availability?.has_sufficient_stock === false;
+  const totalAvailable = canViewResourceAvailability
+    ? availabilityRows.reduce((sum, item) => sum + (item.availableAmount ?? 0), 0)
+    : null;
+  const shortageCount = availabilityRows.filter((item) => item.enough === false).length;
+  const isApproveDisabled =
+    isLoading ||
+    (canViewResourceAvailability && (isAvailabilityLoading || !availability || availability.has_sufficient_stock === false));
+  const stockStatusLabel = !canViewResourceAvailability
+    ? "PROVIDER ONLY"
+    : isAvailabilityLoading
+      ? "CHECKING"
+      : availability
+        ? availability.has_sufficient_stock ? "AVAILABLE" : "INSUFFICIENT"
+        : "UNAVAILABLE";
 
   function handleClose() {
     if (!isLoading) onClose();
@@ -131,14 +154,14 @@ export function RequestDetailModal({ requestId, onClose, onApprove, onReject, re
             <div className="mt-3 grid grid-cols-3 gap-2">
               <Metric label="Items" value={availabilityRows.length} />
               <Metric label="Requested" value={totalRequested} />
-              <Metric label="Available" value={totalAvailable} tone={availability?.has_sufficient_stock ? "ok" : undefined} />
+              <Metric label="Available" value={totalAvailable ?? "-"} tone={availability?.has_sufficient_stock ? "ok" : undefined} />
             </div>
 
             <div className={`mt-3 flex items-center justify-between gap-3 border px-3 py-2 ${availability?.has_sufficient_stock === false ? "border-status-critical/50 bg-status-critical/10" : "border-border-subtle bg-bg-tertiary/45"}`}>
               <div className="min-w-0">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-txt-disabled">Provider stock</div>
                 <div className={`mt-0.5 font-mono text-[11px] font-bold uppercase tracking-widest ${availability?.has_sufficient_stock === false ? "text-status-critical" : "text-status-ok"}`}>
-                  {availability ? (availability.has_sufficient_stock ? "AVAILABLE" : "INSUFFICIENT") : "NOT AVAILABLE"}
+                  {stockStatusLabel}
                 </div>
               </div>
               {shortageCount > 0 && (
@@ -209,10 +232,10 @@ export function RequestDetailModal({ requestId, onClose, onApprove, onReject, re
                           <div className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-txt-muted">Resource #{item.resource_id}</div>
                         </td>
                         <td className="px-3 py-3 text-right font-mono text-[12px] font-bold text-txt-primary">{item.requestedAmount}</td>
-                        <td className={`px-3 py-3 text-right font-mono text-[12px] font-bold ${item.enough ? "text-status-ok" : "text-status-critical"}`}>{item.availableAmount}</td>
-                        <td className={`px-3 py-3 text-right font-mono text-[12px] font-bold ${item.missingAmount > 0 ? "text-status-critical" : "text-txt-secondary"}`}>{item.missingAmount}</td>
+                        <td className={`px-3 py-3 text-right font-mono text-[12px] font-bold ${item.enough == null ? "text-txt-secondary" : item.enough ? "text-status-ok" : "text-status-critical"}`}>{item.availableAmount ?? "-"}</td>
+                        <td className={`px-3 py-3 text-right font-mono text-[12px] font-bold ${item.missingAmount != null && item.missingAmount > 0 ? "text-status-critical" : "text-txt-secondary"}`}>{item.missingAmount ?? "-"}</td>
                         <td className="px-3 py-3 text-center">
-                          {item.enough ? <CheckCircle size={14} className="mx-auto text-status-ok" /> : <AlertTriangle size={14} className="mx-auto text-status-critical" />}
+                          {item.enough == null ? <Package size={14} className="mx-auto text-txt-muted" /> : item.enough ? <CheckCircle size={14} className="mx-auto text-status-ok" /> : <AlertTriangle size={14} className="mx-auto text-status-critical" />}
                         </td>
                       </tr>
                     ))}
@@ -232,8 +255,8 @@ export function RequestDetailModal({ requestId, onClose, onApprove, onReject, re
                     </div>
                     <div className="mt-3 grid grid-cols-3 gap-2">
                       <Metric label="Req" value={item.requestedAmount} />
-                      <Metric label="Avail" value={item.availableAmount} tone={item.enough ? "ok" : "critical"} />
-                      <Metric label="Miss" value={item.missingAmount} tone={item.missingAmount > 0 ? "critical" : undefined} />
+                      <Metric label="Avail" value={item.availableAmount ?? "-"} tone={item.enough === true ? "ok" : item.enough === false ? "critical" : undefined} />
+                      <Metric label="Miss" value={item.missingAmount ?? "-"} tone={item.missingAmount != null && item.missingAmount > 0 ? "critical" : undefined} />
                     </div>
                   </article>
                 ))}
@@ -295,7 +318,7 @@ export function RequestDetailModal({ requestId, onClose, onApprove, onReject, re
   );
 }
 
-function Metric({ label, value, tone }: { label: string; value: number; tone?: "ok" | "critical" }) {
+function Metric({ label, value, tone }: { label: string; value: number | string; tone?: "ok" | "critical" }) {
   const toneClass = tone === "ok" ? "text-status-ok" : tone === "critical" ? "text-status-critical" : "text-txt-primary";
   return (
     <div className="min-w-0 border border-border-subtle bg-bg-tertiary/45 p-2">

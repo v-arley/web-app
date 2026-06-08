@@ -7,6 +7,8 @@ interface RationsFilters {
     startDate?: string;
     endDate?: string;
     completed?: 'Y' | 'N';
+    page?: number;
+    limit?: number;
 }
 
 export function useRationsQuery(

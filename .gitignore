@@ -29,3 +29,9 @@ test-results
 .DB_BACKUP
 .db_backup
 .agent
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

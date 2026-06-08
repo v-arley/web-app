@@ -3,6 +3,7 @@
 const ROUTE_TREE = {
     LOGIN:                "/login",
     APP:                  "/app",
+    FORBIDDEN:            "/app/forbidden",
     SYS_ADMIN: {
         REQUESTS:         "/app/requests",
         RESOURCES:        "/app/catalog/resources",
@@ -62,6 +63,7 @@ function flattenTree(tree: RouteGroup, prefix = ""): Record<string, string> {
 export const ROUTES = flattenTree(ROUTE_TREE) as {
     LOGIN:                 "/login";
     APP:                   "/app";
+    FORBIDDEN:             "/app/forbidden";
     DASHBOARD:             "/app/dashboard";
     EXPLORATIONS:          "/app/explorations";
     USERS:                 "/app/users";

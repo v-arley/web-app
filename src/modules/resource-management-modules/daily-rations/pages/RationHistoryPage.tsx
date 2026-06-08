@@ -22,12 +22,19 @@ export function RationHistoryPage() {
     const pageSize = 30;
 
     // Obtener raciones
-    const { data: rations, isLoading: isLoadingRations } = useRationsQuery(
+    const { data: rationsResult, isLoading: isLoadingRations } = useRationsQuery(
         campId,
         {
             completed: statusFilter || undefined,
+            startDate: dateFrom || undefined,
+            endDate: dateTo || undefined,
+            page,
+            limit: pageSize,
         }
     );
+    const rations = rationsResult?.items ?? [];
+    const pagination = rationsResult?.pagination ?? { page, limit: pageSize, total: 0, totalPages: 1 };
+    const facets = rationsResult?.facets;
 
     // Obtener personas
     const { data: personsData } = useQuery({
@@ -44,25 +51,13 @@ export function RationHistoryPage() {
         return new Map(personsData?.map((p) => [p.id, p.name]) ?? []);
     }, [personsData]);
 
-    // Filtrado por fecha (client-side)
-    const filteredRations = useMemo(() => {
-        return (rations ?? []).filter((r) => {
-            if (!r.ration_date) return true;
-            const d = r.ration_date.slice(0, 10);
-            if (dateFrom && d < dateFrom) return false;
-            if (dateTo && d > dateTo) return false;
-            return true;
-        });
-    }, [rations, dateFrom, dateTo]);
-
     // Estadísticas
-    const totalRations = filteredRations.length;
-    const deliveredCount = filteredRations.filter((r) => r.completed === 'Y').length;
-    const pendingCount = filteredRations.filter((r) => r.completed === 'N').length;
+    const totalRations = facets?.total ?? pagination.total;
+    const deliveredCount = facets?.delivered ?? (statusFilter === 'Y' ? pagination.total : rations.filter((ration) => ration.completed === 'Y').length);
+    const pendingCount = facets?.pending ?? (statusFilter === 'N' ? pagination.total : rations.filter((ration) => ration.completed === 'N').length);
     const deliveryRate = totalRations > 0 ? ((deliveredCount / totalRations) * 100).toFixed(1) : '0';
 
-    const totalPages = Math.max(1, Math.ceil(totalRations / pageSize));
-    const pagedRations = filteredRations.slice((page - 1) * pageSize, page * pageSize);
+    const totalPages = pagination.totalPages;
 
     return (
         <article className="flex flex-1 min-h-0 flex-col bg-transparent overflow-hidden">
@@ -133,7 +128,7 @@ export function RationHistoryPage() {
                         </div>
                     ) : (
                         <div className="flex-1 overflow-auto">
-                            <RationHistoryTable rations={pagedRations} personMap={personMap} />
+                            <RationHistoryTable rations={rations} personMap={personMap} />
                         </div>
                     )}
 
