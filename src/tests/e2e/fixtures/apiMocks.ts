@@ -1,6 +1,6 @@
 import type { Page, Route } from "@playwright/test";
 
-type UserRole = "SYSTEM_ADMIN" | "RESOURCE_MANAGER";
+type UserRole = "SYSTEM_ADMIN" | "RESOURCE_MANAGER" | "WORKER";
 
 type MockUser = {
   username: string;
@@ -32,22 +32,50 @@ const campBeta = {
 };
 
 const resources = [
-  { id: 1, code: "WATER", name: "Water", category: "SUPPLY", unit_of_measure: "L", state: "A" },
-  { id: 2, code: "MED", name: "Medicine", category: "MEDICAL", unit_of_measure: "BOX", state: "I" },
+  {
+    id: 1,
+    code: "WATER",
+    name: "Water",
+    category: "SUPPLY",
+    unit_of_measure: "L",
+    state: "A",
+  },
+  {
+    id: 2,
+    code: "MED",
+    name: "Medicine",
+    category: "MEDICAL",
+    unit_of_measure: "BOX",
+    state: "I",
+  },
 ];
 
 const professions = [
   { id: 1, code: "MEDIC", name: "Medic", default_resource_id: 2, state: "A" },
-  { id: 2, code: "LOG", name: "Logistics", default_resource_id: null, state: "A" },
+  {
+    id: 2,
+    code: "LOG",
+    name: "Logistics",
+    default_resource_id: null,
+    state: "A",
+  },
 ];
 
 const achievements = [
-  { id: 1, code: "FIRST", name: "First Task", category: "GENERAL", points: 10, state: "A" },
+  {
+    id: 1,
+    code: "FIRST",
+    name: "First Task",
+    category: "GENERAL",
+    points: 10,
+    state: "A",
+  },
 ];
 
 const users = [
   { id: 1, username: "sys_admin", roles: ["SYSTEM_ADMIN"] },
   { id: 2, username: "resource_admin", roles: ["RESOURCE_MANAGER"] },
+  { id: 3, username: "worker_user", roles: ["WORKER"] },
 ];
 
 function ok(resultado: unknown) {
@@ -75,16 +103,26 @@ export async function mockCampSystemApi(page: Page, user: MockUser) {
     const path = url.pathname.replace(/^\/api/, "");
 
     if (path === "/auth/login" && request.method() === "POST") {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ message: "Session started" }) });
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Session started" }),
+      });
       return;
     }
 
     if (path === "/auth/me" && request.method() === "GET") {
+      const mockedUserIdByUsername: Record<string, number> = {
+        sys_admin: 1,
+        resource_admin: 2,
+        worker_user: 3,
+      };
+
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          userId: user.roles.includes("SYSTEM_ADMIN") ? 1 : 2,
+          userId: mockedUserIdByUsername[user.username] ?? 3,
           username: user.username,
           roles: user.roles,
           campId: user.campId,
@@ -93,9 +131,12 @@ export async function mockCampSystemApi(page: Page, user: MockUser) {
       });
       return;
     }
-
     if (path === "/auth/logout") {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ message: "Session closed" }) });
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Session closed" }),
+      });
       return;
     }
 
@@ -191,12 +232,20 @@ export async function mockCampSystemApi(page: Page, user: MockUser) {
       return;
     }
 
-    if (path === "/users/profiles/list" || path === "/users/with-profile" || path === "/users") {
+    if (
+      path === "/users/profiles/list" ||
+      path === "/users/with-profile" ||
+      path === "/users"
+    ) {
       await fulfill(route, { items: users });
       return;
     }
 
-    await route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ message: `Unhandled mock route: ${path}` }) });
+    await route.fulfill({
+      status: 404,
+      contentType: "application/json",
+      body: JSON.stringify({ message: `Unhandled mock route: ${path}` }),
+    });
   };
 
   await page.route("http://localhost:3000/api/**", handleApiRoute);
