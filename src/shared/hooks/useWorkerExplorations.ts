@@ -42,7 +42,7 @@ export function useWorkerExplorations() {
             });
             setError(
                 response.getMensaje() ||
-                "No se pudieron cargar las exploraciones.",
+                "The scans could not be loaded.",
             );
             return;
         }
@@ -84,7 +84,7 @@ export function useWorkerExplorations() {
                     });
                     setError(
                         response.getMensaje() ||
-                        "No se pudieron cargar las exploraciones.",
+                        "The scans could not be loaded.",
                     );
                 } else {
                     setData(

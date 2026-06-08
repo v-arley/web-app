@@ -38,7 +38,7 @@ export function useResourceProduction() {
       setRules([]);
       setError(
         rulesResponse.getMensaje() ||
-          "No se pudieron cargar las reglas de producción.",
+          "The production rules could not be loaded.",
       );
     } else {
       setRules(
@@ -56,7 +56,7 @@ export function useResourceProduction() {
       });
       setError(
         historyResponse.getMensaje() ||
-          "No se pudo cargar el historial de producción.",
+          "The production history could not be loaded.",
       );
     } else {
       setHistory(
@@ -89,7 +89,7 @@ export function useResourceProduction() {
           setRules([]);
           setError(
             rulesResponse.getMensaje() ||
-              "No se pudieron cargar las reglas de producción.",
+              "The production rules could not be loaded.",
           );
         } else {
           setRules(
@@ -107,7 +107,7 @@ export function useResourceProduction() {
           });
           setError(
             historyResponse.getMensaje() ||
-              "No se pudo cargar el historial de producción.",
+              "The production history could not be loaded.",
           );
         } else {
           setHistory(
@@ -156,7 +156,7 @@ export function useResourceProduction() {
 
         if (!response.getEstado()) {
           setError(
-            response.getMensaje() || "No se pudo registrar la producción.",
+            response.getMensaje() || "The production could not be registered.",
           );
           return null;
         }
