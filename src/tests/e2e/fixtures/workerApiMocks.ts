@@ -23,6 +23,36 @@ const campAlpha = {
   active: true,
 };
 
+const workerTasks = [
+  {
+    id: 101,
+    name: "Inspect water filters",
+    title: "Inspect water filters",
+    description: "Verify that the camp water filters are clean and operational.",
+    type: "MAINTENANCE",
+    priority: "H",
+    difficulty: "M",
+    estimated_minutes: 45,
+    assignment: {
+      id: 501,
+      state: "A",
+      assigned_at: "2026-06-06T12:00:00.000Z",
+    },
+  },
+];
+
+const completedTaskResult = {
+  taskId: 101,
+  taskName: "Inspect water filters",
+  pointsAwarded: 10,
+  alreadyCompleted: false,
+  points: {
+    totalPoints: 120,
+    level: 2,
+  },
+  unlockedAchievements: [],
+};
+
 function ok(resultado: unknown) {
   return {
     estado: true,
@@ -106,6 +136,16 @@ export async function mockWorkerApi(
 
     if (path === "/camps/1") {
       await fulfill(route, { item: campAlpha });
+      return;
+    }
+
+    if (path === "/tasks/worker" && request.method() === "GET") {
+      await fulfill(route, { items: workerTasks });
+      return;
+    }
+
+    if (path === "/tasks/worker/101/complete" && request.method() === "PATCH") {
+      await fulfill(route, { item: completedTaskResult });
       return;
     }
 
