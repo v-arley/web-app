@@ -59,6 +59,18 @@ export class CampService extends AxiosBaseService{
 		}
 	}
 
+	async findVisibleForCurrentUser(): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<{ item: Camp }> | Camp>("/camps/current/visible");
+			const campData = this.extractItem<Camp>(data);
+			const camp = campData ? new Camp(campData) : null;
+
+			return new Respuesta(true, "Campamento visible obtenido correctamente.", "", "registro", camp);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo resolver el campamento visible"), "", "registro", null);
+		}
+	}
+
 	/**
 	 * Obtiene todos los campamentos disponibles para crear solicitudes entre campamentos.
 	 * Este mÃ©todo siempre devuelve todos los campamentos, independientemente del scope del usuario.

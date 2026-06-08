@@ -31,7 +31,7 @@ export function SystemModuleShell<T extends string>({
         <article className="rmm-scope flex h-full min-h-0 flex-col bg-transparent overflow-hidden relative no-scrollbar border border-border-default">
             <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
                 <div className="rmm-module-brand flex items-center gap-3 shrink-0">
-                    <div className="rmm-module-accent w-0.75 self-stretch bg-accent" />
+                    {/* <div className="rmm-module-accent w-0.75 self-stretch bg-accent" /> */}
                     <div className="rmm-module-copy py-2 px-3">
                         <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">{title}</div>
                         <p className="rmm-module-subtitle text-[9px] text-txt-muted uppercase tracking-wide mt-0.5">{subtitle}</p>
