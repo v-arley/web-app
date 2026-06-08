@@ -4,8 +4,9 @@ interface Shipment {
   id?: number;
   request_id?: number;
   status?: string;
-  departure_date?: string;
-  arrival_date?: string;
+  departure_date?: string | null;
+  arrival_date?: string | null;
+  observations?: string | null;
   created_at?: string;
 }
 

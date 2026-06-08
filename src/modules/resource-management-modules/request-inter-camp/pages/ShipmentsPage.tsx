@@ -95,15 +95,20 @@ export function ShipmentsPage() {
             <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING SHIPMENTS...</p>
           </div>
         ) : (
-          <ShipmentsTable
-            shipments={pagedShipments}
-            onViewDetail={setSelectedShipment}
-            isLoading={
-              startTransit.isPending ||
-              confirmDelivery.isPending ||
-              cancelShipment.isPending
+         <ShipmentsTable
+          shipments={pagedShipments}
+          onView={(id) => {
+            const shipment = pagedShipments.find((item) => item.id === id);
+            if (shipment) {
+              setSelectedShipment(shipment);
             }
-          />
+          }}
+          isLoading={
+            startTransit.isPending ||
+            confirmDelivery.isPending ||
+            cancelShipment.isPending
+          }
+        />
         )}
       </section>
       <PaginationFooter
