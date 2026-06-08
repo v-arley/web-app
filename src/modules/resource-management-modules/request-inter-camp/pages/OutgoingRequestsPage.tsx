@@ -19,7 +19,7 @@ export function OutgoingRequestsPage() {
   const originCampId = authContext.campId ?? 0;
 
   const { toast } = useToast();
-  const { data: requests = [], isLoading } = useCampRequestsQuery({ originCampId }, originCampId > 0);
+  const { data: requests = [], isLoading } = useCampRequestsQuery({ originCampId, requestType: "R" }, originCampId > 0);
   const { approveAsOrigin, rejectAsOrigin } = useCampRequestMutation();
   const [statusFilter, setStatusFilter] = useState<'P' | 'A' | 'R' | ''>('');
   const [destinationFilter, setDestinationFilter] = useState<number | ''>('');
