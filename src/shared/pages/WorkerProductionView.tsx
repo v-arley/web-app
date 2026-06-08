@@ -146,13 +146,13 @@ export function WorkerProductionView() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#111111] overflow-hidden">
-      <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-6 py-3 flex items-center justify-between shrink-0">
-        <div className="flex flex-col">
-          <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label">
+    <div className="w-full h-full flex flex-col bg-[#111111] overflow-hidden min-w-0">
+      <div className="w-full bg-[#242424] border-b border-[#3a3a3a] px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
+        <div className="flex flex-col min-w-0">
+          <span className="text-[12px] font-mono font-bold text-[#C0C0C0] uppercase tracking-label break-words">
             Daily production
           </span>
-          <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label">
+          <span className="text-[10px] font-mono text-[#6B7280] uppercase tracking-label break-words">
             Worker resource production / rule based registry
           </span>
         </div>
@@ -160,7 +160,7 @@ export function WorkerProductionView() {
         <button
           type="button"
           onClick={() => void reload()}
-          className="flex items-center gap-2 text-[11px] font-mono text-[#6B7280] hover:text-[#E85D04] uppercase tracking-label transition-colors"
+          className="flex items-center gap-2 text-[11px] font-mono text-[#6B7280] hover:text-[#E85D04] uppercase tracking-label transition-colors shrink-0"
         >
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
           {loading ? "Loading..." : "Refresh"}
@@ -168,20 +168,23 @@ export function WorkerProductionView() {
       </div>
 
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="p-4 space-y-4">
+        <div className="p-3 sm:p-4 space-y-4">
           {error && (
-            <div className="border border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-label flex items-center gap-2">
-              <AlertTriangle size={15} />
+            <div className="border border-[#E85D04] bg-[#E85D04]/10 text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-label flex items-start sm:items-center gap-2 break-words">
+              <AlertTriangle size={15} className="shrink-0 mt-0.5 sm:mt-0" />
               {error}
             </div>
           )}
 
           {lastResult && (
             <div className="p-4 bg-[#22C55E]/10 border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs space-y-2 shadow-[0_0_14px_rgba(34,197,94,0.18)]">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={17} className="text-[#FACC15]" />
-                  <span className="font-bold uppercase tracking-label">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-start sm:items-center gap-2 min-w-0">
+                  <Sparkles
+                    size={17}
+                    className="text-[#FACC15] shrink-0 mt-0.5 sm:mt-0"
+                  />
+                  <span className="font-bold uppercase tracking-label break-words">
                     Production recorded successfully
                   </span>
                 </div>
@@ -189,20 +192,20 @@ export function WorkerProductionView() {
                 <button
                   type="button"
                   onClick={clearLastResult}
-                  className="text-[#6B7280] hover:text-[#22C55E] uppercase tracking-label"
+                  className="text-[#6B7280] hover:text-[#22C55E] uppercase tracking-label self-end sm:self-auto shrink-0"
                 >
                   Close
                 </button>
               </div>
 
-              <p className="text-[#C0C0C0]">
+              <p className="text-[#C0C0C0] break-words">
                 Recorded{" "}
                 <strong className="text-[#FACC15]">{lastResult.amount}</strong>{" "}
                 {unit}.
               </p>
 
               {lastResult.pointsAwarded !== undefined && (
-                <p className="text-[#C0C0C0]">
+                <p className="text-[#C0C0C0] break-words">
                   Points awarded:{" "}
                   <strong className="text-[#FACC15]">
                     +{lastResult.pointsAwarded}
@@ -211,7 +214,7 @@ export function WorkerProductionView() {
               )}
 
               {lastResult.points && (
-                <p className="text-[#C0C0C0]">
+                <p className="text-[#C0C0C0] break-words">
                   Current total:{" "}
                   <strong className="text-[#FACC15]">
                     {lastResult.points.totalPoints ??
@@ -228,11 +231,11 @@ export function WorkerProductionView() {
               {!!lastResult.unlockedAchievements?.length && (
                 <div className="border border-[#FACC15]/40 bg-[#FACC15]/10 p-3 text-[#FACC15]">
                   <div className="flex items-center gap-2 font-bold uppercase tracking-label">
-                    <Award size={15} />
-                    Unlocked achievements
+                    <Award size={15} className="shrink-0" />
+                    <span className="break-words">Unlocked achievements</span>
                   </div>
 
-                  <p className="mt-1 text-[#C0C0C0]">
+                  <p className="mt-1 text-[#C0C0C0] break-words">
                     Unlocked {lastResult.unlockedAchievements.length} new
                     achievement(s).
                   </p>
@@ -242,17 +245,17 @@ export function WorkerProductionView() {
           )}
 
           <section className="border border-[#38BDF8]/45 bg-[#1a1a1a] p-4 shadow-[0_0_18px_rgba(56,189,248,0.1)]">
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <div>
-                <span className="text-[10px] text-[#6B7280] font-mono uppercase tracking-label">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <span className="text-[10px] text-[#6B7280] font-mono uppercase tracking-label break-words">
                   Available production rules
                 </span>
-                <h3 className="text-sm text-white font-mono font-bold uppercase tracking-label">
+                <h3 className="text-sm text-white font-mono font-bold uppercase tracking-label break-words">
                   Select the resource you will produce
                 </h3>
               </div>
 
-              <span className="text-[#38BDF8] border border-[#38BDF8]/50 bg-[#38BDF8]/10 px-3 py-1 text-[10px] font-mono uppercase font-bold">
+              <span className="text-[#38BDF8] border border-[#38BDF8]/50 bg-[#38BDF8]/10 px-3 py-1 text-[10px] font-mono uppercase font-bold w-full sm:w-auto text-center shrink-0">
                 {rules.length} rule(s)
               </span>
             </div>
@@ -278,19 +281,19 @@ export function WorkerProductionView() {
                         setSelectedRuleIndex(index);
                         setAmountValue("");
                       }}
-                      className={`text-left border p-3 transition-colors font-mono ${
+                      className={`text-left border-2 p-3 transition-all font-mono min-w-0 ${
                         selected
-                          ? "border-[#E85D04] bg-[#E85D04]/10 text-white"
-                          : "border-[#3a3a3a] bg-[#111111] text-[#C0C0C0] hover:border-[#38BDF8]/70"
+                          ? "border-[#E85D04] bg-[#E85D04]/10 text-white shadow-[inset_0_0_0_1px_rgba(232,93,4,0.35)] hover:shadow-[inset_0_0_0_1px_rgba(232,93,4,0.45),0_0_16px_rgba(232,93,4,0.35)]"
+                          : "border-[#38BDF8] bg-[#111111] text-[#C0C0C0] shadow-[inset_0_0_0_1px_rgba(56,189,248,0.25)] hover:shadow-[inset_0_0_0_1px_rgba(56,189,248,0.35),0_0_16px_rgba(56,189,248,0.35)]"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-[#6B7280] uppercase tracking-label">
+                        <span className="text-[10px] text-[#6B7280] uppercase tracking-label break-all">
                           {getResourceCode(item)}
                         </span>
 
                         <span
-                          className={`text-[9px] border px-2 py-0.5 uppercase ${
+                          className={`text-[9px] border px-2 py-0.5 uppercase whitespace-nowrap shrink-0 ${
                             selected
                               ? "text-[#E85D04] border-[#E85D04]/60"
                               : "text-[#38BDF8] border-[#38BDF8]/40"
@@ -300,25 +303,25 @@ export function WorkerProductionView() {
                         </span>
                       </div>
 
-                      <div className="mt-2 text-sm font-bold uppercase tracking-label">
+                      <div className="mt-2 text-sm font-bold uppercase tracking-label break-words">
                         {getResourceName(item)}
                       </div>
 
-                      <div className="mt-2 grid grid-cols-2 gap-2 text-[10px]">
-                        <div>
+                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                        <div className="min-w-0">
                           <span className="block text-[#6B7280] uppercase">
                             Quota
                           </span>
-                          <strong className="text-[#FACC15]">
+                          <strong className="text-[#FACC15] break-words">
                             {getExpectedAmount(item)} {getResourceUnit(item)}
                           </strong>
                         </div>
 
-                        <div>
+                        <div className="min-w-0">
                           <span className="block text-[#6B7280] uppercase">
                             From
                           </span>
-                          <strong className="text-white">
+                          <strong className="text-white break-words">
                             {formatDate(getEffectiveDate(item))}
                           </strong>
                         </div>
@@ -331,16 +334,16 @@ export function WorkerProductionView() {
           </section>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            <section className="lg:col-span-5 border border-[#E85D04]/45 bg-[#1a1a1a] p-5 shadow-[0_0_18px_rgba(232,93,4,0.1)]">
-              <div className="border-b border-[#3a3a3a] pb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Scale size={18} className="text-[#E85D04]" />
-                  <h3 className="font-mono text-xs font-bold text-white uppercase tracking-label">
+            <section className="lg:col-span-5 border border-[#E85D04]/45 bg-[#1a1a1a] p-4 sm:p-5 shadow-[0_0_18px_rgba(232,93,4,0.1)] min-w-0">
+              <div className="border-b border-[#3a3a3a] pb-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Scale size={18} className="text-[#E85D04] shrink-0" />
+                  <h3 className="font-mono text-xs font-bold text-white uppercase tracking-label break-words">
                     Selected rule
                   </h3>
                 </div>
 
-                <span className="font-mono text-[10px] bg-[#E85D04]/15 text-[#E85D04] px-2 py-0.5 border border-[#E85D04]/40 uppercase font-bold">
+                <span className="font-mono text-[10px] bg-[#E85D04]/15 text-[#E85D04] px-2 py-0.5 border border-[#E85D04]/40 uppercase font-bold whitespace-nowrap shrink-0">
                   {selectedRule?.state === "A" ? "Active" : "N/A"}
                 </span>
               </div>
@@ -351,45 +354,45 @@ export function WorkerProductionView() {
                 </div>
               ) : (
                 <div className="mt-4 space-y-4 font-mono text-xs">
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-[#6B7280] block uppercase text-[10px] font-bold">
                       Applicable profession
                     </span>
-                    <span className="text-white font-medium">
+                    <span className="text-white font-medium break-words">
                       {getProfessionName(selectedRule)}
                     </span>
                   </div>
 
-                  <div className="p-3 bg-[#111111] border border-[#3a3a3a] space-y-2">
+                  <div className="p-3 bg-[#111111] border border-[#3a3a3a] space-y-2 min-w-0">
                     <span className="text-[#6B7280] block uppercase text-[10px] font-bold">
                       Assigned resource
                     </span>
 
-                    <div className="flex justify-between items-center gap-3">
-                      <span className="text-white font-bold text-sm tracking-label">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3">
+                      <span className="text-white font-bold text-sm tracking-label break-words">
                         {getResourceName(selectedRule)}
                       </span>
 
-                      <span className="text-[10px] text-[#E85D04] px-2 py-0.5 bg-[#242424] border border-[#3a3a3a]">
+                      <span className="text-[10px] text-[#E85D04] px-2 py-0.5 bg-[#242424] border border-[#3a3a3a] w-fit break-all">
                         {getResourceCode(selectedRule)}
                       </span>
                     </div>
 
-                    <div className="pt-2 border-t border-[#3a3a3a] grid grid-cols-2 gap-2 text-[11px]">
-                      <div>
+                    <div className="pt-2 border-t border-[#3a3a3a] grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                      <div className="min-w-0">
                         <span className="text-[#6B7280] block text-[9px] uppercase">
                           Required quota
                         </span>
-                        <strong className="text-[#E85D04]">
+                        <strong className="text-[#E85D04] break-words">
                           {expectedAmount} {unit}
                         </strong>
                       </div>
 
-                      <div>
+                      <div className="min-w-0">
                         <span className="text-[#6B7280] block text-[9px] uppercase">
                           Camp
                         </span>
-                        <strong className="text-white">
+                        <strong className="text-white break-words">
                           {selectedRule.camp?.code ??
                             selectedRule.camp?.description ??
                             selectedRule.campId ??
@@ -399,21 +402,21 @@ export function WorkerProductionView() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="min-w-0">
                       <span className="text-[#6B7280] block uppercase text-[10px] font-bold">
                         Effective date
                       </span>
-                      <span className="text-white font-medium">
+                      <span className="text-white font-medium break-words">
                         {formatDate(getEffectiveDate(selectedRule))}
                       </span>
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-[#6B7280] block uppercase text-[10px] font-bold">
                         Resource ID
                       </span>
-                      <span className="text-[#38BDF8] font-mono">
+                      <span className="text-[#38BDF8] font-mono break-words">
                         {resourceId}
                       </span>
                     </div>
@@ -422,35 +425,35 @@ export function WorkerProductionView() {
               )}
             </section>
 
-            <section className="lg:col-span-7 border border-[#3a3a3a] bg-[#1a1a1a] p-5">
+            <section className="lg:col-span-7 border border-[#3a3a3a] bg-[#1a1a1a] p-4 sm:p-5 min-w-0">
               <h3 className="font-mono text-sm font-bold text-white uppercase tracking-label border-b border-[#3a3a3a] pb-3 mb-4 flex items-center gap-2">
-                <Terminal size={18} className="text-[#E85D04]" />
-                Daily production record
+                <Terminal size={18} className="text-[#E85D04] shrink-0" />
+                <span className="break-words">Daily production record</span>
               </h3>
 
               <form
                 onSubmit={handleSubmit}
                 className="space-y-4 font-mono text-xs"
               >
-                <div>
+                <div className="min-w-0">
                   <label className="text-[#6B7280] block mb-1 uppercase font-bold">
                     Selected resource
                   </label>
 
-                  <div className="p-3 bg-[#111111] border border-[#3a3a3a] text-white uppercase flex justify-between items-center font-bold">
-                    <span>
+                  <div className="p-3 bg-[#111111] border border-[#3a3a3a] text-white uppercase flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3 font-bold">
+                    <span className="break-words">
                       {selectedRule ? getResourceName(selectedRule) : "N/A"}
                     </span>
-                    <span className="text-[10px] text-[#38BDF8] bg-[#242424] px-2 py-0.5 border border-[#3a3a3a]">
+                    <span className="text-[10px] text-[#38BDF8] bg-[#242424] px-2 py-0.5 border border-[#3a3a3a] w-fit break-all">
                       {selectedRule ? getResourceCode(selectedRule) : "N/A"}
                     </span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-[#C0C0C0] block mb-1 uppercase font-bold">
-                      Amount produced
+                      Amount produced <span className="text-[#EF4444]">*</span>
                     </label>
 
                     <div className="relative">
@@ -462,7 +465,7 @@ export function WorkerProductionView() {
                           expectedAmount > 0 ? String(expectedAmount) : "0"
                         }
                         onChange={(event) => setAmountValue(event.target.value)}
-                        className="w-full bg-[#111111] border border-[#3a3a3a] focus:border-[#E85D04] p-3 outline-none text-white font-bold text-sm placeholder:text-[#6B7280]"
+                        className="w-full bg-[#111111] border border-[#3a3a3a] focus:border-[#E85D04] p-3 pr-12 outline-none text-white font-bold text-sm placeholder:text-[#6B7280]"
                         required
                         disabled={!selectedRule || saving}
                       />
@@ -473,7 +476,7 @@ export function WorkerProductionView() {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <label className="text-[#C0C0C0] block mb-1 uppercase font-bold">
                       Production date
                     </label>
@@ -492,7 +495,7 @@ export function WorkerProductionView() {
                 </div>
 
                 <div className="p-3 bg-[#111111] border border-[#3a3a3a]">
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-3 mb-2">
                     <span className="text-[#6B7280] font-bold uppercase">
                       Current entry efficiency
                     </span>
@@ -524,11 +527,11 @@ export function WorkerProductionView() {
                         size={16}
                         className="shrink-0 mt-0.5 text-[#E85D04]"
                       />
-                      <div className="leading-tight">
-                        <p className="font-bold uppercase">
+                      <div className="leading-tight min-w-0">
+                        <p className="font-bold uppercase break-words">
                           Production below expected quota
                         </p>
-                        <p className="text-[10px] mt-1 text-[#C0C0C0]">
+                        <p className="text-[10px] mt-1 text-[#C0C0C0] break-words">
                           The expected target for this resource is{" "}
                           {expectedAmount} {unit}.
                         </p>
@@ -540,9 +543,9 @@ export function WorkerProductionView() {
                         size={16}
                         className="shrink-0 mt-0.5 text-[#22C55E]"
                       />
-                      <div className="leading-tight">
+                      <div className="leading-tight min-w-0">
                         <p className="font-bold uppercase">Quota met</p>
-                        <p className="text-[10px] mt-1 text-[#C0C0C0]">
+                        <p className="text-[10px] mt-1 text-[#C0C0C0] break-words">
                           The entry meets or exceeds the amount expected by the
                           active rule.
                         </p>
@@ -563,21 +566,21 @@ export function WorkerProductionView() {
           </div>
 
           <section className="border border-[#3a3a3a] bg-[#1a1a1a] overflow-hidden">
-            <div className="border-b border-[#3a3a3a] bg-[#242424] p-4 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Database size={18} className="text-[#E85D04]" />
-                <h3 className="font-mono text-xs font-bold text-white uppercase tracking-label">
+            <div className="border-b border-[#3a3a3a] bg-[#242424] p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Database size={18} className="text-[#E85D04] shrink-0" />
+                <h3 className="font-mono text-xs font-bold text-white uppercase tracking-label break-words">
                   Logistic performance history
                 </h3>
               </div>
 
-              <span className="font-mono text-xs text-[#6B7280] uppercase">
+              <span className="font-mono text-xs text-[#6B7280] uppercase shrink-0">
                 Total records: {history.total}
               </span>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left font-mono text-xs border-collapse">
+              <table className="w-full min-w-[760px] text-left font-mono text-xs border-collapse">
                 <thead className="bg-[#111111] text-[#6B7280] font-bold uppercase text-[10px]">
                   <tr>
                     <th className="p-3 pl-4">Entry ID</th>
@@ -616,7 +619,7 @@ export function WorkerProductionView() {
                         </td>
 
                         <td className="p-3">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
                             <Calendar size={13} className="text-[#6B7280]" />
                             {formatDate(getProductionDate(item))}
                           </div>
@@ -626,20 +629,20 @@ export function WorkerProductionView() {
                           {getHistoryResource(item, selectedRule)}
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-3 whitespace-nowrap">
                           <span className="font-bold text-[#E85D04]">
                             {item.amount}
                           </span>{" "}
                           {unit}
                         </td>
 
-                        <td className="p-3 text-[#FACC15]">
+                        <td className="p-3 text-[#FACC15] whitespace-nowrap">
                           {rowExpected} {unit}
                         </td>
 
                         <td className="p-3 pr-4">
                           <span
-                            className={`px-2 py-0.5 border text-[10px] uppercase font-bold ${
+                            className={`px-2 py-0.5 border text-[10px] uppercase font-bold whitespace-nowrap ${
                               achieved
                                 ? "border-[#22C55E]/50 bg-[#22C55E]/10 text-[#22C55E]"
                                 : "border-[#FACC15]/50 bg-[#FACC15]/10 text-[#FACC15]"
@@ -655,17 +658,17 @@ export function WorkerProductionView() {
               </table>
             </div>
 
-            <div className="p-3 bg-[#111111] border-t border-[#3a3a3a] flex justify-between items-center">
+            <div className="p-3 bg-[#111111] border-t border-[#3a3a3a] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
               <span className="font-mono text-[10px] text-[#6B7280] uppercase tracking-label">
                 Page {history.page} of {history.totalPages || 1}
               </span>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 justify-end">
                 <button
                   type="button"
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page <= 1}
-                  className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1"
+                  className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap"
                 >
                   <ChevronLeft size={13} />
                   Previous
@@ -677,7 +680,7 @@ export function WorkerProductionView() {
                     setPage(Math.min(history.totalPages || 1, page + 1))
                   }
                   disabled={page >= (history.totalPages || 1)}
-                  className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1"
+                  className="px-3 py-1.5 text-xs border border-[#3a3a3a] hover:border-[#E85D04] disabled:opacity-40 disabled:hover:border-[#3a3a3a] text-white transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap"
                 >
                   Next
                   <ChevronRight size={13} />

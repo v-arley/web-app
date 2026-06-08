@@ -20,7 +20,7 @@ export function useWorkerTasks() {
 
         if (!response.getEstado()) {
             setTasks([]);
-            setError(response.getMensaje() || "No se pudieron cargar las tareas.");
+            setError(response.getMensaje() || "The tasks could not be loaded.");
             setLoading(false);
             return;
         }
@@ -37,7 +37,7 @@ export function useWorkerTasks() {
             const response = await taskService.completeWorkerTask(taskId);
 
             if (!response.getEstado()) {
-                setError(response.getMensaje() || "No se pudo completar la tarea.");
+                setError(response.getMensaje() || "The task could not be completed.");
                 setCompletingTaskId(null);
                 return null;
             }

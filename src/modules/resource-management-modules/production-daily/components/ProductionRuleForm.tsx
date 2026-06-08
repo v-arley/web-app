@@ -76,11 +76,8 @@ export function ProductionRuleForm({
             onSubmit={form.handleSubmit(async (values) => onSubmit(values))}
             className="flex flex-1 min-h-0 flex-col relative"
         >
-            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 shrink-0">
-                <div className="rmm-section-header mb-0 border-none pb-0">
-                    <span className="rmm-section-title">Production Parameters</span>
-                    <span className="rmm-section-id">PRD_RULE_CMD</span>
-                </div>
+            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20  backdrop-blur-lg shrink-0">
+                    <span className="rmm-section-title font-abril">Production Parameters</span>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -112,7 +109,7 @@ export function ProductionRuleForm({
                     />
                 </Field>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="From" required id="START_DT" error={errors.effective_date?.message}>
                         <input
                             type="date"

@@ -8,6 +8,8 @@ interface ProductionRecordsFilters {
     endDate?: string;
     personId?: number;
     resourceId?: number;
+    page?: number;
+    limit?: number;
 }
 
 export function useProductionRecordsQuery(

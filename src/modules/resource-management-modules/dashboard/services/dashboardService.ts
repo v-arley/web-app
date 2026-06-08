@@ -84,10 +84,10 @@ export class DashboardService extends AxiosBaseService {
         }
     }
 
-    async getRecentActivity(limit: number = 10): Promise<ActivityLog[]> {
+    async getRecentActivity(campId: number, limit: number = 20): Promise<ActivityLog[]> {
         try {
             const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>>>(
-                `/audit-logs/recent`,
+                `${this.campBase}/${campId}/activity-log`,
                 { params: { limit } }
             );
             const rawItems = this.extractItems<Record<string, unknown>>(data);

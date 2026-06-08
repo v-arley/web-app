@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import {
     AchievementsPage,
-    CampsView, CreateCampModulePage, DashboardResourcePage, DashboardView, ExplorationsView, GlobalDashboardModulePage,
+    CampsView, CatalogsMainPage, CreateCampModulePage, DashboardResourcePage, DashboardView, ExplorationsView, GlobalDashboardModulePage,
     InterCampMainPage, InventoryMainPage, InventoryView, ProductionMainPage, ProfessionsPage, RationsMainPage,
     RequestsView, ResourcesPage, SettingsView, StockAlertsMainPage, UsersView, WarehouseView,
     WorkerAchievementsView, WorkerExplorationsView, WorkerProductionView, WorkerProfileView, WorkerRationsView, WorkerTasksView,
@@ -36,7 +36,7 @@ const COMPONENTS = {
     DashboardView, ExplorationsView,
     UsersView, RequestsView, InventoryView, WarehouseView, CampsView, SettingsView,
     WorkerProfileView, WorkerAchievementsView, WorkerTasksView, WorkerProductionView, WorkerRationsView,
-    WorkerExplorationsView, ResourcesPage, ProfessionsPage, AchievementsPage, CreateCampModulePage, GlobalDashboardModulePage,
+    WorkerExplorationsView, ResourcesPage, ProfessionsPage, AchievementsPage, CatalogsMainPage, CreateCampModulePage, GlobalDashboardModulePage,
     DashboardResourcePage, InventoryMainPage, StockAlertsMainPage, ProductionMainPage, RationsMainPage, InterCampMainPage,
 };
 
@@ -69,6 +69,7 @@ const SECTION_CONFIGS: SectionConfig[] = [
     { key: "catalog-resources",    path: "/app/catalog/resources",    label: "Resources Catalog",iconName: "Layers",          componentName: "ResourcesPage" },
     { key: "catalog-professions",  path: "/app/catalog/professions",  label: "Professions",      iconName: "Briefcase",       componentName: "ProfessionsPage" },
     { key: "catalog-achievements", path: "/app/catalog/achievements", label: "Achievements",     iconName: "Star",            componentName: "AchievementsPage" },
+    { key: "catalogs-main",        path: "/app/catalogs",             label: "Catalogs",         iconName: "Layers",          componentName: "CatalogsMainPage" },
     { key: "create-camp",          path: "/app/create-camp",          label: "Create Camp",      iconName: "PlusCircle",      componentName: "CreateCampModulePage" },
     { key: "global-dashboard",     path: "/app/global-dashboard",     label: "Global Dashboard", iconName: "Globe",           componentName: "GlobalDashboardModulePage" },
     { key: "resource-dashboard",   path: "/app/resource/dashboard",   label: "Dashboard",        iconName: "BarChart2",       componentName: "DashboardResourcePage" },

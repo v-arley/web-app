@@ -1,15 +1,20 @@
 import { useState } from "react";
+<<<<<<< HEAD
 import { Check, Eye, X } from "lucide-react";
+=======
+>>>>>>> develop
 import type { CampRequestFormValues } from "../schemas/camp-request.schema";
 import { RequestDetailModal } from "./RequestDetailModal";
 
 interface IncomingRequestsTableProps {
   requests: CampRequestFormValues[];
+  campMap?: Map<number, string>;
   onApprove: (id: number) => void;
   onReject: (id: number) => void;
-  isLoading?: boolean;
+  actionLoading?: boolean;
 }
 
+<<<<<<< HEAD
 function formatStatus(status?: string | null) {
   const value = status ?? "P";
 
@@ -68,11 +73,28 @@ export function IncomingRequestsTable({
 
         <p className="mt-2 text-[13px] font-bold tracking-[0.04em] text-txt-secondary">
           Incoming inter-camp requests will appear here.
+=======
+const STATUS_META: Record<string, { label: string; style: string }> = {
+  P: { label: "PENDING",  style: "text-status-warning" },
+  A: { label: "APPROVED", style: "text-status-ok" },
+  R: { label: "REJECTED", style: "text-status-critical" },
+};
+
+export function IncomingRequestsTable({ requests, campMap, onApprove, onReject, actionLoading = false }: IncomingRequestsTableProps) {
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+
+  if (requests.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="font-mono text-[11px] uppercase tracking-wide text-txt-secondary">
+          NO INCOMING REQUESTS RECORDED
+>>>>>>> develop
         </p>
       </div>
     );
   }
 
+<<<<<<< HEAD
   return (
     <>
       <div className="overflow-hidden border border-border-default bg-bg-secondary">
@@ -184,6 +206,65 @@ export function IncomingRequestsTable({
           originLabel={`Camp #${selectedRequest.origin_camp_id}`}
           destinationLabel={`Camp #${selectedRequest.destination_camp_id}`}
           onClose={() => setSelectedRequest(null)}
+=======
+  const selectedRequest = requests.find((r) => r.id === selectedRequestId);
+
+  return (
+    <>
+      <table className="rmm-table">
+        <thead className="">
+          <tr>
+            <th className="">Origin</th>
+            <th className="">Description</th>
+            <th className="">Status</th>
+            <th className="">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((request) => {
+            const meta = STATUS_META[request.destination_approval_status || "P"] ?? STATUS_META["P"];
+            return (
+              <tr
+                key={request.id}
+                className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
+                onDoubleClick={() => setSelectedRequestId(request.id!)}
+                title="Double-click to view detail"
+              >
+                <td>
+                  <span className="font-mono text-[12px] font-bold text-txt-primary">
+                    {campMap?.get(request.origin_camp_id!) ?? `CAMP #${request.origin_camp_id}`}
+                  </span>
+                </td>
+                <td>
+                  <p className="font-mono text-[12px] text-txt-secondary truncate max-w-xs" title={request.description || ""}>
+                    {request.description || "No description"}
+                  </p>
+                </td>
+                <td>
+                  <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>
+                    {meta.label}
+                  </span>
+                </td>
+                <td>
+                  <span className="font-mono text-[12px] text-txt-secondary">
+                    {new Date(request.created_at || "").toLocaleDateString("en-US")}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      {selectedRequestId != null && (
+        <RequestDetailModal
+          requestId={selectedRequestId}
+          onClose={() => setSelectedRequestId(null)}
+          requestStatus={selectedRequest?.destination_approval_status != null ? selectedRequest.destination_approval_status : undefined}
+          onApprove={() => { onApprove(selectedRequestId); setSelectedRequestId(null); }}
+          onReject={() => { onReject(selectedRequestId); setSelectedRequestId(null); }}
+          isLoading={actionLoading}
+>>>>>>> develop
         />
       ) : null}
     </>

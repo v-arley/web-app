@@ -5,9 +5,13 @@ import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
+import PaginationFooter from "../../shared/components/PaginationFooter";
 import { MinStockConfigForm } from "../components/MinStockConfigForm";
+import { StockTable } from "../components/StockTable";
 import { useMinStockMutation } from "../hooks/useMinStockMutation";
+import { useStockSummaryQuery } from "../hooks/useStockSummaryQuery";
 import type { MinStockConfigFormValues } from "../schemas/min-stock-config.schema";
+import CollapsibleSidePanel, { CollapsiblePanelHeader, getInitialSidePanelOpenState } from "../../shared/components/CollapsibleSidePanel";
 
 const resourceService = new ResourceService();
 const warehouseService = new WarehouseService();
@@ -18,6 +22,7 @@ export function MinStockConfigPage() {
 
     const { toast } = useToast();
     const [initialData, setInitialData] = useState<Partial<MinStockConfigFormValues> | undefined>(undefined);
+    const [isFormOpen, setIsFormOpen] = useState(getInitialSidePanelOpenState);
 
     const minStockMutation = useMinStockMutation();
 
@@ -76,54 +81,97 @@ export function MinStockConfigPage() {
         }
     };
 
+    const [selectedWarehouseId, setSelectedWarehouseId] = useState<number | null>(null);
+    const [selectedResourceId, setSelectedResourceId] = useState<number | null>(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const pageSize = 50;
+
+    const { query: stockQuery } = useStockSummaryQuery(campId, {
+        search: search.trim() || undefined,
+        page,
+        limit: pageSize,
+    });
+    const stockRecords = stockQuery.data?.items ?? [];
+    const pagination = stockQuery.data?.pagination ?? { page, limit: pageSize, total: 0, totalPages: 1 };
+
+    const handleStockSelect = (warehouseId: number, resourceId: number) => {
+        setSelectedWarehouseId(warehouseId);
+        setSelectedResourceId(resourceId);
+        setInitialData({ warehouse_id: warehouseId, resource_id: resourceId });
+        setIsFormOpen(true);
+    };
+
     const handleClear = () => {
         setInitialData(undefined);
+        setSelectedWarehouseId(null);
+        setSelectedResourceId(null);
     };
 
     return (
-        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
-            {/* <div className="flex items-center justify-between">
-                <div className="text-[11px] font-mono font-bold text-txt-secondary uppercase tracking-[0.2em]">
-                    Gestión de Inventario / Configurar Mínimos de Stock
-                </div>
-                <Settings2 className="h-5 w-5 text-accent" />
-            </div> */}
-
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
-                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
-                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
-
+        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad bg-transparent gap-4">
+            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
+                {/* <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
+                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" /> */}
                 <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden">
-                    <div className="flex-1 flex items-center justify-center bg-bg-primary/10 border-r border-border-default">
-                        <div className="text-center px-8 py-12 max-w-md">
-                            <Settings2 className="h-16 w-16 text-accent/30 mx-auto mb-4" />
-                            <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] mb-4">
-                                Safety Stock
-                            </div>
-                            <div className="space-y-4 text-left">
-                                <div className="p-4 bg-status-info/10 border border-status-info/30">
-                                    <div className="font-mono text-[10px] font-bold text-status-info mb-2">
-                                        ¿What is Minimum Stock?
-                                    </div>
-                                    <div className="font-mono text-[9px] text-txt-secondary leading-relaxed">
-                                        This is the minimum quantity of a resource that must be kept in a warehouse. When the current stock falls below this value, an alert is automatically generated.
-                                    </div>
-                                </div>
-                                <div className="p-4 bg-status-warning/10 border border-status-warning/30">
-                                    <div className="font-mono text-[10px] font-bold text-status-warning mb-2">
-                                        Validations
-                                    </div>
-                                    <div className="font-mono text-[9px] text-txt-secondary leading-relaxed">
-                                        • The minimum quantity must be greater than or equal to 0<br />
-                                        • It applies per resource and per warehouse<br />
-                                        • Alerts are generated automatically by the system
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {/* Stock table — click to pre-fill the config form */}
+                    <div className="flex-1 flex flex-col overflow-hidden border-r border-border-default">
 
-                    <aside className="flex w-full flex-col lg:w-[380px] shrink-0 bg-bg-primary/20 border-l border-border-default relative overflow-hidden">
+                        <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
+                            <Settings2 className="h-4 w-4 text-accent shrink-0" />
+                            <div className="rmm-panel-title flex-1 min-w-0">
+                                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
+                                    Current Stock
+                                </div>
+                                <p className="font-mono text-[11px] text-txt-muted uppercase tracking-widest mt-0.5">
+                                    Select a row to configure its minimum stock level
+                                </p>
+                            </div>
+                            <div className="relative min-w-0 w-full sm:w-40">
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                                    placeholder="Search resource..."
+                                    className="rmm-input pl-6 py-1 text-[11px]"
+                                />
+                            </div>
+                        </header>
+
+                        <div className="flex-1 overflow-auto">
+                            {stockQuery.isLoading ? (
+                                <div className="flex items-center justify-center h-full text-txt-disabled font-mono text-xs">
+                                    Loading stock...
+                                </div>
+                            ) : (
+                                <StockTable
+                                    stocks={stockRecords}
+                                    selectedWarehouseId={selectedWarehouseId}
+                                    selectedResourceId={selectedResourceId}
+                                    onSelect={handleStockSelect}
+                                />
+                            )}
+                        </div>
+                        {/* Pagination footer */}
+                        <PaginationFooter
+                            page={pagination.page}
+                            setPage={setPage}
+                            totalPages={pagination.totalPages}
+                            totalRecords={pagination.total}
+                        />
+                    </div>
+                    <CollapsibleSidePanel
+                        isOpen={isFormOpen}
+                        label="Minimum stock form"
+                        widthClassName="lg:w-95"
+                        onOpen={() => setIsFormOpen(true)}
+                        onClose={() => setIsFormOpen(false)}
+                    >
+                        <CollapsiblePanelHeader
+                            title="Minimum Stock"
+                            subtitle="Configure alert thresholds"
+                            onClose={() => setIsFormOpen(false)}
+                        />
                         <MinStockConfigForm
                             key={JSON.stringify(initialData)}
                             warehouseOptions={warehouseOptions}
@@ -133,9 +181,9 @@ export function MinStockConfigPage() {
                             onSubmit={handleSubmit}
                             onClear={handleClear}
                         />
-                    </aside>
+                    </CollapsibleSidePanel>
                 </div>
             </div>
-        </div>
+        </article>
     );
 }

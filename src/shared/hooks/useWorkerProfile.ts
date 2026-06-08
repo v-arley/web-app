@@ -19,7 +19,7 @@ export function useWorkerProfile() {
                 setProfile(null);
                 setError(
                     response.getMensaje() ||
-                    "No se pudo cargar el perfil del trabajador"
+                    "The employee profile could not be loaded."
                 );
                 setLoading(false);
                 return;
@@ -46,7 +46,7 @@ export function useWorkerProfile() {
             setProfile(null);
             setError(
                 response.getMensaje() ||
-                "No se pudo cargar el perfil del trabajador"
+                "The employee profile could not be loaded."
             );
             setLoading(false);
             return;

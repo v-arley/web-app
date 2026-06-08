@@ -1,5 +1,4 @@
 import type { StockSummary } from "../schemas/stock-summary.schema";
-import { StockStatusBadge } from "./StockStatusBadge";
 
 type Props = {
     stocks: StockSummary[];
@@ -24,18 +23,17 @@ export function StockTable({ stocks = [], selectedWarehouseId, selectedResourceI
 
     return (
         <table className="rmm-table">
-            <thead>
+            <thead className="">
                 <tr>
-                    <th className="w-8">#</th>
-                    <th>Warehouse</th>
-                    <th>Resource</th>
-                    <th className="text-right">Quantity</th>
-                    <th className="text-right">Minimum</th>
-                    <th>Status</th>
+                    <th className="">Resource</th>
+                    <th className="">Warehouse</th>
+                    <th className="">Quantity</th>
+                    <th className="">Minimum</th>
+                    <th className="">Status</th>
                 </tr>
             </thead>
             <tbody>
-                {stocks.map((record, idx) => {
+                {stocks.map((record) => {
                     const isSelected =
                         record.warehouse_id === selectedWarehouseId &&
                         record.resource_id === selectedResourceId;
@@ -44,33 +42,51 @@ export function StockTable({ stocks = [], selectedWarehouseId, selectedResourceI
                         <tr 
                             key={`${record.warehouse_id}-${record.resource_id}`}
                             onClick={() => onSelect(record.warehouse_id, record.resource_id)}
-                            className={`cursor-pointer transition-colors ${isSelected ? 'bg-accent/10' : ''}`}
+                            className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
                         >
                             <td>
-                                <span className="font-tech text-accent opacity-50">{String(idx + 1).padStart(2, '0')}</span>
-                            </td>
+                                <div className="flex flex-col justify-start items-start">
+                                    <span className="font-mono font-bold uppercase">{record.resource_name}</span>
+                                    <span className="font-mono text-[11px] text-accent opacity-70">ID: {record.resource_id}</span>
+                                </div>
+                            </td> 
                             <td>
                                 <div className="font-mono uppercase text-txt-primary">
                                     {record.warehouse_name}
                                 </div>
                             </td>
+                            
                             <td>
-                                <div className="flex flex-col">
-                                    <span className="font-mono font-bold uppercase">{record.resource_name}</span>
-                                    <span className="font-mono text-[9px] text-txt-muted opacity-70">ID: {record.resource_id}</span>
-                                </div>
-                            </td>
-                            <td className="text-right">
                                 <span className="font-mono font-bold text-txt-primary">
-                                    {record.current_amount} <span className="text-[9px] text-txt-muted">{record.unit_of_measure}</span>
+                                    {record.current_amount} <span className="text-[11px] text-txt-muted">{record.unit_of_measure}</span>
                                 </span>
                             </td>
-                            <td className="text-right font-mono">
-                                {record.min_quantity}
-                            </td>
                             <td>
-                                <div className="flex items-center gap-2">
-                                    <StockStatusBadge status={record.stock_status} size="sm" />
+                                <span className="font-mono text-[11px] text-txt-muted">{record.min_quantity}</span>
+                            </td>
+                            <td className="table-system-td table-system-td--primary">
+                                <div className="flex items-center justify-center gap-2">
+                                    {
+                                        record.stock_status === "LOW" && (
+                                            <span className="text-[#CC361E]">
+                                                {record.stock_status}
+                                            </span>
+                                        )
+                                    }
+                                    {
+                                        record.stock_status === "OK" && (
+                                            <span className="text-[#08DC86]">
+                                                {record.stock_status}
+                                            </span>
+                                        )
+                                    }
+                                    {
+                                        record.stock_status === "CRITICAL" && (
+                                            <span className="text-[#FF1636]">
+                                                {record.stock_status}
+                                            </span>
+                                        )
+                                    }
                                 </div>
                             </td>
                         </tr>

@@ -1,11 +1,11 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { Suspense, Component, type ReactNode, type ErrorInfo } from "react";
+import { Suspense, Component, useEffect, useState, type ReactNode, type ErrorInfo } from "react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { NavigationProvider } from "../app/NavigationContext";
 import { InactivityGuard } from "../app/InactivityGuard";
 
-import './App.css';
+import '../../system-aspect.css';
 
 //  Fallback de carga :::
 function SectionLoader() {
@@ -55,6 +55,11 @@ class SectionErrorBoundary extends Component<{ children: ReactNode }, EBState> {
 export default function AppLayout() {
     // key por pathname: resetea el ErrorBoundary al cambiar de sección
     const { pathname } = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [pathname]);
 
     return (
         <NavigationProvider>
@@ -62,9 +67,21 @@ export default function AppLayout() {
             <InactivityGuard />
             <div className="app-shell">
                 <div className="content-layout">
-                    <Sidebar />
+                    <Sidebar
+                        isOpen={isSidebarOpen}
+                        onClose={() => setIsSidebarOpen(false)}
+                    />
+                    <button
+                        type="button"
+                        className={`sidebar-overlay${isSidebarOpen ? " is-visible" : ""}`}
+                        aria-label="Cerrar navegacion"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
                     <main className="main-content">
-                        <Header />
+                        <Header
+                            isSidebarOpen={isSidebarOpen}
+                            onToggleSidebar={() => setIsSidebarOpen((open) => !open)}
+                        />
                         <div className="content-area">
                             <SectionErrorBoundary key={pathname}>
                                 <Suspense fallback={<SectionLoader />}>

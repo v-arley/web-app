@@ -25,6 +25,7 @@ type NavigationContextValue = {
     navigate: (key: string) => void;
     authContext: AuthContext;
     activeCamp: Camp | null;
+    activeCampStatus: "idle" | "loading" | "ready" | "missing" | "error";
 };
 
 const NavigationContext = createContext<NavigationContextValue | null>(null);
@@ -71,21 +72,55 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 
     // Campo de campamento activo :::
     const [activeCamp, setActiveCamp] = useState<Camp | null>(null);
+    const [activeCampStatus, setActiveCampStatus] =
+        useState<NavigationContextValue["activeCampStatus"]>("idle");
 
     useEffect(() => {
-        campSvc
-            .findAll()
-            .then((res) => {
-                if (res.getEstado()) {
-                    const camps = res.getResultado<Camp[]>("registros") ?? [];
-                    setActiveCamp(
-                        camps.find((c) => c.state === "A" || c.active) ??
-                            camps[0] ??
-                            null,
-                    );
+        let ignore = false;
+
+        if (authContext.campId == null) {
+            queueMicrotask(() => {
+                if (!ignore) {
+                    setActiveCamp(null);
+                    setActiveCampStatus("idle");
                 }
+            });
+            return () => {
+                ignore = true;
+            };
+        }
+
+        queueMicrotask(() => {
+            if (!ignore) {
+                setActiveCamp(null);
+                setActiveCampStatus("loading");
+            }
+        });
+        campSvc
+            .findById(authContext.campId)
+            .then((res) => {
+                if (!res.getEstado() || ignore) {
+                    if (!ignore) {
+                        setActiveCamp(null);
+                        setActiveCampStatus("error");
+                    }
+                    return;
+                }
+
+                const camp = res.getResultado<Camp>("registro") ?? null;
+                setActiveCamp(camp);
+                setActiveCampStatus(camp ? "ready" : "missing");
             })
-            .catch(() => {});
+            .catch(() => {
+                if (!ignore) {
+                    setActiveCamp(null);
+                    setActiveCampStatus("error");
+                }
+            });
+
+        return () => {
+            ignore = true;
+        };
     }, [authContext.campId]);
 
     // navigate(key) → cambia la URL a la ruta de la sección :::
@@ -110,6 +145,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
                 navigate,
                 authContext,
                 activeCamp,
+                activeCampStatus,
             }}
         >
             {children}

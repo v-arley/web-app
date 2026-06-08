@@ -1,15 +1,19 @@
 ﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
+import type { BackendResponse, BackendListPayload, PaginatedResult } from "../../../../shared/utils/Response";
 import { productionRecordSchema, type ProductionRecordFormValues } from "../schemas/production-record.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
 export class ProductionRecordService extends AxiosBaseService {
-    async getProductionRecords(campId: number, filters?: { startDate?: string; endDate?: string; personId?: number; resourceId?: number; }): Promise<ProductionRecordFormValues[]> {
+    async getProductionRecords(campId: number, filters?: { startDate?: string; endDate?: string; personId?: number; resourceId?: number; page?: number; limit?: number; }): Promise<PaginatedResult<ProductionRecordFormValues>> {
         try {
             const params = new URLSearchParams();
+            const page = filters?.page ?? 1;
+            const limit = filters?.limit ?? 20;
 
             params.append('camp_id', campId.toString());
+            params.append('page', String(page));
+            params.append('limit', String(limit));
             if (filters?.startDate) 
                 params.append('start_date', filters.startDate);
             if (filters?.endDate) 
@@ -21,8 +25,11 @@ export class ProductionRecordService extends AxiosBaseService {
 
             const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/resource-productions/filters?${params.toString()}` );
             
-            const items = this.extractItems<unknown>(data);
-            return items.map((item) => this.normalizeRecord(item));
+            const result = this.extractPaginatedItems<unknown>(data, page, limit);
+            return {
+                items: result.items.map((item) => this.normalizeRecord(item)),
+                pagination: result.pagination,
+            };
         } catch (error) {
             throw new Error(this.resolveError(error));
         }

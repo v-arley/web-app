@@ -18,7 +18,7 @@ export function MetricCard({
     progressPercentage = 0,
 }: MetricCardProps) {
     const variantStyles = {
-        default: "border-border-default bg-bg-secondary",
+        default: "border-border-default bg-[#000000]/50 backdrop-blur-sm",
         warning: "border-status-warning/30 bg-status-warning/5",
         critical: "border-status-critical/30 bg-status-critical/5",
         success: "border-status-ok/30 bg-status-ok/5",
@@ -39,7 +39,7 @@ export function MetricCard({
 
             <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
-                    <div className="text-[10px] font-mono font-bold text-txt-disabled uppercase tracking-[0.2em] mb-2">
+                    <div className="text-[10px] font-mono font-bold text-txt-disabled uppercase tracking-wide mb-2">
                         {title}
                     </div>
                     <div className="text-xl font-mono font-bold text-txt-primary mb-1">

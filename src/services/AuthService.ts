@@ -1,12 +1,12 @@
 ﻿import { Request } from "../shared/utils/Request";
 import type { AuthContext } from "../shared/utils/authAccess";
-import { normalizeRoles } from "../shared/utils/authAccess";
+import { normalizeRoles, toOptionalNumber } from "../shared/utils/authAccess";
 
 type MeResponse = {
-    userId: number;
+    userId: number | string;
     username: string;
     roles: string[];
-    campId?: number;
+    campId?: number | string | null;
     profession?: string;
 };
 
@@ -74,9 +74,9 @@ export class AuthService {
     private mapToAuthContext(data: MeResponse | null): AuthContext {
         return {
             name: data?.username ?? "",
-            userId: data?.userId,
+            userId: toOptionalNumber(data?.userId),
             roles: normalizeRoles(data?.roles),
-            campId: data?.campId,
+            campId: toOptionalNumber(data?.campId),
             profession: data?.profession,
         };
     }

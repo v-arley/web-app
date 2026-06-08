@@ -29,7 +29,7 @@ export function useWorkerRations() {
     if (!currentResponse.getEstado()) {
       setCurrentRation(null);
       setError(
-        currentResponse.getMensaje() || "No se pudo cargar la ración actual.",
+        currentResponse.getMensaje() || "The current ration could not be loaded.",
       );
     } else {
       setCurrentRation(currentResponse.getResultado<Ration>("registro"));
@@ -45,7 +45,7 @@ export function useWorkerRations() {
       });
       setError(
         historyResponse.getMensaje() ||
-          "No se pudo cargar el historial de raciones.",
+          "The ration history could not be loaded.",
       );
     } else {
       setHistory(
@@ -76,7 +76,7 @@ export function useWorkerRations() {
           setCurrentRation(null);
           setError(
             currentResponse.getMensaje() ||
-              "No se pudo cargar la ración actual.",
+              "The current ration could not be loaded.",
           );
         } else {
           setCurrentRation(currentResponse.getResultado<Ration>("registro"));
@@ -92,7 +92,7 @@ export function useWorkerRations() {
           });
           setError(
             historyResponse.getMensaje() ||
-              "No se pudo cargar el historial de raciones.",
+              "The ration history could not be loaded.",
           );
         } else {
           setHistory(

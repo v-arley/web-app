@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useProductionRulesQuery } from "../hooks/useProductionRulesQuery";
 import { PersonService } from "../../../../services/PersonService";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
+import PaginationFooter from "../../shared/components/PaginationFooter";
 import { ProductionAdjustmentForm } from "../components/ProductionAdjustmentForm";
 import { ProductionRecordsTable } from "../components/ProductionRecordsTable";
 import { useProductionRecordMutation } from "../hooks/useProductionRecordMutation";
@@ -12,6 +14,7 @@ import { useProductionRecordsQuery } from "../hooks/useProductionRecordsQuery";
 import type { ProductionRecordFormValues } from "../schemas/production-record.schema";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { useDebounce } from "../../../../shared/hooks/useDebounce";
+import CollapsibleSidePanel, { CollapsiblePanelHeader, getInitialSidePanelOpenState } from "../../shared/components/CollapsibleSidePanel";
 
 const personService = new PersonService();
 const resourceService = new ResourceService();
@@ -23,6 +26,9 @@ export function ProductionRecordsPage() {
 
     const [personId, setPersonId] = useState<number | undefined>(undefined);
     const [resourceId, setResourceId] = useState<number | undefined>(undefined);
+    const [page, setPage] = useState(1);
+    const [isFormOpen, setIsFormOpen] = useState(getInitialSidePanelOpenState);
+    const pageSize = 20;
     const { toast } = useToast();
 
     // Debounce filters
@@ -32,9 +38,13 @@ export function ProductionRecordsPage() {
     const filters = useMemo(() => ({
         personId: debouncedPersonId,
         resourceId: debouncedResourceId,
-    }), [debouncedPersonId, debouncedResourceId]);
+        page,
+        limit: pageSize,
+    }), [debouncedPersonId, debouncedResourceId, page]);
 
-    const { data: records = [], isLoading } = useProductionRecordsQuery(campId, filters);
+    const { data: recordsResult, isLoading } = useProductionRecordsQuery(campId, filters);
+    const records = recordsResult?.items ?? [];
+    const pagination = recordsResult?.pagination ?? { page, limit: pageSize, total: 0, totalPages: 1 };
     const recordMutation = useProductionRecordMutation();
 
     // Obtener almacenes del campamento
@@ -120,72 +130,133 @@ export function ProductionRecordsPage() {
         }
     };
 
-    return (
-        <div className="flex flex-1 min-h-0 flex-col p-4 md:p-6 bg-bg-app gap-4">
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default">
-                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
-                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
+    const { data: activeRulesResult } = useProductionRulesQuery(campId, true, { page: 1, limit: 6 });
+    const activeRules = activeRulesResult?.items ?? [];
 
-                <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden">
-                    <div className="flex-1 overflow-auto bg-bg-primary/10">
-                        <div className="p-6">
-                            <div className="mb-6 bg-bg-secondary border border-border-default">
-                                <div className="px-5 py-4 border-b border-border-default bg-bg-secondary/50">
-                                    <div className="flex items-center gap-2 font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em]">
-                                        <Search className="w-4 h-4" />
+    return (
+        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad overflow-hidden bg-transparent">
+            <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
+                <div className="flex-1 overflow-auto">
+                    <div className="">
+                        <div className="flex-1 flex flex-col overflow-hidden">
+                            <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
                                         Search Filters
                                     </div>
                                 </div>
-                                <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <label className="flex flex-col gap-1.5">
-                                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                            Worker
-                                        </span>
-                                        <select
-                                            value={personId ?? 0}
-                                            onChange={(e) => setPersonId(Number(e.target.value) || undefined)}
-                                            className="bg-bg-tertiary border border-border-default px-3 py-2 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all"
-                                        >
-                                            <option value={0}>All</option>
-                                            {personOptions.map((p) => (
-                                                <option key={p.id} value={p.id}>{p.label}</option>
-                                            ))}
-                                        </select>
-                                    </label>
-                                    <label className="flex flex-col gap-1.5">
-                                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                            Resource
-                                        </span>
-                                        <select
-                                            value={resourceId ?? 0}
-                                            onChange={(e) => setResourceId(Number(e.target.value) || undefined)}
-                                            className="bg-bg-tertiary border border-border-default px-3 py-2 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all"
-                                        >
-                                            <option value={0}>All</option>
-                                            {resourceOptions.map((r) => (
-                                                <option key={r.id} value={r.id}>{r.label}</option>
-                                            ))}
-                                        </select>
-                                    </label>
-                                </div>
-                            </div>
 
-                            {isLoading ? (
-                                <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                                    Loading production records...
+                                <div className="rmm-panel-actions">
+                                    <label className="flex min-w-0 items-center overflow-hidden gap-2">
+                                        <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
+                                        Worker
+                                    </span>
+                                    <select
+                                        value={personId ?? 0}
+                                        onChange={(e) => {
+                                            setPersonId(Number(e.target.value) || undefined);
+                                            setPage(1);
+                                        }}
+                                        className="rmm-input min-w-0 text-xs"
+                                    >
+                                        <option value={0}>All</option>
+                                        {personOptions.map((p) => (
+                                            <option key={p.id} value={p.id}>{p.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
+                                <label className="flex min-w-0 items-center overflow-hidden gap-2">
+                                    <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
+                                        Resource
+                                    </span>
+                                    <select
+                                        value={resourceId ?? 0}
+                                        onChange={(e) => {
+                                            setResourceId(Number(e.target.value) || undefined);
+                                            setPage(1);
+                                        }}
+                                        className="rmm-input min-w-0 text-xs"
+                                    >
+                                        <option value={0}>All</option>
+                                        {resourceOptions.map((r) => (
+                                            <option key={r.id} value={r.id}>{r.label}</option>
+                                        ))}
+                                    </select>
+                                </label>
                                 </div>
-                            ) : (
-                                <ProductionRecordsTable
-                                    records={records}
-                                    personMap={personMap}
-                                    warehouseMap={warehouseMap}
-                                    resourceMap={resourceMap}
-                                />
-                            )}
+                            </header>
                         </div>
-                    </div>
 
-                    <aside className="flex w-full flex-col lg:w-md shrink-0 bg-bg-primary/20 overflow-auto p-6">
+                        {isLoading ? (
+                            <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
+                                Loading production records...
+                            </div>
+                        ) : (
+                            <ProductionRecordsTable
+                                records={records}
+                                personMap={personMap}
+                                warehouseMap={warehouseMap}
+                                resourceMap={resourceMap}
+                            />
+                        )}
+                        <PaginationFooter
+                            page={pagination.page}
+                            setPage={setPage}
+                            totalPages={pagination.totalPages}
+                            totalRecords={pagination.total}
+                            className="px-4 py-1.5 border-border-default"
+                            leftContent={
+                                <span>
+                                    Total: <span className="text-accent font-bold">{String(pagination.total).padStart(4, "0")}</span>
+                                    {/* <span className="opacity-30 mx-4">|</span>
+                                    Scope: <span className="text-status-ok font-bold">[RECORDS]</span> */}
+                                </span>
+                            }
+                        />
+                    </div>
+                </div>
+
+                <CollapsibleSidePanel
+                    isOpen={isFormOpen}
+                    label="Production adjustment form"
+                    widthClassName="lg:w-100"
+                    onOpen={() => setIsFormOpen(true)}
+                    onClose={() => setIsFormOpen(false)}
+                >
+                    <CollapsiblePanelHeader
+                        title="Manual Adjustment"
+                        subtitle="Register production output"
+                        onClose={() => setIsFormOpen(false)}
+                    />
+                    {/* Active rules context */}
+                    {activeRules.length > 0 && (
+                        <div className="border-b border-border-default">
+                            <div className="px-4 py-3 border-b border-border-default bg-bg-secondary/30 flex items-center gap-2">
+                                <BookOpen className="h-3.5 w-3.5 text-accent" />
+                                <span className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">
+                                    Active Rules ({activeRules.length})
+                                </span>
+                            </div>
+                            <div className="max-h-36 overflow-auto">
+                                {activeRules.slice(0, 6).map((rule, i) => (
+                                    <div key={i} className="flex items-center justify-between px-4 py-2 border-b border-border-default/40 text-[9px] font-mono">
+                                        <span className="text-txt-secondary truncate max-w-30">
+                                            {resourceMap.get(rule.resource_id) ?? `RES #${rule.resource_id}`}
+                                        </span>
+                                        <span className="text-accent font-bold shrink-0 ml-2">
+                                            {rule.expected_amount} / person
+                                        </span>
+                                    </div>
+                                ))}
+                                {activeRules.length > 6 && (
+                                    <div className="px-4 py-1.5 text-[9px] font-mono text-txt-disabled">
+                                        +{activeRules.length - 6} more rules
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    <div className="flex min-h-0 flex-1 flex-col bg-bg-primary/20 relative overflow-hidden">
                         <ProductionAdjustmentForm
                             personOptions={personOptions}
                             warehouseOptions={warehouseOptions}
@@ -193,9 +264,9 @@ export function ProductionRecordsPage() {
                             isSubmitting={recordMutation.create.isPending}
                             onSubmit={handleSubmit}
                         />
-                    </aside>
-                </div>
+                    </div>
+                </CollapsibleSidePanel>
             </div>
-        </div>
+        </article>
     );
 }

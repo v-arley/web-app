@@ -53,8 +53,8 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 items-end">
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-wrap gap-2 items-end">
+        <div className="min-w-[min(100%,12rem)] flex-1">
           <label htmlFor="resource-id" className="rmm-label mb-1.5">
             RESOURCE
           </label>
@@ -72,7 +72,7 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
             ))}
           </select>
         </div>
-        <div className="w-20">
+        <div className="min-w-[5rem] flex-1 sm:flex-none">
           <label htmlFor="amount" className="rmm-label mb-1.5">
             QTY
           </label>
@@ -89,7 +89,7 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
           type="button"
           onClick={handleAdd}
           disabled={resourceId === 0}
-          className="rmm-btn border border-accent/30 bg-accent/5 text-accent hover:bg-accent/15 h-[32px] px-3 disabled:opacity-30"
+          className="rmm-btn border border-accent/30 bg-accent/5 text-accent hover:bg-accent/15 min-h-8 px-3 disabled:opacity-30 w-full sm:w-auto"
         >
           <Plus className="h-3.5 w-3.5" />
           ADD
@@ -98,7 +98,7 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
 
       {resources.length > 0 && (
         <div className="bg-bg-tertiary border border-border-default overflow-hidden">
-          <div className="bg-bg-primary border-b border-border-default px-4 py-3 grid grid-cols-[1fr_0.6fr_0.4fr] gap-4">
+          <div className="bg-bg-primary border-b border-border-default px-4 py-3 grid grid-cols-[minmax(0,1fr)_minmax(4rem,0.6fr)_minmax(3rem,0.4fr)] gap-4">
             <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest">RECURSO</div>
             <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">CANTIDAD</div>
             <div className="font-mono text-[9px] font-bold text-txt-secondary uppercase tracking-widest text-center">ACCIONES</div>
@@ -108,10 +108,10 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
             {resources.map((item, index) => (
               <div 
                 key={index} 
-                className="px-4 py-3 grid grid-cols-[1fr_0.6fr_0.4fr] gap-4 items-center hover:bg-bg-primary/30 transition-colors"
+                className="px-4 py-3 grid grid-cols-[minmax(0,1fr)_minmax(4rem,0.6fr)_minmax(3rem,0.4fr)] gap-4 items-center hover:bg-bg-primary/30 transition-colors"
               >
                 <div>
-                  <span className="font-mono text-[10px] text-txt-primary">{item.name || `ID: ${item.resource_id}`}</span>
+                  <span className="font-mono text-[10px] text-txt-primary break-words">{item.name || `ID: ${item.resource_id}`}</span>
                 </div>
                 
                 <div className="text-center">

@@ -23,27 +23,17 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
 
     return (
         <div className="overflow-x-auto">
-            <table className="w-full font-mono text-[11px]">
-                <thead className="bg-bg-secondary/50 border-b border-border-default">
+            <table className="table-system">
+                <thead className="table-system-head">
                     <tr>
-                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Profession
-                        </th>
-                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Resource
-                        </th>
-                        <th className="text-right px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Quantity/Day
-                        </th>
-                        <th className="text-left px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Effective Date
-                        </th>
-                        <th className="text-center px-4 py-2 text-[10px] font-bold text-txt-secondary uppercase tracking-widest">
-                            Status
-                        </th>
+                        <th className="table-system-th">Profession</th>
+                        <th className="table-system-th">Resource</th>
+                        <th className="table-system-th">Quantity/Day</th>
+                        <th className="table-system-th">Effective Date</th>
+                        <th className="table-system-th">Status</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-border-subtle">
+                <tbody>
                     {rules.map((rule) => {
                         const professionName = professionMap.get(rule.profession_id) || `ID ${rule.profession_id}`;
                         const resourceName = resourceMap.get(rule.resource_id) || `ID ${rule.resource_id}`;
@@ -60,20 +50,20 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
                                         : "hover:bg-bg-secondary/40"
                                 }`}
                             >
-                                <td className={`px-4 py-2.5 ${isSelected ? "pl-3" : ""} text-txt-primary`}>
+                                <td className="table-system-td table-system-td--primary">
                                     {professionName}
                                 </td>
-                                <td className="px-4 py-2.5 text-txt-secondary">
+                                <td className="table-system-td table-system-td--primary">
                                     {resourceName}
                                 </td>
-                                <td className="px-4 py-2.5 text-right text-txt-primary font-bold">
+                                <td className="table-system-td table-system-td--primary">
                                     {rule.expected_amount}
                                 </td>
-                                <td className="px-4 py-2.5 text-txt-secondary">
+                                <td className="table-system-td table-system-td--primary">
                                     {rule.effective_date}
                                     {rule.end_date && <span className="text-txt-muted"> → {rule.end_date}</span>}
                                 </td>
-                                <td className="px-4 py-2.5 text-center">
+                                <td className="table-system-td table-system-td--primary">
                                     <span
                                         className={`inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border ${
                                             isActive

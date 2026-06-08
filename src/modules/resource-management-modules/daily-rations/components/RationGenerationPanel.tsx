@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Play, AlertTriangle, Users, Package } from "lucide-react";
 import { Button } from "../../../../shared/components/ui/button";
 import { useExecuteDailyRations, useCheckExistingRations, usePreviewRationGeneration } from "../hooks/useExecuteDailyRations";
@@ -15,6 +15,7 @@ type Props = {
 export function RationGenerationPanel({ campId, rationDate, onDateChange, resourceMap }: Props) {
     const [isExecuting, setIsExecuting] = useState(false);
     const [result, setResult] = useState<RationExecutionResult | null>(null);
+    const today = new Date().toISOString().split("T")[0];
     
     const { execute } = useExecuteDailyRations();
     
@@ -55,6 +56,8 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                 <input
                     type="date"
                     value={rationDate}
+                    min={today}
+                    max={today}
                     onChange={(e) => onDateChange(e.target.value)}
                     className="rmm-input w-full text-[11px]!"
                 />
@@ -67,7 +70,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                         Preview
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-accent-primary" />
                             <span className="font-mono text-xs text-txt-primary">
@@ -87,8 +90,8 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                             Required Resources:
                         </div>
                         {preview.resources_needed.map((resource) => (
-                            <div key={resource.resource_id} className="flex justify-between font-mono text-xs text-txt-secondary">
-                                <span>{resourceMap.get(resource.resource_id) || `ID ${resource.resource_id}`}</span>
+                            <div key={resource.resource_id} className="flex flex-wrap justify-between gap-2 font-mono text-xs text-txt-secondary">
+                                <span className="min-w-0 break-words">{resourceMap.get(resource.resource_id) || `ID ${resource.resource_id}`}</span>
                                 <span className="text-txt-primary font-bold">{resource.total_amount}</span>
                             </div>
                         ))}

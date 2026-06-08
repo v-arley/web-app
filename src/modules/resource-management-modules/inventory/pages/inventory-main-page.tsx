@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { PackagePlus, Settings2, Eye, } from "lucide-react";
-//import { getAuthContextFromToken } from "../../../../utils/authAccess";
+import { PackagePlus, Settings2, Eye } from "lucide-react";
 import { StockViewPage } from "./StockViewPage";
 import { MovementsPage } from "./MovementsPage";
 import { MinStockConfigPage } from "./MinStockConfigPage";
@@ -32,84 +31,59 @@ export function InventoryMainPage() {
     ];
 
     return (
-            <article className="rmm-scope flex h-full min-h-0 flex-col bg-bg-app overflow-hidden relative">
-            {/* Corner Brackets */}
-            <div className="rmm-bracket rmm-bracket-tl"></div>
-            <div className="rmm-bracket rmm-bracket-tr"></div>
-            <div className="rmm-bracket rmm-bracket-bl"></div>
-            <div className="rmm-bracket rmm-bracket-br"></div>
-
-            {/* Topbar — identity + horizontal nav + status */}
-            <header className="flex items-stretch border-b border-border-default bg-bg-tertiary shrink-0 z-10">
-
-                {/* Module identity */}
-                <div className="flex items-center gap-3 shrink-0">
-                    <div className="w-0.75 self-stretch bg-accent"></div>
-                    <div className="py-2">
-                        <h3 className="text-xl font-bold uppercase tracking-widest text-txt-primary leading-none">
+        <article className="sa-panel sa-surface p-0">
+            <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
+                <div className="rmm-module-brand flex items-center gap-3 shrink-0 self-stretch">
+                    <div className="rmm-module-accent sa-accent-left h-full" />
+                    <div className="rmm-module-copy py-2 px-3">
+                        <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">
                             Inventory
-                        </h3>
-                        <p className="font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
-                            Manager Resources <span className="text-accent"> | </span> RMM-01
+                        </div>
+                        <p className="rmm-module-subtitle sa-eyebrow mt-0.5">
+                            Manager Resources
                         </p>
                     </div>
                 </div>
 
-                {/* Horizontal tab nav */}
-                <nav className="flex items-stretch flex-1 justify-end">
-                    {tabs.map((tab, i) => (
+                <nav className="rmm-module-tabs flex items-stretch flex-1 justify-end h-full">
+                    {tabs.map((tab, ) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
-                            className={`relative flex items-center gap-2.5 px-5 border-r border-border-subtle transition-all group ${
+                            className={`rmm-module-tab relative flex items-center gap-2.5 px-5 border-r border-border-subtle transition-all group ${
                                 activeTab === tab.key
-                                    ? "bg-bg-app/60 text-accent"
-                                    : "text-txt-muted hover:bg-bg-secondary/40 hover:text-txt-primary"
+                                    ? "rmm-module-tab--active bg-bg-app/60"
+                                    : "hover:bg-bg-secondary/40"
                             }`}
                         >
-                            {/* Active bottom indicator */}
                             {activeTab === tab.key && (
-                                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+                                <div className="rmm-module-tab-indicator absolute inset-x-0 bottom-0 h-0.5 bg-accent" />
                             )}
-                            {/* Tab number badge */}
-                            <span className={`font-mono text-[9px] opacity-40 ${activeTab === tab.key ? "text-accent opacity-60" : ""}`}>
+                            {/* <span className={`rmm-module-tab-index font-mono text-[9px] opacity-40 ${activeTab === tab.key ? "text-accent opacity-60" : "text-txt-disabled"}`}>
                                 {String(i + 1).padStart(2, "0")}
-                            </span>
-                            {/* Icon */}
-                            <span className={activeTab === tab.key ? "text-accent" : "text-txt-disabled group-hover:text-txt-secondary"}>
+                            </span> */}
+                            <span className={`rmm-module-tab-icon ${activeTab === tab.key ? "text-accent" : "text-txt-disabled group-hover:text-txt-secondary"}`}>
                                 {tab.icon}
                             </span>
-                            {/* Label + desc */}
-                            <div className="text-left">
-                                <div className="font-mono text-[10px] font-bold uppercase tracking-widest">
+                            <div className="rmm-module-tab-copy text-left">
+                                <div className={`rmm-module-tab-label font-mono text-[10px] font-bold uppercase tracking-widest ${activeTab === tab.key ? "text-txt-primary" : "text-txt-secondary"}`}>
                                     {tab.label}
                                 </div>
-                                <div className="font-mono text-[8px] text-txt-disabled uppercase tracking-wide">
+                                {/* <div className="rmm-module-tab-description sa-muted text-[8px] uppercase tracking-wide">
                                     {tab.description}
-                                </div>
+                                </div> */}
                             </div>
                         </button>
                     ))}
                 </nav>
-
-                {/* Status indicators */}
-                {/* <div className="hidden md:flex items-center gap-3 px-4 border-l border-border-default shrink-0">
-                    <div className="flex flex-col gap-1 font-mono text-[9px] text-txt-muted uppercase tracking-widest text-right">
-                        <div>Status: <span className="text-accent active-pulse">Updated</span></div>
-                        <div>Log: <span className="text-accent">STK-ONLINE</span></div>
-                    </div>
-                </div> */}
             </header>
 
-            {/* Main Content — full width */}
-            <main className="flex-1 overflow-hidden flex flex-col">
-                <section className="flex-1 flex flex-col overflow-hidden">
-                    {activeTab === "stock" && <StockViewPage />}
-                    {activeTab === "movements" && <MovementsPage />}
-                    {activeTab === "config" && <MinStockConfigPage />}
-                </section>
+            {/* <main className="sa-panel-body p-0 border-t border-border-default"> */}
+            <main className="rmm-content-pad space-y-3">
+                {activeTab === "stock" && <StockViewPage />}
+                {activeTab === "movements" && <MovementsPage />}
+                {activeTab === "config" && <MinStockConfigPage />}
             </main>
         </article>
     );
 }
-

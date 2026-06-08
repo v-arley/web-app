@@ -35,34 +35,34 @@ export function ActivityTable({ items = [], isLoading }: ActivityTableProps) {
     }
 
     return (
-        <table className="rmm-table">
-            <thead>
+        <table className="table-system">
+            <thead className="table-system-head">
                 <tr>
-                    <th className="w-40">TIMESTAMP (UTC)</th>
-                    <th className="w-32">OPERATION</th>
-                    <th>DATA_BLOB / CONTEXT</th>
-                    <th className="w-32 text-right">AUTHOR_UID</th>
+                    <th className="table-system-th">TIMESTAMP (UTC)</th>
+                    <th className="table-system-th">OPERATION</th>
+                    <th className="table-system-th">DATA_BLOB / CONTEXT</th>
+                    <th className="table-system-th">AUTHOR_UID</th>
                 </tr>
             </thead>
             <tbody>
                 {items.map((item) => (
                     <tr key={item.id}>
-                        <td>
-                            <span className="font-mono text-[9px] text-txt-muted">
+                        <td className="table-system-td table-system-td--primary">
+                            <span className="font-mono text-[11px] text-txt-muted">
                                 {new Date(item.created_at).toISOString().replace('T', ' ').slice(0, 19)}
                             </span>
                         </td>
-                        <td>
-                            <span className="font-mono font-bold text-accent uppercase text-[10px]">
+                        <td className="table-system-td table-system-td--primary">
+                            <span className="font-mono font-bold text-[#08DC86] uppercase text-[11px]">
                                 {item.action}
                             </span>
                         </td>
-                        <td>
-                            <span className="font-mono text-[10px] text-txt-primary">
+                        <td className="table-system-td table-system-td--primary">
+                            <span className="font-mono text-[11px] text-txt-primary">
                                 {item.detail}
                             </span>
                         </td>
-                        <td className="text-right">
+                        <td className="table-system-td table-system-td--primary">
                             <span className="font-tech text-txt-secondary text-[11px] opacity-70">
                                 {item.username.toUpperCase()}
                             </span>
