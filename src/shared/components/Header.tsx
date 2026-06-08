@@ -10,18 +10,31 @@ type HeaderProps = {
 };
 
 export default function Header({ isSidebarOpen, onToggleSidebar }: HeaderProps) {
-    const { authContext, activeCamp } = useNavigation();
+    const { authContext, activeCamp, activeCampStatus } = useNavigation();
     const [currentDate, setCurrentDate] = useState(new Date());
     const roleLabel = useMemo(() => getRoleLabel(authContext), [authContext]);
     const campLabel = useMemo(() => {
         const campCode = activeCamp?.code?.trim();
+        const campDescription = activeCamp?.description?.trim();
 
         if (campCode) {
             return campCode;
         }
 
-        return "NOT RESOLVED";
-    }, [activeCamp]);
+        if (campDescription) {
+            return campDescription;
+        }
+
+        if (activeCampStatus === "loading") {
+            return "RESOLVING...";
+        }
+
+        if (activeCampStatus === "error") {
+            return "RESOLUTION ERROR";
+        }
+
+        return "NO CAMP ASSIGNED";
+    }, [activeCamp, activeCampStatus]);
 
     useEffect(() => {
         const timer = setInterval(() => setCurrentDate(new Date()), 1000);

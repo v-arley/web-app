@@ -1,14 +1,26 @@
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
   type KeyboardEvent,
+  type ReactNode,
+  type Ref,
 } from "react";
-import { AlertTriangle, RotateCcw, Save } from "lucide-react";
+
+import {
+  AlertTriangle,
+  Map,
+  Power,
+  RotateCcw,
+  Save,
+  Search,
+  Shield,
+} from "lucide-react";
 
 import { ModalSearchPerson } from "./ModalSearchPerson";
 import { CampService } from "../../services/CampService";
-import { getAuthContextFromToken } from "../utils/authAccess";
+import { useNavigation } from "../app/NavigationContext";
 import { useToast } from "../hooks/useToast";
 import type { Camp, UpdateCamp } from "../../models/Camp";
 import type { Person } from "../../models/Person";
@@ -94,7 +106,7 @@ function mapCampToForm(camp: Camp): CampSettingsForm {
 
 export function CampSettingsView() {
   const { toast } = useToast();
-  const authContext = getAuthContextFromToken();
+  const { authContext } = useNavigation();
 
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
 
@@ -117,7 +129,7 @@ export function CampSettingsView() {
     return () => window.clearTimeout(timeout);
   }, []);
 
-  const loadCamp = async () => {
+  const loadCamp = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -166,11 +178,11 @@ export function CampSettingsView() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authContext.campId]);
 
   useEffect(() => {
     void loadCamp();
-  }, []);
+  }, [loadCamp]);
 
   const handleEnterToNextField = (
     event: KeyboardEvent<

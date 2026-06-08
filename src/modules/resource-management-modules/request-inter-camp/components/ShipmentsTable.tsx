@@ -1,183 +1,123 @@
-import { CheckCircle2, Eye } from "lucide-react";
-
-interface Shipment {
-  id?: number;
-  request_id?: number;
-  status?: string;
-  departure_date?: string | null;
-  arrival_date?: string | null;
-  observations?: string | null;
-  created_at?: string;
-}
+import type { ShipmentFormValues } from "../schemas/shipment.schema";
 
 interface ShipmentsTableProps {
-  shipments: Shipment[];
-  onMarkDelivered?: (id: number) => void;
-  onView?: (id: number) => void;
+  shipments: ShipmentFormValues[];
+  onViewDetail: (shipment: ShipmentFormValues) => void;
   isLoading?: boolean;
 }
 
-function formatStatus(status?: string | null) {
-  const value = status ?? "P";
+const STATUS_META: Record<string, { label: string; style: string }> = {
+  P: { label: "PENDING", style: "text-status-warning" },
+  I: { label: "IN TRANSIT", style: "text-accent" },
+  D: { label: "DELIVERED", style: "text-status-ok" },
+  C: { label: "CANCELLED", style: "text-status-critical" },
+};
 
-  const styles: Record<string, string> = {
-    P: "border-status-warning/40 bg-status-warning/10 text-status-warning",
-    D: "border-status-info/40 bg-status-info/10 text-status-info",
-    A: "border-status-ok/40 bg-status-ok/10 text-status-ok",
-    F: "border-status-ok/40 bg-status-ok/10 text-status-ok",
-    C: "border-status-critical/40 bg-status-critical/10 text-status-critical",
-  };
+function getShipmentCampLabel(
+  shipment: ShipmentFormValues,
+  side: "origin" | "destination",
+) {
+  const request = shipment.request;
+  const camp =
+    side === "origin" ? request?.origin_camp : request?.destination_camp;
 
-  const labels: Record<string, string> = {
-    P: "Pending",
-    D: "Dispatched",
-    A: "Arrived",
-    F: "Finished",
-    C: "Cancelled",
-  };
-
-  return (
-    <span
-      className={[
-        "inline-flex min-w-[92px] justify-center border px-3 py-1.5",
-        "text-[12px] font-bold uppercase tracking-[0.12em]",
-        styles[value] ?? styles.P,
-      ].join(" ")}
-    >
-      {labels[value] ?? value}
-    </span>
-  );
-}
-
-function formatDate(value?: string | null) {
-  if (!value) return "No date";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "No date";
-  }
-
-  return date.toLocaleDateString("en-US");
+  return camp?.code || camp?.description || "UNRESOLVED CAMP";
 }
 
 export function ShipmentsTable({
   shipments,
-  onMarkDelivered,
-  onView,
-  isLoading = false,
+  onViewDetail,
 }: ShipmentsTableProps) {
   if (shipments.length === 0) {
     return (
-      <div className="flex min-h-[360px] flex-col items-center justify-center border border-border-default bg-bg-secondary px-6 py-10">
-        <p className="text-[15px] font-bold uppercase tracking-[0.16em] text-txt-primary">
-          No shipments recorded
-        </p>
-
-        <p className="mt-2 text-[13px] font-bold tracking-[0.04em] text-txt-secondary">
-          Shipments created from approved requests will appear here.
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary">
+          NO SHIPMENTS HAVE BEEN REGISTERED YET
         </p>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden border border-border-default bg-bg-secondary">
-      <div className="grid grid-cols-[0.7fr_1fr_1.1fr_1.1fr_1.1fr_1fr] gap-4 border-b border-border-default bg-bg-primary px-5 py-4">
-        <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-          ID
-        </div>
+    <table className="rmm-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Request</th>
+          <th>Sender</th>
+          <th>Receiver</th>
+          <th>Status</th>
+          <th>Departure</th>
+          <th>Arrival</th>
+        </tr>
+      </thead>
 
-        <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-          Request
-        </div>
-
-        <div className="text-center text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-          Status
-        </div>
-
-        <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-          Departure
-        </div>
-
-        <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-          Arrival
-        </div>
-
-        <div className="text-right text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
-          Actions
-        </div>
-      </div>
-
-      <div className="divide-y divide-border-default">
+      <tbody>
         {shipments.map((shipment) => {
-          const shipmentId = shipment.id ?? 0;
-          const currentStatus = shipment.status ?? "P";
+          const meta = STATUS_META[shipment.status] ?? STATUS_META.P;
 
           return (
-            <div
-              key={shipmentId}
-              className="grid grid-cols-[0.7fr_1fr_1.1fr_1.1fr_1.1fr_1fr] items-center gap-4 px-5 py-4 transition-colors hover:bg-bg-primary/40"
+            <tr
+              key={shipment.id}
+              className="cursor-pointer select-none border-l-2 border-l-status-critical bg-status-critical/5 transition-colors hover:bg-status-critical/10"
+              onDoubleClick={() => onViewDetail(shipment)}
+              title="Double-click to view detail"
             >
-              <div>
-                <p className="text-[15px] font-bold uppercase tracking-[0.08em] text-txt-primary">
-                  #{shipmentId}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[14px] font-bold uppercase tracking-[0.06em] text-txt-secondary">
-                  Req #{shipment.request_id ?? "--"}
-                </p>
-              </div>
-
-              <div className="flex justify-center">
-                {formatStatus(currentStatus)}
-              </div>
-
-              <div>
-                <span className="text-[14px] font-bold tracking-[0.04em] text-txt-primary">
-                  {formatDate(shipment.departure_date ?? shipment.created_at)}
+              <td>
+                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  {String(shipment.id ?? "")}
                 </span>
-              </div>
+              </td>
 
-              <div>
-                <span className="text-[14px] font-bold tracking-[0.04em] text-txt-primary">
-                  {formatDate(shipment.arrival_date)}
+              <td>
+                <span className="font-mono text-[12px] text-txt-secondary">
+                  REQ-{shipment.request_id}
                 </span>
-              </div>
+              </td>
 
-              <div className="flex items-center justify-end gap-2">
-                {onView ? (
-                  <button
-                    type="button"
-                    onClick={() => onView(shipmentId)}
-                    className="flex h-10 w-10 items-center justify-center border border-accent/40 bg-accent/10 text-accent transition-colors hover:bg-accent hover:text-accent-fg"
-                    title="View shipment"
-                    aria-label="View shipment"
-                  >
-                    <Eye size={17} />
-                  </button>
-                ) : null}
+              <td>
+                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  {getShipmentCampLabel(shipment, "origin")}
+                </span>
+              </td>
 
-                {onMarkDelivered && currentStatus !== "A" && currentStatus !== "F" ? (
-                  <button
-                    type="button"
-                    onClick={() => onMarkDelivered(shipmentId)}
-                    disabled={isLoading}
-                    className="flex h-10 items-center justify-center gap-2 border border-status-ok/40 bg-status-ok/10 px-3 text-[12px] font-bold uppercase tracking-[0.12em] text-status-ok transition-colors hover:bg-status-ok hover:text-accent-fg disabled:cursor-not-allowed disabled:opacity-50"
-                    title="Mark as delivered"
-                    aria-label="Mark as delivered"
-                  >
-                    <CheckCircle2 size={16} />
-                    OK
-                  </button>
-                ) : null}
-              </div>
-            </div>
+              <td>
+                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  {getShipmentCampLabel(shipment, "destination")}
+                </span>
+              </td>
+
+              <td>
+                <span
+                  className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}
+                >
+                  {meta.label}
+                </span>
+              </td>
+
+              <td>
+                <span className="font-mono text-[12px] text-txt-secondary">
+                  {shipment.departure_date
+                    ? new Date(shipment.departure_date).toLocaleDateString(
+                        "es-ES",
+                      )
+                    : "—"}
+                </span>
+              </td>
+
+              <td>
+                <span className="font-mono text-[12px] text-txt-secondary">
+                  {shipment.arrival_date
+                    ? new Date(shipment.arrival_date).toLocaleDateString(
+                        "es-ES",
+                      )
+                    : "—"}
+                </span>
+              </td>
+            </tr>
           );
         })}
-      </div>
-    </div>
+      </tbody>
+    </table>
   );
 }

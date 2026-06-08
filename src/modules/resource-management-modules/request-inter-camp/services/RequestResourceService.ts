@@ -32,7 +32,7 @@ export class RequestResourceService extends AxiosBaseService {
                 }
             );
             
-            const items = Array.isArray(data) ? data : (data as any)?.items ?? [];
+            const items = this.extractItems<unknown>(data as BackendResponse<BackendListPayload<unknown>> | unknown[]);
             return items.map((item: unknown) => this.normalizeRequestResource(item));
         } catch (error) {
             throw new Error(this.resolveError(error));

@@ -17,10 +17,9 @@ const campService = new CampService();
 export function OutgoingRequestsPage() {
   const { authContext } = useNavigation();
   const originCampId = authContext.campId ?? 0;
-  const userId = authContext.userId ?? 0;
 
   const { toast } = useToast();
-  const { data: requests = [], isLoading } = useCampRequestsQuery({ originCampId });
+  const { data: requests = [], isLoading } = useCampRequestsQuery({ originCampId }, originCampId > 0);
   const { approveAsOrigin, rejectAsOrigin } = useCampRequestMutation();
   const [statusFilter, setStatusFilter] = useState<'P' | 'A' | 'R' | ''>('');
   const [destinationFilter, setDestinationFilter] = useState<number | ''>('');
@@ -59,7 +58,7 @@ export function OutgoingRequestsPage() {
 
   const handleApprove = async (id: number) => {
     try {
-      await approveAsOrigin.mutateAsync({ id, userId });
+      await approveAsOrigin.mutateAsync(id);
       toast({ tone: "success", title: "Request approved", message: "Outgoing request approved as origin camp." });
     } catch (error) {
       toast({
@@ -72,7 +71,7 @@ export function OutgoingRequestsPage() {
 
   const handleReject = async (id: number) => {
     try {
-      await rejectAsOrigin.mutateAsync({ id, userId });
+      await rejectAsOrigin.mutateAsync(id);
       toast({ tone: "info", title: "Request rejected", message: "Outgoing request rejected as origin camp." });
     } catch (error) {
       toast({

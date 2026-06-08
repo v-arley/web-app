@@ -4,9 +4,7 @@ import {
     getCampLabel,
     getDuration,
     getRiskBadge,
-    getRiskLabel,
-    getStateBadge,
-    getStateLabel,
+    getStateBadge,  
 } from "./explorationHelpers";
 
 type Props = {
@@ -20,7 +18,22 @@ type Props = {
 };
 
 const infoLabelClass =
-    "text-[10px] uppercase tracking-[0.22em] text-[#7c8794]";
+    "text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]";
+
+function getEnglishStateLabel(state?: ExplorationRow["state"]) {
+    if (state === "P") return "Pending";
+    if (state === "A") return "Active";
+    if (state === "F") return "Finished";
+    if (state === "C") return "Cancelled";
+    return "Unknown";
+}
+
+function getEnglishRiskLabel(risk?: ExplorationRow["risk_level"]) {
+    if (risk === "L") return "Low";
+    if (risk === "M") return "Medium";
+    if (risk === "H") return "High";
+    return "Unknown";
+}
 
 export default function ExplorationsTable({
     explorations,
@@ -46,24 +59,32 @@ export default function ExplorationsTable({
     };
 
     return (
-        <div className="flex h-[calc(100vh-330px)] min-h-[430px] flex-col rounded-xl bg-[#cecece] p-4 shadow-[0_0_18px_rgba(0,0,0,0.35),inset_0_0_14px_rgba(115,115,115,0.33)] sm:p-5">
-            <div className="mb-4 flex shrink-0 items-center justify-between border-b border-[#9ca3af] px-2 pb-3">
-                <p className="text-[11px] uppercase tracking-[0.25em] text-[#64748b]">
-                    Exploraciones registradas
-                </p>
+        <section className="flex h-[calc(100vh-355px)] min-h-[430px] flex-col overflow-hidden border border-[#3a3a3a] bg-[#1a1a1a] shadow-[0_0_18px_rgba(0,0,0,0.35)]">
+            <div className="flex shrink-0 flex-col gap-3 border-b border-[#3a3a3a] bg-[#242424] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04]">
+                        Registered explorations
+                    </p>
+                    <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                        Field records / crew count / target resources
+                    </p>
+                </div>
 
-                <p className="text-[11px] uppercase tracking-[0.25em] text-[#64748b]">
-                    Found: {total.toString().padStart(4, "0")}
+                <p className="border border-[#3a3a3a] bg-[#111111] px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-label text-[#C0C0C0]">
+                    Found:{" "}
+                    <span className="text-[#E85D04]">
+                        {total.toString().padStart(4, "0")}
+                    </span>
                 </p>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto pr-2">
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
                 {explorations.length === 0 ? (
-                    <div className="flex h-full items-center justify-center text-center text-sm uppercase tracking-[0.25em] text-[#f05a28]">
-                        No se encontraron exploraciones
+                    <div className="flex h-full items-center justify-center border border-[#3a3a3a] bg-[#111111] p-6 text-center text-xs font-mono uppercase tracking-label text-[#E85D04]">
+                        No explorations found
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-4 pb-4">
+                    <div className="flex flex-col gap-3 pb-2">
                         {explorations.map((exploration) => {
                             const isSelected =
                                 selectedExploration?.id === exploration.id;
@@ -73,45 +94,45 @@ export default function ExplorationsTable({
                                     key={exploration.id}
                                     type="button"
                                     onClick={() => onSelectExploration(exploration)}
-                                    className={`w-full rounded-xl border p-4 text-left transition-all duration-200 ${
+                                    className={`w-full border p-4 text-left font-mono transition-colors ${
                                         isSelected
-                                            ? "border-[#FF6600] bg-[#1f1f1f] text-white shadow-[0_8px_18px_rgba(0,0,0,0.25)]"
-                                            : "border-[#c7c7c7] bg-[#f7f7f7] text-[#222] hover:-translate-y-[1px] hover:border-[#FF6600]"
+                                            ? "border-[#E85D04] bg-[#E85D04]/10 text-white shadow-[0_0_16px_rgba(232,93,4,0.16)]"
+                                            : "border-[#3a3a3a] bg-[#111111] text-[#C0C0C0] hover:border-[#E85D04]/70 hover:bg-[#202020]"
                                     }`}
                                 >
                                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                                         <div className="min-w-0">
                                             <div className="flex flex-wrap items-center gap-3">
-                                                <span className="text-xs text-[#8b8b8b]">
-                                                    #{exploration.id}
+                                                <span
+                                                    className={`border px-2 py-0.5 text-[10px] font-bold uppercase tracking-label ${
+                                                        isSelected
+                                                            ? "border-[#E85D04]/60 text-[#E85D04]"
+                                                            : "border-[#3a3a3a] text-[#6B7280]"
+                                                    }`}
+                                                >
+                                                    ID #{exploration.id}
                                                 </span>
 
-                                                <span className="break-words text-sm font-bold">
+                                                <span className="break-words text-[12px] font-bold uppercase tracking-label text-[#E85D04]">
                                                     {exploration.code}
                                                 </span>
                                             </div>
 
-                                            <h3 className="mt-2 break-words text-base font-bold">
+                                            <h3 className="mt-2 break-words text-base font-bold uppercase tracking-wide text-white">
                                                 {exploration.name}
                                             </h3>
 
-                                            <p
-                                                className={`mt-2 max-w-2xl break-words text-xs leading-relaxed ${
-                                                    isSelected
-                                                        ? "text-[#bdbdbd]"
-                                                        : "text-[#707070]"
-                                                }`}
-                                            >
-                                                {exploration.objective || "Sin objetivo"}
+                                            <p className="mt-2 max-w-2xl break-words text-xs leading-relaxed text-[#9CA3AF]">
+                                                {exploration.objective || "No objective registered."}
                                             </p>
                                         </div>
 
                                         <div className="flex flex-wrap gap-2 lg:justify-end">
                                             <span
-                                                className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${
+                                                className={`inline-flex items-center gap-1 border px-3 py-1 text-[10px] font-bold uppercase tracking-label ${
                                                     isSelected
-                                                        ? "bg-white/10 text-white"
-                                                        : "bg-gray-500/15 text-gray-700"
+                                                        ? "border-[#38BDF8]/50 bg-[#38BDF8]/10 text-[#38BDF8]"
+                                                        : "border-[#3a3a3a] bg-[#1a1a1a] text-[#C0C0C0]"
                                                 }`}
                                             >
                                                 <UsersRound size={13} />
@@ -119,10 +140,10 @@ export default function ExplorationsTable({
                                             </span>
 
                                             <span
-                                                className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${
+                                                className={`inline-flex items-center gap-1 border px-3 py-1 text-[10px] font-bold uppercase tracking-label ${
                                                     isSelected
-                                                        ? "bg-white/10 text-white"
-                                                        : "bg-gray-500/15 text-gray-700"
+                                                        ? "border-[#FACC15]/50 bg-[#FACC15]/10 text-[#FACC15]"
+                                                        : "border-[#3a3a3a] bg-[#1a1a1a] text-[#C0C0C0]"
                                                 }`}
                                             >
                                                 <Boxes size={13} />
@@ -130,58 +151,58 @@ export default function ExplorationsTable({
                                             </span>
 
                                             <span
-                                                className={`inline-flex rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${getRiskBadge(
+                                                className={`inline-flex border px-3 py-1 text-[10px] font-bold uppercase tracking-label ${getRiskBadge(
                                                     exploration.risk_level,
                                                 )}`}
                                             >
-                                                {getRiskLabel(exploration.risk_level)}
+                                                {getEnglishRiskLabel(exploration.risk_level)}
                                             </span>
 
                                             <span
-                                                className={`inline-flex rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${getStateBadge(
+                                                className={`inline-flex border px-3 py-1 text-[10px] font-bold uppercase tracking-label ${getStateBadge(
                                                     exploration.state,
                                                 )}`}
                                             >
-                                                {getStateLabel(exploration.state)}
+                                                {getEnglishStateLabel(exploration.state)}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 grid gap-3 border-t border-black/10 pt-4 text-sm sm:grid-cols-2 lg:grid-cols-5">
-                                        <div>
-                                            <p className={infoLabelClass}>Salida</p>
-                                            <p className="mt-1">
-                                                {exploration.departure_date || "N/D"}
+                                    <div className="mt-4 grid gap-3 border-t border-[#3a3a3a] pt-4 text-[12px] sm:grid-cols-2 lg:grid-cols-5">
+                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                            <p className={infoLabelClass}>Departure</p>
+                                            <p className="mt-1 text-white">
+                                                {exploration.departure_date || "N/A"}
                                             </p>
                                         </div>
 
-                                        <div>
-                                            <p className={infoLabelClass}>Retorno</p>
-                                            <p className="mt-1">
+                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                            <p className={infoLabelClass}>Return</p>
+                                            <p className="mt-1 text-white">
                                                 {exploration.estimated_return_date ||
-                                                    "N/D"}
+                                                    "N/A"}
                                             </p>
                                         </div>
 
-                                        <div>
-                                            <p className={infoLabelClass}>Duración</p>
-                                            <p className="mt-1">
+                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                            <p className={infoLabelClass}>Duration</p>
+                                            <p className="mt-1 text-white">
                                                 {getDuration(
                                                     exploration.duration_days,
                                                 )}
                                             </p>
                                         </div>
 
-                                        <div>
-                                            <p className={infoLabelClass}>Estado</p>
-                                            <p className="mt-1">
-                                                {getStateLabel(exploration.state)}
+                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                            <p className={infoLabelClass}>Status</p>
+                                            <p className="mt-1 text-white">
+                                                {getEnglishStateLabel(exploration.state)}
                                             </p>
                                         </div>
 
-                                        <div>
+                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
                                             <p className={infoLabelClass}>Camp</p>
-                                            <p className="mt-1">
+                                            <p className="mt-1 text-white">
                                                 {getCampLabel(exploration.camp_id)}
                                             </p>
                                         </div>
@@ -193,9 +214,11 @@ export default function ExplorationsTable({
                 )}
             </div>
 
-            <div className="mt-4 flex shrink-0 flex-col gap-3 border-t border-[#9ca3af] pt-4 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[11px] uppercase tracking-[0.2em] text-[#64748b]">
-                    Página {currentPage} de {totalPages}
+            <div className="flex shrink-0 flex-col gap-3 border-t border-[#3a3a3a] bg-[#111111] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                    Page{" "}
+                    <span className="text-[#E85D04]">{currentPage}</span> of{" "}
+                    <span className="text-[#E85D04]">{totalPages}</span>
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -203,23 +226,23 @@ export default function ExplorationsTable({
                         type="button"
                         onClick={handlePrevious}
                         disabled={!canGoPrevious}
-                        className="flex h-9 items-center gap-2 rounded-md border border-[#888] px-3 text-[11px] uppercase tracking-[0.18em] text-[#333] transition-colors hover:border-[#FF6600] hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-9 items-center gap-2 border border-[#3a3a3a] px-3 text-[10px] font-mono uppercase tracking-label text-white transition-colors hover:border-[#E85D04] hover:text-[#E85D04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#3a3a3a] disabled:hover:text-white"
                     >
                         <ChevronLeft size={14} />
-                        Anterior
+                        Previous
                     </button>
 
                     <button
                         type="button"
                         onClick={handleNext}
                         disabled={!canGoNext}
-                        className="flex h-9 items-center gap-2 rounded-md border border-[#888] px-3 text-[11px] uppercase tracking-[0.18em] text-[#333] transition-colors hover:border-[#FF6600] hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="flex h-9 items-center gap-2 border border-[#3a3a3a] px-3 text-[10px] font-mono uppercase tracking-label text-white transition-colors hover:border-[#E85D04] hover:text-[#E85D04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#3a3a3a] disabled:hover:text-white"
                     >
-                        Siguiente
+                        Next
                         <ChevronRight size={14} />
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }

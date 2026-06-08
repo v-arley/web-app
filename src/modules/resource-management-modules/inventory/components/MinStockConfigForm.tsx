@@ -80,11 +80,11 @@ export function MinStockConfigForm({
             onSubmit={form.handleSubmit(async (values) => onSubmit(values))}
             className="flex flex-1 min-h-0 flex-col relative"
         >
-            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
+            <header className="px-4 py-3 sm:px-6 sm:py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
                 <span className="rmm-section-title font-abril">Safety Stock</span>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
                 <Field label="Warehouse Node" required id="WH_LOC" error={errors.warehouse_id?.message}>
                     <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
                         <option value={0}>[ SELECT WAREHOUSE ]</option>
@@ -114,18 +114,18 @@ export function MinStockConfigForm({
                     />
                 </Field>
 
-                <div className="p-4 bg-status-info/5 border border-status-info/20 font-mono text-[10px] text-txt-muted leading-relaxed">
+                <div className="p-3 sm:p-4 bg-status-info/5 border border-status-info/20 font-mono text-[10px] text-txt-muted leading-relaxed">
                     <span className="text-status-info font-bold uppercase tracking-wider block mb-1">PROT_ALRT_SYSTEM:</span>
                     An automatic notification will be generated if the stock level drops below the defined threshold.
                 </div>
             </div>
 
-            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2 shrink-0">
+            <footer className="px-4 py-4 sm:px-6 sm:py-6 border-t border-border-default bg-bg-secondary/10 grid grid-cols-2 gap-2 shrink-0">
                 <button
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="rmm-btn min-w-0 border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="font-mono">CLEAR</span>
@@ -134,7 +134,7 @@ export function MinStockConfigForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
+                    className="rmm-btn rmm-btn-accent min-w-0 justify-center transition-all disabled:opacity-50"
                 >
                     <Save className="h-3.5 w-3.5" />
                     <span className="font-mono">{isSubmitting ? "..." : "SAVE"}</span>

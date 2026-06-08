@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { campRequestService } from "../services/CampRequestService";
 import { CAMP_REQUESTS_QUERY_KEY } from "./useCampRequestsQuery";
 import type { CampRequestFormValues } from "../schemas/camp-request.schema";
+import { SHIPMENTS_QUERY_KEY } from "./useShipmentsQuery";
 
 export function useCampRequestMutation() {
     const queryClient = useQueryClient();
@@ -12,6 +13,7 @@ export function useCampRequestMutation() {
             campRequestService.createCampRequest(payload),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
             // toast({
             //     title: "Solicitud enviada",
             //     message: "La solicitud ha sido enviada al campamento origen para su aprobación.",
@@ -27,11 +29,20 @@ export function useCampRequestMutation() {
         },
     });
 
-    const approveAsDestination = useMutation({
-        mutationFn: ({ id, userId }: { id: number; userId: number }) =>
-            campRequestService.approveAsDestination(id, userId),
+    const deleteRequest = useMutation({
+        mutationFn: (id: number) => campRequestService.deleteCampRequest(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
+        },
+    });
+
+    const approveAsDestination = useMutation({
+        mutationFn: (id: number) =>
+            campRequestService.approveAsDestination(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
             // toast({
             //     title: "Solicitud Aprobada",
             //     message: "Has aprobado la entrada de recursos a tu campamento.",
@@ -41,10 +52,11 @@ export function useCampRequestMutation() {
     });
 
     const rejectAsDestination = useMutation({
-        mutationFn: ({ id, userId }: { id: number; userId: number }) =>
-            campRequestService.rejectAsDestination(id, userId),
+        mutationFn: (id: number) =>
+            campRequestService.rejectAsDestination(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
             // toast({
             //     title: "Solicitud Rechazada",
             //     message: "Has rechazado la solicitud de entrada.",
@@ -54,10 +66,11 @@ export function useCampRequestMutation() {
     });
 
     const approveAsOrigin = useMutation({
-        mutationFn: ({ id, userId }: { id: number; userId: number }) =>
-            campRequestService.approveAsOrigin(id, userId),
+        mutationFn: (id: number) =>
+            campRequestService.approveAsOrigin(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
             // toast({
             //     title: "Salida Autorizada",
             //     message: "Has autorizado el despacho de recursos de tu campamento.",
@@ -67,8 +80,8 @@ export function useCampRequestMutation() {
     });
 
     const rejectAsOrigin = useMutation({
-        mutationFn: ({ id, userId }: { id: number; userId: number }) =>
-            campRequestService.rejectAsOrigin(id, userId),
+        mutationFn: (id: number) =>
+            campRequestService.rejectAsOrigin(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
             // toast({
@@ -81,6 +94,7 @@ export function useCampRequestMutation() {
 
     return {
         createRequest,
+        deleteRequest,
         approveAsDestination,
         rejectAsDestination,
         approveAsOrigin,

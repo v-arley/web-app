@@ -1,10 +1,18 @@
 import { z } from 'zod';
 
+export const campSummarySchema = z.object({
+  id: z.number(),
+  code: z.string(),
+  description: z.string().nullable().optional(),
+});
+
 // Schema de validación para solicitudes entre campamentos
 export const campRequestSchema = z.object({
   id: z.number().optional(),
   origin_camp_id: z.number({ message: 'El campamento origen es requerido' }),
+  origin_camp: campSummarySchema.nullable().optional(),
   destination_camp_id: z.number({ message: 'El campamento destino es requerido' }),
+  destination_camp: campSummarySchema.nullable().optional(),
   request_type: z.enum(['R', 'P'], { message: 'El tipo de solicitud es requerido' }),
   status: z.enum(['P', 'A', 'R'], { message: 'El estado es requerido' }),
   origin_approval_status: z.enum(['P', 'A', 'R']).nullable().optional(),
@@ -21,6 +29,21 @@ export const campRequestSchema = z.object({
 });
 
 export type CampRequestFormValues = z.infer<typeof campRequestSchema>;
+
+export const requestResourceAvailabilityItemSchema = z.object({
+  resource_id: z.number(),
+  requested_amount: z.number(),
+  available_amount: z.number(),
+  enough: z.boolean(),
+});
+
+export const requestResourceAvailabilitySchema = z.object({
+  camp_id: z.number(),
+  items: z.array(requestResourceAvailabilityItemSchema),
+  has_sufficient_stock: z.boolean(),
+});
+
+export type RequestResourceAvailability = z.infer<typeof requestResourceAvailabilitySchema>;
 
 export const EMPTY_CAMP_REQUEST: Partial<CampRequestFormValues> = {
   origin_camp_id: undefined,

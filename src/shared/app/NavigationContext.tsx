@@ -78,7 +78,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         let ignore = false;
 
-        if (authContext.campId == null) {
+        if (authContext.userId == null) {
             queueMicrotask(() => {
                 if (!ignore) {
                     setActiveCamp(null);
@@ -97,12 +97,12 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
             }
         });
         campSvc
-            .findById(authContext.campId)
+            .findVisibleForCurrentUser()
             .then((res) => {
                 if (!res.getEstado() || ignore) {
                     if (!ignore) {
                         setActiveCamp(null);
-                        setActiveCampStatus("error");
+                        setActiveCampStatus("missing");
                     }
                     return;
                 }
@@ -121,7 +121,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
         return () => {
             ignore = true;
         };
-    }, [authContext.campId]);
+    }, [authContext.userId]);
 
     // navigate(key) → cambia la URL a la ruta de la sección :::
     const navigate = useCallback(

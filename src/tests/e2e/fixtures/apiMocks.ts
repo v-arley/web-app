@@ -161,6 +161,16 @@ export async function mockCampSystemApi(page: Page, user: MockUser) {
       return;
     }
 
+    if (path === "/camps/current/visible") {
+      const visibleCamp =
+        user.campId === 1 ? campAlpha :
+        user.campId === 2 ? campBeta :
+        null;
+
+      await fulfill(route, { item: visibleCamp });
+      return;
+    }
+
     if (path === "/camps/1") {
       await fulfill(route, { item: campAlpha });
       return;
