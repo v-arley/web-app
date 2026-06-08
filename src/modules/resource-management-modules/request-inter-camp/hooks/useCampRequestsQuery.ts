@@ -27,3 +27,12 @@ export function useCampRequestByIdQuery(id: number, enabled = true) {
         enabled: enabled && id > 0,
     });
 }
+
+export function useRequestResourceAvailabilityQuery(id: number, enabled = true) {
+    return useQuery({
+        queryKey: [...CAMP_REQUESTS_QUERY_KEY, id, "resource-availability"],
+        queryFn: () => campRequestService.getResourceAvailability(id),
+        enabled: enabled && id > 0,
+        retry: false,
+    });
+}

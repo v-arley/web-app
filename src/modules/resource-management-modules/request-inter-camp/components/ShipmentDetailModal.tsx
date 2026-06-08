@@ -34,6 +34,8 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
     const meta = STATUS_META[shipment.status] ?? STATUS_META["P"];
     const id = shipment.id;
     const requestId = shipment.request_id;
+    const requesterLabel = shipment.request?.origin_camp?.code || shipment.request?.origin_camp?.description || "UNRESOLVED CAMP";
+    const providerLabel = shipment.request?.destination_camp?.code || shipment.request?.destination_camp?.description || "UNRESOLVED CAMP";
 
     const { data: resources = [], isLoading: resourcesLoading } = useRequestResourcesQuery(requestId);
 
@@ -83,6 +85,18 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
                         <div className="border-t border-border-subtle" />
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                            <div>
+                                <div className="font-mono text-[11px] text-txt-disabled uppercase tracking-widest mb-1">Sender</div>
+                                <div className="font-mono text-[11px] font-bold text-txt-primary">
+                                    {providerLabel}
+                                </div>
+                            </div>
+                            <div>
+                                <div className="font-mono text-[11px] text-txt-disabled uppercase tracking-widest mb-1">Receiver</div>
+                                <div className="font-mono text-[11px] font-bold text-txt-primary">
+                                    {requesterLabel}
+                                </div>
+                            </div>
                             <div>
                                 <div className="font-mono text-[11px] text-txt-disabled uppercase tracking-widest mb-1">Shipment ID</div>
                                 <div className="font-mono text-[11px] font-bold text-txt-primary">

@@ -1,6 +1,11 @@
 ﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
 import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
-import { campRequestSchema, type CampRequestFormValues } from "../schemas/camp-request.schema";
+import {
+    campRequestSchema,
+    requestResourceAvailabilitySchema,
+    type CampRequestFormValues,
+    type RequestResourceAvailability,
+} from "../schemas/camp-request.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
@@ -59,12 +64,29 @@ export class CampRequestService extends AxiosBaseService {
         }
     }
 
+    async getResourceAvailability(id: number): Promise<RequestResourceAvailability> {
+        try {
+            const { data } = await this.client.get<BackendResponse<{ item: unknown }> | unknown>(`/camp-requests/${id}/resource-availability`);
+            return requestResourceAvailabilitySchema.parse(this.extractItem<unknown>(data));
+        } catch (error) {
+            throw new Error(this.resolveError(error));
+        }
+    }
+
+    async deleteCampRequest(id: number): Promise<void> {
+        try {
+            await this.client.delete(`/camp-requests/${id}`);
+        } catch (error) {
+            throw new Error(this.resolveError(error));
+        }
+    }
+
     /**
      * Aprobar solicitud como destino
      */
-    async approveAsDestination(id: number, userId: number): Promise<CampRequestFormValues> {
+    async approveAsDestination(id: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/approve-destination`, { approved_by_destination_user_id: userId } );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/approve-destination`, {} );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
@@ -75,9 +97,9 @@ export class CampRequestService extends AxiosBaseService {
     /**
      * Rechazar solicitud como destino
      */
-    async rejectAsDestination(id: number, userId: number): Promise<CampRequestFormValues> {
+    async rejectAsDestination(id: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/reject-destination`, { approved_by_destination_user_id: userId } );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/reject-destination`, {} );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
@@ -88,9 +110,9 @@ export class CampRequestService extends AxiosBaseService {
     /**
      * Aprobar solicitud como origen
      */
-    async approveAsOrigin(id: number, userId: number): Promise<CampRequestFormValues> {
+    async approveAsOrigin(id: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/approve-origin`, { approved_by_origin_user_id: userId } );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/approve-origin`, {} );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
@@ -101,9 +123,9 @@ export class CampRequestService extends AxiosBaseService {
     /**
      * Rechazar solicitud como origen
      */
-    async rejectAsOrigin(id: number, userId: number): Promise<CampRequestFormValues> {
+    async rejectAsOrigin(id: number): Promise<CampRequestFormValues> {
         try {
-            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/reject-origin`, { approved_by_origin_user_id: userId } );
+            const { data } = await this.client.put<BackendResponse<{ item: unknown }> | unknown>( `/camp-requests/${id}/reject-origin`, {} );
             
             return this.normalizeCampRequest(this.extractItem<unknown>(data));
         } catch (error) {
@@ -116,7 +138,9 @@ export class CampRequestService extends AxiosBaseService {
         return campRequestSchema.parse({
             id: source.id ?? null,
             origin_camp_id: source.origin_camp_id ?? 0,
+            origin_camp: source.origin_camp ?? null,
             destination_camp_id: source.destination_camp_id ?? 0,
+            destination_camp: source.destination_camp ?? null,
             request_type: source.request_type ?? 'R',
             status: source.status ?? 'P',
             origin_approval_status: source.origin_approval_status ?? null,

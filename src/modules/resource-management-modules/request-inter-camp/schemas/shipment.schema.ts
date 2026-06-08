@@ -1,9 +1,11 @@
 import { z } from 'zod';
+import { campRequestSchema } from './camp-request.schema';
 
 // Schema de validación para envíos
 export const shipmentSchema = z.object({
   id: z.number().optional(),
   request_id: z.number({ message: 'El ID de la solicitud es requerido' }),
+  request: campRequestSchema.nullable().optional(),
   departure_date: z.string({ message: 'La fecha de salida es requerida' }),
   arrival_date: z.string().nullable().optional(),
   status: z.enum(['P', 'I', 'D', 'C'], { message: 'El estado es requerido' }),

@@ -96,6 +96,7 @@ export class ShipmentService extends AxiosBaseService {
         return shipmentSchema.parse({
             id: source.id ?? null,
             request_id: source.request_id ?? 0,
+            request: source.request ?? null,
             departure_date: source.departure_date ?? new Date().toISOString(),
             arrival_date: source.arrival_date ?? null,
             status: source.status ?? 'P',
