@@ -5,7 +5,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RequireTemporalUser } from "./RequireTemporalUser";
 import { PublicGuard } from "./PublicGuard";
 import { SECTIONS } from "./sections";
-import { NotFoundPage } from "./section-components";
+import { ForbiddenPage, NotFoundPage } from "./section-components";
 import { ROUTES } from "../../router/routes";
 
 // Rutas hijas para /app generadas desde SECTIONS :::
@@ -52,6 +52,10 @@ export const router = createBrowserRouter([
                     {
                         index: true,
                         element: <Navigate to={ROUTES.DASHBOARD} replace />,
+                    },
+                    {
+                        path: ROUTES.FORBIDDEN.replace(/^\/app\//, ""),
+                        element: <ForbiddenPage />,
                     },
                     // Una ruta por sección, generadas automáticamente desde SECTIONS
                     ...sectionRoutes,

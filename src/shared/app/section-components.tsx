@@ -108,3 +108,7 @@ export const InterCampMainPage = lazy(() =>
 export const NotFoundPage = lazy(() =>
     import("../components/$404").then((m) => ({ default: m.default })),
 );
+
+export const ForbiddenPage = lazy(() =>
+    import("../components/$403").then((m) => ({ default: m.default })),
+);

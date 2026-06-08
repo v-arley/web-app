@@ -36,17 +36,19 @@ export function RationHistoryTable({ rations, personMap }: Props) {
 
                 return (
                     <div key={date} className="border border-border-default">
-                        <div className="px-5 py-3 border-b border-border-default flex items-center justify-between">
-                            <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] flex items-center gap-2">
+                        <div className="px-4 sm:px-5 py-3 border-b border-border-default flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] flex items-start sm:items-center gap-2 min-w-0">
                                 <Calendar className="w-4 h-4" />
-                                {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { 
-                                    weekday: 'long', 
-                                    year: 'numeric', 
-                                    month: 'long', 
-                                    day: 'numeric' 
-                                })}
+                                <span className="min-w-0 break-words">
+                                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </span>
                             </div>
-                            <div className="flex items-center gap-4 text-[10px] font-mono font-bold uppercase tracking-widest">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[10px] font-mono font-bold uppercase tracking-widest">
                                 <span className="text-status-success flex items-center gap-1">
                                     <CheckCircle className="w-3 h-3" />
                                     {deliveredCount} Delivered
@@ -58,7 +60,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
+                        <div className="hidden overflow-x-auto md:block">
                             <table className="rmm-table">
                                 <thead className="">
                                     <tr>
@@ -77,7 +79,11 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                         return (
                                             <tr
                                                 key={ration.id}
-                                                className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
+                                                className={`transition-colors border-l-2 ${
+                                                    isDelivered
+                                                        ? "bg-status-success/5 hover:bg-status-success/10 border-l-status-success"
+                                                        : "bg-status-warning/5 hover:bg-status-warning/10 border-l-status-warning"
+                                                }`}
                                             >
                                                 <td>
                                                     {personName}
@@ -111,6 +117,58 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                     })}
                                 </tbody>
                             </table>
+                        </div>
+                        <div className="grid gap-3 p-3 md:hidden">
+                            {dayRations.map((ration) => {
+                                const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
+                                const isDelivered = ration.completed === 'Y';
+                                const hasNotes = ration.notes && ration.notes.trim().length > 0;
+
+                                return (
+                                    <div
+                                        key={ration.id}
+                                        className={`border border-border-default border-l-2 p-3 ${
+                                            isDelivered ? "border-l-status-success bg-status-success/5" : "border-l-status-warning bg-status-warning/5"
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <div className="font-mono text-[10px] text-txt-disabled uppercase tracking-widest">
+                                                    Person
+                                                </div>
+                                                <div className="mt-1 break-words font-mono text-xs font-bold uppercase text-txt-primary">
+                                                    {personName}
+                                                </div>
+                                            </div>
+                                            {isDelivered ? (
+                                                <span className="table-system-badge table-system-badge--online shrink-0">DELIVERED</span>
+                                            ) : (
+                                                <span className="table-system-badge table-system-badge--pending shrink-0">PENDING</span>
+                                            )}
+                                        </div>
+
+                                        <div className="mt-3 grid gap-2 font-mono text-[11px] text-txt-secondary">
+                                            <div>
+                                                <span className="block text-txt-disabled uppercase">Notes</span>
+                                                {hasNotes ? (
+                                                    <div className="mt-1 flex items-start gap-2">
+                                                        <FileText className="w-3 h-3 text-txt-disabled shrink-0 mt-0.5" />
+                                                        <span className="break-words">{ration.notes}</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="mt-1 block text-txt-disabled">-</span>
+                                                )}
+                                            </div>
+                                            <div className="border-t border-border-default pt-2">
+                                                <span className="block text-txt-disabled uppercase">Record</span>
+                                                <span className="mt-1 block break-words">
+                                                    {ration.created_at ? new Date(ration.created_at).toLocaleString('es-CR') : '-'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 );

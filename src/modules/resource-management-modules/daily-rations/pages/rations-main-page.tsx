@@ -53,7 +53,7 @@ export function RationsMainPage() {
 
     return (
         <article className="rmm-scope flex h-full min-h-0 flex-col bg-black/50 backdrop-blur-lg overflow-hidden relative border border-border-default">
-            <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
+            <header className="rmm-module-header flex flex-col sm:flex-row sm:items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
                 <div className="rmm-module-brand flex items-center gap-3 shrink-0">
                     {/* <div className="rmm-module-accent w-0.75 self-stretch bg-accent"></div> */}
                     <div className="rmm-module-copy py-2 px-3">
@@ -66,7 +66,7 @@ export function RationsMainPage() {
                     </div>
                 </div>
 
-                <nav className="rmm-module-tabs flex items-stretch flex-1 justify-end">
+                <nav className="rmm-module-tabs flex min-w-0 items-stretch flex-1 overflow-x-auto sm:justify-end">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
@@ -97,7 +97,7 @@ export function RationsMainPage() {
                         </button>
                     ))}
 
-                    <div className="rmm-module-actions flex items-center px-4 border-l border-border-subtle shrink-0">
+                    <div className="rmm-module-actions flex items-center px-3 sm:px-4 border-l border-border-subtle shrink-0">
                         <button
                             onClick={() => setShowGenerateModal(true)}
                             className="rmm-module-action-btn rmm-btn rmm-btn-accent"

@@ -62,12 +62,12 @@ export function OutgoingRequestsTable({ requests, campMap, onApprove, onReject, 
               >
                 <td>
                   <span className="font-mono text-[12px] font-bold text-txt-primary">
-                    {getCampLabel(request, "destination", campMap)}
+                    {getCampLabel(request, "origin", campMap)}
                   </span>
                 </td>
                 <td>
                   <span className="font-mono text-[12px] font-bold text-txt-primary">
-                    {getCampLabel(request, "origin", campMap)}
+                    {getCampLabel(request, "destination", campMap)}
                   </span>
                 </td>
                 <td>

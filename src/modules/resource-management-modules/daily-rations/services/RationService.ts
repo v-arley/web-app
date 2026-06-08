@@ -1,11 +1,17 @@
 ﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
-import type { BackendResponse, BackendListPayload } from "../../../../shared/utils/Response";
+import type { BackendResponse, BackendListPayload, PaginatedResult } from "../../../../shared/utils/Response";
 import { rationSchema, type RationFormValues } from "../schemas/ration.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
+export type RationListFacets = {
+    total?: number;
+    delivered?: number;
+    pending?: number;
+};
+
 export class RationService extends AxiosBaseService {
-    async getRations(campId: number, filters?: { startDate?: string; endDate?: string; completed?: 'Y' | 'N'; }): Promise<RationFormValues[]> {
+    async getRations(campId: number, filters?: { startDate?: string; endDate?: string; completed?: 'Y' | 'N'; page?: number; limit?: number; }): Promise<PaginatedResult<RationFormValues, RationListFacets>> {
         try {
             const params = new URLSearchParams();
 
@@ -16,11 +22,23 @@ export class RationService extends AxiosBaseService {
                 params.append('end_date', filters.endDate);
             if (filters?.completed) 
                 params.append('completed', filters.completed);
+            if (filters?.page)
+                params.append('page', String(filters.page));
+            if (filters?.limit)
+                params.append('limit', String(filters.limit));
 
             const { data } = await this.client.get<BackendResponse<BackendListPayload<unknown>> | unknown[]>( `/rations?${params.toString()}` );
-            
-            const items = this.extractItems<unknown>(data);
-            return items.map((item) => this.normalizeRation(item));
+
+            const result = this.extractPaginatedItems<unknown, RationListFacets>(
+                data,
+                filters?.page ?? 1,
+                filters?.limit ?? 20,
+            );
+
+            return {
+                ...result,
+                items: result.items.map((item) => this.normalizeRation(item)),
+            };
         } catch (error) {
             throw new Error(this.resolveError(error));
         }
