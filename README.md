@@ -73,3 +73,60 @@ export default defineConfig([
   },
 ])
 ```
+
+## Requisitos previos
+
+- Node.js
+- npm
+- Backend del proyecto ejecutándose correctamente
+- Variables de entorno configuradas
+
+
+Para levantar el frontend en modo desarrollo:
+npm run dev
+
+Por defecto, la aplicación se ejecuta en:
+http://localhost:5173
+
+
+Para generar el build de producción:
+npm run build
+
+
+# Módulos principales
+La aplicación contiene diferentes vistas según el rol del usuario autenticado
+
+Expedition Leader:
+Módulo encargado de la gestión de exploraciones.
+
+Resource Manager:
+Módulo relacionado con inventario, recursos, solicitudes y gestión logística.
+
+Worker:
+Módulo de trabajador, donde se visualiza información personal, producción diaria, logros, puntos y asignaciones.
+
+Camp Administrator:
+Módulo administrativo para gestionar información del campamento, personas, roles, reglas y solicitudes.
+
+
+# Pruebas E2E con Playwright
+El proyecto incluye pruebas automáticas de extremo a extremo con Playwright.
+
+Antes de ejecutar las pruebas, se debe tener corriendo:
+Backend:
+npm run start
+
+Frontend:
+npm run dev
+
+Luego, en otra terminal dentro del frontend:
+npx playwright test
+
+Ejecutar pruebas E2E visibles en navegador:
+npx playwright test --headed
+
+También se puede ejecutar una prueba específica:
+npx playwright test tests/explorations.spec.ts --project=chromium --headed --workers=1
+
+Después de ejecutar Playwright, se puede abrir el reporte con:
+npx playwright show-report
