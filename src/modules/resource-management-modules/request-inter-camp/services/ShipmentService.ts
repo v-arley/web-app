@@ -8,12 +8,14 @@ export class ShipmentService extends AxiosBaseService {
     /**
      * Obtener envÃ­os con filtros
      */
-    async getShipments(filters?: { requestId?: number; originCampId?: number; destinationCampId?: number; status?: 'P' | 'I' | 'D' | 'C'; }): Promise<ShipmentFormValues[]> {
+    async getShipments(filters?: { requestId?: number; requestType?: 'R' | 'P'; originCampId?: number; destinationCampId?: number; status?: 'P' | 'I' | 'D' | 'C'; }): Promise<ShipmentFormValues[]> {
         try {
             const params = new URLSearchParams();
 
             if (filters?.requestId) 
                 params.append('request_id', filters.requestId.toString());
+            if (filters?.requestType)
+                params.append('request_type', filters.requestType);
             if (filters?.originCampId)
                 params.append('origin_camp_id', filters.originCampId.toString());
             if (filters?.destinationCampId)

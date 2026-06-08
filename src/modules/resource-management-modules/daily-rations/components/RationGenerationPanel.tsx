@@ -61,10 +61,10 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
 
             <div className="border border-border-default bg-bg-secondary p-5">
                 <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-txt-disabled">
-                    Automatic assignment
+                    Automatic generation and confirmation
                 </div>
                 <p className="mt-3 font-mono text-[10px] leading-relaxed text-txt-secondary">
-                    Creates one ration for every active person in the camp, assigns default resources, and deducts inventory in one server operation.
+                    Sends one request to the server. The backend creates and confirms one ration for every active person in the camp, assigns default resources, and deducts inventory in one operation.
                 </p>
             </div>
 
@@ -114,7 +114,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
             {result && (
                 <div className={`border p-4 ${result.success && !hasInsufficientStock ? "border-status-success bg-status-success/10" : "border-status-error bg-status-error/10"}`}>
                     <div className="mb-2 font-mono text-xs font-bold">
-                        {result.success && !hasInsufficientStock ? "Generation successful" : "Generation failed"}
+                        {result.success && !hasInsufficientStock ? "Generation and confirmation successful" : "Generation failed"}
                     </div>
                     <div className="space-y-1 font-mono text-[10px] text-txt-secondary">
                         <div>Rations created: {result.total_rations}</div>
@@ -154,7 +154,7 @@ export function RationGenerationPanel({ campId, rationDate, onDateChange, resour
                 className="w-full"
             >
                 <Play className="mr-2 h-4 w-4" />
-                {isExecuting ? "Generating Rations..." : "Generate Daily Rations"}
+                {isExecuting ? "Generating Rations..." : "Generate and Confirm Daily Rations"}
             </Button>
         </div>
     );

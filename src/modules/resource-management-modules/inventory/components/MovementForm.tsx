@@ -88,7 +88,7 @@ export function MovementForm({
             </header>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
-                <Field label="Origin Node" required id="SRC_WH" error={errors.warehouse_id?.message}>
+                <Field label="Origin Node" required id="" error={errors.warehouse_id?.message}>
                     <input type="hidden" {...form.register("warehouse_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -98,7 +98,7 @@ export function MovementForm({
                     />
                 </Field>
 
-                <Field label="Resource Identifier" required id="RES_ID" error={errors.resource_id?.message}>
+                <Field label="Resource Identifier" required id="" error={errors.resource_id?.message}>
                     <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -109,7 +109,7 @@ export function MovementForm({
                 </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Operation" required id="OPS_TYPE" error={errors.movement_type?.message}>
+                    <Field label="Operation" required id="" error={errors.movement_type?.message}>
                         <select {...form.register("movement_type")} className={fieldClass}>
                             <option value="E">IN</option>
                             <option value="S">OUT</option>
@@ -118,7 +118,7 @@ export function MovementForm({
                     </Field>
 
                     {movementType === "A" && (
-                        <Field label="Direction" required id="ADJ_SIGN" error={errors.adjustment_sign?.message}>
+                        <Field label="Direction" required id="" error={errors.adjustment_sign?.message}>
                             <select {...form.register("adjustment_sign")} className={fieldClass}>
                                 <option value="">[ SELECT ]</option>
                                 <option value="+">INCREMENT (+)</option>
@@ -128,7 +128,7 @@ export function MovementForm({
                     )}
                 </div>
 
-                <Field label="Load Volume" required id="VOL_VAL" error={errors.amount?.message}>
+                <Field label="Load Volume" required id="" error={errors.amount?.message}>
                     <input
                         type="number"
                         step="0.01"
@@ -139,7 +139,7 @@ export function MovementForm({
                     />
                 </Field>
 
-                <Field label="Log / Justification" id="LOG_REF" error={errors.reason?.message}>
+                <Field label="Log / Justification" id="" error={errors.reason?.message}>
                     <textarea
                         {...form.register("reason")}
                         rows={3}

@@ -91,7 +91,7 @@ export function MinStockConfigForm({
             </header>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
-                <Field label="Warehouse Node" required id="WH_LOC" error={errors.warehouse_id?.message}>
+                <Field label="Warehouse Node" required id="" error={errors.warehouse_id?.message}>
                     <input type="hidden" {...form.register("warehouse_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -101,7 +101,7 @@ export function MinStockConfigForm({
                     />
                 </Field>
 
-                <Field label="Base Resource" required id="RES_TARGET" error={errors.resource_id?.message}>
+                <Field label="Base Resource" required id="" error={errors.resource_id?.message}>
                     <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -111,7 +111,7 @@ export function MinStockConfigForm({
                     />
                 </Field>
 
-                <Field label="Alert Threshold" required id="MIN_LVL" error={errors.min_quantity?.message}>
+                <Field label="Alert Threshold" required id="" error={errors.min_quantity?.message}>
                     <input
                         type="number"
                         step="0.01"

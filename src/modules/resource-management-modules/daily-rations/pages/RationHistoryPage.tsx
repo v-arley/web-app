@@ -76,7 +76,7 @@ export function RationHistoryPage() {
                             <option value="N">Pending</option>
                         </select>
                     </div>
-                    <span className="hidden sm:block w-px h-5 bg-border-default opacity-40 shrink-0" />
+                    
                     <div className="flex items-center gap-2">
                         <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">From</label>
                         <input

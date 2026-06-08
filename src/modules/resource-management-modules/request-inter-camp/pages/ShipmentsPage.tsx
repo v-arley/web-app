@@ -21,6 +21,7 @@ export function ShipmentsPage() {
 
   const { data: shipments = [], isLoading } = useShipmentsQuery(
     {
+      requestType: "R",
       ...(statusFilter ? { status: statusFilter } : {}),
     },
     campId > 0,
@@ -76,15 +77,15 @@ export function ShipmentsPage() {
         icon={null}
         title="SHIPMENTS"
         subtitle={undefined}
-        rightContent={<div className="flex items-center gap-4 font-mono text-[12px] text-txt-muted uppercase tracking-widest"><span>Total: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span><span className="opacity-30">|</span><span className="text-status-ok font-bold">[SHIPMENTS]</span></div>}
+        rightContent={<div className="flex items-center gap-4 font-mono text-[12px] text-txt-muted uppercase tracking-widest"><span>Total: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span></div>}
       />
-      <FilterBar wrapperClassName="px-4 pt-4 pb-0">
-        <div className="bg-bg-secondary border border-border-default px-4 py-2 flex items-center gap-6 w-full">
-          <label className="font-mono text-[12px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
+      <FilterBar wrapperClassName="px-3 py-2 sm:px-4">
+        <div className="grid w-full grid-cols-1 gap-2 border border-border-default bg-bg-secondary/80 p-3 sm:grid-cols-[auto_minmax(9rem,13rem)] sm:items-center sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-2">
+          <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'I' | 'D' | 'C' | ''); setPage(1); }}
-            className="rmm-input text-[12px]!"
+            className="rmm-input min-h-9 text-[11px]!"
           >
             <option value="">All</option>
             <option value="P">Pending</option>

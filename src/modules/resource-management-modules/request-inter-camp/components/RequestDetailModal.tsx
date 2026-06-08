@@ -190,7 +190,7 @@ export function RequestDetailModal({
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <label className="flex h-9 items-center gap-2 border border-border-default bg-bg-secondary/50 px-3 font-mono text-[10px] uppercase tracking-widest text-txt-secondary">
+                  {/* <label className="flex h-9 items-center gap-2 border border-border-default bg-bg-secondary/50 px-3 font-mono text-[10px] uppercase tracking-widest text-txt-secondary">
                     <input
                       type="checkbox"
                       checked={showOnlyShortages}
@@ -198,7 +198,7 @@ export function RequestDetailModal({
                       className="h-3.5 w-3.5 accent-status-critical"
                     />
                     Shortages
-                  </label>
+                  </label> */}
                   <div className="flex h-9 min-w-0 items-center gap-2 border border-border-default bg-bg-secondary/50 px-3 sm:w-64">
                     <Search size={13} className="shrink-0 text-txt-muted" />
                     <input

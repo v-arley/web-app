@@ -133,6 +133,8 @@ export function InterCampMainPage() {
         { key: "shipments", label: "Shipments",       icon: <Truck size={16} />, description: "Shipments in transit"    },
     ];
     const tabs = allTabs.filter((tab) => requestMode === "resources" || tab.key !== "shipments");
+    const operationLabel = requestMode === "resources" ? "Resource operation" : "People operation";
+    const operationDescription = requestMode === "resources" ? "Resources transfer" : "People transfer";
 
     return (
         <article className="rmm-scope flex h-full min-h-0 flex-col bg-black/50 backdrop-blur-lg overflow-hidden relative border border-border-default">
@@ -152,6 +154,10 @@ export function InterCampMainPage() {
                         <p className="rmm-module-subtitle font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
                             Logistics Transfer
                         </p>
+                        <div className="mt-1 inline-flex max-w-full items-center gap-1.5 border border-accent/30 bg-accent/10 px-2 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-accent">
+                            {requestMode === "resources" ? <Package size={10} /> : <Users size={10} />}
+                            <span className="truncate">{operationLabel}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -183,6 +189,9 @@ export function InterCampMainPage() {
                         >
                             <Users size={14} />
                         </button>
+                        <span className="ml-1 hidden items-center whitespace-nowrap border border-border-default bg-bg-secondary/50 px-2 py-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-txt-secondary min-[460px]:inline-flex">
+                            {requestMode === "resources" ? "Resources" : "People"}
+                        </span>
                     </div>
                     {tabs.map((tab) => (
                         <button
@@ -236,11 +245,11 @@ export function InterCampMainPage() {
                 >
                     <CollapsiblePanelHeader
                         title={requestMode === "resources" ? "Request Provision" : "Request People"}
-                        subtitle={<>Sending from: <span className="text-accent">{originCampName}</span></>}
+                        subtitle={<><span className="text-txt-secondary">{operationDescription}</span> | Sending from: <span className="text-accent">{originCampName}</span></>}
                         onClose={() => setIsFormOpen(false)}
                     />
 
-                    <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-3">
+                    <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 space-y-3 sm:p-4">
                         {/* Info banner */}
                         {/* <div className="p-3 bg-status-info/10 border border-status-info/30">
                             <p className="font-mono text-[9px] text-txt-secondary leading-relaxed">
@@ -301,12 +310,12 @@ export function InterCampMainPage() {
                             )}
                         </div>
 
-                        <div className="flex gap-2 pt-2">
+                        <div className="flex gap-2 pt-1">
                             <button
                                 type="button"
                                 onClick={() => { setDestinationCampId(0); setDescription(""); setPeopleCount(1); setResources([]); }}
                                 disabled={createRequest.isPending}
-                                className="rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary hover:bg-bg-secondary text-[10px] px-3 transition-all disabled:opacity-50"
+                                className="rmm-btn min-h-9 border border-border-default bg-bg-tertiary px-3 py-2 text-[9px] text-txt-secondary transition-all hover:bg-bg-secondary hover:text-txt-primary disabled:opacity-50"
                             >
                                 <RotateCcw size={12} />
                                 CLEAR
@@ -314,7 +323,7 @@ export function InterCampMainPage() {
                             <button
                                 type="submit"
                                 disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || (requestMode === "resources" ? resources.length === 0 : peopleCount <= 0)}
-                                className="rmm-btn rmm-btn-accent flex-1 justify-center text-[10px] py-2.5 transition-all shadow-sm"
+                                className="rmm-btn min-h-9 flex-1 justify-center border border-accent/40 bg-accent/10 px-3 py-2 text-[9px] text-accent shadow-sm transition-all hover:bg-accent/15 disabled:opacity-50"
                             >
                                 {createRequest.isPending ? (
                                     <div className="h-3 w-3 border-2 border-white/30 border-t-white animate-spin" />

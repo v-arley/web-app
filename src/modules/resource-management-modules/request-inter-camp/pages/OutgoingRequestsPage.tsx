@@ -93,13 +93,13 @@ export function OutgoingRequestsPage() {
       />
 
       {/* Filter bar — styled as part of the body */}
-      <FilterBar wrapperClassName="px-4 pt-4 pb-0">
-        <div className="bg-bg-secondary border border-border-default px-4 py-2 flex items-center gap-6 w-full">
-          <label className="font-mono text-[12px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
+      <FilterBar wrapperClassName="px-3 py-2 sm:px-4">
+        <div className="grid w-full grid-cols-1 gap-2 border border-border-default bg-bg-secondary/80 p-3 sm:grid-cols-[auto_minmax(9rem,13rem)_auto_minmax(10rem,1fr)] sm:items-center sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-2">
+          <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'A' | 'R' | ''); setPage(1); }}
-            className="rmm-input text-[12px]!"
+            className="rmm-input min-h-9 text-[11px]!"
           >
             <option value="">All</option>
             <option value="P">Pending</option>
@@ -111,7 +111,7 @@ export function OutgoingRequestsPage() {
           <select
             value={destinationFilter}
             onChange={(e) => { setDestinationFilter(e.target.value ? Number(e.target.value) : ''); setPage(1); }}
-            className="rmm-input text-[11px]!"
+            className="rmm-input min-h-9 text-[11px]!"
           >
             <option value="">All camps</option>
             {campOptions.map((c, idx) => (

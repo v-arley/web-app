@@ -5,6 +5,7 @@ export const SHIPMENTS_QUERY_KEY = ["shipments"];
 
 interface ShipmentsFilters {
     requestId?: number;
+    requestType?: 'R' | 'P';
     originCampId?: number;
     destinationCampId?: number;
     status?: 'P' | 'I' | 'D' | 'C';
