@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { CheckCircle2, Eye } from "lucide-react";
 
 interface Shipment {
@@ -76,36 +75,12 @@ export function ShipmentsTable({
 
         <p className="mt-2 text-[13px] font-bold tracking-[0.04em] text-txt-secondary">
           Shipments created from approved requests will appear here.
-=======
-import type { ShipmentFormValues } from "../schemas/shipment.schema";
-
-interface ShipmentsTableProps {
-  shipments: ShipmentFormValues[];
-  onViewDetail: (shipment: ShipmentFormValues) => void;
-  isLoading?: boolean;
-}
-
-const STATUS_META: Record<string, { label: string; style: string }> = {
-  P: { label: "PENDING",    style: "text-status-warning" },
-  I: { label: "IN TRANSIT", style: "text-accent" },
-  D: { label: "DELIVERED",  style: "text-status-ok" },
-  C: { label: "CANCELLED",  style: "text-status-critical" },
-};
-
-export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps) {
-  if (shipments.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary">
-          NO SHIPMENTS HAVE BEEN REGISTERED YET
->>>>>>> develop
         </p>
       </div>
     );
   }
 
   return (
-<<<<<<< HEAD
     <div className="overflow-hidden border border-border-default bg-bg-secondary">
       <div className="grid grid-cols-[0.7fr_1fr_1.1fr_1.1fr_1.1fr_1fr] gap-4 border-b border-border-default bg-bg-primary px-5 py-4">
         <div className="text-[12px] font-bold uppercase tracking-[0.14em] text-txt-secondary">
@@ -203,55 +178,5 @@ export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps)
         })}
       </div>
     </div>
-=======
-    <table className="rmm-table">
-      <thead className="">
-        <tr>
-          <th className="">ID</th>
-          <th className="">Request</th>
-          <th className="">Status</th>
-          <th className="">Departure</th>
-          <th className="">Arrival</th>
-        </tr>
-      </thead>
-      <tbody>
-        {shipments.map((shipment) => {
-          const meta = STATUS_META[shipment.status] ?? STATUS_META["P"];
-          return (
-            <tr
-              key={shipment.id}
-              className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
-              onDoubleClick={() => onViewDetail(shipment)}
-              title="Double-click to view detail"
-            >
-              <td>
-                <span className="font-mono text-[12px] font-bold text-txt-primary">
-                  {String(shipment.id ?? "")}
-                </span>
-              </td>
-              <td>
-                <span className="font-mono text-[12px] text-txt-secondary">REQ-{shipment.request_id}</span>
-              </td>
-              <td>
-                <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>
-                  {meta.label}
-                </span>
-              </td>
-              <td>
-                <span className="font-mono text-[12px] text-txt-secondary">
-                  {shipment.departure_date ? new Date(shipment.departure_date).toLocaleDateString("es-ES") : "—"}
-                </span>
-              </td>
-              <td>
-                <span className="font-mono text-[12px] text-txt-secondary">
-                  {shipment.arrival_date ? new Date(shipment.arrival_date).toLocaleDateString("es-ES") : "—"}
-                </span>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
->>>>>>> develop
   );
 }
