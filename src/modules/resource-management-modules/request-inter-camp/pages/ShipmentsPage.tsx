@@ -13,7 +13,7 @@ import { useNavigation } from "../../../../shared/app/NavigationContext";
 export function ShipmentsPage() {
   const { toast } = useToast();
   const { authContext } = useNavigation();
-  const originCampId = authContext.campId ?? 0;
+  const campId = authContext.campId ?? 0;
   const [statusFilter, setStatusFilter] = useState<'P' | 'I' | 'D' | 'C' | ''>('');
   const [page, setPage] = useState(1);
   const [selectedShipment, setSelectedShipment] = useState<ShipmentFormValues | null>(null);
@@ -21,10 +21,9 @@ export function ShipmentsPage() {
 
   const { data: shipments = [], isLoading } = useShipmentsQuery(
     {
-      originCampId,
       ...(statusFilter ? { status: statusFilter } : {}),
     },
-    originCampId > 0,
+    campId > 0,
   );
 
   const totalRecords = shipments.length;

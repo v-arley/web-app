@@ -15,11 +15,11 @@ const STATUS_META: Record<string, { label: string; style: string }> = {
 
 function getShipmentCampLabel(
   shipment: ShipmentFormValues,
-  side: "origin" | "destination",
+  side: "sender" | "receiver",
 ) {
   const request = shipment.request;
   const camp =
-    side === "origin" ? request?.origin_camp : request?.destination_camp;
+    side === "sender" ? request?.destination_camp : request?.origin_camp;
 
   return camp?.code || camp?.description || "UNRESOLVED CAMP";
 }
@@ -77,13 +77,13 @@ export function ShipmentsTable({
 
               <td>
                 <span className="font-mono text-[12px] font-bold text-txt-primary">
-                  {getShipmentCampLabel(shipment, "origin")}
+                  {getShipmentCampLabel(shipment, "sender")}
                 </span>
               </td>
 
               <td>
                 <span className="font-mono text-[12px] font-bold text-txt-primary">
-                  {getShipmentCampLabel(shipment, "destination")}
+                  {getShipmentCampLabel(shipment, "receiver")}
                 </span>
               </td>
 

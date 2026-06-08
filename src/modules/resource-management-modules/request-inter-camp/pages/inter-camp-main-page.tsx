@@ -7,9 +7,7 @@ import { PeopleRequestsPage } from "./PeopleRequestsPage";
 import { useQuery } from "@tanstack/react-query";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { ResourceSelector } from "../components/ResourceSelector";
-import { PersonSelector } from "../components/PersonSelector";
 import { requestResourceService } from "../services/RequestResourceService";
-import { requestPersonService } from "../services/RequestPersonService";
 import { CampService } from "../../../../services/CampService";
 import { Camp } from "../../../../models/Camp";
 import { useToast } from "../../../../shared/hooks/useToast";
@@ -31,8 +29,8 @@ export function InterCampMainPage() {
 
     const [destinationCampId, setDestinationCampId] = useState<number>(0);
     const [description, setDescription] = useState<string>("");
+    const [peopleCount, setPeopleCount] = useState<number>(1);
     const [resources, setResources] = useState<Array<{ resource_id: number; amount: number }>>([]);
-    const [people, setPeople] = useState<Array<{ person_id: number }>>([]);
 
     const { createRequest, deleteRequest } = useCampRequestMutation();
 
@@ -78,20 +76,24 @@ export function InterCampMainPage() {
             toast({ tone: "warning", title: "No resources", message: "Please add at least one resource." });
             return;
         }
-        if (requestMode === "people" && people.length === 0) {
-            toast({ tone: "warning", title: "No people", message: "Please add at least one person." });
+        if (requestMode === "people" && peopleCount <= 0) {
+            toast({ tone: "warning", title: "Invalid people count", message: "Please enter how many people are needed." });
             return;
         }
 
         try {
+            const normalizedDescription = description.trim();
+            const requestDescription = requestMode === "people"
+                ? `People needed: ${peopleCount}. ${normalizedDescription || "No additional details."}`
+                : normalizedDescription || null;
             const request = await createRequest.mutateAsync({
                 origin_camp_id: originCampId,
                 destination_camp_id: destinationCampId,
                 request_type: requestMode === "resources" ? "R" : "P",
                 status: "P",
-                origin_approval_status: "P",
+                origin_approval_status: requestMode === "people" ? "A" : "P",
                 destination_approval_status: "P",
-                description: description.trim() || null,
+                description: requestDescription,
             });
 
             if (request.id) {
@@ -100,11 +102,6 @@ export function InterCampMainPage() {
                         await requestResourceService.createRequestResources(
                             request.id,
                             resources.map((r) => ({ resource_id: r.resource_id, amount: r.amount }))
-                        );
-                    } else {
-                        await requestPersonService.createRequestPersons(
-                            request.id,
-                            people.map((person) => ({ person_id: person.person_id }))
                         );
                     }
                 } catch (error) {
@@ -118,8 +115,8 @@ export function InterCampMainPage() {
                 });
                 setDestinationCampId(0);
                 setDescription("");
+                setPeopleCount(1);
                 setResources([]);
-                setPeople([]);
             }
         } catch (error) {
             toast({
@@ -223,7 +220,7 @@ export function InterCampMainPage() {
                     <section className="flex-1 flex flex-col overflow-hidden">
                         {requestMode === "resources" && activeTab === "outgoing"  && <OutgoingRequestsPage />}
                         {requestMode === "resources" && activeTab === "incoming"  && <IncomingRequestsPage />}
-                        {requestMode === "resources" && activeTab === "shipments" && <ShipmentsPage />}
+                        {activeTab === "shipments" && <ShipmentsPage />}
                         {requestMode === "people" && activeTab === "outgoing" && <PeopleRequestsPage direction="outgoing" />}
                         {requestMode === "people" && activeTab === "incoming" && <PeopleRequestsPage direction="incoming" />}
                     </section>
@@ -288,14 +285,26 @@ export function InterCampMainPage() {
                             {requestMode === "resources" ? (
                                 <ResourceSelector resources={resources} onChange={setResources} />
                             ) : (
-                                <PersonSelector campId={destinationCampId} persons={people} onChange={setPeople} />
+                                <div className="space-y-3">
+                                    <label className="rmm-label">PEOPLE NEEDED</label>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={peopleCount}
+                                        onChange={(event) => setPeopleCount(Math.max(1, Number(event.target.value) || 1))}
+                                        className="rmm-input w-full"
+                                    />
+                                    <p className="font-mono text-[10px] leading-relaxed text-txt-muted">
+                                        The provider camp selects the available people when approving this request.
+                                    </p>
+                                </div>
                             )}
                         </div>
 
                         <div className="flex gap-2 pt-2">
                             <button
                                 type="button"
-                                onClick={() => { setDestinationCampId(0); setDescription(""); setResources([]); setPeople([]); }}
+                                onClick={() => { setDestinationCampId(0); setDescription(""); setPeopleCount(1); setResources([]); }}
                                 disabled={createRequest.isPending}
                                 className="rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary hover:bg-bg-secondary text-[10px] px-3 transition-all disabled:opacity-50"
                             >
@@ -304,7 +313,7 @@ export function InterCampMainPage() {
                             </button>
                             <button
                                 type="submit"
-                                disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || (requestMode === "resources" ? resources.length === 0 : people.length === 0)}
+                                disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || (requestMode === "resources" ? resources.length === 0 : peopleCount <= 0)}
                                 className="rmm-btn rmm-btn-accent flex-1 justify-center text-[10px] py-2.5 transition-all shadow-sm"
                             >
                                 {createRequest.isPending ? (

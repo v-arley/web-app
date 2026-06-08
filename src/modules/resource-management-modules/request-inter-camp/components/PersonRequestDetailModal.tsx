@@ -2,6 +2,7 @@ import { CheckCircle, Search, UserCheck, Users, X, XCircle } from "lucide-react"
 import { useMemo, useState } from "react";
 import { useCampRequestByIdQuery } from "../hooks/useCampRequestsQuery";
 import { useRequestPersonsQuery } from "../hooks/useRequestPersonsQuery";
+import { PersonSelector } from "./PersonSelector";
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string; border: string }> = {
   P: { label: "PENDING", color: "text-status-warning", bg: "bg-status-warning/10", border: "border-status-warning/30" },
@@ -12,10 +13,11 @@ const STATUS_META: Record<string, { label: string; color: string; bg: string; bo
 interface PersonRequestDetailModalProps {
   requestId: number;
   onClose: () => void;
-  onApprove?: () => void;
+  onApprove?: (persons?: Array<{ person_id: number }>) => void;
   onReject?: () => void;
   requestStatus?: string;
   isLoading?: boolean;
+  canSelectPeople?: boolean;
 }
 
 function getPersonLabel(person?: { name?: string; surname?: string } | null, personId?: number) {
@@ -30,11 +32,14 @@ export function PersonRequestDetailModal({
   onReject,
   requestStatus,
   isLoading = false,
+  canSelectPeople = false,
 }: PersonRequestDetailModalProps) {
   const [search, setSearch] = useState("");
+  const [draftPeople, setDraftPeople] = useState<Array<{ person_id: number }> | null>(null);
   const statusMeta = STATUS_META[requestStatus ?? "P"] ?? STATUS_META.P;
   const { data: request } = useCampRequestByIdQuery(requestId);
   const { data: requestPeople = [], isLoading: isPeopleLoading } = useRequestPersonsQuery(requestId);
+  const isSelectable = canSelectPeople && requestStatus === "P";
 
   const requesterLabel = request?.origin_camp?.code || request?.origin_camp?.description || "UNRESOLVED CAMP";
   const providerLabel = request?.destination_camp?.code || request?.destination_camp?.description || "UNRESOLVED CAMP";
@@ -47,6 +52,8 @@ export function PersonRequestDetailModal({
       return label.includes(normalizedSearch) || item.person?.dni?.toLowerCase().includes(normalizedSearch) || String(item.person_id).includes(normalizedSearch);
     });
   }, [requestPeople, search]);
+
+  const selectedPeople = draftPeople ?? requestPeople.map((item) => ({ person_id: item.person_id }));
 
   function handleClose() {
     if (!isLoading) onClose();
@@ -87,12 +94,12 @@ export function PersonRequestDetailModal({
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
               <Metric label="Requester" value={requesterLabel} />
               <Metric label="Provider" value={providerLabel} />
-              <Metric label="People" value={requestPeople.length} tone="ok" />
+              <Metric label="People" value={isSelectable ? selectedPeople.length : requestPeople.length} tone="ok" />
             </div>
             <div className="mt-3 border border-border-subtle bg-bg-tertiary/45 p-3">
               <div className="font-mono text-[10px] uppercase tracking-widest text-txt-disabled">Approval effect</div>
-              <div className="mt-1 font-mono text-[11px] font-bold uppercase tracking-widest text-txt-secondary">
-                Transfer camp assignment
+                <div className="mt-1 font-mono text-[11px] font-bold uppercase tracking-widest text-txt-secondary">
+                Shipment on approval
               </div>
             </div>
           </aside>
@@ -101,25 +108,35 @@ export function PersonRequestDetailModal({
             <section className="shrink-0 border-b border-border-subtle bg-bg-tertiary/75 px-4 py-3">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-txt-primary">People</div>
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-txt-primary">
+                    {isSelectable ? "Select available people" : "People"}
+                  </div>
                   <div className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-txt-muted">
-                    {filteredPeople.length} of {requestPeople.length}
+                    {isSelectable ? `${selectedPeople.length} selected` : `${filteredPeople.length} of ${requestPeople.length}`}
                   </div>
                 </div>
-                <div className="flex h-9 min-w-0 items-center gap-2 border border-border-default bg-bg-secondary/50 px-3 sm:w-72">
-                  <Search size={13} className="shrink-0 text-txt-muted" />
-                  <input
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search person"
-                    className="min-w-0 flex-1 bg-transparent font-mono text-[11px] text-txt-primary outline-none placeholder:text-txt-disabled"
-                  />
-                </div>
+                {!isSelectable && (
+                  <div className="flex h-9 min-w-0 items-center gap-2 border border-border-default bg-bg-secondary/50 px-3 sm:w-72">
+                    <Search size={13} className="shrink-0 text-txt-muted" />
+                    <input
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      placeholder="Search person"
+                      className="min-w-0 flex-1 bg-transparent font-mono text-[11px] text-txt-primary outline-none placeholder:text-txt-disabled"
+                    />
+                  </div>
+                )}
               </div>
             </section>
 
             <section className="min-h-0 flex-1 overflow-auto p-3 sm:p-4">
-              {isPeopleLoading ? (
+              {isSelectable ? (
+                <PersonSelector
+                  campId={request?.destination_camp_id ?? 0}
+                  persons={selectedPeople}
+                  onChange={setDraftPeople}
+                />
+              ) : isPeopleLoading ? (
                 <EmptyPeople label="LOADING PEOPLE..." />
               ) : filteredPeople.length === 0 ? (
                 <EmptyPeople label="NO PEOPLE MATCH THE CURRENT FILTER" />
@@ -170,8 +187,8 @@ export function PersonRequestDetailModal({
             {onApprove && requestStatus === "P" && (
               <button
                 type="button"
-                onClick={() => { onApprove(); onClose(); }}
-                disabled={isLoading || requestPeople.length === 0}
+                onClick={() => { onApprove(isSelectable ? selectedPeople : undefined); onClose(); }}
+                disabled={isLoading || (isSelectable ? selectedPeople.length === 0 : requestPeople.length === 0)}
                 className="flex h-10 items-center justify-center gap-1.5 border border-status-ok/40 bg-status-ok/10 px-4 font-mono text-[10px] font-bold uppercase tracking-widest text-status-ok transition-colors hover:bg-status-ok/20 disabled:opacity-50"
               >
                 <CheckCircle size={12} />

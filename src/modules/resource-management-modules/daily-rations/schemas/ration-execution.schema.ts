@@ -8,7 +8,7 @@ export const rationConfigSchema = z.object({
 
 export type RationConfigFormValues = z.infer<typeof rationConfigSchema>;
 
-export const rationExecutionModeSchema = z.enum(['automatic', 'manual']);
+export const rationExecutionModeSchema = z.enum(['automatic']);
 
 export type RationExecutionMode = z.infer<typeof rationExecutionModeSchema>;
 
@@ -17,8 +17,7 @@ export const rationExecutionSchema = z.object({
   camp_id: z.number({ message: 'El campamento es requerido' }),
   ration_date: z.string({ message: 'La fecha es requerida' }),
   resource_config: z.array(rationConfigSchema).min(1, 'Debe configurar al menos un recurso'),
-  execution_mode: rationExecutionModeSchema.default('automatic'),
-  person_ids: z.array(z.number()).optional(),
+  execution_mode: rationExecutionModeSchema.default('automatic').optional(),
 });
 
 export type RationExecutionFormValues = z.infer<typeof rationExecutionSchema>;

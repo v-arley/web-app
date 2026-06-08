@@ -38,6 +38,26 @@ export class RequestPersonService extends AxiosBaseService {
     }
   }
 
+  async replaceRequestPersons(
+    requestId: number,
+    persons: Array<{ person_id: number }>,
+  ): Promise<RequestPersonFormValues[]> {
+    try {
+      const { data } = await this.client.put<BackendResponse<{ items: unknown[] }> | unknown[]>(
+        "/request-persons/bulk",
+        {
+          request_id: requestId,
+          persons,
+        },
+      );
+
+      const items = this.extractItems<unknown>(data as BackendResponse<BackendListPayload<unknown>> | unknown[]);
+      return items.map((item) => this.normalizeRequestPerson(item));
+    } catch (error) {
+      throw new Error(this.resolveError(error));
+    }
+  }
+
   private normalizeRequestPerson(input: unknown): RequestPersonFormValues {
     const source = (input ?? {}) as Record<string, unknown>;
     return requestPersonSchema.parse({

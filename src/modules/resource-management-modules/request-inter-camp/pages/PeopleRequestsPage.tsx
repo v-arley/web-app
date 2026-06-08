@@ -11,6 +11,7 @@ import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import type { CampRequestFormValues } from "../schemas/camp-request.schema";
 import { PersonRequestDetailModal } from "../components/PersonRequestDetailModal";
+import { requestPersonService } from "../services/RequestPersonService";
 
 const campService = new CampService();
 
@@ -73,10 +74,17 @@ export function PeopleRequestsPage({ direction }: PeopleRequestsPageProps) {
   const pagedRequests = filteredRequests.slice((page - 1) * pageSize, page * pageSize);
   const selectedRequest = requests.find((request) => request.id === selectedRequestId);
 
-  const handleApprove = async (id: number) => {
+  const handleApprove = async (id: number, persons?: Array<{ person_id: number }>) => {
     try {
-      if (direction === "outgoing") await approveAsOrigin.mutateAsync(id);
-      else await approveAsDestination.mutateAsync(id);
+      if (direction === "outgoing") {
+        await approveAsOrigin.mutateAsync(id);
+      } else {
+        if (!persons || persons.length === 0) {
+          throw new Error("Select at least one available person before approving.");
+        }
+        await requestPersonService.replaceRequestPersons(id, persons);
+        await approveAsDestination.mutateAsync(id);
+      }
       toast({ tone: "success", title: "People request approved", message: "The people request was approved successfully." });
     } catch (error) {
       toast({
@@ -214,7 +222,8 @@ export function PeopleRequestsPage({ direction }: PeopleRequestsPageProps) {
           requestId={selectedRequestId}
           onClose={() => setSelectedRequestId(null)}
           requestStatus={direction === "outgoing" ? selectedRequest?.origin_approval_status ?? undefined : selectedRequest?.destination_approval_status ?? undefined}
-          onApprove={() => { handleApprove(selectedRequestId); setSelectedRequestId(null); }}
+          canSelectPeople={direction === "incoming"}
+          onApprove={(persons) => { handleApprove(selectedRequestId, persons); setSelectedRequestId(null); }}
           onReject={() => { handleReject(selectedRequestId); setSelectedRequestId(null); }}
           isLoading={actionLoading}
         />

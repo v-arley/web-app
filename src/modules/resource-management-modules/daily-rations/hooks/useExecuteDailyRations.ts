@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rationExecutionService } from "../services/RationExecutionService";
 import { RATIONS_QUERY_KEY } from "./useRationsQuery";
-import type { RationExecutionFormValues, RationExecutionMode } from "../schemas/ration-execution.schema";
+import type { RationExecutionFormValues } from "../schemas/ration-execution.schema";
 
 export const RATION_EXECUTION_QUERY_KEY = ["ration-execution"];
 
@@ -22,13 +22,11 @@ export function useExecuteDailyRations() {
 export function useCheckExistingRations(
     campId: number,
     rationDate: string,
-    executionMode: RationExecutionMode = "automatic",
-    personIds: number[] = [],
     enabled = true,
 ) {
     return useQuery({
-        queryKey: [...RATION_EXECUTION_QUERY_KEY, "check", campId, rationDate, executionMode, personIds],
-        queryFn: () => rationExecutionService.checkExistingRations(campId, rationDate, executionMode, personIds),
+        queryKey: [...RATION_EXECUTION_QUERY_KEY, "check", campId, rationDate],
+        queryFn: () => rationExecutionService.checkExistingRations(campId, rationDate),
         enabled: enabled && campId > 0 && rationDate.length > 0,
     });
 }
@@ -36,13 +34,11 @@ export function useCheckExistingRations(
 export function usePreviewRationGeneration(
     campId: number,
     rationDate: string,
-    executionMode: RationExecutionMode = "automatic",
-    personIds: number[] = [],
     enabled = true,
 ) {
     return useQuery({
-        queryKey: [...RATION_EXECUTION_QUERY_KEY, "preview", campId, rationDate, executionMode, personIds],
-        queryFn: () => rationExecutionService.previewRationGeneration(campId, rationDate, executionMode, personIds),
+        queryKey: [...RATION_EXECUTION_QUERY_KEY, "preview", campId, rationDate],
+        queryFn: () => rationExecutionService.previewRationGeneration(campId, rationDate),
         enabled: enabled && campId > 0 && rationDate.length > 0,
     });
 }

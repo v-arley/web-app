@@ -1,6 +1,7 @@
-import { CheckCircle, Package, Play, Truck, XCircle } from "lucide-react";
+import { CheckCircle, Package, Play, Truck, Users, XCircle } from "lucide-react";
 import type { ShipmentFormValues } from "../schemas/shipment.schema";
 import { useRequestResourcesQuery } from "../hooks/useRequestResourcesQuery";
+import { useRequestPersonsQuery } from "../hooks/useRequestPersonsQuery";
 import { useQuery } from "@tanstack/react-query";
 import { ResourceService } from "../../../../services/ResourceService";
 import type { Resource } from "../../../../models/Resource";
@@ -34,10 +35,12 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
     const meta = STATUS_META[shipment.status] ?? STATUS_META["P"];
     const id = shipment.id;
     const requestId = shipment.request_id;
-    const senderLabel = shipment.request?.origin_camp?.code || shipment.request?.origin_camp?.description || "UNRESOLVED CAMP";
-    const receiverLabel = shipment.request?.destination_camp?.code || shipment.request?.destination_camp?.description || "UNRESOLVED CAMP";
+    const isPeopleShipment = shipment.request?.request_type === "P";
+    const senderLabel = shipment.request?.destination_camp?.code || shipment.request?.destination_camp?.description || "UNRESOLVED CAMP";
+    const receiverLabel = shipment.request?.origin_camp?.code || shipment.request?.origin_camp?.description || "UNRESOLVED CAMP";
 
     const { data: resources = [], isLoading: resourcesLoading } = useRequestResourcesQuery(requestId);
+    const { data: people = [], isLoading: peopleLoading } = useRequestPersonsQuery(requestId, isPeopleShipment);
 
     const { data: availableResources = [] } = useQuery({
         queryKey: ["resources-list"],
@@ -49,6 +52,10 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
 
     const getResourceName = (resourceId: number) => {
         return availableResources.find((r) => r.id === resourceId)?.name || `ID: ${resourceId}`;
+    };
+
+    const getPersonName = (person: typeof people[number]) => {
+        return [person.person?.name, person.person?.surname].filter(Boolean).join(" ").trim() || `Person #${person.person_id}`;
     };
 
     function handleClose() {
@@ -216,14 +223,45 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
                 <aside className="w-full md:w-72 border-l border-border-subtle bg-[#212121] flex flex-col shrink-0">
                     <div className="px-4 py-3 border-b border-border-subtle bg-bg-secondary/50 shrink-0">
                         <div className="flex items-center gap-2">
+                            {isPeopleShipment ? (
+                                <Users size={13} className="text-accent" />
+                            ) : (
+                                <Package size={13} className="text-accent" />
+                            )}
                             <span className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-widest">
-                                RESOURCES
+                                {isPeopleShipment ? "PEOPLE" : "RESOURCES"}
                             </span>
                         </div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-3">
-                        {resourcesLoading ? (
+                        {isPeopleShipment ? (
+                            peopleLoading ? (
+                                <div className="flex flex-col items-center justify-center py-8 gap-3">
+                                    <div className="h-6 w-6 border-2 border-accent/30 border-t-accent animate-spin" />
+                                    <p className="font-mono text-[11px] uppercase tracking-wide text-txt-secondary">Loading...</p>
+                                </div>
+                            ) : people.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-8 border border-dashed border-border-default">
+                                    <p className="font-mono text-[11px] uppercase tracking-wide text-txt-disabled italic text-center">
+                                        No people in this request
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-1.5">
+                                    {people.map((item) => (
+                                        <div key={item.id ?? item.person_id} className="px-3 py-2.5 border border-border-subtle bg-bg-tertiary/60">
+                                            <div className="font-mono text-[11px] text-txt-primary truncate mb-1">
+                                                {getPersonName(item)}
+                                            </div>
+                                            <div className="font-mono text-[9px] uppercase tracking-widest text-txt-muted">
+                                                DNI {item.person?.dni || "-"} · Person #{item.person_id}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        ) : resourcesLoading ? (
                             <div className="flex flex-col items-center justify-center py-8 gap-3">
                                 <div className="h-6 w-6 border-2 border-accent/30 border-t-accent animate-spin" />
                                 <p className="font-mono text-[11px] uppercase tracking-wide text-txt-secondary">Loading...</p>
@@ -258,7 +296,9 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
 
                     <div className="px-4 py-2 bg-bg-secondary/30 shrink-0">
                         <span className="font-mono text-[11px] text-accent uppercase tracking-widest">
-                            {resources.length} ITEM{resources.length !== 1 ? "S" : ""}
+                            {isPeopleShipment
+                                ? `${people.length} PERSON${people.length !== 1 ? "S" : ""}`
+                                : `${resources.length} ITEM${resources.length !== 1 ? "S" : ""}`}
                         </span>
                     </div>
                 </aside>

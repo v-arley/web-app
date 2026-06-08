@@ -1,6 +1,6 @@
 ﻿import { AxiosBaseService } from "../../../../shared/utils/AxiosBaseService";
 import type { BackendResponse } from "../../../../shared/utils/Response";
-import { rationExecutionResultSchema, type RationExecutionFormValues, type RationExecutionMode, type RationExecutionResult } from "../schemas/ration-execution.schema";
+import { rationExecutionResultSchema, type RationExecutionFormValues, type RationExecutionResult } from "../schemas/ration-execution.schema";
 
 const CONTRACT_ERROR_MESSAGE = "El endpoint aún no existe o el contrato no es válido.";
 
@@ -30,18 +30,12 @@ export class RationExecutionService extends AxiosBaseService {
     async checkExistingRations(
         campId: number,
         rationDate: string,
-        executionMode: RationExecutionMode = "automatic",
-        personIds: number[] = [],
     ): Promise<{ exists: boolean; count: number }> {
         try {
             const params = new URLSearchParams();
 
             params.set("camp_id", String(campId));
             params.set("ration_date", rationDate);
-            params.set("execution_mode", executionMode);
-            if (executionMode === "manual" && personIds.length > 0) {
-                params.set("person_ids", personIds.join(","));
-            }
 
             const { data } = await this.client.get<BackendResponse<{ exists: boolean; count: number }> | unknown>( `/rations/check?${params.toString()}` );
             
@@ -64,23 +58,21 @@ export class RationExecutionService extends AxiosBaseService {
     async previewRationGeneration(
         campId: number,
         rationDate: string,
-        executionMode: RationExecutionMode = "automatic",
-        personIds: number[] = [],
     ): Promise<{ total_persons: number; persons: Array<{ id: number; name: string }>; resources_needed: Array<{ resource_id: number; total_amount: number }>; }> {
         try {
             const params = new URLSearchParams();
 
             params.set("camp_id", String(campId));
             params.set("ration_date", rationDate);
-            params.set("execution_mode", executionMode);
-            if (executionMode === "manual" && personIds.length > 0) {
-                params.set("person_ids", personIds.join(","));
-            }
 
             const { data } = await this.client.get<BackendResponse<unknown> | unknown>( `/rations/preview?${params.toString()}` );
             
             // TODO: verificar el origen del error y mitigarlo adecuadamente sin corromper la funcionalidad
-            const result = (this.extractItem<unknown>(data) ?? {}) as any;
+            const result = (this.extractItem<unknown>(data) ?? {}) as Partial<{
+                total_persons: number;
+                persons: Array<{ id: number; name: string }>;
+                resources_needed: Array<{ resource_id: number; total_amount: number }>;
+            }>;
             return {
                 total_persons: result.total_persons ?? 0,
                 persons: result.persons ?? [],
@@ -109,8 +101,7 @@ export class RationExecutionService extends AxiosBaseService {
             camp_id: payload.camp_id,
             ration_date: payload.ration_date,
             resource_config: payload.resource_config,
-            execution_mode: payload.execution_mode,
-            person_ids: payload.person_ids,
+            execution_mode: "automatic",
         };
     }
 
