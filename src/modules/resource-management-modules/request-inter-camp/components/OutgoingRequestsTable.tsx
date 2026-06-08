@@ -16,6 +16,12 @@ const STATUS_META: Record<string, { label: string; style: string }> = {
   R: { label: "REJECTED", style: "text-status-critical" },
 };
 
+function getCampLabel(request: CampRequestFormValues, side: "origin" | "destination", campMap?: Map<number, string>) {
+  const camp = side === "origin" ? request.origin_camp : request.destination_camp;
+  const campId = side === "origin" ? request.origin_camp_id : request.destination_camp_id;
+  return camp?.code || camp?.description || campMap?.get(campId) || "UNRESOLVED CAMP";
+}
+
 export function OutgoingRequestsTable({ requests, campMap, onApprove, onReject, actionLoading = false }: OutgoingRequestsTableProps) {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const selectedRequest = requests.find((r) => r.id === selectedRequestId);
@@ -35,15 +41,18 @@ export function OutgoingRequestsTable({ requests, campMap, onApprove, onReject, 
       <table className="rmm-table">
         <thead  className="rmm-table-head">
           <tr>
-            <th className="">Destination</th>
+            <th className="">Sender</th>
+            <th className="">Receiver</th>
             <th className="">Description</th>
-            <th className="">Status</th>
+            <th className="">Origin approval</th>
+            <th className="">Destination approval</th>
             <th className="">Date</th>
           </tr>
         </thead>
         <tbody>
           {requests.map((request) => {
             const meta = STATUS_META[request.origin_approval_status || "P"] ?? STATUS_META["P"];
+            const destinationMeta = STATUS_META[request.destination_approval_status || "P"] ?? STATUS_META["P"];
             return (
               <tr
                 key={request.id}
@@ -53,7 +62,12 @@ export function OutgoingRequestsTable({ requests, campMap, onApprove, onReject, 
               >
                 <td>
                   <span className="font-mono text-[12px] font-bold text-txt-primary">
-                    {campMap?.get(request.destination_camp_id!) ?? `CAMP #${request.destination_camp_id}`}
+                    {getCampLabel(request, "destination", campMap)}
+                  </span>
+                </td>
+                <td>
+                  <span className="font-mono text-[12px] font-bold text-txt-primary">
+                    {getCampLabel(request, "origin", campMap)}
                   </span>
                 </td>
                 <td>
@@ -64,6 +78,11 @@ export function OutgoingRequestsTable({ requests, campMap, onApprove, onReject, 
                 <td>
                   <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>
                     {meta.label}
+                  </span>
+                </td>
+                <td>
+                  <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${destinationMeta.style}`}>
+                    {destinationMeta.label}
                   </span>
                 </td>
                 <td>

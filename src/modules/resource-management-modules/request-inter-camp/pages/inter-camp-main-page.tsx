@@ -1,6 +1,5 @@
 ﻿import { useState } from "react";
 import { Inbox, Send, Truck, RotateCcw } from "lucide-react";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { IncomingRequestsPage } from "./IncomingRequestsPage";
 import { OutgoingRequestsPage } from "./OutgoingRequestsPage";
 import { ShipmentsPage } from "./ShipmentsPage";
@@ -11,6 +10,7 @@ import { requestResourceService } from "../services/RequestResourceService";
 import { CampService } from "../../../../services/CampService";
 import { Camp } from "../../../../models/Camp";
 import { useToast } from "../../../../shared/hooks/useToast";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import CollapsibleSidePanel, { CollapsiblePanelHeader, getInitialSidePanelOpenState } from "../../shared/components/CollapsibleSidePanel";
 
 const campService = new CampService();
@@ -20,7 +20,7 @@ type InterCampTab = "incoming" | "outgoing" | "shipments";
 export function InterCampMainPage() {
     const [activeTab, setActiveTab] = useState<InterCampTab>("outgoing");
     const [isFormOpen, setIsFormOpen] = useState(getInitialSidePanelOpenState);
-    const authContext = getAuthContextFromToken();
+    const { authContext, activeCamp, activeCampStatus } = useNavigation();
     const originCampId = authContext.campId ?? 0;
     const { toast } = useToast();
 
@@ -28,7 +28,7 @@ export function InterCampMainPage() {
     const [description, setDescription] = useState<string>("");
     const [resources, setResources] = useState<Array<{ resource_id: number; amount: number }>>([]);
 
-    const { createRequest } = useCampRequestMutation();
+    const { createRequest, deleteRequest } = useCampRequestMutation();
 
     const { data: camps = [], isLoading: isLoadingCamps } = useQuery({
         queryKey: ["camps-list-for-requests"],
@@ -38,12 +38,21 @@ export function InterCampMainPage() {
         },
     });
 
-    const originCampName = camps.find((c) => c.id === originCampId)?.code ?? "Loading...";
+    const originCampName =
+        activeCamp?.code?.trim() ||
+        activeCamp?.description?.trim() ||
+        camps.find((c) => c.id === originCampId)?.code ||
+        (activeCampStatus === "loading" ? "Resolving..." : "No camp assigned");
     const destinationCampName = camps.find((c) => c.id === destinationCampId)?.code ?? "";
     const availableDestinations = camps.filter((c) => c.id !== originCampId);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!originCampId) {
+            toast({ tone: "error", title: "Missing origin camp", message: "No camp is assigned to the current user." });
+            return;
+        }
 
         if (destinationCampId === 0) {
             toast({ tone: "warning", title: "Missing destination", message: "Please select a destination camp." });
@@ -64,17 +73,22 @@ export function InterCampMainPage() {
                 destination_camp_id: destinationCampId,
                 request_type: "R",
                 status: "P",
-                origin_approval_status: "A",       // Auto-approved — I'm the sender
+                origin_approval_status: "P",
                 destination_approval_status: "P",
                 description: description.trim() || null,
             });
 
             if (request.id) {
-                await requestResourceService.createRequestResources(
-                    request.id,
-                    resources.map((r) => ({ resource_id: r.resource_id, amount: r.amount }))
-                );
-                toast({ tone: "success", title: "Shipment authorized", message: `Provision to ${destinationCampName} submitted and approved by your camp.` });
+                try {
+                    await requestResourceService.createRequestResources(
+                        request.id,
+                        resources.map((r) => ({ resource_id: r.resource_id, amount: r.amount }))
+                    );
+                } catch (error) {
+                    await deleteRequest.mutateAsync(request.id);
+                    throw error;
+                }
+                toast({ tone: "success", title: "Request submitted", message: `Provision to ${destinationCampName} is pending manual approvals.` });
                 setDestinationCampId(0);
                 setDescription("");
                 setResources([]);
@@ -104,7 +118,7 @@ export function InterCampMainPage() {
             {/* Topbar */}
             <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
                 <div className="rmm-module-brand flex items-center gap-3 shrink-0">
-                    <div className="rmm-module-accent w-0.75 self-stretch bg-accent"></div>
+                    {/* <div className="rmm-module-accent w-0.75 self-stretch bg-accent"></div> */}
                     <div className="rmm-module-copy py-2 px-3">
                         <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">
                             Inter-Camp
@@ -158,14 +172,14 @@ export function InterCampMainPage() {
 
                 <CollapsibleSidePanel
                     isOpen={isFormOpen}
-                    label="Authorize provision form"
+                    label="Provision request form"
                     collapsedLabel="FORM"
                     widthClassName="lg:w-96"
                     onOpen={() => setIsFormOpen(true)}
                     onClose={() => setIsFormOpen(false)}
                 >
                     <CollapsiblePanelHeader
-                        title="Authorize Provision"
+                        title="Request Provision"
                         subtitle={<>Sending from: <span className="text-accent">{originCampName}</span></>}
                         onClose={() => setIsFormOpen(false)}
                     />
@@ -227,12 +241,12 @@ export function InterCampMainPage() {
                             </button>
                             <button
                                 type="submit"
-                                disabled={createRequest.isPending || destinationCampId === 0 || resources.length === 0}
+                                disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || resources.length === 0}
                                 className="rmm-btn rmm-btn-accent flex-1 justify-center text-[10px] py-2.5 transition-all shadow-sm"
                             >
                                 {createRequest.isPending ? (
                                     <div className="h-3 w-3 border-2 border-white/30 border-t-white animate-spin" />
-                                ) : "AUTHORIZE & SEND"}
+                                ) : "SUBMIT REQUEST"}
                             </button>
                         </div>
                     </form>

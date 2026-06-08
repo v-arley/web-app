@@ -77,11 +77,11 @@ export function MovementForm({
         >
             
 
-            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
+            <header className="px-4 py-3 sm:px-6 sm:py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
                 <span className="rmm-section-title font-abril">Movement Record</span>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
                 <Field label="Origin Node" required id="SRC_WH" error={errors.warehouse_id?.message}>
                     <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
                         <option value={0}>[ SELECT WAREHOUSE ]</option>
@@ -141,12 +141,12 @@ export function MovementForm({
                 </Field>
             </div>
 
-            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2">
+            <footer className="px-4 py-4 sm:px-6 sm:py-6 border-t border-border-default bg-bg-secondary/10 grid grid-cols-2 gap-2 shrink-0">
                 <button
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="rmm-btn min-w-0 border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="font-mono">CLEAR</span>
@@ -155,7 +155,7 @@ export function MovementForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
+                    className="rmm-btn rmm-btn-accent min-w-0 justify-center transition-all disabled:opacity-50"
                 >
                     <Save className="h-3.5 w-3.5" />
                     <span className="font-mono">{isSubmitting ? "..." : "SAVE"}</span>

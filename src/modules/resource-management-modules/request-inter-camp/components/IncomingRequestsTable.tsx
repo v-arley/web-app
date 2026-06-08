@@ -16,6 +16,12 @@ const STATUS_META: Record<string, { label: string; style: string }> = {
   R: { label: "REJECTED", style: "text-status-critical" },
 };
 
+function getCampLabel(request: CampRequestFormValues, side: "origin" | "destination", campMap?: Map<number, string>) {
+  const camp = side === "origin" ? request.origin_camp : request.destination_camp;
+  const campId = side === "origin" ? request.origin_camp_id : request.destination_camp_id;
+  return camp?.code || camp?.description || campMap?.get(campId) || "UNRESOLVED CAMP";
+}
+
 export function IncomingRequestsTable({ requests, campMap, onApprove, onReject, actionLoading = false }: IncomingRequestsTableProps) {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
 
@@ -36,15 +42,18 @@ export function IncomingRequestsTable({ requests, campMap, onApprove, onReject, 
       <table className="rmm-table">
         <thead className="">
           <tr>
-            <th className="">Origin</th>
+            <th className="">Sender</th>
+            <th className="">Receiver</th>
             <th className="">Description</th>
-            <th className="">Status</th>
+            <th className="">Origin approval</th>
+            <th className="">Destination approval</th>
             <th className="">Date</th>
           </tr>
         </thead>
         <tbody>
           {requests.map((request) => {
             const meta = STATUS_META[request.destination_approval_status || "P"] ?? STATUS_META["P"];
+            const originMeta = STATUS_META[request.origin_approval_status || "P"] ?? STATUS_META["P"];
             return (
               <tr
                 key={request.id}
@@ -54,13 +63,23 @@ export function IncomingRequestsTable({ requests, campMap, onApprove, onReject, 
               >
                 <td>
                   <span className="font-mono text-[12px] font-bold text-txt-primary">
-                    {campMap?.get(request.origin_camp_id!) ?? `CAMP #${request.origin_camp_id}`}
+                    {getCampLabel(request, "destination", campMap)}
+                  </span>
+                </td>
+                <td>
+                  <span className="font-mono text-[12px] font-bold text-txt-primary">
+                    {getCampLabel(request, "origin", campMap)}
                   </span>
                 </td>
                 <td>
                   <p className="font-mono text-[12px] text-txt-secondary truncate max-w-xs" title={request.description || ""}>
                     {request.description || "No description"}
                   </p>
+                </td>
+                <td>
+                  <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${originMeta.style}`}>
+                    {originMeta.label}
+                  </span>
                 </td>
                 <td>
                   <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>

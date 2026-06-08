@@ -5,14 +5,14 @@ import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { ResourceSelector } from "../components/ResourceSelector";
 import { requestResourceService } from "../services/RequestResourceService";
 import { CampService } from "../../../../services/CampService";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { Camp } from "../../../../models/Camp";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 
 const campService = new CampService();
 
 export function CreateRequestPage() {
-  const authContext = getAuthContextFromToken();
+  const { authContext, activeCamp, activeCampStatus } = useNavigation();
   const originCampId = authContext.campId ?? 0;
 
   const { toast } = useToast();
@@ -20,7 +20,7 @@ export function CreateRequestPage() {
   const [description, setDescription] = useState<string>("");
   const [resources, setResources] = useState<Array<{ resource_id: number; amount: number }>>([]);
 
-  const { createRequest } = useCampRequestMutation();
+  const { createRequest, deleteRequest } = useCampRequestMutation();
 
   const { data: camps = [], isLoading: isLoadingCamps } = useQuery({
     queryKey: ["camps-list-for-requests"],
@@ -30,11 +30,20 @@ export function CreateRequestPage() {
     }
   });
 
-  const originCampName = camps.find(c => c.id === originCampId)?.code ?? "Loading...";
+  const originCampName =
+    activeCamp?.code?.trim() ||
+    activeCamp?.description?.trim() ||
+    camps.find(c => c.id === originCampId)?.code ||
+    (activeCampStatus === "loading" ? "Resolving..." : "No camp assigned");
   const availableDestinations = camps.filter(c => c.id !== originCampId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!originCampId) {
+      toast({ tone: "error", title: "Missing origin camp", message: "No camp is assigned to the current user." });
+      return;
+    }
 
     if (destinationCampId === 0) {
       toast({ tone: "warning", title: "Missing destination", message: "Please select a destination camp." });
@@ -63,10 +72,15 @@ export function CreateRequestPage() {
       });
 
       if (request.id) {
-        await requestResourceService.createRequestResources(request.id, resources.map(r => ({
-          resource_id: r.resource_id,
-          amount: r.amount
-        })));
+        try {
+          await requestResourceService.createRequestResources(request.id, resources.map(r => ({
+            resource_id: r.resource_id,
+            amount: r.amount
+          })));
+        } catch (error) {
+          await deleteRequest.mutateAsync(request.id);
+          throw error;
+        }
         toast({ tone: "success", title: "Request submitted", message: "Inter-camp resource request created successfully." });
         setDestinationCampId(0);
         setDescription("");
@@ -161,7 +175,7 @@ export function CreateRequestPage() {
                 <div className="flex justify-end pt-6 border-t border-border-default">
                   <button
                     type="submit"
-                    disabled={createRequest.isPending || destinationCampId === 0 || resources.length === 0 || originCampId === destinationCampId}
+                    disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || resources.length === 0 || originCampId === destinationCampId}
                     className="px-6 py-3 bg-accent/10 border border-accent/30 font-mono text-[10px] font-bold text-accent uppercase tracking-widest hover:bg-accent/20 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {createRequest.isPending ? (

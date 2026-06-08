@@ -5,7 +5,7 @@ import { CampService } from "../../../../services/CampService";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
 import { IncomingRequestsTable } from "../components/IncomingRequestsTable";
-import { getAuthContextFromToken } from "../../../../shared/utils/authAccess";
+import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 import type { Camp } from "../../../../models/Camp";
 import { FilterBar } from "../../shared/components/FilterBar";
@@ -15,12 +15,11 @@ import PageHeader from "../../shared/components/PageHeader";
 const campService = new CampService();
 
 export function IncomingRequestsPage() {
-  const authContext = getAuthContextFromToken();
+  const { authContext } = useNavigation();
   const destinationCampId = authContext.campId ?? 0;
-  const userId = authContext.userId ?? 0;
 
   const { toast } = useToast();
-  const { data: requests = [], isLoading } = useCampRequestsQuery({ destinationCampId });
+  const { data: requests = [], isLoading } = useCampRequestsQuery({ destinationCampId }, destinationCampId > 0);
   const { approveAsDestination, rejectAsDestination } = useCampRequestMutation();
   const [statusFilter, setStatusFilter] = useState<'P' | 'A' | 'R' | ''>('');
   const [page, setPage] = useState(1);
@@ -50,7 +49,7 @@ export function IncomingRequestsPage() {
 
   const handleApprove = async (id: number) => {
     try {
-      await approveAsDestination.mutateAsync({ id, userId });
+      await approveAsDestination.mutateAsync(id);
       toast({ tone: "success", title: "Request approved", message: "The inter-camp request has been approved." });
     } catch (error) {
       toast({
@@ -63,7 +62,7 @@ export function IncomingRequestsPage() {
 
   const handleReject = async (id: number) => {
     try {
-      await rejectAsDestination.mutateAsync({ id, userId });
+      await rejectAsDestination.mutateAsync(id);
       toast({ tone: "info", title: "Request rejected", message: "The inter-camp request has been rejected." });
     } catch (error) {
       toast({

@@ -13,6 +13,12 @@ const STATUS_META: Record<string, { label: string; style: string }> = {
   C: { label: "CANCELLED",  style: "text-status-critical" },
 };
 
+function getShipmentCampLabel(shipment: ShipmentFormValues, side: "origin" | "destination") {
+  const request = shipment.request;
+  const camp = side === "origin" ? request?.origin_camp : request?.destination_camp;
+  return camp?.code || camp?.description || "UNRESOLVED CAMP";
+}
+
 export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps) {
   if (shipments.length === 0) {
     return (
@@ -30,6 +36,8 @@ export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps)
         <tr>
           <th className="">ID</th>
           <th className="">Request</th>
+          <th className="">Sender</th>
+          <th className="">Receiver</th>
           <th className="">Status</th>
           <th className="">Departure</th>
           <th className="">Arrival</th>
@@ -52,6 +60,16 @@ export function ShipmentsTable({ shipments, onViewDetail }: ShipmentsTableProps)
               </td>
               <td>
                 <span className="font-mono text-[12px] text-txt-secondary">REQ-{shipment.request_id}</span>
+              </td>
+              <td>
+                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  {getShipmentCampLabel(shipment, "destination")}
+                </span>
+              </td>
+              <td>
+                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  {getShipmentCampLabel(shipment, "origin")}
+                </span>
               </td>
               <td>
                 <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>

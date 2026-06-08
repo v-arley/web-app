@@ -34,7 +34,7 @@ export function InventoryMainPage() {
         <article className="sa-panel sa-surface p-0">
             <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
                 <div className="rmm-module-brand flex items-center gap-3 shrink-0 self-stretch">
-                    <div className="rmm-module-accent sa-accent-left h-full" />
+                    {/* <div className="rmm-module-accent sa-accent-left h-full" /> */}
                     <div className="rmm-module-copy py-2 px-3">
                         <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">
                             Inventory
