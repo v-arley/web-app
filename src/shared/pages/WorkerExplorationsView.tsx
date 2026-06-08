@@ -148,14 +148,14 @@ function ExplorationCard({
             <span className="text-[#7C7C7C] shrink-0">//</span>
 
             <span className="text-white font-bold text-sm uppercase tracking-[0.16em] break-words min-w-0">
-              {exploration.name || "Exploración sin nombre"}
+              {exploration.name || "Nameless Exploration"}
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#D0D0D0] font-mono">
             <span className="flex items-center gap-1 min-w-0">
               <UserCheck size={14} className="text-[#38BDF8] shrink-0" />
-              <span className="shrink-0">Rol:</span>{" "}
+              <span className="shrink-0">Role:</span>{" "}
               <strong className="text-white font-medium break-words min-w-0">
                 {exploration.roleName || "N/A"}
               </strong>
@@ -167,9 +167,9 @@ function ExplorationCard({
 
             <span className="flex items-center gap-1 min-w-0">
               <Clock size={14} className="text-[#FACC15] shrink-0" />
-              <span className="shrink-0">Duración:</span>{" "}
+              <span className="shrink-0">Duration:</span>{" "}
               <strong className="text-white font-medium whitespace-nowrap">
-                {duration ? `${duration} día(s)` : "N/A"}
+                {duration ? `${duration} day('s)` : "N/A"}
               </strong>
             </span>
 
@@ -179,7 +179,7 @@ function ExplorationCard({
 
             <span className="flex items-center gap-1 min-w-0">
               <Map size={14} className="text-[#E85D04] shrink-0" />
-              <span className="shrink-0">Campamento:</span>{" "}
+              <span className="shrink-0">Camp:</span>{" "}
               <strong className="text-[#38BDF8] font-medium break-words min-w-0">
                 {getCampId(exploration) ?? "N/A"}
               </strong>
@@ -193,7 +193,7 @@ function ExplorationCard({
               risk,
             )}`}
           >
-            Riesgo {getRiskLabel(exploration)}
+            Risk {getRiskLabel(exploration)}
           </span>
 
           <span
@@ -214,37 +214,37 @@ function ExplorationCard({
         <div className="border-t border-white/10 bg-black/65 backdrop-blur-sm p-4 sm:p-5 font-mono text-xs text-[#D0D0D0] space-y-4">
           <div className="p-3 bg-black/70 border border-white/10 leading-normal">
             <span className="text-[#9A9A9A] text-[10px] uppercase block mb-1 font-bold tracking-[0.14em]">
-              Objetivo
+              Objective
             </span>
 
             <p className="text-white text-xs leading-relaxed break-words">
-              {exploration.objective || "Sin objetivo registrado."}
+              {exploration.objective || "No objective registered."}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="border border-white/10 p-3 bg-black/70 min-w-0">
               <span className="text-[#9A9A9A] text-[9px] block uppercase tracking-[0.14em]">
-                Calendario
+                Calendar
               </span>
 
               <div className="mt-2 space-y-2 font-medium text-white">
                 <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-white/10 pb-1">
-                  <span className="text-[#9A9A9A]">Asignación</span>
+                  <span className="text-[#9A9A9A]">Assignment</span>
                   <span className="text-[#38BDF8] break-words sm:text-right">
                     {formatDateTime(exploration.assignedAt)}
                   </span>
                 </p>
 
                 <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-white/10 pb-1">
-                  <span className="text-[#9A9A9A]">Salida</span>
+                  <span className="text-[#9A9A9A]">Departure date</span>
                   <span className="break-words sm:text-right">
                     {formatDateTime(getDepartureDate(exploration))}
                   </span>
                 </p>
 
                 <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
-                  <span className="text-[#9A9A9A]">Retorno</span>
+                  <span className="text-[#9A9A9A]">Return date</span>
                   <span className="break-words sm:text-right">
                     {formatDateTime(getReturnDate(exploration))}
                   </span>
@@ -254,11 +254,11 @@ function ExplorationCard({
 
             <div className="border border-white/10 p-3 bg-black/70 md:col-span-2 min-w-0">
               <span className="text-[#9A9A9A] text-[9px] block uppercase tracking-[0.14em]">
-                Notas
+                Notes
               </span>
 
               <p className="mt-2 text-xs text-[#FACC15] bg-black/65 p-3 border border-[#FACC15]/30 leading-relaxed break-words">
-                {exploration.notes || "Sin notas registradas."}
+                {exploration.notes || "No notes registered."}
               </p>
             </div>
           </div>
@@ -275,7 +275,7 @@ function ExplorationCard({
 
             <div className="border border-white/10 bg-black/70 p-3 min-w-0">
               <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                Estado
+                State
               </span>
               <strong className="text-white break-words">
                 {getStateLabel(exploration)}
@@ -284,7 +284,7 @@ function ExplorationCard({
 
             <div className="border border-white/10 bg-black/70 p-3 min-w-0">
               <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                Riesgo
+                Risk
               </span>
               <strong className="text-white break-words">
                 {getRiskLabel(exploration)}
@@ -293,7 +293,7 @@ function ExplorationCard({
 
             <div className="border border-white/10 bg-black/70 p-3 min-w-0">
               <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                Creada
+                Created
               </span>
               <strong className="text-white break-words">
                 {formatDate(exploration.createdAt)}
