@@ -1,12 +1,15 @@
-﻿import { useState } from "react";
-import { Inbox, Send, Truck, RotateCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Inbox, Package, Send, Truck, RotateCcw, Users } from "lucide-react";
 import { IncomingRequestsPage } from "./IncomingRequestsPage";
 import { OutgoingRequestsPage } from "./OutgoingRequestsPage";
 import { ShipmentsPage } from "./ShipmentsPage";
+import { PeopleRequestsPage } from "./PeopleRequestsPage";
 import { useQuery } from "@tanstack/react-query";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { ResourceSelector } from "../components/ResourceSelector";
+import { PersonSelector } from "../components/PersonSelector";
 import { requestResourceService } from "../services/RequestResourceService";
+import { requestPersonService } from "../services/RequestPersonService";
 import { CampService } from "../../../../services/CampService";
 import { Camp } from "../../../../models/Camp";
 import { useToast } from "../../../../shared/hooks/useToast";
@@ -16,9 +19,11 @@ import CollapsibleSidePanel, { CollapsiblePanelHeader, getInitialSidePanelOpenSt
 const campService = new CampService();
 
 type InterCampTab = "incoming" | "outgoing" | "shipments";
+type RequestMode = "resources" | "people";
 
 export function InterCampMainPage() {
     const [activeTab, setActiveTab] = useState<InterCampTab>("outgoing");
+    const [requestMode, setRequestMode] = useState<RequestMode>("resources");
     const [isFormOpen, setIsFormOpen] = useState(getInitialSidePanelOpenState);
     const { authContext, activeCamp, activeCampStatus } = useNavigation();
     const originCampId = authContext.campId ?? 0;
@@ -27,6 +32,7 @@ export function InterCampMainPage() {
     const [destinationCampId, setDestinationCampId] = useState<number>(0);
     const [description, setDescription] = useState<string>("");
     const [resources, setResources] = useState<Array<{ resource_id: number; amount: number }>>([]);
+    const [people, setPeople] = useState<Array<{ person_id: number }>>([]);
 
     const { createRequest, deleteRequest } = useCampRequestMutation();
 
@@ -46,6 +52,12 @@ export function InterCampMainPage() {
     const destinationCampName = camps.find((c) => c.id === destinationCampId)?.code ?? "";
     const availableDestinations = camps.filter((c) => c.id !== originCampId);
 
+    useEffect(() => {
+        if (requestMode === "people" && activeTab === "shipments") {
+            setActiveTab("outgoing");
+        }
+    }, [activeTab, requestMode]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -62,8 +74,12 @@ export function InterCampMainPage() {
             toast({ tone: "error", title: "Invalid selection", message: "Origin and destination camps must be different." });
             return;
         }
-        if (resources.length === 0) {
+        if (requestMode === "resources" && resources.length === 0) {
             toast({ tone: "warning", title: "No resources", message: "Please add at least one resource." });
+            return;
+        }
+        if (requestMode === "people" && people.length === 0) {
+            toast({ tone: "warning", title: "No people", message: "Please add at least one person." });
             return;
         }
 
@@ -71,7 +87,7 @@ export function InterCampMainPage() {
             const request = await createRequest.mutateAsync({
                 origin_camp_id: originCampId,
                 destination_camp_id: destinationCampId,
-                request_type: "R",
+                request_type: requestMode === "resources" ? "R" : "P",
                 status: "P",
                 origin_approval_status: "P",
                 destination_approval_status: "P",
@@ -80,33 +96,46 @@ export function InterCampMainPage() {
 
             if (request.id) {
                 try {
-                    await requestResourceService.createRequestResources(
-                        request.id,
-                        resources.map((r) => ({ resource_id: r.resource_id, amount: r.amount }))
-                    );
+                    if (requestMode === "resources") {
+                        await requestResourceService.createRequestResources(
+                            request.id,
+                            resources.map((r) => ({ resource_id: r.resource_id, amount: r.amount }))
+                        );
+                    } else {
+                        await requestPersonService.createRequestPersons(
+                            request.id,
+                            people.map((person) => ({ person_id: person.person_id }))
+                        );
+                    }
                 } catch (error) {
                     await deleteRequest.mutateAsync(request.id);
                     throw error;
                 }
-                toast({ tone: "success", title: "Request submitted", message: `Provision to ${destinationCampName} is pending manual approvals.` });
+                toast({
+                    tone: "success",
+                    title: "Request submitted",
+                    message: `${requestMode === "resources" ? "Provision" : "People transfer"} to ${destinationCampName} is pending manual approvals.`,
+                });
                 setDestinationCampId(0);
                 setDescription("");
                 setResources([]);
+                setPeople([]);
             }
         } catch (error) {
             toast({
                 tone: "error",
                 title: "Error creating request",
-                message: error instanceof Error ? error.message : "Failed to create the provision request.",
+                message: error instanceof Error ? error.message : "Failed to create the request.",
             });
         }
     };
 
-    const tabs: Array<{ key: InterCampTab; label: string; icon: React.ReactNode; description: string }> = [
+    const allTabs: Array<{ key: InterCampTab; label: string; icon: React.ReactNode; description: string }> = [
         { key: "outgoing",  label: "My Requests",     icon: <Send size={16} />,  description: "Provisions I submitted"  },
         { key: "incoming",  label: "Received From",   icon: <Inbox size={16} />, description: "Requests sent to me" },
         { key: "shipments", label: "Shipments",       icon: <Truck size={16} />, description: "Shipments in transit"    },
     ];
+    const tabs = allTabs.filter((tab) => requestMode === "resources" || tab.key !== "shipments");
 
     return (
         <article className="rmm-scope flex h-full min-h-0 flex-col bg-black/50 backdrop-blur-lg overflow-hidden relative border border-border-default">
@@ -130,6 +159,34 @@ export function InterCampMainPage() {
                 </div>
 
                 <nav className="rmm-module-tabs flex items-stretch flex-1 justify-end">
+                    <div className="flex items-center gap-1 border-l border-border-subtle px-2">
+                        <button
+                            type="button"
+                            onClick={() => setRequestMode("resources")}
+                            className={`grid h-8 w-8 place-items-center border transition-colors ${
+                                requestMode === "resources"
+                                    ? "border-accent/50 bg-accent/10 text-accent"
+                                    : "border-border-default bg-bg-secondary/40 text-txt-muted hover:text-txt-primary"
+                            }`}
+                            aria-label="Show resource requests"
+                            title="Resource requests"
+                        >
+                            <Package size={14} />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setRequestMode("people")}
+                            className={`grid h-8 w-8 place-items-center border transition-colors ${
+                                requestMode === "people"
+                                    ? "border-accent/50 bg-accent/10 text-accent"
+                                    : "border-border-default bg-bg-secondary/40 text-txt-muted hover:text-txt-primary"
+                            }`}
+                            aria-label="Show people requests"
+                            title="People requests"
+                        >
+                            <Users size={14} />
+                        </button>
+                    </div>
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
@@ -164,22 +221,24 @@ export function InterCampMainPage() {
                 {/* Main Content */}
                 <main className="flex-1 overflow-hidden flex flex-col">
                     <section className="flex-1 flex flex-col overflow-hidden">
-                        {activeTab === "outgoing"  && <OutgoingRequestsPage />}
-                        {activeTab === "incoming"  && <IncomingRequestsPage />}
-                        {activeTab === "shipments" && <ShipmentsPage />}
+                        {requestMode === "resources" && activeTab === "outgoing"  && <OutgoingRequestsPage />}
+                        {requestMode === "resources" && activeTab === "incoming"  && <IncomingRequestsPage />}
+                        {requestMode === "resources" && activeTab === "shipments" && <ShipmentsPage />}
+                        {requestMode === "people" && activeTab === "outgoing" && <PeopleRequestsPage direction="outgoing" />}
+                        {requestMode === "people" && activeTab === "incoming" && <PeopleRequestsPage direction="incoming" />}
                     </section>
                 </main>
 
                 <CollapsibleSidePanel
                     isOpen={isFormOpen}
-                    label="Provision request form"
+                    label={requestMode === "resources" ? "Provision request form" : "People request form"}
                     collapsedLabel="FORM"
                     widthClassName="lg:w-96"
                     onOpen={() => setIsFormOpen(true)}
                     onClose={() => setIsFormOpen(false)}
                 >
                     <CollapsiblePanelHeader
-                        title="Request Provision"
+                        title={requestMode === "resources" ? "Request Provision" : "Request People"}
                         subtitle={<>Sending from: <span className="text-accent">{originCampName}</span></>}
                         onClose={() => setIsFormOpen(false)}
                     />
@@ -193,7 +252,7 @@ export function InterCampMainPage() {
                         </div> */}
 
                         <div>
-                            <label className="rmm-label mb-1.5">DESTINATION CAMP</label>
+                            <label className="rmm-label mb-1.5">{requestMode === "resources" ? "DESTINATION CAMP" : "PROVIDER CAMP"}</label>
                             {isLoadingCamps ? (
                                 <div className="rmm-input w-full flex items-center gap-2 opacity-50">
                                     <div className="h-3 w-3 border-2 border-accent/30 border-t-accent animate-spin" />
@@ -226,13 +285,17 @@ export function InterCampMainPage() {
                         </div>
 
                         <div className="pt-2 border-t border-border-default/50">
-                            <ResourceSelector resources={resources} onChange={setResources} />
+                            {requestMode === "resources" ? (
+                                <ResourceSelector resources={resources} onChange={setResources} />
+                            ) : (
+                                <PersonSelector campId={destinationCampId} persons={people} onChange={setPeople} />
+                            )}
                         </div>
 
                         <div className="flex gap-2 pt-2">
                             <button
                                 type="button"
-                                onClick={() => { setDestinationCampId(0); setDescription(""); setResources([]); }}
+                                onClick={() => { setDestinationCampId(0); setDescription(""); setResources([]); setPeople([]); }}
                                 disabled={createRequest.isPending}
                                 className="rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary hover:bg-bg-secondary text-[10px] px-3 transition-all disabled:opacity-50"
                             >
@@ -241,7 +304,7 @@ export function InterCampMainPage() {
                             </button>
                             <button
                                 type="submit"
-                                disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || resources.length === 0}
+                                disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || (requestMode === "resources" ? resources.length === 0 : people.length === 0)}
                                 className="rmm-btn rmm-btn-accent flex-1 justify-center text-[10px] py-2.5 transition-all shadow-sm"
                             >
                                 {createRequest.isPending ? (

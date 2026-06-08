@@ -3,6 +3,7 @@ import { campRequestService } from "../services/CampRequestService";
 import { CAMP_REQUESTS_QUERY_KEY } from "./useCampRequestsQuery";
 import type { CampRequestFormValues } from "../schemas/camp-request.schema";
 import { SHIPMENTS_QUERY_KEY } from "./useShipmentsQuery";
+import { REQUEST_PERSONS_QUERY_KEY } from "./useRequestPersonsQuery";
 
 export function useCampRequestMutation() {
     const queryClient = useQueryClient();
@@ -14,6 +15,7 @@ export function useCampRequestMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: REQUEST_PERSONS_QUERY_KEY });
             // toast({
             //     title: "Solicitud enviada",
             //     message: "La solicitud ha sido enviada al campamento origen para su aprobación.",
@@ -34,6 +36,7 @@ export function useCampRequestMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: REQUEST_PERSONS_QUERY_KEY });
         },
     });
 
@@ -43,6 +46,7 @@ export function useCampRequestMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: REQUEST_PERSONS_QUERY_KEY });
             // toast({
             //     title: "Solicitud Aprobada",
             //     message: "Has aprobado la entrada de recursos a tu campamento.",
@@ -57,6 +61,7 @@ export function useCampRequestMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: REQUEST_PERSONS_QUERY_KEY });
             // toast({
             //     title: "Solicitud Rechazada",
             //     message: "Has rechazado la solicitud de entrada.",
@@ -71,6 +76,7 @@ export function useCampRequestMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: SHIPMENTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: REQUEST_PERSONS_QUERY_KEY });
             // toast({
             //     title: "Salida Autorizada",
             //     message: "Has autorizado el despacho de recursos de tu campamento.",
@@ -84,6 +90,7 @@ export function useCampRequestMutation() {
             campRequestService.rejectAsOrigin(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: CAMP_REQUESTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: REQUEST_PERSONS_QUERY_KEY });
             // toast({
             //     title: "Salida Rechazada",
             //     message: "Has denegado la salida de recursos.",
