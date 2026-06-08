@@ -19,7 +19,7 @@ type AuthState = {
 };
 
 type AuthContextValue = AuthState & {
-    login: (username: string, password: string) => Promise<void>;
+    login: (username: string, password: string) => Promise<UserInfo>;
     logout: () => Promise<void>;
 };
 
@@ -85,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Marca esta pestaña como autenticada. Las pestañas nuevas no heredarán este marcador.
         sessionStorage.setItem(TAB_SESSION_KEY, "1");
         setState({ user, isAuthenticated: true, isLoading: false });
+        return user;
     }, []);
 
     const logout = useCallback(async () => {

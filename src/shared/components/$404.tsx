@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../router/routes";
+import { useNavigation } from "../app/NavigationContext";
 
 export default function NotFoundPage() {
     const navigate = useNavigate();
+    const { sections } = useNavigation();
+    const fallbackPath = sections[0]?.path ?? ROUTES.LOGIN;
 
     return (
         <div className="w-full h-full flex flex-col bg-bg-app overflow-hidden">
@@ -22,10 +25,10 @@ export default function NotFoundPage() {
                     ROUTE NOT FOUND
                 </span>
                 <button
-                    onClick={() => navigate(ROUTES.DASHBOARD, { replace: true })}
+                    onClick={() => navigate(fallbackPath, { replace: true })}
                     className="font-mono text-[11px] uppercase tracking-label border border-border-default px-6 py-2 text-txt-secondary hover:bg-bg-secondary transition-colors cursor-pointer"
                 >
-                    BACK TO DASHBOARD
+                    BACK TO AVAILABLE SECTION
                 </button>
             </div>
         </div>

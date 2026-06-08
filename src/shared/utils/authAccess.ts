@@ -254,3 +254,11 @@ export function getAvailableSections(
 
   return sections.filter((section) => allowed.has(section.key));
 }
+
+export function getInitialSectionPath(
+  sections: DashboardSection[],
+  auth: AuthContext,
+  fallbackPath = "/app/forbidden",
+) {
+  return getAvailableSections(sections, auth)[0]?.path ?? fallbackPath;
+}
