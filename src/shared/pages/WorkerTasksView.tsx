@@ -175,7 +175,7 @@ function TaskCard({
           type="button"
           onClick={() => onComplete(task.id)}
           disabled={completing}
-          className="w-full sm:w-auto px-4 py-2 border border-[#E85D04]/70 bg-black/60 text-[#E85D04] hover:bg-[#E85D04] hover:text-[#111111] disabled:opacity-50 disabled:hover:bg-black/60 disabled:hover:text-[#E85D04] font-bold font-mono text-xs uppercase tracking-[0.14em] transition-colors whitespace-nowrap"
+          className="w-full sm:w-auto px-4 py-2 border-2 border-[#E85D04] bg-black/70 text-white shadow-[0_0_18px_rgba(232,93,4,0.55)] ring-1 ring-[#E85D04]/40 hover:bg-[#E85D04] hover:text-[#111111] hover:shadow-[0_0_24px_rgba(232,93,4,0.75)] disabled:opacity-50 disabled:hover:bg-black/60 disabled:hover:text-[#E85D04] font-bold font-mono text-xs uppercase tracking-[0.14em] transition-colors whitespace-nowrap"
         >
           {completing ? "Completing..." : "Complete task"}
         </button>
@@ -305,7 +305,9 @@ export function WorkerTasksView() {
                 <div className="border border-[#FACC15]/40 bg-black/65 p-3 text-[#FACC15]">
                   <div className="flex items-center gap-2 font-bold uppercase tracking-[0.14em]">
                     <Award size={15} className="shrink-0" />
-                    <span className="break-words">New achievements unlocked</span>
+                    <span className="break-words">
+                      New achievements unlocked
+                    </span>
                   </div>
 
                   <p className="mt-1 text-[#D0D0D0] break-words">
