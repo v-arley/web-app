@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { X } from "lucide-react";
+import { AlertTriangle, Save, X } from "lucide-react";
 
 import type { CreateExploration } from "../../../models/Exploration";
 import type { ExplorationRow } from "./explorationHelpers";
@@ -16,10 +16,10 @@ type Props = {
 };
 
 const inputClass =
-    "w-full rounded-lg border border-[#444] bg-[#111] px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-[#777] focus:border-[#FF6600]";
+    "w-full border border-[#3a3a3a] bg-[#111111] px-4 py-3 text-[12px] font-mono text-white outline-none transition-colors placeholder:text-[#6B7280] hover:border-[#E85D04]/60 focus:border-[#E85D04] disabled:cursor-not-allowed disabled:bg-[#242424] disabled:text-[#6B7280]";
 
 const labelClass =
-    "text-[10px] uppercase tracking-[0.25em] text-[#9CA3AF]";
+    "mb-1 block text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]";
 
 function buildDate(value: string) {
     return new Date(`${value}T00:00:00`);
@@ -78,28 +78,28 @@ export default function ExplorationForm({
         setErrorMessage("");
 
         if (!campId) {
-            setErrorMessage("No se encontró el campamento del usuario actual.");
+            setErrorMessage("The current user's camp could not be found.");
             return;
         }
 
         if (!code.trim()) {
-            setErrorMessage("El código es obligatorio.");
+            setErrorMessage("Code is required.");
             return;
         }
 
         if (!name.trim()) {
-            setErrorMessage("El nombre es obligatorio.");
+            setErrorMessage("Name is required.");
             return;
         }
 
         if (!departureDate) {
-            setErrorMessage("La fecha de salida es obligatoria.");
+            setErrorMessage("Departure date is required.");
             return;
         }
 
         if (estimatedReturnDate && estimatedReturnDate < departureDate) {
             setErrorMessage(
-                "La fecha de retorno no puede ser menor que la fecha de salida.",
+                "Estimated return date cannot be earlier than departure date.",
             );
             return;
         }
@@ -122,170 +122,196 @@ export default function ExplorationForm({
         if (!saved) {
             setErrorMessage(
                 isEditMode
-                    ? "No se pudo actualizar la exploración."
-                    : "No se pudo crear la exploración.",
+                    ? "The exploration could not be updated."
+                    : "The exploration could not be created.",
             );
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 px-4 py-6">
-            <div className="max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-[#FF6600]/40 bg-[#232323] p-5 text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
-                <div className="sticky top-0 z-10 mb-5 flex items-center justify-between border-b border-white/10 bg-[#232323] pb-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 px-4 py-6">
+            <div className="max-h-[88vh] w-full max-w-5xl overflow-y-auto border border-[#E85D04]/45 bg-[#1a1a1a] text-white shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#3a3a3a] bg-[#242424] px-5 py-4">
                     <div>
-                        <p className={labelClass}>
-                            {isEditMode ? "Editar exploración" : "Nueva exploración"}
+                        <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04]">
+                            {isEditMode ? "Edit exploration" : "New exploration"}
                         </p>
-                        <h3 className="mt-1 text-2xl">
-                            {isEditMode ? "Actualizar datos" : "Registrar salida"}
+
+                        <h3 className="mt-1 text-2xl font-mono font-black uppercase tracking-wide text-white">
+                            {isEditMode ? "Update record" : "Register departure"}
                         </h3>
+
+                        <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                            Field operation / schedule / mission objective
+                        </p>
                     </div>
 
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="rounded-lg border border-white/10 p-2 text-[#9CA3AF] transition-colors hover:border-[#FF6600] hover:text-[#FF6600]"
+                        className="border border-[#3a3a3a] bg-[#111111] p-2 text-[#6B7280] transition-colors hover:border-[#E85D04] hover:text-[#E85D04]"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
-                {errorMessage && (
-                    <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                        {errorMessage}
-                    </div>
-                )}
+                <div className="p-5">
+                    {errorMessage && (
+                        <div className="mb-4 flex items-center gap-2 border border-[#E85D04] bg-[#E85D04]/10 px-4 py-3 font-mono text-xs uppercase tracking-label text-[#E85D04]">
+                            <AlertTriangle size={15} />
+                            {errorMessage}
+                        </div>
+                    )}
 
-                <form onSubmit={handleSubmit} className="grid gap-4">
-                    <div className="grid gap-4 md:grid-cols-2">
+                    <form onSubmit={handleSubmit} className="grid gap-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label className={labelClass}>Code</label>
+                                <input
+                                    className={inputClass}
+                                    value={code}
+                                    onChange={(event) => setCode(event.target.value)}
+                                    placeholder="EXP-AUR-0001"
+                                />
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>Name</label>
+                                <input
+                                    className={inputClass}
+                                    value={name}
+                                    onChange={(event) => setName(event.target.value)}
+                                    placeholder="Zone reconnaissance"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-4">
+                            <div>
+                                <label className={labelClass}>Departure</label>
+                                <input
+                                    type="date"
+                                    className={inputClass}
+                                    value={departureDate}
+                                    onChange={(event) =>
+                                        setDepartureDate(event.target.value)
+                                    }
+                                />
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>
+                                    Estimated return
+                                </label>
+                                <input
+                                    type="date"
+                                    className={inputClass}
+                                    value={estimatedReturnDate}
+                                    onChange={(event) =>
+                                        setEstimatedReturnDate(event.target.value)
+                                    }
+                                />
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>Risk</label>
+                                <select
+                                    className={inputClass}
+                                    value={riskLevel}
+                                    onChange={(event) =>
+                                        setRiskLevel(
+                                            event.target.value as "L" | "M" | "H",
+                                        )
+                                    }
+                                >
+                                    <option value="L">Low</option>
+                                    <option value="M">Medium</option>
+                                    <option value="H">High</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className={labelClass}>Status</label>
+                                <select
+                                    className={inputClass}
+                                    value={state}
+                                    disabled={!isEditMode}
+                                    onChange={(event) =>
+                                        setState(
+                                            event.target.value as
+                                                | "P"
+                                                | "A"
+                                                | "F"
+                                                | "C",
+                                        )
+                                    }
+                                >
+                                    <option value="P">Pending</option>
+                                    <option value="A">Active</option>
+                                    <option value="F">Finished</option>
+                                    <option value="C">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div>
-                            <label className={labelClass}>Código</label>
-                            <input
-                                className={inputClass}
-                                value={code}
-                                onChange={(event) => setCode(event.target.value)}
-                                placeholder="EXP-AUR-0001"
+                            <label className={labelClass}>Objective</label>
+                            <textarea
+                                className={`${inputClass} min-h-[90px] resize-none`}
+                                value={objective}
+                                onChange={(event) => setObjective(event.target.value)}
+                                placeholder="Describe the exploration objective..."
                             />
                         </div>
 
                         <div>
-                            <label className={labelClass}>Nombre</label>
-                            <input
-                                className={inputClass}
-                                value={name}
-                                onChange={(event) => setName(event.target.value)}
-                                placeholder="Reconocimiento de zona"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-4">
-                        <div>
-                            <label className={labelClass}>Salida</label>
-                            <input
-                                type="date"
-                                className={inputClass}
-                                value={departureDate}
-                                onChange={(event) =>
-                                    setDepartureDate(event.target.value)
-                                }
+                            <label className={labelClass}>Notes</label>
+                            <textarea
+                                className={`${inputClass} min-h-[90px] resize-none`}
+                                value={notes}
+                                onChange={(event) => setNotes(event.target.value)}
+                                placeholder="Additional notes..."
                             />
                         </div>
 
-                        <div>
-                            <label className={labelClass}>Retorno estimado</label>
-                            <input
-                                type="date"
-                                className={inputClass}
-                                value={estimatedReturnDate}
-                                onChange={(event) =>
-                                    setEstimatedReturnDate(event.target.value)
-                                }
-                            />
+                        <div className="sticky bottom-0 flex flex-col gap-3 border-t border-[#3a3a3a] bg-[#1a1a1a] pt-4 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]">
+                                Status:{" "}
+                                <span className="text-[#E85D04]">
+                                    {isEditMode ? state : "P"}
+                                </span>{" "}
+                                | Duration:{" "}
+                                <span className="text-[#E85D04]">
+                                    {durationDays}{" "}
+                                    {durationDays === 1 ? "day" : "days"}
+                                </span>
+                            </p>
+
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={onCancel}
+                                    className="border border-[#3a3a3a] px-5 py-3 text-[11px] font-mono font-bold uppercase tracking-label text-[#C0C0C0] transition-colors hover:border-white hover:text-white"
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="flex items-center justify-center gap-2 border border-[#E85D04] bg-[#E85D04] px-5 py-3 text-[11px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-[#FF6A10] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <Save size={14} />
+                                    {saving
+                                        ? "Saving..."
+                                        : isEditMode
+                                          ? "Update"
+                                          : "Save"}
+                                </button>
+                            </div>
                         </div>
-
-                        <div>
-                            <label className={labelClass}>Riesgo</label>
-                            <select
-                                className={inputClass}
-                                value={riskLevel}
-                                onChange={(event) =>
-                                    setRiskLevel(event.target.value as "L" | "M" | "H")
-                                }
-                            >
-                                <option value="L">Bajo</option>
-                                <option value="M">Medio</option>
-                                <option value="H">Alto</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label className={labelClass}>Estado</label>
-                            <select
-                                className={inputClass}
-                                value={state}
-                                disabled={!isEditMode}
-                                onChange={(event) =>
-                                    setState(event.target.value as "P" | "A" | "F" | "C")
-                                }
-                            >
-                                <option value="P">Pendiente</option>
-                                <option value="A">Activa</option>
-                                <option value="F">Finalizada</option>
-                                <option value="C">Cancelada</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>Objetivo</label>
-                        <textarea
-                            className={`${inputClass} min-h-[90px] resize-none`}
-                            value={objective}
-                            onChange={(event) => setObjective(event.target.value)}
-                            placeholder="Describe el objetivo de la exploración..."
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>Notas</label>
-                        <textarea
-                            className={`${inputClass} min-h-[90px] resize-none`}
-                            value={notes}
-                            onChange={(event) => setNotes(event.target.value)}
-                            placeholder="Notas adicionales..."
-                        />
-                    </div>
-
-                    <div className="sticky bottom-0 flex flex-col gap-3 border-t border-white/10 bg-[#232323] pt-4 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-[11px] uppercase tracking-[0.25em] text-[#9CA3AF]">
-                            Estado: {isEditMode ? state : "P"} | Duración:{" "}
-                            {durationDays} día{durationDays === 1 ? "" : "s"}
-                        </p>
-
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={onCancel}
-                                className="border border-[#555] px-5 py-3 text-sm uppercase tracking-[0.2em] text-[#ccc] transition-colors hover:border-white hover:text-white"
-                            >
-                                Cancelar
-                            </button>
-
-                            <button
-                                type="submit"
-                                disabled={saving}
-                                className="border border-[#FF6600] bg-[#FF6600] px-5 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600] disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                                {saving
-                                    ? "Guardando..."
-                                    : isEditMode
-                                      ? "Actualizar"
-                                      : "Guardar"}
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     );
