@@ -18,7 +18,7 @@ type Props = {
 };
 
 const infoLabelClass =
-    "text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]";
+    "text-[10px] font-mono font-bold uppercase tracking-label text-[#9CA3AF]";
 
 function getEnglishStateLabel(state?: ExplorationRow["state"]) {
     if (state === "P") return "Pending";
@@ -59,18 +59,18 @@ export default function ExplorationsTable({
     };
 
     return (
-        <section className="flex h-[calc(100vh-355px)] min-h-[430px] flex-col overflow-hidden border border-[#3a3a3a] bg-[#1a1a1a] shadow-[0_0_18px_rgba(0,0,0,0.35)]">
-            <div className="flex shrink-0 flex-col gap-3 border-b border-[#3a3a3a] bg-[#242424] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex h-[calc(100vh-355px)] min-h-[430px] flex-col overflow-hidden border border-[#4a4a4a] bg-[#242424] shadow-[0_0_18px_rgba(0,0,0,0.28)]">
+            <div className="flex shrink-0 flex-col gap-3 border-b border-[#4a4a4a] bg-[#2b2b2b] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04]">
                         Registered explorations
                     </p>
-                    <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                    <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#9CA3AF]">
                         Field records / crew count / target resources
                     </p>
                 </div>
 
-                <p className="border border-[#3a3a3a] bg-[#111111] px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-label text-[#C0C0C0]">
+                <p className="border border-[#555555] bg-[#303030] px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-label text-[#E5E7EB]">
                     Found:{" "}
                     <span className="text-[#E85D04]">
                         {total.toString().padStart(4, "0")}
@@ -80,7 +80,7 @@ export default function ExplorationsTable({
 
             <div className="min-h-0 flex-1 overflow-y-auto p-4">
                 {explorations.length === 0 ? (
-                    <div className="flex h-full items-center justify-center border border-[#3a3a3a] bg-[#111111] p-6 text-center text-xs font-mono uppercase tracking-label text-[#E85D04]">
+                    <div className="flex h-full items-center justify-center border border-[#555555] bg-[#2b2b2b] p-6 text-center text-xs font-mono uppercase tracking-label text-[#E85D04]">
                         No explorations found
                     </div>
                 ) : (
@@ -94,10 +94,10 @@ export default function ExplorationsTable({
                                     key={exploration.id}
                                     type="button"
                                     onClick={() => onSelectExploration(exploration)}
-                                    className={`w-full border p-4 text-left font-mono transition-colors ${
+                                    className={`w-full border p-4 text-left font-mono transition-all ${
                                         isSelected
-                                            ? "border-[#E85D04] bg-[#E85D04]/10 text-white shadow-[0_0_16px_rgba(232,93,4,0.16)]"
-                                            : "border-[#3a3a3a] bg-[#111111] text-[#C0C0C0] hover:border-[#E85D04]/70 hover:bg-[#202020]"
+                                            ? "border-2 border-[#E85D04] bg-[#f3f3f3] text-[#111111] shadow-[0_0_26px_rgba(232,93,4,0.35)]"
+                                            : "border border-[#666666] bg-[#2b2b2b] text-[#E5E7EB] shadow-[0_0_10px_rgba(255,255,255,0.06)] hover:border-[#E85D04]/80 hover:bg-[#303030]"
                                     }`}
                                 >
                                     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -106,8 +106,8 @@ export default function ExplorationsTable({
                                                 <span
                                                     className={`border px-2 py-0.5 text-[10px] font-bold uppercase tracking-label ${
                                                         isSelected
-                                                            ? "border-[#E85D04]/60 text-[#E85D04]"
-                                                            : "border-[#3a3a3a] text-[#6B7280]"
+                                                            ? "border-[#E85D04] bg-[#E85D04] text-[#111111]"
+                                                            : "border-[#666666] text-[#9CA3AF]"
                                                     }`}
                                                 >
                                                     ID #{exploration.id}
@@ -118,11 +118,19 @@ export default function ExplorationsTable({
                                                 </span>
                                             </div>
 
-                                            <h3 className="mt-2 break-words text-base font-bold uppercase tracking-wide text-white">
+                                            <h3
+                                                className={`mt-2 break-words text-base font-bold uppercase tracking-wide ${
+                                                    isSelected ? "text-[#111111]" : "text-white"
+                                                }`}
+                                            >
                                                 {exploration.name}
                                             </h3>
 
-                                            <p className="mt-2 max-w-2xl break-words text-xs leading-relaxed text-[#9CA3AF]">
+                                            <p
+                                                className={`mt-2 max-w-2xl break-words text-xs leading-relaxed ${
+                                                    isSelected ? "text-[#555555]" : "text-[#9CA3AF]"
+                                                }`}
+                                            >
                                                 {exploration.objective || "No objective registered."}
                                             </p>
                                         </div>
@@ -132,7 +140,7 @@ export default function ExplorationsTable({
                                                 className={`inline-flex items-center gap-1 border px-3 py-1 text-[10px] font-bold uppercase tracking-label ${
                                                     isSelected
                                                         ? "border-[#38BDF8]/50 bg-[#38BDF8]/10 text-[#38BDF8]"
-                                                        : "border-[#3a3a3a] bg-[#1a1a1a] text-[#C0C0C0]"
+                                                        : "border-[#555555] bg-[#303030] text-[#E5E7EB]"
                                                 }`}
                                             >
                                                 <UsersRound size={13} />
@@ -143,7 +151,7 @@ export default function ExplorationsTable({
                                                 className={`inline-flex items-center gap-1 border px-3 py-1 text-[10px] font-bold uppercase tracking-label ${
                                                     isSelected
                                                         ? "border-[#FACC15]/50 bg-[#FACC15]/10 text-[#FACC15]"
-                                                        : "border-[#3a3a3a] bg-[#1a1a1a] text-[#C0C0C0]"
+                                                        : "border-[#555555] bg-[#303030] text-[#E5E7EB]"
                                                 }`}
                                             >
                                                 <Boxes size={13} />
@@ -168,15 +176,15 @@ export default function ExplorationsTable({
                                         </div>
                                     </div>
 
-                                    <div className="mt-4 grid gap-3 border-t border-[#3a3a3a] pt-4 text-[12px] sm:grid-cols-2 lg:grid-cols-5">
-                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                    <div className="mt-4 grid gap-3 border-t border-[#4a4a4a] pt-4 text-[12px] sm:grid-cols-2 lg:grid-cols-5">
+                                        <div className="border border-[#4a4a4a] bg-[#303030] p-3">
                                             <p className={infoLabelClass}>Departure</p>
                                             <p className="mt-1 text-white">
                                                 {exploration.departure_date || "N/A"}
                                             </p>
                                         </div>
 
-                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                        <div className="border border-[#4a4a4a] bg-[#303030] p-3">
                                             <p className={infoLabelClass}>Return</p>
                                             <p className="mt-1 text-white">
                                                 {exploration.estimated_return_date ||
@@ -184,7 +192,7 @@ export default function ExplorationsTable({
                                             </p>
                                         </div>
 
-                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                        <div className="border border-[#4a4a4a] bg-[#303030] p-3">
                                             <p className={infoLabelClass}>Duration</p>
                                             <p className="mt-1 text-white">
                                                 {getDuration(
@@ -193,14 +201,14 @@ export default function ExplorationsTable({
                                             </p>
                                         </div>
 
-                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                        <div className="border border-[#4a4a4a] bg-[#303030] p-3">
                                             <p className={infoLabelClass}>Status</p>
                                             <p className="mt-1 text-white">
                                                 {getEnglishStateLabel(exploration.state)}
                                             </p>
                                         </div>
 
-                                        <div className="border border-[#3a3a3a] bg-[#1a1a1a] p-3">
+                                        <div className="border border-[#4a4a4a] bg-[#303030] p-3">
                                             <p className={infoLabelClass}>Camp</p>
                                             <p className="mt-1 text-white">
                                                 {getCampLabel(exploration.camp_id)}
@@ -214,7 +222,7 @@ export default function ExplorationsTable({
                 )}
             </div>
 
-            <div className="flex shrink-0 flex-col gap-3 border-t border-[#3a3a3a] bg-[#111111] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex shrink-0 flex-col gap-3 border-t border-[#4a4a4a] bg-[#2b2b2b] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
                     Page{" "}
                     <span className="text-[#E85D04]">{currentPage}</span> of{" "}
@@ -226,7 +234,7 @@ export default function ExplorationsTable({
                         type="button"
                         onClick={handlePrevious}
                         disabled={!canGoPrevious}
-                        className="flex h-9 items-center gap-2 border border-[#3a3a3a] px-3 text-[10px] font-mono uppercase tracking-label text-white transition-colors hover:border-[#E85D04] hover:text-[#E85D04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#3a3a3a] disabled:hover:text-white"
+                        className="flex h-9 items-center gap-2 border border-[#555555] bg-[#303030] px-3 text-[10px] font-mono uppercase tracking-label text-white transition-colors hover:border-[#E85D04] hover:text-[#E85D04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#555555] disabled:hover:text-white"
                     >
                         <ChevronLeft size={14} />
                         Previous
@@ -236,7 +244,7 @@ export default function ExplorationsTable({
                         type="button"
                         onClick={handleNext}
                         disabled={!canGoNext}
-                        className="flex h-9 items-center gap-2 border border-[#3a3a3a] px-3 text-[10px] font-mono uppercase tracking-label text-white transition-colors hover:border-[#E85D04] hover:text-[#E85D04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#3a3a3a] disabled:hover:text-white"
+                        className="flex h-9 items-center gap-2 border border-[#555555] bg-[#303030] px-3 text-[10px] font-mono uppercase tracking-label text-white transition-colors hover:border-[#E85D04] hover:text-[#E85D04] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#555555] disabled:hover:text-white"
                     >
                         Next
                         <ChevronRight size={14} />

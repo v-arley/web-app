@@ -27,10 +27,10 @@ type Props = {
 };
 
 const detailCardClass =
-    "border border-[#3a3a3a] bg-[#111111] p-4 transition-colors hover:border-[#E85D04]/50";
+    "border border-[#4a4a4a] bg-[#2b2b2b] p-4 transition-colors hover:border-[#E85D04]/50";
 
 const detailLabelClass =
-    "text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]";
+    "text-[10px] font-mono font-bold uppercase tracking-label text-[#9CA3AF]";
 
 function getEnglishStateLabel(state?: ExplorationRow["state"]) {
     if (state === "P") return "Pending";
@@ -64,8 +64,8 @@ export default function ExplorationDetailPanel({
 
     return (
         <aside className="w-full xl:max-w-[360px] xl:self-start">
-            <section className="flex h-[calc(100vh-270px)] min-h-[460px] flex-col overflow-hidden border border-[#3a3a3a] bg-[#1a1a1a] text-white shadow-[0_0_18px_rgba(0,0,0,0.35)]">
-                <div className="shrink-0 border-b border-[#3a3a3a] bg-[#242424] p-5">
+            <section className="flex h-[calc(100vh-270px)] min-h-[460px] flex-col overflow-hidden border border-[#4a4a4a] bg-[#242424] text-white shadow-[0_0_18px_rgba(0,0,0,0.28)]">
+                <div className="shrink-0 border-b border-[#4a4a4a] bg-[#2b2b2b] p-5">
                     <div className="flex items-start gap-3">
                         <div className="border border-[#E85D04]/60 bg-[#E85D04]/10 p-2 text-[#E85D04]">
                             <BadgeAlert size={18} />
@@ -80,7 +80,7 @@ export default function ExplorationDetailPanel({
                                 {selectedExploration?.name ?? "No exploration"}
                             </h3>
 
-                            <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                            <p className="mt-1 text-[10px] font-mono uppercase tracking-label text-[#9CA3AF]">
                                 Field record / assignment / status control
                             </p>
                         </div>
@@ -98,7 +98,7 @@ export default function ExplorationDetailPanel({
                                         onEditExploration(selectedExploration);
                                     }
                                 }}
-                                className="flex items-center justify-center gap-2 border border-[#E85D04] bg-[#E85D04] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-[#FF6A10] disabled:cursor-not-allowed disabled:border-[#3a3a3a] disabled:bg-[#2a2a2a] disabled:text-[#6B7280]"
+                                className="flex items-center justify-center gap-2 rounded-none border border-[#E85D04] !bg-[#E85D04] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label !text-[#111111] transition-colors hover:!bg-[#FF6A10] disabled:cursor-not-allowed disabled:!border-[#555555] disabled:!bg-[#6B7280] disabled:!text-[#CFCFCF]"
                             >
                                 <Pencil size={14} />
                                 Edit
@@ -108,7 +108,7 @@ export default function ExplorationDetailPanel({
                                 type="button"
                                 disabled={!hasSelectedExploration}
                                 onClick={onManagePeople}
-                                className="flex items-center justify-center gap-2 border border-[#E85D04]/70 px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04] transition-colors hover:bg-[#E85D04] hover:text-[#111111] disabled:cursor-not-allowed disabled:border-[#3a3a3a] disabled:text-[#6B7280]"
+                                className="flex items-center justify-center gap-2 rounded-none border border-[#E85D04] !bg-transparent px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label !text-[#E85D04] transition-colors hover:!bg-[#E85D04] hover:!text-[#111111] disabled:cursor-not-allowed disabled:!border-[#555555] disabled:!text-[#9CA3AF]"
                             >
                                 <UsersRound size={14} />
                                 People
@@ -118,7 +118,7 @@ export default function ExplorationDetailPanel({
                                 type="button"
                                 disabled={!hasSelectedExploration}
                                 onClick={onManageResources}
-                                className="flex items-center justify-center gap-2 border border-[#E85D04]/70 px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04] transition-colors hover:bg-[#E85D04] hover:text-[#111111] disabled:cursor-not-allowed disabled:border-[#3a3a3a] disabled:text-[#6B7280]"
+                                className="flex items-center justify-center gap-2 rounded-none border border-[#E85D04] !bg-transparent px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label !text-[#E85D04] transition-colors hover:!bg-[#E85D04] hover:!text-[#111111] disabled:cursor-not-allowed disabled:!border-[#555555] disabled:!text-[#9CA3AF]"
                             >
                                 <Boxes size={14} />
                                 Resources
@@ -126,7 +126,7 @@ export default function ExplorationDetailPanel({
                         </div>
 
                         {(canStart || canFinish || canCancel) && (
-                            <div className="grid grid-cols-1 gap-2 border-t border-[#3a3a3a] pt-4 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-2 border-t border-[#4a4a4a] pt-4 sm:grid-cols-2">
                                 {canStart && (
                                     <button
                                         type="button"
@@ -139,7 +139,7 @@ export default function ExplorationDetailPanel({
                                                 );
                                             }
                                         }}
-                                        className="flex items-center justify-center gap-2 border border-[#22C55E] bg-[#22C55E] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-transparent hover:text-[#22C55E] disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="flex items-center justify-center gap-2 rounded-none border border-[#00C853] !bg-[#00C853] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label !text-[#111111] transition-colors hover:!bg-[#18E36B] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <Play size={14} />
                                         Start
@@ -158,7 +158,7 @@ export default function ExplorationDetailPanel({
                                                 );
                                             }
                                         }}
-                                        className="flex items-center justify-center gap-2 border border-[#38BDF8] bg-[#38BDF8] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-transparent hover:text-[#38BDF8] disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="flex items-center justify-center gap-2 rounded-none border border-[#2F80ED] !bg-[#2F80ED] px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label !text-[#111111] transition-colors hover:!bg-[#4C9AFF] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <Flag size={14} />
                                         Finish
@@ -177,7 +177,7 @@ export default function ExplorationDetailPanel({
                                                 );
                                             }
                                         }}
-                                        className="flex items-center justify-center gap-2 border border-red-500 px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label text-red-400 transition-colors hover:bg-red-500 hover:text-[#111111] disabled:cursor-not-allowed disabled:opacity-60"
+                                        className="flex items-center justify-center gap-2 rounded-none border border-red-500 !bg-transparent px-3 py-3 text-[10px] font-mono font-bold uppercase tracking-label !text-red-400 transition-colors hover:!bg-red-500 hover:!text-[#111111] disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                         <Ban size={14} />
                                         Cancel
@@ -247,7 +247,7 @@ export default function ExplorationDetailPanel({
                             </p>
                         </div>
 
-                        <div className="flex items-center gap-2 border-t border-[#3a3a3a] pt-4 text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]">
+                        <div className="flex items-center gap-2 border-t border-[#4a4a4a] pt-4 text-[10px] font-mono font-bold uppercase tracking-label text-[#9CA3AF]">
                             <ShieldCheck className="h-4 w-4 shrink-0 text-[#22C55E]" />
                             <span>Exploration record available</span>
                         </div>

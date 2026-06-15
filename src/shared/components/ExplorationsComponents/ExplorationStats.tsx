@@ -40,11 +40,11 @@ function MetricCard({ label, value, tone, icon }: MetricCardProps) {
 
     return (
         <div
-            className={`border ${colors.border} bg-[#1a1a1a] p-5 ${colors.shadow} transition-colors hover:bg-[#202020]`}
+            className={`border ${colors.border} bg-[#202020] p-5 ${colors.shadow} transition-colors hover:bg-[#262626]`}
         >
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#6B7280]">
+                    <p className="text-[10px] font-mono font-bold uppercase tracking-label text-[#9CA3AF]">
                         {label}
                     </p>
 
@@ -60,7 +60,7 @@ function MetricCard({ label, value, tone, icon }: MetricCardProps) {
                 </div>
             </div>
 
-            <div className="mt-4 h-1 w-full overflow-hidden border border-[#3a3a3a] bg-[#111111]">
+            <div className="mt-4 h-1 w-full overflow-hidden border border-[#444444] bg-[#2c2c2c]">
                 <div className={`h-full ${colors.bg}`} />
             </div>
         </div>
