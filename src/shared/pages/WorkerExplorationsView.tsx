@@ -1,10 +1,10 @@
 import { AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { useWorkerExplorations } from "../hooks/useWorkerExplorations";
-import { WorkerExplorationCard } from "../components/WorkerComponents/WorkerExplorationCard";
-import { WorkerExplorationsFilters } from "../components/WorkerComponents/WorkerExplorationsFilters";
-import { WorkerExplorationsPagination } from "../components/WorkerComponents/WorkerExplorationsPagination";
-import { WorkerExplorationsSummary } from "../components/WorkerComponents/WorkerExplorationsSummary";
+import { WorkerExplorationCard } from "../components/WorkerComponents/explorations/WorkerExplorationCard";
+import { WorkerExplorationsFilters } from "../components/WorkerComponents/explorations/WorkerExplorationsFilters";
+import { WorkerExplorationsPagination } from "../components/WorkerComponents/explorations/WorkerExplorationsPagination";
+import { WorkerExplorationsSummary } from "../components/WorkerComponents/explorations/WorkerExplorationsSummary";
 
 export function WorkerExplorationsView() {
   const {

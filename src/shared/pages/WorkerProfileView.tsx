@@ -1,9 +1,9 @@
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useWorkerProfile } from "../hooks/useWorkerProfile";
-import { WorkerProfileCampCard } from "../components/WorkerComponents/WorkerProfileCampCard";
-import { WorkerProfileHealthCard } from "../components/WorkerComponents/WorkerProfileHealthCard";
-import { WorkerProfileIdentityCard } from "../components/WorkerComponents/WorkerProfileIdentityCard";
-import { WorkerProfileProfessionCard } from "../components/WorkerComponents/WorkerProfileProfessionCard";
+import { WorkerProfileCampCard } from "../components/WorkerComponents/profile/WorkerProfileCampCard";
+import { WorkerProfileHealthCard } from "../components/WorkerComponents/profile/WorkerProfileHealthCard";
+import { WorkerProfileIdentityCard } from "../components/WorkerComponents/profile/WorkerProfileIdentityCard";
+import { WorkerProfileProfessionCard } from "../components/WorkerComponents/profile/WorkerProfileProfessionCard";
 
 export function WorkerProfileView() {
   const { profile, loading, error, reload } = useWorkerProfile();

@@ -1,5 +1,5 @@
-import type { CampProductionRule } from "../../../models/CampProductionRule";
-import type { WorkerProductionHistoryItem } from "../../../models/ResourceProduction";
+import type { CampProductionRule } from "../../../../models/CampProductionRule";
+import type { WorkerProductionHistoryItem } from "../../../../models/ResourceProduction";
 
 export function getTodayDate() {
   return new Date().toISOString().split("T")[0];

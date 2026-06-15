@@ -1,8 +1,8 @@
 import { AlertTriangle, CheckSquare, RefreshCw } from "lucide-react";
 import { useWorkerTasks } from "../hooks/useWorkerTasks";
-import { WorkerTaskCard } from "../components/WorkerComponents/WorkerTaskCard";
-import { WorkerTaskCompletedAlert } from "../components/WorkerComponents/WorkerTaskCompletedAlert";
-import { WorkerTasksSummary } from "../components/WorkerComponents/WorkerTasksSummary";
+import { WorkerTaskCard } from "../components/WorkerComponents/tasks/WorkerTaskCard";
+import { WorkerTaskCompletedAlert } from "../components/WorkerComponents/tasks/WorkerTaskCompletedAlert";
+import { WorkerTasksSummary } from "../components/WorkerComponents/tasks/WorkerTasksSummary";
 
 export function WorkerTasksView() {
   const {

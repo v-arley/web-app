@@ -1,5 +1,5 @@
 import { Calendar, Lock, Unlock } from "lucide-react";
-import type { Achievement } from "../../../models/Achievement";
+import type { Achievement } from "../../../../models/Achievement";
 import { formatDate, getProgressPercent } from "./workerAchievementUtils";
 
 export function UnlockedAchievementCard({
@@ -47,7 +47,11 @@ export function UnlockedAchievementCard({
   );
 }
 
-export function PendingAchievementCard({ achievement }: { achievement: Achievement }) {
+export function PendingAchievementCard({
+  achievement,
+}: {
+  achievement: Achievement;
+}) {
   const currentPoints = achievement.currentPoints ?? 0;
   const requiredPoints = achievement.requiredPoints ?? achievement.points ?? 0;
   const missingPoints =

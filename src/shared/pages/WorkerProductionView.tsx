@@ -12,8 +12,8 @@ import {
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useResourceProduction } from "../hooks/useResourceProduction";
-import { WorkerProductionResultAlert } from "../components/WorkerComponents/WorkerProductionResultAlert";
-import { WorkerProductionRulesPanel } from "../components/WorkerComponents/WorkerProductionRulesPanel";
+import { WorkerProductionResultAlert } from "../components/WorkerComponents/production/WorkerProductionResultAlert";
+import { WorkerProductionRulesPanel } from "../components/WorkerComponents/production/WorkerProductionRulesPanel";
 import {
   formatDate,
   getEffectiveDate,
@@ -27,7 +27,7 @@ import {
   getResourceName,
   getResourceUnit,
   getTodayDate,
-} from "../components/WorkerComponents/workerProductionUtils";
+} from "../components/WorkerComponents/production/workerProductionUtils";
 
 export function WorkerProductionView() {
   const {

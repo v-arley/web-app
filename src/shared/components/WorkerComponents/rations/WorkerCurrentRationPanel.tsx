@@ -1,10 +1,5 @@
-import {
-  CheckCircle2,
-  Clock,
-  Info,
-  ShoppingBag,
-} from "lucide-react";
-import type { Ration } from "../../../models/Ration";
+import { CheckCircle2, Clock, Info, ShoppingBag } from "lucide-react";
+import type { Ration } from "../../../../models/Ration";
 import {
   formatDate,
   getRationDate,

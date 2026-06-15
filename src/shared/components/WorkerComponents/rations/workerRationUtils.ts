@@ -1,5 +1,5 @@
-import type { Ration } from "../../../models/Ration";
-import type { RationResource } from "../../../models/RationResource";
+import type { Ration } from "../../../../models/Ration";
+import type { RationResource } from "../../../../models/RationResource";
 
 export function formatDate(value?: string | Date | null) {
   if (!value) return "N/A";

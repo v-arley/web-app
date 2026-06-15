@@ -1,5 +1,5 @@
 import { Award, Sparkles } from "lucide-react";
-import type { WorkerProductionResult } from "../../../models/ResourceProduction";
+import type { WorkerProductionResult } from "../../../../models/ResourceProduction";
 
 type WorkerProductionResultAlertProps = {
   lastResult: WorkerProductionResult;

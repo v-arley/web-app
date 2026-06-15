@@ -1,18 +1,13 @@
-import {
-  Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Package,
-} from "lucide-react";
-import type { Ration } from "../../../models/Ration";
+import { Calendar, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import type { Ration } from "../../../../models/Ration";
 import {
   formatDate,
   getRationDate,
   getRationResources,
   getResourceName,
   getResourceUnit,
-} from "./workerRationUtils";
-import { WorkerRationStatusBadge } from "./WorkerRationStatusBadge";
+} from "../workerRationUtils";
+import { WorkerRationStatusBadge } from "../WorkerRationStatusBadge";
 
 type WorkerRationHistoryPanelProps = {
   history: {
@@ -69,10 +64,7 @@ export function WorkerRationHistoryPanel({
                   </span>
 
                   <span className="text-white font-bold flex items-center gap-2">
-                    <Calendar
-                      size={13}
-                      className="text-[#9A9A9A] shrink-0"
-                    />
+                    <Calendar size={13} className="text-[#9A9A9A] shrink-0" />
                     {formatDate(getRationDate(item))}
                   </span>
 

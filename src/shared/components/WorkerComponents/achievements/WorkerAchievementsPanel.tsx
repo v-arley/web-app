@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import { Award, ChevronLeft, ChevronRight } from "lucide-react";
-import type { Achievement } from "../../../models/Achievement";
+import type { Achievement } from "../../../../models/Achievement";
 import {
   PendingAchievementCard,
   UnlockedAchievementCard,

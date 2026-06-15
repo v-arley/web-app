@@ -1,4 +1,4 @@
-import type { Exploration } from "../../../models/Exploration";
+import type { Exploration } from "../../../../models/Exploration";
 
 export function formatDate(value?: string | Date | null) {
   if (!value) return "N/A";

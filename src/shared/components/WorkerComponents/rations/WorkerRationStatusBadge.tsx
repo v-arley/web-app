@@ -1,4 +1,4 @@
-import type { Ration } from "../../../models/Ration";
+import type { Ration } from "../../../../models/Ration";
 import { isDelivered } from "./workerRationUtils";
 
 type WorkerRationStatusBadgeProps = {

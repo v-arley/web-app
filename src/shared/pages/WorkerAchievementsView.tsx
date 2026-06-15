@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useWorkerAchievements } from "../hooks/useWorkerAchievements";
-import { WorkerPointsPanel } from "../components/WorkerComponents/WorkerPointsPanel";
+import { WorkerPointsPanel } from "../components/WorkerComponents/achievements/WorkerPointsPanel";
 import {
   WorkerAchievementsPanel,
   type AchievementTab,
-} from "../components/WorkerComponents/WorkerAchievementsPanel";
+} from "../components/WorkerComponents/achievements/WorkerAchievementsPanel";
 
 export function WorkerAchievementsView() {
   const {

@@ -1,4 +1,4 @@
-import type { RationResource } from "../../../models/RationResource";
+import type { RationResource } from "../../../../models/RationResource";
 import {
   getResourceCode,
   getResourceName,

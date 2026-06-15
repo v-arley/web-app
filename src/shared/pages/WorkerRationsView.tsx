@@ -1,7 +1,7 @@
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useWorkerRations } from "../hooks/useWorkerRations";
-import { WorkerCurrentRationPanel } from "../components/WorkerComponents/WorkerCurrentRationPanel";
-import { WorkerRationHistoryPanel } from "../components/WorkerComponents/WorkerRationHistoryPanel";
+import { WorkerCurrentRationPanel } from "../components/WorkerComponents/rations/WorkerCurrentRationPanel";
+import { WorkerRationHistoryPanel } from "../components/WorkerComponents/rations/WorkerRationHistoryPanel";
 
 export function WorkerRationsView() {
   const { currentRation, history, page, setPage, loading, error, reload } =

@@ -1,5 +1,5 @@
 import { Calendar, Clock } from "lucide-react";
-import type { Task } from "../../../models/Task";
+import type { Task } from "../../../../models/Task";
 import {
   formatDate,
   formatEstimatedTime,
@@ -9,7 +9,7 @@ import {
   getDifficultyStyle,
   getPriorityLabel,
   getPriorityStyle,
-} from "./workerTaskUtils";
+} from "../workerTaskUtils";
 
 type WorkerTaskCardProps = {
   task: Task;

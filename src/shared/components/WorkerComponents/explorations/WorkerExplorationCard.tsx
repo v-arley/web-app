@@ -1,11 +1,5 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  Clock,
-  Map,
-  UserCheck,
-} from "lucide-react";
-import type { Exploration } from "../../../models/Exploration";
+import { ChevronDown, ChevronUp, Clock, Map, UserCheck } from "lucide-react";
+import type { Exploration } from "../../../../models/Exploration";
 import {
   formatDate,
   formatDateTime,

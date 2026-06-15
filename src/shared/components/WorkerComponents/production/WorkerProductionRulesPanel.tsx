@@ -1,4 +1,4 @@
-import type { CampProductionRule } from "../../../models/CampProductionRule";
+import type { CampProductionRule } from "../../../../models/CampProductionRule";
 import {
   formatDate,
   getEffectiveDate,
@@ -99,9 +99,7 @@ export function WorkerProductionRulesPanel({
                   </div>
 
                   <div className="min-w-0">
-                    <span className="block text-[#9A9A9A] uppercase">
-                      From
-                    </span>
+                    <span className="block text-[#9A9A9A] uppercase">From</span>
                     <strong className="text-white break-words">
                       {formatDate(getEffectiveDate(item))}
                     </strong>
