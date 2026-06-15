@@ -7,6 +7,8 @@ import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 import PaginationFooter from "../../shared/components/PaginationFooter";
+import { PersonSearchPicker } from "../../shared/components/PersonSearchPicker";
+import { ResourceSearchPicker } from "../../shared/components/ResourceSearchPicker";
 import { ProductionAdjustmentForm } from "../components/ProductionAdjustmentForm";
 import { ProductionRecordsTable } from "../components/ProductionRecordsTable";
 import { useProductionRecordMutation } from "../hooks/useProductionRecordMutation";
@@ -134,62 +136,58 @@ export function ProductionRecordsPage() {
     const activeRules = activeRulesResult?.items ?? [];
 
     return (
-        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad overflow-hidden bg-transparent">
-            <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
-                <div className="flex-1 overflow-auto">
-                    <div className="">
-                        <div className="flex-1 flex flex-col overflow-hidden">
-                            <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                                <div className="flex items-center gap-2">
-                                    <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
-                                        Search Filters
-                                    </div>
-                                </div>
-
-                                <div className="rmm-panel-actions">
-                                    <label className="flex min-w-0 items-center overflow-hidden gap-2">
-                                        <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                        Worker
-                                    </span>
-                                    <select
-                                        value={personId ?? 0}
-                                        onChange={(e) => {
-                                            setPersonId(Number(e.target.value) || undefined);
-                                            setPage(1);
-                                        }}
-                                        className="rmm-input min-w-0 text-xs"
-                                    >
-                                        <option value={0}>All</option>
-                                        {personOptions.map((p) => (
-                                            <option key={p.id} value={p.id}>{p.label}</option>
-                                        ))}
-                                    </select>
-                                </label>
-                                <label className="flex min-w-0 items-center overflow-hidden gap-2">
-                                    <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                        Resource
-                                    </span>
-                                    <select
-                                        value={resourceId ?? 0}
-                                        onChange={(e) => {
-                                            setResourceId(Number(e.target.value) || undefined);
-                                            setPage(1);
-                                        }}
-                                        className="rmm-input min-w-0 text-xs"
-                                    >
-                                        <option value={0}>All</option>
-                                        {resourceOptions.map((r) => (
-                                            <option key={r.id} value={r.id}>{r.label}</option>
-                                        ))}
-                                    </select>
-                                </label>
-                                </div>
-                            </header>
+        <div className="app-split app-split--glass" style={{ flex: 1, minHeight: 0 }}>
+            <div className="app-split__inner">
+                <div className="app-split__main">
+                    {/* TODO: alinear el tamano de los filtros */}
+                    <header className="app-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
+                        <div className="flex items-center gap-2">
+                            <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
+                                Search Filters
+                            </div>
                         </div>
 
+                        <div className="app-panel-actions">
+                            <label className="flex min-w-0 items-center overflow-hidden gap-2">
+                                <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
+                                    Worker
+                                </span>
+                                <PersonSearchPicker
+                                    selectedId={personId ?? 0}
+                                    onChange={(id) => {
+                                        setPersonId(id || undefined);
+                                        setPage(1);
+                                    }}
+                                    options={personOptions}
+                                    placeholder="All"
+                                    allowClear
+                                    className="min-w-44"
+                                />
+                            </label>
+                            <label className="flex min-w-0 items-center overflow-hidden gap-2">
+                                <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
+                                    Resource
+                                </span>
+                                <ResourceSearchPicker
+                                    selectedId={resourceId ?? 0}
+                                    onChange={(id) => {
+                                        setResourceId(id || undefined);
+                                        setPage(1);
+                                    }}
+                                    options={resourceOptions}
+                                    placeholder="All"
+                                    allowClear
+                                    className="min-w-52"
+                                />
+                            </label>
+                        </div>
+                    </header>
+                    <div className="app-table-region app-table-frame">
+                        {/* TODO: carga en la lista las personas, del campamento */}
                         {isLoading ? (
-                            <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                                Loading production records...
+                            <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+                                <div className="app-spinner app-spinner--lg" />
+                                <span className="app-eyebrow" style={{ letterSpacing: "0.35em" }}>Loading Records...</span>
                             </div>
                         ) : (
                             <ProductionRecordsTable
@@ -199,21 +197,19 @@ export function ProductionRecordsPage() {
                                 resourceMap={resourceMap}
                             />
                         )}
-                        <PaginationFooter
-                            page={pagination.page}
-                            setPage={setPage}
-                            totalPages={pagination.totalPages}
-                            totalRecords={pagination.total}
-                            className="px-4 py-1.5 border-border-default"
-                            leftContent={
-                                <span>
-                                    Total: <span className="text-accent font-bold">{String(pagination.total).padStart(4, "0")}</span>
-                                    {/* <span className="opacity-30 mx-4">|</span>
-                                    Scope: <span className="text-status-ok font-bold">[RECORDS]</span> */}
-                                </span>
-                            }
-                        />
                     </div>
+                    <PaginationFooter
+                        page={pagination.page}
+                        setPage={setPage}
+                        totalPages={pagination.totalPages}
+                        totalRecords={pagination.total}
+                        className="shrink-0 px-4 py-1.5 border-border-default"
+                        leftContent={
+                            <span>
+                                Total: <span className="text-accent font-bold">{String(pagination.total).padStart(4, "0")}</span>
+                            </span>
+                        }
+                    />
                 </div>
 
                 <CollapsibleSidePanel
@@ -267,6 +263,6 @@ export function ProductionRecordsPage() {
                     </div>
                 </CollapsibleSidePanel>
             </div>
-        </article>
-    );
+        </div>
+    )
 }

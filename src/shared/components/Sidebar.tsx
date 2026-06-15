@@ -9,7 +9,7 @@ import { SidebarButton } from "./SidebarButton";
 const SECTION_GROUPS: Array<{ label: string; keys: string[] }> = [
     { label: "",   keys: [] },
     //{ label: "OPERACIONES", keys: ["dashboard", "users", "requests", "camp", "explorations"] },
-    { label: "", keys: ["dashboard", "users"] },
+    { label: "", keys: ["dashboard", "users", "task-management"] },
     // { label: "RECURSOS",    keys: ["inventory", "warehouse"] },
     { label: "",    keys: ["explorations"] },
     { label: "", keys: ["resource-dashboard", "inventory-main", "stock-alerts", "production", "rations", "inter-camp"] },

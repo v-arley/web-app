@@ -1,23 +1,22 @@
-import { useState, useMemo } from "react";
-import { Utensils, ClipboardCheck, History, Play, X } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Utensils, Play, X, BarChart2 } from "lucide-react";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
-import { DeliverRationsPage } from "./DeliverRationsPage";
-import { RationHistoryPage } from "./RationHistoryPage";
 import { RationGenerationPanel } from "../components/RationGenerationPanel";
-import { useQuery } from "@tanstack/react-query";
+import { DailySummaryTable } from "../components/DailySummaryTable";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ResourceService } from "../../../../services/ResourceService";
+import { DAILY_SUMMARY_QUERY_KEY } from "../hooks/useDailySummaryQuery";
+import { socket } from "../../../../lib/socket";
 
 const resourceService = new ResourceService();
 
-type RationTab = "deliver" | "history";
-
 export function RationsMainPage() {
-    const [activeTab, setActiveTab] = useState<RationTab>("deliver");
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [rationDate, setRationDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
     const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
+    const queryClient = useQueryClient();
 
     const { data: resourcesData } = useQuery({
         queryKey: ["resources"],
@@ -31,116 +30,86 @@ export function RationsMainPage() {
         return new Map(resourcesData?.map((r) => [r.id, r.name]) ?? []);
     }, [resourcesData]);
 
-    const tabs: Array<{
-        key: RationTab;
-        label: string;
-        icon: React.ReactNode;
-        description: string;
-    }> = [
-        {
-            key: "deliver",
-            label: "Deliver Rations",
-            icon: <ClipboardCheck size={16} />,
-            description: "Individual deliveries",
-        },
-        {
-            key: "history",
-            label: "History",
-            icon: <History size={16} />,
-            description: "Historical record",
-        },
-    ];
+    // Cuando el cron finaliza, refrescar el resumen
+    useEffect(() => {
+        if (!campId) return;
+
+        const handler = (data: { camp_id: number }) => {
+            if (data.camp_id !== campId) return;
+            queryClient.invalidateQueries({ queryKey: DAILY_SUMMARY_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: ["rations"] });
+        };
+
+        socket.on("ration:daily-assigned", handler);
+        return () => { socket.off("ration:daily-assigned", handler); };
+    }, [campId, queryClient]);
 
     return (
-        <article className="rmm-scope flex h-full min-h-0 flex-col bg-black/50 backdrop-blur-lg overflow-hidden relative border border-border-default">
-            <header className="rmm-module-header flex flex-col sm:flex-row sm:items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
-                <div className="rmm-module-brand flex items-center gap-3 shrink-0">
-                    {/* <div className="rmm-module-accent w-0.75 self-stretch bg-accent"></div> */}
-                    <div className="rmm-module-copy py-2 px-3">
-                        <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">
-                            Rations
-                        </div>
-                        <p className="rmm-module-subtitle font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
-                            Resource Management
-                        </p>
+        <article className="app-scope app-module">
+            <header className="app-module-header">
+                <div className="app-module-brand">
+                    <div className="app-module-copy">
+                        <div className="app-module-title">Rations</div>
+                        <p className="app-module-subtitle">Resource Management</p>
                     </div>
                 </div>
 
-                <nav className="rmm-module-tabs flex min-w-0 items-stretch flex-1 overflow-x-auto sm:justify-end">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.key}
-                            onClick={() => setActiveTab(tab.key)}
-                            className={`rmm-module-tab relative flex items-center gap-2.5 px-5 border-r border-border-subtle transition-all group ${
-                                activeTab === tab.key
-                                    ? "rmm-module-tab--active bg-bg-app/60 text-accent"
-                                    : "text-txt-muted hover:bg-bg-secondary/40 hover:text-txt-primary"
-                            }`}
-                        >
-                            {activeTab === tab.key && (
-                                <div className="rmm-module-tab-indicator absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
-                            )}
-                            {/* <span className={`rmm-module-tab-index font-mono text-[9px] opacity-40 ${activeTab === tab.key ? "text-accent opacity-60" : ""}`}>
-                                {String(i + 1).padStart(2, "0")}
-                            </span> */}
-                            <span className={`rmm-module-tab-icon ${activeTab === tab.key ? "text-accent" : "text-txt-disabled group-hover:text-txt-secondary"}`}>
-                                {tab.icon}
-                            </span>
-                            <div className="rmm-module-tab-copy text-left">
-                                <div className="rmm-module-tab-label font-mono text-[10px] font-bold uppercase tracking-widest">
-                                    {tab.label}
-                                </div>
-                                {/* <div className="rmm-module-tab-description font-mono text-[8px] text-txt-disabled uppercase tracking-wide">
-                                    {tab.description}
-                                </div> */}
-                            </div>
-                        </button>
-                    ))}
+                <nav className="app-module-tabs">
+                    <button className="app-module-tab app-module-tab--active">
+                        <div className="app-module-tab-indicator" />
+                        <span className="app-module-tab-icon"><BarChart2 size={16} /></span>
+                        <div className="app-module-tab-copy">
+                            <div className="app-module-tab-label">Daily Summary</div>
+                        </div>
+                    </button>
 
-                    <div className="rmm-module-actions flex items-center px-3 sm:px-4 border-l border-border-subtle shrink-0">
+                    <div className="app-module-actions">
                         <button
                             onClick={() => setShowGenerateModal(true)}
-                            className="rmm-module-action-btn rmm-btn rmm-btn-accent"
+                            className="app-btn app-btn--primary"
                         >
                             <Play size={12} fill="currentColor" />
-                            <span className="font-mono text-[10px]">Generate Rations</span>
+                            Generate Rations
                         </button>
                     </div>
                 </nav>
             </header>
 
-            <main className="flex-1 overflow-hidden flex flex-col">
-                <section className="flex-1 flex flex-col overflow-hidden">
-                    {activeTab === "deliver" && <DeliverRationsPage />}
-                    {activeTab === "history" && <RationHistoryPage />}
-                </section>
+            <main className="app-module-body">
+                <div
+                    key="summary"
+                    className="app-animate-in"
+                    style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}
+                >
+                    <DailySummaryTable />
+                </div>
             </main>
 
             {showGenerateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                    <div className="relative bg-bg-tertiary border border-border-strong max-w-lg w-full max-h-[90vh] flex flex-col">
-                        <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-accent" />
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-accent" />
+                <div className="app-overlay">
+                    <div className="app-modal app-hud-frame" style={{ maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+                        <div className="app-bracket app-bracket--tl" />
+                        <div className="app-bracket app-bracket--br" />
 
-                        <header className="px-5 py-4 border-b border-border-subtle bg-bg-secondary/50 shrink-0 flex items-center justify-between">
+                        <header className="app-panel-header">
                             <div>
-                                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide flex items-center gap-2">
-                                    <Utensils size={14} className="text-accent" />
+                                <div className="app-panel-title" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <Utensils size={14} style={{ color: "var(--color-accent)" }} />
                                     GENERATE DAILY RATIONS
                                 </div>
-                                <p className="font-mono text-[9px] text-txt-muted uppercase tracking-wide mt-0.5">
+                                <p className="app-panel-subtitle">
                                     Automated distribution for active camp members
                                 </p>
                             </div>
                             <button
                                 onClick={() => setShowGenerateModal(false)}
-                                className="p-1.5 hover:bg-bg-secondary border border-transparent hover:border-border-default transition-all text-txt-muted hover:text-txt-primary"
+                                className="app-side-panel-close"
                             >
                                 <X size={14} />
                             </button>
                         </header>
 
-                        <div className="flex-1 overflow-y-auto p-5">
+                        <div className="app-panel-body">
                             <RationGenerationPanel
                                 campId={campId}
                                 rationDate={rationDate}

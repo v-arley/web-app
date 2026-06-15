@@ -9,13 +9,12 @@ type Props = {
 export function RationHistoryTable({ rations, personMap }: Props) {
     if (rations.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                There is no ration history for the selected period
+            <div className="app-empty-state app-animate-fade h-full min-h-64">
+                <span>There is no ration history for the selected period</span>
             </div>
         );
     }
 
-    // Agrupar por fecha
     const groupedByDate = rations.reduce((acc, ration) => {
         const date = ration.ration_date;
         if (!acc[date]) {
@@ -28,18 +27,18 @@ export function RationHistoryTable({ rations, personMap }: Props) {
     const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
 
     return (
-        <div className="space-y-4">
+        <div className="flex h-full min-h-0 flex-col gap-4">
             {sortedDates.map((date) => {
                 const dayRations = groupedByDate[date];
                 const deliveredCount = dayRations.filter((r) => r.completed === 'Y').length;
                 const pendingCount = dayRations.filter((r) => r.completed === 'N').length;
 
                 return (
-                    <div key={date} className="border border-border-default">
-                        <div className="px-4 sm:px-5 py-3 border-b border-border-default flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-[0.15em] flex items-start sm:items-center gap-2 min-w-0">
+                    <div key={date} className="flex min-h-0 flex-1 flex-col border border-border-default">
+                        <div className="px-4 sm:px-5 py-3 border-b border-border-default flex shrink-0 flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-label flex items-start sm:items-center gap-2 min-w-0">
                                 <Calendar className="w-4 h-4" />
-                                <span className="min-w-0 break-words">
+                                <span className="min-w-0 wrap-break-word">
                                     {new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
                                         weekday: 'long',
                                         year: 'numeric',
@@ -60,17 +59,17 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                             </div>
                         </div>
 
-                        <div className="hidden overflow-x-auto md:block">
-                            <table className="rmm-table">
-                                <thead className="">
+                        <div className="app-table-wrap hidden md:block">
+                            <table className="app-table">
+                                <thead>
                                     <tr>
-                                        <th className="">Person</th>
-                                        <th className="">Status</th>
-                                        <th className="">Notes</th>
-                                        <th className="">Record</th>
+                                        <th>Person</th>
+                                        <th>Status</th>
+                                        <th>Notes</th>
+                                        <th>Record</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="app-stagger-rows">
                                     {dayRations.map((ration) => {
                                         const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
                                         const isDelivered = ration.completed === 'Y';
@@ -79,24 +78,18 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                         return (
                                             <tr
                                                 key={ration.id}
-                                                className={`transition-colors border-l-2 ${
+                                                className={`border-l-2 ${
                                                     isDelivered
                                                         ? "bg-status-success/5 hover:bg-status-success/10 border-l-status-success"
                                                         : "bg-status-warning/5 hover:bg-status-warning/10 border-l-status-warning"
                                                 }`}
                                             >
-                                                <td>
-                                                    {personName}
-                                                </td>
+                                                <td className="app-table-cell--primary">{personName}</td>
                                                 <td>
                                                     {isDelivered ? (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-status-success text-[10px] font-bold uppercase tracking-wider">
-                                                            <div className="w-1.5 h-1.5" /> DELIVERED
-                                                        </span>
+                                                        <span className="app-table-badge app-table-badge--ok">DELIVERED</span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-status-warning text-[10px] font-bold uppercase tracking-wider">
-                                                            <div className="w-1.5 h-1.5" /> PENDING
-                                                        </span>
+                                                        <span className="app-table-badge app-table-badge--warn">PENDING</span>
                                                     )}
                                                 </td>
                                                 <td>
@@ -109,7 +102,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                                         <span className="text-txt-disabled">-</span>
                                                     )}
                                                 </td>
-                                                <td>
+                                                <td className="app-table-cell--time">
                                                     {ration.created_at ? new Date(ration.created_at).toLocaleString('es-CR') : '-'}
                                                 </td>
                                             </tr>
@@ -136,14 +129,14 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                                 <div className="font-mono text-[10px] text-txt-disabled uppercase tracking-widest">
                                                     Person
                                                 </div>
-                                                <div className="mt-1 break-words font-mono text-xs font-bold uppercase text-txt-primary">
+                                                <div className="mt-1 wrap-break-word font-mono text-xs font-bold uppercase text-txt-primary">
                                                     {personName}
                                                 </div>
                                             </div>
                                             {isDelivered ? (
-                                                <span className="table-system-badge table-system-badge--online shrink-0">DELIVERED</span>
+                                                <span className="app-table-badge app-table-badge--ok shrink-0">DELIVERED</span>
                                             ) : (
-                                                <span className="table-system-badge table-system-badge--pending shrink-0">PENDING</span>
+                                                <span className="app-table-badge app-table-badge--warn shrink-0">PENDING</span>
                                             )}
                                         </div>
 
@@ -153,7 +146,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                                 {hasNotes ? (
                                                     <div className="mt-1 flex items-start gap-2">
                                                         <FileText className="w-3 h-3 text-txt-disabled shrink-0 mt-0.5" />
-                                                        <span className="break-words">{ration.notes}</span>
+                                                        <span className="wrap-break-word">{ration.notes}</span>
                                                     </div>
                                                 ) : (
                                                     <span className="mt-1 block text-txt-disabled">-</span>
@@ -161,7 +154,7 @@ export function RationHistoryTable({ rations, personMap }: Props) {
                                             </div>
                                             <div className="border-t border-border-default pt-2">
                                                 <span className="block text-txt-disabled uppercase">Record</span>
-                                                <span className="mt-1 block break-words">
+                                                <span className="mt-1 block wrap-break-word">
                                                     {ration.created_at ? new Date(ration.created_at).toLocaleString('es-CR') : '-'}
                                                 </span>
                                             </div>

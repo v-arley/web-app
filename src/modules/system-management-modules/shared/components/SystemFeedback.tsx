@@ -8,16 +8,16 @@ type SystemFeedbackProps = {
 };
 
 const TONE_CLASS: Record<FeedbackTone, string> = {
-    success: "sa-alert--ok",
-    error: "sa-alert--error",
-    info: "sa-alert--info",
+    success: "app-alert--ok",
+    error: "app-alert--error",
+    info: "app-alert--info",
 };
 
 export function SystemFeedback({ tone, message }: SystemFeedbackProps) {
     const Icon = tone === "success" ? CheckCircle2 : tone === "error" ? AlertTriangle : Info;
 
     return (
-        <div className={`sa-alert ${TONE_CLASS[tone]}`}>
+        <div className={`app-alert ${TONE_CLASS[tone]}`}>
             <Icon size={14} />
             <span>{message}</span>
         </div>

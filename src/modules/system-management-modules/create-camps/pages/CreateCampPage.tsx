@@ -1,7 +1,7 @@
 import { RefreshCw, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { CampUpdateValues, CampFormValues } from "../schemas/camp.schema";
-import SystemFeedback, { type FeedbackTone } from "../../shared/components/SystemFeedback";
+import { useToast } from "../../../../shared/hooks/useToast";
 import SystemFloatingFormPanel from "../../shared/components/SystemFloatingFormPanel";
 import SystemModuleShell from "../../shared/components/SystemModuleShell";
 import { getInitialSidePanelOpenState } from "../../../resource-management-modules/shared/components/CollapsibleSidePanel";
@@ -13,10 +13,22 @@ import { useAdminCandidates, useCampManagement } from "../hooks/useCampManagemen
 
 export function CreateCampModulePage() {
     const [search, setSearch] = useState("");
-    const [feedback, setFeedback] = useState<{ tone: FeedbackTone; message: string } | null>(null);
     const [isFormOpen, setIsFormOpen] = useState(getInitialSidePanelOpenState);
+    const { toast } = useToast();
     const camps = useCampManagement();
     const adminCandidates = useAdminCandidates();
+
+    useEffect(() => {
+        if (camps.query.isError) {
+            toast({ tone: "error", title: "Camps", message: camps.query.error.message });
+        }
+    }, [camps.query.error, camps.query.isError, toast]);
+
+    useEffect(() => {
+        if (adminCandidates.isError) {
+            toast({ tone: "error", title: "Camps", message: adminCandidates.error.message });
+        }
+    }, [adminCandidates.error, adminCandidates.isError, toast]);
 
     const adminNameById = useMemo(
         () =>
@@ -31,7 +43,6 @@ export function CreateCampModulePage() {
     const filteredCamps = useMemo(() => {
         const value = search.trim().toLowerCase();
         if (!value) return camps.records;
-
         return camps.records.filter((camp) =>
             [camp.code, camp.description, camp.state, camp.admin_id, camp.user_admin_id]
                 .filter((field) => field !== undefined && field !== null)
@@ -43,76 +54,69 @@ export function CreateCampModulePage() {
     const save = async (values: CampFormValues) => {
         try {
             await camps.mutations.create.mutateAsync(values);
-            setFeedback({ tone: "success", message: "Camp created." });
+            toast({ tone: "success", title: "Camps", message: "Camp created." });
         } catch (error) {
-            setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Camp create failed." });
+            toast({ tone: "error", title: "Camps", message: error instanceof Error ? error.message : "Camp create failed." });
         }
     };
 
     const update = async (id: number, values: CampUpdateValues) => {
         try {
             await camps.mutations.update.mutateAsync({ id, payload: values });
-            setFeedback({ tone: "success", message: "Camp updated." });
+            toast({ tone: "success", title: "Camps", message: "Camp updated." });
         } catch (error) {
-            setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Camp update failed." });
+            toast({ tone: "error", title: "Camps", message: error instanceof Error ? error.message : "Camp update failed." });
         }
     };
 
     const remove = async (id: number) => {
         try {
             await camps.mutations.remove.mutateAsync(id);
-            setFeedback({ tone: "success", message: "Camp deleted." });
+            toast({ tone: "success", title: "Camps", message: "Camp deleted." });
         } catch (error) {
-            setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Camp delete failed." });
+            toast({ tone: "error", title: "Camps", message: error instanceof Error ? error.message : "Camp delete failed." });
         }
     };
 
     const isLoading = camps.query.isLoading || adminCandidates.isLoading;
-    const isSaving = camps.mutations.create.isPending || camps.mutations.update.isPending || camps.mutations.remove.isPending;
+    const isSaving  = camps.mutations.create.isPending || camps.mutations.update.isPending || camps.mutations.remove.isPending;
 
     return (
         <SystemModuleShell
             title="Create Camps"
             subtitle="System Management"
-            rightContent={
-                <button
-                    type="button"
-                    className="rmm-btn rmm-btn-outline px-3 py-1.5 text-[10px]"
-                    disabled={camps.query.isFetching || adminCandidates.isFetching}
-                    onClick={() => {
-                        void camps.query.refetch();
-                        void adminCandidates.refetch();
-                    }}
-                >
-                    <RefreshCw size={13} className={camps.query.isFetching ? "animate-spin" : ""} />
-                    Sync
-                </button>
-            }
         >
-            <div className="flex flex-1 min-h-0 flex-col rmm-content-pad bg-transparent gap-4">
-                {feedback ? <SystemFeedback tone={feedback.tone} message={feedback.message} /> : null}
-                {camps.query.isError ? <SystemFeedback tone="error" message={camps.query.error.message} /> : null}
-                {adminCandidates.isError ? <SystemFeedback tone="error" message={adminCandidates.error.message} /> : null}
-
-                <div className="relative flex min-h-0 flex-1 overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default ">
-                    <section className="flex-1 flex min-w-0 min-h-0 flex-col overflow-hidden border-r border-border-default">
-                        <div className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
+            <div className="app-content-body app-content-body--gap">
+                <div className="app-split app-split--glass">
+                    <section className="app-split__main">
+                        <div className="app-panel-header">
                             <div>
-                                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">Camps Registry</div>
-                                <div className="font-mono text-[11px] text-txt-muted uppercase tracking-widest mt-0.5">{filteredCamps.length} records in current scope</div>
+                                <div className="app-panel-title">Camps Registry</div>
                             </div>
-                            <label className="relative min-w-0 w-full sm:w-48">
-                                <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-txt-muted" size={14} />
-                                <input
-                                    className="rmm-input pl-7 py-1 text-[11px]"
-                                    value={search}
-                                    placeholder="Search camps"
-                                    onChange={(event) => {
-                                        setSearch(event.target.value);
-                                        pagination.setPage(1);
-                                    }}
-                                />
-                            </label>
+                            <div className="app-panel-actions">
+                                <label style={{ position: "relative", minWidth: 0, width: "12rem" }}>
+                                    <Search
+                                        size={13}
+                                        style={{ position: "absolute", left: "0.5rem", top: "50%", transform: "translateY(-50%)", color: "var(--color-txt-disabled)", pointerEvents: "none" }}
+                                    />
+                                    <input
+                                        className="app-input-default"
+                                        style={{ paddingLeft: "1.75rem" }}
+                                        value={search}
+                                        placeholder="Search camps"
+                                        onChange={(event) => { setSearch(event.target.value); pagination.setPage(1); }}
+                                    />
+                                </label>
+                                <button
+                                    type="button"
+                                    className="app-btn app-btn--outline app-btn--sm"
+                                    disabled={camps.query.isFetching || adminCandidates.isFetching}
+                                    onClick={() => { void camps.query.refetch(); void adminCandidates.refetch(); }}
+                                >
+                                    <RefreshCw size={13} className={camps.query.isFetching || adminCandidates.isFetching ? "animate-spin" : ""} />
+                                    Refresh
+                                </button>
+                            </div>
                         </div>
 
                         <CampsTable
@@ -120,10 +124,7 @@ export function CreateCampModulePage() {
                             selectedId={camps.selectedId}
                             isLoading={isLoading}
                             adminNameById={adminNameById}
-                            onSelect={(id) => {
-                                camps.selectRecord(id);
-                                setIsFormOpen(true);
-                            }}
+                            onSelect={(id) => { camps.selectRecord(id); setIsFormOpen(true); }}
                         />
                         <PaginationFooter
                             page={pagination.page}
@@ -131,12 +132,12 @@ export function CreateCampModulePage() {
                             totalPages={pagination.totalPages}
                             totalRecords={pagination.totalRecords}
                             compact
-                            className="rmm-pagination-footer--compact"
+                            className="app-pagination-footer--compact"
                             leftContent={
                                 <span>
-                                    Total: <span className="text-accent">{String(pagination.totalRecords).padStart(4, "0")}</span>
-                                    <span className="opacity-30 mx-4">|</span>
-                                    Scope: <span className="text-status-ok font-bold">[CAMPS]</span>
+                                    Total: <span style={{ color: "var(--color-accent)" }}>{String(pagination.totalRecords).padStart(4, "0")}</span>
+                                    {/* <span style={{ opacity: 0.3, margin: "0 1rem" }}>|</span> */}
+                                    {/* Scope: <span style={{ color: "var(--color-status-ok)", fontWeight: 700 }}>[CAMPS]</span> */}
                                 </span>
                             }
                         />
@@ -156,10 +157,7 @@ export function CreateCampModulePage() {
                             onSave={save}
                             onUpdate={update}
                             onDelete={remove}
-                            onClear={() => {
-                                camps.clearSelection();
-                                setFeedback(null);
-                            }}
+                            onClear={() => { camps.clearSelection(); }}
                         />
                     </SystemFloatingFormPanel>
                 </div>

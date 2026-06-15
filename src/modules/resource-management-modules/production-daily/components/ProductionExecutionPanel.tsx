@@ -89,9 +89,10 @@ export function ProductionExecutionPanel({ campId, warehouseOptions, onExecute }
                     </label>
 
                     <button
+                        type="button"
                         onClick={handleExecute}
                         disabled={isExecuting || selectedWarehouse === 0}
-                        className="w-full flex items-center justify-center gap-2 bg-accent border border-accent px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-accent/90 transition-all disabled:opacity-50"
+                        className="app-btn app-btn--primary app-btn--full"
                     >
                         <Play className="w-4 h-4" />
                         {isExecuting ? "Executing..." : "Execute Production"}

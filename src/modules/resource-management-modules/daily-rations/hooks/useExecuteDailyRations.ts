@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rationExecutionService } from "../services/RationExecutionService";
+import { DAILY_SUMMARY_QUERY_KEY } from "./useDailySummaryQuery";
 import { RATIONS_QUERY_KEY } from "./useRationsQuery";
 import type { RationExecutionFormValues } from "../schemas/ration-execution.schema";
 
@@ -13,6 +14,8 @@ export function useExecuteDailyRations() {
             rationExecutionService.executeRationGeneration(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: RATIONS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: DAILY_SUMMARY_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: RATION_EXECUTION_QUERY_KEY });
         },
     });
 
@@ -29,6 +32,21 @@ export function useCheckExistingRations(
         queryFn: () => rationExecutionService.checkExistingRations(campId, rationDate),
         enabled: enabled && campId > 0 && rationDate.length > 0,
     });
+}
+
+export function useCompletePendingRations() {
+    const queryClient = useQueryClient();
+
+    const complete = useMutation({
+        mutationFn: ({ campId, date }: { campId: number; date: string }) =>
+            rationExecutionService.completePendingRations(campId, date),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: RATIONS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: RATION_EXECUTION_QUERY_KEY });
+        },
+    });
+
+    return { complete };
 }
 
 export function usePreviewRationGeneration(

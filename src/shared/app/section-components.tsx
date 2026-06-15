@@ -105,6 +105,12 @@ export const InterCampMainPage = lazy(() =>
     })),
 );
 
+export const TaskManagementPage = lazy(() =>
+    import("../../modules/resource-management-modules/task-management/pages/TaskManagementPage").then((m) => ({
+        default: m.TaskManagementPage,
+    })),
+);
+
 export const NotFoundPage = lazy(() =>
     import("../components/$404").then((m) => ({ default: m.default })),
 );

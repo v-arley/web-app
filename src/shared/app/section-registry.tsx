@@ -16,7 +16,7 @@ import {
     AchievementsPage,
     CampsView, CatalogsMainPage, CreateCampModulePage, DashboardResourcePage, DashboardView, ExplorationsView, GlobalDashboardModulePage,
     InterCampMainPage, InventoryMainPage, InventoryView, ProductionMainPage, ProfessionsPage, RationsMainPage,
-    RequestsView, ResourcesPage, SettingsView, StockAlertsMainPage, UsersView, WarehouseView,
+    RequestsView, ResourcesPage, SettingsView, StockAlertsMainPage, TaskManagementPage, UsersView, WarehouseView,
     WorkerAchievementsView, WorkerExplorationsView, WorkerProductionView, WorkerProfileView, WorkerRationsView, WorkerTasksView,
 } from "./section-components";
 import type { DashboardSection } from "../hooks/useDashboardNav";
@@ -38,6 +38,7 @@ const COMPONENTS = {
     WorkerProfileView, WorkerAchievementsView, WorkerTasksView, WorkerProductionView, WorkerRationsView,
     WorkerExplorationsView, ResourcesPage, ProfessionsPage, AchievementsPage, CatalogsMainPage, CreateCampModulePage, GlobalDashboardModulePage,
     DashboardResourcePage, InventoryMainPage, StockAlertsMainPage, ProductionMainPage, RationsMainPage, InterCampMainPage,
+    TaskManagementPage,
 };
 
 type ComponentName = keyof typeof COMPONENTS;
@@ -78,6 +79,7 @@ const SECTION_CONFIGS: SectionConfig[] = [
     { key: "production",           path: "/app/resource/production",  label: "Production",       iconName: "Factory",         componentName: "ProductionMainPage" },
     { key: "rations",              path: "/app/resource/rations",     label: "Rations",          iconName: "Utensils",        componentName: "RationsMainPage" },
     { key: "inter-camp",           path: "/app/resource/inter-camp",  label: "Inter-Camp",       iconName: "ArrowLeftRight",  componentName: "InterCampMainPage" },
+    { key: "task-management",      path: "/app/admin/tasks",          label: "Task Management",  iconName: "ClipboardCheck",  componentName: "TaskManagementPage" },
 ];
 
 // Factory :::

@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCcw, Save, Trash2 } from "lucide-react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { ProfessionSearchPicker } from "../../shared/components/ProfessionSearchPicker";
+import { ResourceSearchPicker } from "../../shared/components/ResourceSearchPicker";
 import { productionRuleSchema, type ProductionRuleFormInput, type ProductionRuleFormValues, EMPTY_PRODUCTION_RULE } from "../schemas/production-rule.schema";
 
 type Props = {
@@ -15,12 +17,11 @@ type Props = {
 };
 
 const fieldClass =
-    "rmm-input w-full";
+    "app-input w-full";
 
 function Field({
     label,
     required,
-    error,
     id,
     children,
 }: {
@@ -32,13 +33,12 @@ function Field({
 }) {
     return (
         <div className="flex flex-col gap-2">
-            <label className="rmm-label">
+            <label className="app-label">
                 <span className="flex items-center gap-1.5">
                     {required && <span className="text-accent">*</span>}
                     {label}
                 </span>
-                {id && <span className="rmm-field-id">#{id}</span>}
-                {error && <span className="text-accent lowercase font-normal italic">!! {error}</span>}
+                {id && <span className="app-field-id">#{id}</span>}
             </label>
             {children}
         </div>
@@ -60,6 +60,8 @@ export function ProductionRuleForm({
         defaultValues: { ...EMPTY_PRODUCTION_RULE, ...initialData },
     });
     const errors = form.formState.errors;
+    const selectedProfessionId = useWatch({ control: form.control, name: "profession_id" }) ?? 0;
+    const selectedResourceId = useWatch({ control: form.control, name: "resource_id" }) ?? 0;
 
     useEffect(() => {
         form.reset({ ...EMPTY_PRODUCTION_RULE, ...initialData });
@@ -77,29 +79,29 @@ export function ProductionRuleForm({
             className="flex flex-1 min-h-0 flex-col relative"
         >
             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20  backdrop-blur-lg shrink-0">
-                    <span className="rmm-section-title font-abril">Production Parameters</span>
+                    <span className="app-section-title font-abril">Production Parameters</span>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <Field label="Required Profession" required id="PROF_CODE" error={errors.profession_id?.message}>
-                    <select {...form.register("profession_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT PROFESSION ]</option>
-                        {professionOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                <Field label="Required Profession" required id="" error={errors.profession_id?.message}>
+                    <input type="hidden" {...form.register("profession_id", { valueAsNumber: true })} />
+                    <ProfessionSearchPicker
+                        selectedId={selectedProfessionId}
+                        onChange={(id) => form.setValue("profession_id", id, { shouldDirty: true, shouldValidate: true })}
+                        options={professionOptions}
+                    />
                 </Field>
 
-                <Field label="Resource to Generate" required id="RES_OUTPUT" error={errors.resource_id?.message}>
-                    <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT RESOURCE ]</option>
-                        {resourceOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                <Field label="Resource to Generate" required id="" error={errors.resource_id?.message}>
+                    <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
+                    <ResourceSearchPicker
+                        selectedId={selectedResourceId}
+                        onChange={(id) => form.setValue("resource_id", id, { shouldDirty: true, shouldValidate: true })}
+                        options={resourceOptions}
+                    />
                 </Field>
 
-                <Field label="Estimated Daily Quota" required id="EXP_QTY" error={errors.expected_amount?.message}>
+                <Field label="Estimated Daily Quota" required id="" error={errors.expected_amount?.message}>
                     <input
                         type="number"
                         {...form.register("expected_amount", { valueAsNumber: true })}
@@ -110,7 +112,7 @@ export function ProductionRuleForm({
                 </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="From" required id="START_DT" error={errors.effective_date?.message}>
+                    <Field label="From" required id="" error={errors.effective_date?.message}>
                         <input
                             type="date"
                             {...form.register("effective_date")}
@@ -118,7 +120,7 @@ export function ProductionRuleForm({
                         />
                     </Field>
 
-                    <Field label="To" id="END_DT" error={errors.end_date?.message}>
+                    <Field label="To" id="" error={errors.end_date?.message}>
                         <input
                             type="date"
                             {...form.register("end_date")}
@@ -127,7 +129,7 @@ export function ProductionRuleForm({
                     </Field>
                 </div>
 
-                <Field label="Operational Protocol" required id="STATUS" error={errors.state?.message}>
+                <Field label="Status:" required id="" error={errors.state?.message}>
                     <select {...form.register("state")} className={fieldClass}>
                         <option value="A">ACTIVE (A)</option>
                         <option value="I">INACTIVE (I)</option>
@@ -141,7 +143,7 @@ export function ProductionRuleForm({
                         type="button"
                         onClick={() => onDelete(initialData as ProductionRuleFormValues)}
                         disabled={isSubmitting}
-                        className="rmm-btn border border-status-critical/30 bg-status-critical/5 text-status-critical hover:bg-status-critical/15 px-3 disabled:opacity-30"
+                        className="app-btn app-btn--danger app-btn--sm"
                         title="Delete rule"
                     >
                         <Trash2 className="w-4 h-4" />
@@ -152,7 +154,7 @@ export function ProductionRuleForm({
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="app-btn app-btn--secondary"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="font-mono">CLEAR</span>
@@ -160,7 +162,7 @@ export function ProductionRuleForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 rmm-btn rmm-btn-accent justify-center transition-all disabled:opacity-50"
+                    className="app-btn app-btn--primary app-btn--full"
                 >
                     <Save className="h-3.5 w-3.5" />
                     <span className="font-mono">{isSubmitting ? "..." : initialData?.camp_id ? "UPDATE" : "SAVE"}</span>

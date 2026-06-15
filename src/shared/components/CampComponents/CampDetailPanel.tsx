@@ -84,12 +84,12 @@ export default function CampDetailPanel({ selectedCamp }: Props) {
           </div>
         </div>
 
-        <div className="mt-6 flex gap-3">
-          <button className="flex-1 border border-[#FF6600] bg-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-black transition-colors hover:bg-transparent hover:text-[#FF6600]">
+        <div className="btn-group">
+          <button type="button" className="btn btn--primary flex-1">
             Editar
           </button>
 
-          <button className="flex-1 border border-[#FF6600] px-4 py-3 text-sm uppercase tracking-[0.2em] text-[#FF6600] transition-colors hover:bg-[#FF6600] hover:text-black">
+          <button type="button" className="btn btn--outline flex-1">
             Ver más
           </button>
         </div>

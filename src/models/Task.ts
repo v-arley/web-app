@@ -1,6 +1,6 @@
 export type TaskPriority = "L" | "M" | "H";
 export type TaskDifficulty = "L" | "M" | "H";
-export type TaskAssignmentState = "A" | "I" | "C";
+export type TaskAssignmentState = "assigned" | "in_progress" | "completed";
 
 type TaskPayload = Partial<Task> & {
     title?: string;

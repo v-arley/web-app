@@ -12,23 +12,24 @@ type CampsTableProps = {
 export function CampsTable({ camps, selectedId, isLoading, adminNameById, onSelect }: CampsTableProps) {
     if (isLoading) {
         return (
-            <div className="flex flex-1 items-center justify-center gap-2 p-6 text-txt-disabled font-mono text-xs uppercase tracking-wide">
-                <Loader2 className="animate-spin" size={18} />
+            <div className="app-loading-state app-animate-fade">
+                <Loader2 className="animate-spin" size={18} style={{ marginRight: "0.5rem" }} />
+                Loading...
             </div>
         );
     }
 
     if (camps.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center p-6 text-txt-disabled font-mono text-xs uppercase tracking-wide">
-                No camps found
+            <div className="app-empty-state app-animate-fade">
+                <span>No camps found</span>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 min-h-0 overflow-auto">
-            <table className="rmm-table">
+        <div className="flex-1 min-h-0 overflow-auto app-table-frame">
+            <table className="app-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -37,9 +38,9 @@ export function CampsTable({ camps, selectedId, isLoading, adminNameById, onSele
                         <th>Capacity</th>
                         <th>Admin</th>
                         <th>State</th>
-                    </tr>   
+                    </tr>
                 </thead>
-                <tbody>
+                <tbody className="app-stagger-rows">
                     {camps.map((camp) => {
                         const id = camp.id ?? null;
                         const selected = id != null && id === selectedId;
@@ -56,30 +57,18 @@ export function CampsTable({ camps, selectedId, isLoading, adminNameById, onSele
                                         onSelect(id);
                                     }
                                 }}
-                                className={`cursor-pointer select-none transition-colors ${
-                                    selected
-                                        ? "bg-accent/10 border-l-2 border-l-accent"
-                                        : "hover:bg-bg-secondary/50 border-l-2 border-l-transparent"
-                                }`}
+                                className={`app-table-row ${selected ? "app-table-row--selected" : ""}`}
                             >
-                                <td className="font-mono text-txt-primary">
-                                    {id ?? "AUTO"}
-                                    </td>
-                                <td className="font-mono font-bold uppercase text-txt-primary">
-                                    {camp.code}
-                                    </td>
-                                <td className="font-mono text-txt-primary">
-                                    {camp.description}
-                                    </td>
-                                <td className="font-mono text-txt-primary">
-                                    {camp.capacity}
-                                    </td>
-                                <td className="font-mono text-txt-primary">
-                                    {adminId != null ? adminNameById.get(adminId) ?? `User #${adminId}` : "None"}
-                                    </td>
-                                <td className="font-mono text-txt-primary">
-                                    {camp.state ?? (camp.active ? "A" : "I")}
-                                    </td>
+                                <td className="app-table-cell--code">{id ?? "AUTO"}</td>
+                                <td className="app-table-cell--primary">{camp.code}</td>
+                                <td>{camp.description}</td>
+                                <td className="app-table-cell--number">{camp.capacity}</td>
+                                <td>{adminId != null ? adminNameById.get(adminId) ?? `User #${adminId}` : "None"}</td>
+                                <td>
+                                    <span className={`app-table-badge ${camp.state === "I" ? "app-table-badge--error" : "app-table-badge--ok"}`}>
+                                        {camp.state ?? (camp.active ? "A" : "I")}
+                                    </span>
+                                </td>
                             </tr>
                         );
                     })}

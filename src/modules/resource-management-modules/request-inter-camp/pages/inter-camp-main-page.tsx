@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Inbox, Package, Send, Truck, RotateCcw, Users } from "lucide-react";
+import { Inbox, Send, Truck, RotateCcw } from "lucide-react";
 import { IncomingRequestsPage } from "./IncomingRequestsPage";
 import { OutgoingRequestsPage } from "./OutgoingRequestsPage";
 import { ShipmentsPage } from "./ShipmentsPage";
@@ -13,6 +13,7 @@ import { Camp } from "../../../../models/Camp";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 import CollapsibleSidePanel, { CollapsiblePanelHeader, getInitialSidePanelOpenState } from "../../shared/components/CollapsibleSidePanel";
+import { CampSearchPicker } from "../../shared/components/CampSearchPicker";
 
 const campService = new CampService();
 
@@ -49,6 +50,11 @@ export function InterCampMainPage() {
         (activeCampStatus === "loading" ? "Resolving..." : "No camp assigned");
     const destinationCampName = camps.find((c) => c.id === destinationCampId)?.code ?? "";
     const availableDestinations = camps.filter((c) => c.id !== originCampId);
+    const destinationOptions = availableDestinations.map((camp) => ({
+        id: camp.id ?? 0,
+        label: camp.code || camp.description || `Camp #${camp.id ?? 0}`,
+        description: camp.description ?? "",
+    }));
 
     useEffect(() => {
         if (requestMode === "people" && activeTab === "shipments") {
@@ -63,7 +69,6 @@ export function InterCampMainPage() {
             toast({ tone: "error", title: "Missing origin camp", message: "No camp is assigned to the current user." });
             return;
         }
-
         if (destinationCampId === 0) {
             toast({ tone: "warning", title: "Missing destination", message: "Please select a destination camp." });
             return;
@@ -128,211 +133,169 @@ export function InterCampMainPage() {
     };
 
     const allTabs: Array<{ key: InterCampTab; label: string; icon: React.ReactNode; description: string }> = [
-        { key: "outgoing",  label: "My Requests",     icon: <Send size={16} />,  description: "Provisions I submitted"  },
-        { key: "incoming",  label: "Received From",   icon: <Inbox size={16} />, description: "Requests sent to me" },
-        { key: "shipments", label: "Shipments",       icon: <Truck size={16} />, description: "Shipments in transit"    },
+        { key: "outgoing", label: "My Requests", icon: <Send size={16} />, description: "Provisions I submitted" },
+        { key: "incoming", label: "Received From", icon: <Inbox size={16} />, description: "Requests sent to me" },
+        { key: "shipments", label: "Shipments", icon: <Truck size={16} />, description: "Shipments in transit" },
     ];
     const tabs = allTabs.filter((tab) => requestMode === "resources" || tab.key !== "shipments");
-    const operationLabel = requestMode === "resources" ? "Resource operation" : "People operation";
     const operationDescription = requestMode === "resources" ? "Resources transfer" : "People transfer";
+    const nextRequestMode: RequestMode = requestMode === "resources" ? "people" : "resources";
+    const requestModeLabel = requestMode === "resources" ? "Resources" : "People";
+    const requestModeAction = nextRequestMode === "resources" ? "Switch to resources" : "Switch to people";
 
     return (
-        <article className="rmm-scope flex h-full min-h-0 flex-col bg-black/50 backdrop-blur-lg overflow-hidden relative border border-border-default">
-            <div className="rmm-bracket rmm-bracket-tl"></div>
-            <div className="rmm-bracket rmm-bracket-tr"></div>
-            <div className="rmm-bracket rmm-bracket-bl"></div>
-            <div className="rmm-bracket rmm-bracket-br"></div>
+        <article className="app-scope app-module">
 
-            {/* Topbar */}
-            <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
-                <div className="rmm-module-brand flex items-center gap-3 shrink-0">
-                    {/* <div className="rmm-module-accent w-0.75 self-stretch bg-accent"></div> */}
-                    <div className="rmm-module-copy py-2 px-3">
-                        <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">
-                            Inter-Camp
-                        </div>
-                        <p className="rmm-module-subtitle font-mono text-[9px] text-txt-muted uppercase tracking-[0.18em] mt-0.5">
-                            Logistics Transfer
-                        </p>
-                        <div className="mt-1 inline-flex max-w-full items-center gap-1.5 border border-accent/30 bg-accent/10 px-2 py-0.5 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-accent">
-                            {requestMode === "resources" ? <Package size={10} /> : <Users size={10} />}
-                            <span className="truncate">{operationLabel}</span>
-                        </div>
+            <header className="app-module-header">
+                <div className="app-module-brand">
+                    <div className="app-module-copy">
+                        <div className="app-module-title">Inter-Camp</div>
+                        <p className="app-module-subtitle">Logistics Transfer</p>
                     </div>
                 </div>
 
-                <nav className="rmm-module-tabs flex items-stretch flex-1 justify-end">
-                    <div className="flex items-center gap-1 border-l border-border-subtle px-2">
-                        <button
-                            type="button"
-                            onClick={() => setRequestMode("resources")}
-                            className={`grid h-8 w-8 place-items-center border transition-colors ${
-                                requestMode === "resources"
-                                    ? "border-accent/50 bg-accent/10 text-accent"
-                                    : "border-border-default bg-bg-secondary/40 text-txt-muted hover:text-txt-primary"
-                            }`}
-                            aria-label="Show resource requests"
-                            title="Resource requests"
-                        >
-                            <Package size={14} />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setRequestMode("people")}
-                            className={`grid h-8 w-8 place-items-center border transition-colors ${
-                                requestMode === "people"
-                                    ? "border-accent/50 bg-accent/10 text-accent"
-                                    : "border-border-default bg-bg-secondary/40 text-txt-muted hover:text-txt-primary"
-                            }`}
-                            aria-label="Show people requests"
-                            title="People requests"
-                        >
-                            <Users size={14} />
-                        </button>
-                        <span className="ml-1 hidden items-center whitespace-nowrap border border-border-default bg-bg-secondary/50 px-2 py-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-txt-secondary min-[460px]:inline-flex">
-                            {requestMode === "resources" ? "Resources" : "People"}
-                        </span>
-                    </div>
+                <nav className="app-module-tabs">
                     {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
-                            className={`rmm-module-tab relative flex items-center gap-2.5 px-5 border-r border-border-subtle transition-all group ${
-                                activeTab === tab.key
-                                    ? "rmm-module-tab--active bg-bg-app/60 text-accent"
-                                    : "text-txt-muted hover:bg-bg-secondary/40 hover:text-txt-primary"
-                            }`}
+                            className={`app-module-tab ${activeTab === tab.key ? "app-module-tab--active" : ""}`}
                         >
-                            {activeTab === tab.key && (
-                                <div className="rmm-module-tab-indicator absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
-                            )}
-                            {/* <span className={`rmm-module-tab-index font-mono text-[9px] opacity-40 ${activeTab === tab.key ? "text-accent opacity-60" : ""}`}>
-                                {String(i + 1).padStart(2, "0")}
-                            </span> */}
-                            <span className={`rmm-module-tab-icon ${activeTab === tab.key ? "text-accent" : "text-txt-disabled group-hover:text-txt-secondary"}`}>
-                                {tab.icon}
-                            </span>
-                            <div className="rmm-module-tab-copy text-left">
-                                <div className="rmm-module-tab-label font-mono text-[10px] font-bold uppercase tracking-widest">{tab.label}</div>
-                                {/* <div className="rmm-module-tab-description font-mono text-[8px] text-txt-disabled uppercase tracking-wide">{tab.description}</div> */}
+                            {activeTab === tab.key && <div className="app-module-tab-indicator" />}
+                            <span className="app-module-tab-icon">{tab.icon}</span>
+                            <div className="app-module-tab-copy">
+                                <div className="app-module-tab-label">{tab.label}</div>
                             </div>
                         </button>
                     ))}
+                    <div style={{ display: "flex", alignItems: "center", borderLeft: "1px solid var(--color-border-subtle)", padding: "0 0.5rem" }}>
+                        <button
+                            type="button"
+                            onClick={() => setRequestMode(nextRequestMode)}
+                            className="app-btn app-btn--outline app-btn--sm"
+                            aria-label={requestModeAction}
+                            title={requestModeAction}
+                            style={{
+                                display: "inline-flex",
+                                flexDirection: "column",
+                                alignItems: "flex-start",
+                                justifyContent: "center",
+                                gap: "0.125rem",
+                                minWidth: "9.75rem",
+                                maxWidth: "9.75rem",
+                                minHeight: "2.5rem",
+                                padding: "0.35rem 0.6rem",
+                                whiteSpace: "nowrap",
+                            }}
+                        >
+                            <span style={{ fontWeight: 700, lineHeight: 1 }}>{requestModeLabel}</span>
+                        </button>
+                    </div>
                 </nav>
             </header>
 
-            {/* Body */}
-            <div className="flex flex-1 overflow-hidden">
-
-                {/* Main Content */}
-                <main className="flex-1 overflow-hidden flex flex-col">
-                    <section className="flex-1 flex flex-col overflow-hidden">
-                        {requestMode === "resources" && activeTab === "outgoing"  && <OutgoingRequestsPage />}
-                        {requestMode === "resources" && activeTab === "incoming"  && <IncomingRequestsPage />}
+            <main className="app-module-body app-content-pad">
+                <div className="app-split">
+                    <div
+                        key={`${activeTab}-${requestMode}`}
+                        className="app-animate-in"
+                        style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden" }}
+                    >
+                        {requestMode === "resources" && activeTab === "outgoing" && <OutgoingRequestsPage />}
+                        {requestMode === "resources" && activeTab === "incoming" && <IncomingRequestsPage />}
                         {activeTab === "shipments" && <ShipmentsPage />}
                         {requestMode === "people" && activeTab === "outgoing" && <PeopleRequestsPage direction="outgoing" />}
                         {requestMode === "people" && activeTab === "incoming" && <PeopleRequestsPage direction="incoming" />}
-                    </section>
-                </main>
+                    </div>
 
-                <CollapsibleSidePanel
-                    isOpen={isFormOpen}
-                    label={requestMode === "resources" ? "Provision request form" : "People request form"}
-                    collapsedLabel="FORM"
-                    widthClassName="lg:w-96"
-                    onOpen={() => setIsFormOpen(true)}
-                    onClose={() => setIsFormOpen(false)}
-                >
-                    <CollapsiblePanelHeader
-                        title={requestMode === "resources" ? "Request Provision" : "Request People"}
-                        subtitle={<><span className="text-txt-secondary">{operationDescription}</span> | Sending from: <span className="text-accent">{originCampName}</span></>}
+                    <CollapsibleSidePanel
+                        isOpen={isFormOpen}
+                        label={requestMode === "resources" ? "Provision request form" : "People request form"}
+                        collapsedLabel="FORM"
+                        widthClassName="lg:w-96"
+                        onOpen={() => setIsFormOpen(true)}
                         onClose={() => setIsFormOpen(false)}
-                    />
+                    >
+                        <CollapsiblePanelHeader
+                            title={requestMode === "resources" ? "Request Provision" : "Request People"}
+                            subtitle={<><span style={{ color: "var(--color-txt-secondary)" }}>{operationDescription}</span> | Sending from: <span style={{ color: "var(--color-accent)" }}>{originCampName}</span></>}
+                            onClose={() => setIsFormOpen(false)}
+                        />
 
-                    <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 space-y-3 sm:p-4">
-                        {/* Info banner */}
-                        {/* <div className="p-3 bg-status-info/10 border border-status-info/30">
-                            <p className="font-mono text-[9px] text-txt-secondary leading-relaxed">
-                                Submitting this form <span className="text-status-info font-bold">automatically authorizes</span> the provision on your behalf. The destination camp must then approve to complete the shipment.
-                            </p>
-                        </div> */}
-
-                        <div>
-                            <label className="rmm-label mb-1.5">{requestMode === "resources" ? "DESTINATION CAMP" : "PROVIDER CAMP"}</label>
-                            {isLoadingCamps ? (
-                                <div className="rmm-input w-full flex items-center gap-2 opacity-50">
-                                    <div className="h-3 w-3 border-2 border-accent/30 border-t-accent animate-spin" />
-                                    SCANNING...
-                                </div>
-                            ) : (
-                                <select
-                                    value={destinationCampId}
-                                    onChange={(e) => setDestinationCampId(Number(e.target.value))}
-                                    className="rmm-input w-full"
-                                    required
-                                >
-                                    <option value={0}>SELECT_DESTINATION...</option>
-                                    {availableDestinations.map((c) => (
-                                        <option key={c.id ?? 0} value={c.id ?? 0}>{c.code}</option>
-                                    ))}
-                                </select>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="rmm-label mb-1.5">DESCRIPTION (optional)</label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="rmm-input w-full text-[10px] resize-none"
-                                rows={3}
-                                placeholder="Mission justification..."
-                            />
-                        </div>
-
-                        <div className="pt-2 border-t border-border-default/50">
-                            {requestMode === "resources" ? (
-                                <ResourceSelector resources={resources} onChange={setResources} />
-                            ) : (
-                                <div className="space-y-3">
-                                    <label className="rmm-label">PEOPLE NEEDED</label>
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        value={peopleCount}
-                                        onChange={(event) => setPeopleCount(Math.max(1, Number(event.target.value) || 1))}
-                                        className="rmm-input w-full"
+                        <form onSubmit={handleSubmit} className="app-panel-body" style={{ gap: "0.75rem", display: "flex", flexDirection: "column" }}>
+                            <div className="app-field">
+                                <label className="app-label">{requestMode === "resources" ? "DESTINATION CAMP" : "PROVIDER CAMP"}</label>
+                                {isLoadingCamps ? (
+                                    <div className="app-input" style={{ display: "flex", alignItems: "center", gap: "0.5rem", opacity: 0.5 }}>
+                                        <div className="app-spinner app-spinner--sm" />
+                                        SCANNING...
+                                    </div>
+                                ) : (
+                                    <CampSearchPicker
+                                        selectedId={destinationCampId}
+                                        onChange={setDestinationCampId}
+                                        options={destinationOptions}
+                                        placeholder="SELECT_DESTINATION..."
                                     />
-                                    <p className="font-mono text-[10px] leading-relaxed text-txt-muted">
-                                        The provider camp selects the available people when approving this request.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
 
-                        <div className="flex gap-2 pt-1">
-                            <button
-                                type="button"
-                                onClick={() => { setDestinationCampId(0); setDescription(""); setPeopleCount(1); setResources([]); }}
-                                disabled={createRequest.isPending}
-                                className="rmm-btn min-h-9 border border-border-default bg-bg-tertiary px-3 py-2 text-[9px] text-txt-secondary transition-all hover:bg-bg-secondary hover:text-txt-primary disabled:opacity-50"
-                            >
-                                <RotateCcw size={12} />
-                                CLEAR
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || (requestMode === "resources" ? resources.length === 0 : peopleCount <= 0)}
-                                className="rmm-btn min-h-9 flex-1 justify-center border border-accent/40 bg-accent/10 px-3 py-2 text-[9px] text-accent shadow-sm transition-all hover:bg-accent/15 disabled:opacity-50"
-                            >
-                                {createRequest.isPending ? (
-                                    <div className="h-3 w-3 border-2 border-white/30 border-t-white animate-spin" />
-                                ) : "SUBMIT REQUEST"}
-                            </button>
-                        </div>
-                    </form>
-                </CollapsibleSidePanel>
-            </div>
+                            <div className="app-field">
+                                <label className="app-label">DESCRIPTION (optional)</label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    className="app-input"
+                                    style={{ fontSize: "10px", resize: "none" }}
+                                    rows={3}
+                                    placeholder="Mission justification..."
+                                />
+                            </div>
+
+                            <div style={{ paddingTop: "0.5rem", borderTop: "1px solid color-mix(in srgb, var(--color-border-default) 50%, transparent)" }}>
+                                {requestMode === "resources" ? (
+                                    <ResourceSelector resources={resources} onChange={setResources} />
+                                ) : (
+                                    <div className="app-field" style={{ gap: "0.75rem" }}>
+                                        <label className="app-label">PEOPLE NEEDED</label>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            value={peopleCount}
+                                            onChange={(event) => setPeopleCount(Math.max(1, Number(event.target.value) || 1))}
+                                            className="app-input"
+                                        />
+                                        <p className="app-muted" style={{ lineHeight: 1.6 }}>
+                                            The provider camp selects the available people when approving this request.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div style={{ display: "flex", gap: "0.5rem", paddingTop: "0.25rem" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => { setDestinationCampId(0); setDescription(""); setPeopleCount(1); setResources([]); }}
+                                    disabled={createRequest.isPending}
+                                    className="app-btn app-btn--secondary app-btn--sm"
+                                >
+                                    <RotateCcw size={12} />
+                                    CLEAR
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={createRequest.isPending || !originCampId || destinationCampId === 0 || (requestMode === "resources" ? resources.length === 0 : peopleCount <= 0)}
+                                    className="app-btn app-btn--primary app-btn--sm app-btn--full"
+                                >
+                                    {createRequest.isPending ? (
+                                        <div className="app-spinner app-spinner--sm" style={{ borderColor: "rgba(255,255,255,0.3)", borderTopColor: "white" }} />
+                                    ) : "SUBMIT REQUEST"}
+                                </button>
+                            </div>
+                        </form>
+                    </CollapsibleSidePanel>
+                </div>
+            </main>
         </article>
     );
 }

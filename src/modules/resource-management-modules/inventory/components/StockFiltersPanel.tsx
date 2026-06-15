@@ -50,10 +50,10 @@ function GlassSelect({ title, value, options, onChange, className = "" }: GlassS
     };
 
     return (
-        <div ref={wrapperRef} className={`glass-select ${className}`}>
+        <div ref={wrapperRef} className={`app-select ${className}`}>
             <button
                 type="button"
-                className="glass-select__trigger"
+                className="app-select__trigger"
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
                 title={title}
@@ -69,12 +69,12 @@ function GlassSelect({ title, value, options, onChange, className = "" }: GlassS
                     }
                 }}
             >
-                <span className="glass-select__value">{selectedOption.label}</span>
-                <ChevronDown className="glass-select__chevron h-3.5 w-3.5" aria-hidden="true" />
+                <span className="app-select__value">{selectedOption.label}</span>
+                <ChevronDown className="app-select__chevron h-3.5 w-3.5" aria-hidden="true" />
             </button>
 
             {isOpen && (
-                <div className="glass-select__panel" role="listbox" aria-label={title}>
+                <div className="app-select__panel" role="listbox" aria-label={title}>
                     {options.map((option) => {
                         const isSelected = option.value === value;
 
@@ -84,7 +84,7 @@ function GlassSelect({ title, value, options, onChange, className = "" }: GlassS
                                 type="button"
                                 role="option"
                                 aria-selected={isSelected}
-                                className={`glass-select__option ${isSelected ? "glass-select__option--selected" : ""}`}
+                                className={`app-select__option ${isSelected ? "app-select__option--selected" : ""}`}
                                 onClick={() => handleSelect(option.value)}
                             >
                                 {option.label}

@@ -10,10 +10,10 @@ interface OutgoingRequestsTableProps {
   actionLoading?: boolean;
 }
 
-const STATUS_META: Record<string, { label: string; style: string }> = {
-  P: { label: "PENDING",  style: "text-status-warning" },
-  A: { label: "APPROVED", style: "text-status-ok" },
-  R: { label: "REJECTED", style: "text-status-critical" },
+const STATUS_META: Record<string, { label: string; badgeClass: string }> = {
+  P: { label: "PENDING",  badgeClass: "app-table-badge--warn" },
+  A: { label: "APPROVED", badgeClass: "app-table-badge--ok" },
+  R: { label: "REJECTED", badgeClass: "app-table-badge--error" },
 };
 
 function getCampLabel(request: CampRequestFormValues, side: "origin" | "destination", campMap?: Map<number, string>) {
@@ -28,73 +28,67 @@ export function OutgoingRequestsTable({ requests, campMap, onApprove, onReject, 
 
   if (requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary">
-          NO OUTGOING REQUESTS RECORDED
-        </p>
+      <div className="app-empty-state app-animate-fade h-full min-h-64">
+        <span>No outgoing requests recorded</span>
       </div>
     );
   }
 
   return (
     <>
-      <table className="rmm-table">
-        <thead  className="rmm-table-head">
-          <tr>
-            <th className="">Sender</th>
-            <th className="">Receiver</th>
-            <th className="">Description</th>
-            <th className="">Origin approval</th>
-            <th className="">Destination approval</th>
-            <th className="">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map((request) => {
-            const meta = STATUS_META[request.origin_approval_status || "P"] ?? STATUS_META["P"];
-            const destinationMeta = STATUS_META[request.destination_approval_status || "P"] ?? STATUS_META["P"];
-            return (
-              <tr
-                key={request.id}
-                className="bg-status-critical/5 hover:bg-status-critical/10 transition-colors border-l-2 border-l-status-critical cursor-pointer select-none"
-                onDoubleClick={() => setSelectedRequestId(request.id!)}
-                title="Double-click to view detail"
-              >
-                <td>
-                  <span className="font-mono text-[12px] font-bold text-txt-primary">
+      <div className="app-table-wrap">
+        <table className="app-table">
+          <thead>
+            <tr>
+              <th>Sender</th>
+              <th>Receiver</th>
+              <th>Description</th>
+              <th>Origin approval</th>
+              <th>Destination approval</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody className="app-stagger-rows">
+            {requests.map((request) => {
+              const meta = STATUS_META[request.origin_approval_status || "P"] ?? STATUS_META["P"];
+              const destinationMeta = STATUS_META[request.destination_approval_status || "P"] ?? STATUS_META["P"];
+              return (
+                <tr
+                  key={request.id}
+                  className="app-table-row select-none border-l-2 border-l-status-critical bg-status-critical/5 hover:bg-status-critical/10"
+                  onDoubleClick={() => setSelectedRequestId(request.id!)}
+                  title="Double-click to view detail"
+                >
+                  <td className="app-table-cell--primary">
                     {getCampLabel(request, "origin", campMap)}
-                  </span>
-                </td>
-                <td>
-                  <span className="font-mono text-[12px] font-bold text-txt-primary">
+                  </td>
+                  <td className="app-table-cell--primary">
                     {getCampLabel(request, "destination", campMap)}
-                  </span>
-                </td>
-                <td>
-                  <p className="font-mono text-[12px] text-txt-secondary truncate max-w-xs" title={request.description || ""}>
-                    {request.description || "No description"}
-                  </p>
-                </td>
-                <td>
-                  <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}>
-                    {meta.label}
-                  </span>
-                </td>
-                <td>
-                  <span className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${destinationMeta.style}`}>
-                    {destinationMeta.label}
-                  </span>
-                </td>
-                <td>
-                  <span className="font-mono text-[12px] text-txt-secondary">
+                  </td>
+                  <td>
+                    <p className="truncate max-w-xs" title={request.description || ""}>
+                      {request.description || "No description"}
+                    </p>
+                  </td>
+                  <td>
+                    <span className={`app-table-badge ${meta.badgeClass}`}>
+                      {meta.label}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`app-table-badge ${destinationMeta.badgeClass}`}>
+                      {destinationMeta.label}
+                    </span>
+                  </td>
+                  <td className="app-table-cell--time">
                     {new Date(request.created_at || "").toLocaleDateString("en-US")}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       {selectedRequestId != null && (
         <RequestDetailModal

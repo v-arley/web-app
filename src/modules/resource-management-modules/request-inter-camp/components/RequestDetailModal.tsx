@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { AlertTriangle, CheckCircle, Package, Search, X, XCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ResourceService } from "../../../../services/ResourceService";
@@ -107,7 +108,7 @@ export function RequestDetailModal({
     if (!isLoading) onClose();
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/70 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
@@ -314,7 +315,8 @@ export function RequestDetailModal({
           </div>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

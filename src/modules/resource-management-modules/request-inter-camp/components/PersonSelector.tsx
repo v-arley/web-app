@@ -61,7 +61,7 @@ export function PersonSelector({ campId, persons, onChange }: PersonSelectorProp
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <label className="rmm-label">PEOPLE TO REQUEST</label>
+        <label className="app-label">PEOPLE TO REQUEST</label>
         <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-accent">
           {selectedPeople.length} selected
         </span>

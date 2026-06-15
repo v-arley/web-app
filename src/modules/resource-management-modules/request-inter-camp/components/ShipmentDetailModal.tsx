@@ -1,4 +1,5 @@
 import { CheckCircle, Package, Play, Truck, Users, XCircle } from "lucide-react";
+import { createPortal } from "react-dom";
 import type { ShipmentFormValues } from "../schemas/shipment.schema";
 import { useRequestResourcesQuery } from "../hooks/useRequestResourcesQuery";
 import { useRequestPersonsQuery } from "../hooks/useRequestPersonsQuery";
@@ -62,7 +63,7 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
         if (!isLoading) onClose();
     }
 
-    return (
+    return createPortal(
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
             onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
@@ -303,6 +304,7 @@ export function ShipmentDetailModal({ shipment, onClose, onStartTransit, onConfi
                     </div>
                 </aside>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 }

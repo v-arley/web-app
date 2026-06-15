@@ -32,9 +32,9 @@ export class TaskPersonService extends AxiosBaseService {
 		}
 	}
 
-	async remove(id: number): Promise<Respuesta> {
+	async remove(taskId: number, personId: number): Promise<Respuesta> {
 		try {
-			await this.client.delete(`/task-assignments/${id}`);
+			await this.client.delete(`/task-assignments/${taskId}/${personId}`);
 
 			return new Respuesta(true, "Registro eliminado correctamente.", "", "registro", null);
 		} catch (error) {
@@ -68,6 +68,21 @@ export class TaskPersonService extends AxiosBaseService {
 			return new Respuesta(true, "Registro obtenido correctamente.", "", "registro", taskPerson);
 		} catch (error) {
 			return new Respuesta(false, this.extractErrorMessage(error, "No se pudo obtener el registro"), "", "registro", null);
+		}
+	}
+
+	async findByTaskId(taskId: number): Promise<Respuesta> {
+		try {
+			const { data } = await this.client.get<BackendResponse<BackendListPayload<TaskPerson>> | TaskPerson[]>(
+				`/task-assignments/task/${taskId}`
+			);
+			const taskAssignments = this.extractItems<TaskPerson>(data).map(
+				(taskPerson) => new TaskPerson(taskPerson)
+			);
+
+			return new Respuesta(true, "Registros obtenidos correctamente.", "", "registros", taskAssignments);
+		} catch (error) {
+			return new Respuesta(false, this.extractErrorMessage(error, "No se pudieron obtener los registros"), "");
 		}
 	}
 }

@@ -4,12 +4,18 @@ export default function Pagination({
     totalPages,
     nextPage,
     prevPage
+}: {
+    currentPage: number;
+    totalPages: number;
+    nextPage: () => void;
+    prevPage: () => void;
 }) {
     return (
         <div className="pagination">
             <button
                 onClick={prevPage}
                 disabled={currentPage === 1}
+                className="btn btn--secondary btn--sm"
             >
                 Prev
             </button>
@@ -21,6 +27,7 @@ export default function Pagination({
             <button
                 onClick={nextPage}
                 disabled={currentPage === totalPages}
+                className="btn btn--secondary btn--sm"
             >
                 Next
             </button>

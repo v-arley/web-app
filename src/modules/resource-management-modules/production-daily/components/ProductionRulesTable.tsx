@@ -15,25 +15,25 @@ function ruleKey(rule: ProductionRuleFormValues): string {
 export function ProductionRulesTable({ rules, professionMap, resourceMap, selectedKey, onSelect }: Props) {
     if (rules.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-txt-secondary font-mono text-xs">
-                There are no production rules configured yet. Create a new rule using the form on the right.
+            <div className="app-empty-state app-animate-fade h-full min-h-64">
+                <span>There are no production rules configured yet. Create a new rule using the form on the right.</span>
             </div>
         );
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="table-system">
-                <thead className="table-system-head">
+        <div className="app-table-wrap">
+            <table className="app-table">
+                <thead>
                     <tr>
-                        <th className="table-system-th">Profession</th>
-                        <th className="table-system-th">Resource</th>
-                        <th className="table-system-th">Quantity/Day</th>
-                        <th className="table-system-th">Effective Date</th>
-                        <th className="table-system-th">Status</th>
+                        <th>Profession</th>
+                        <th>Resource</th>
+                        <th>Quantity/Day</th>
+                        <th>Effective Date</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="app-stagger-rows">
                     {rules.map((rule) => {
                         const professionName = professionMap.get(rule.profession_id) || `ID ${rule.profession_id}`;
                         const resourceName = resourceMap.get(rule.resource_id) || `ID ${rule.resource_id}`;
@@ -44,33 +44,17 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
                             <tr
                                 key={ruleKey(rule)}
                                 onClick={() => onSelect(rule)}
-                                className={`cursor-pointer transition-colors relative ${
-                                    isSelected
-                                        ? "bg-accent/8 border-l-2 border-accent"
-                                        : "hover:bg-bg-secondary/40"
-                                }`}
+                                className={`app-table-row ${isSelected ? "app-table-row--selected" : ""}`}
                             >
-                                <td className="table-system-td table-system-td--primary">
-                                    {professionName}
-                                </td>
-                                <td className="table-system-td table-system-td--primary">
-                                    {resourceName}
-                                </td>
-                                <td className="table-system-td table-system-td--primary">
-                                    {rule.expected_amount}
-                                </td>
-                                <td className="table-system-td table-system-td--primary">
+                                <td>{professionName}</td>
+                                <td>{resourceName}</td>
+                                <td className="app-table-cell--number">{rule.expected_amount}</td>
+                                <td>
                                     {rule.effective_date}
-                                    {rule.end_date && <span className="text-txt-muted"> → {rule.end_date}</span>}
+                                    {rule.end_date && <span className="app-table-cell--time"> → {rule.end_date}</span>}
                                 </td>
-                                <td className="table-system-td table-system-td--primary">
-                                    <span
-                                        className={`inline-flex items-center px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border ${
-                                            isActive
-                                                ? "bg-status-ok/10 text-status-ok border-status-ok/30"
-                                                : "bg-status-critical/10 text-status-critical border-status-critical/30"
-                                        }`}
-                                    >
+                                <td>
+                                    <span className={`app-table-badge ${isActive ? "app-table-badge--ok" : "app-table-badge--error"}`}>
                                         {isActive ? "Activa" : "Inactiva"}
                                     </span>
                                 </td>
@@ -79,8 +63,10 @@ export function ProductionRulesTable({ rules, professionMap, resourceMap, select
                     })}
                 </tbody>
             </table>
-            <div className="px-4 py-2 border-t border-border-subtle bg-bg-secondary/20 font-mono text-[9px] text-txt-muted uppercase tracking-widest">
-                Select a row to edit &bull; {rules.length} rule{rules.length !== 1 ? 's' : ''}
+            <div className="app-table-footer">
+                <div className="app-table-footer-meta">
+                    Select a row to edit &bull; {rules.length} rule{rules.length !== 1 ? 's' : ''}
+                </div>
             </div>
         </div>
     );

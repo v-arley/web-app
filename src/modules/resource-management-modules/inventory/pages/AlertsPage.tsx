@@ -30,11 +30,7 @@ export function AlertsPage() {
 
     useEffect(() => {
         if (currentQuery.error) {
-            toast({
-                tone: "error",
-                title: "Query error",
-                message: currentQuery.error.message,
-            });
+            toast({ tone: "error", title: "Query error", message: currentQuery.error.message });
         }
     }, [currentQuery.error, toast]);
 
@@ -65,11 +61,7 @@ export function AlertsPage() {
     const handleResolve = async (alertId: number) => {
         try {
             await alertMutation.resolve.mutateAsync(alertId);
-            toast({
-                tone: "success",
-                title: "Alert resolved",
-                message: "The alert record has been updated.",
-            });
+            toast({ tone: "success", title: "Alert resolved", message: "The alert record has been updated." });
         } catch (error) {
             toast({
                 tone: "error",
@@ -88,157 +80,104 @@ export function AlertsPage() {
         { key: "history", label: "Resolved History", icon: <CheckCircle size={16} />, description: "Handled alerts archive" },
     ];
 
-    const accentColor = activeTab === "active" ? "text-status-critical" : "text-status-ok";
-    const accentBg = activeTab === "active" ? "bg-status-critical/10" : "bg-status-ok/10";
-    const accentBorder = activeTab === "active" ? "border-status-critical/30" : "border-status-ok/30";
-    const accentBar = activeTab === "active" ? "bg-status-critical" : "bg-status-ok";
-    const statusLabel = activeTab === "active" ? "[CRITICAL]" : "[RESOLVED]";
-
     return (
         <>
-        <article className="rmm-scope flex h-full min-h-0 flex-col bg-transparent overflow-hidden relative no-scrollbar border border-border-default">
-            {/* Topbar */}
-            <header className="rmm-module-header flex items-stretch bg-black/50 backdrop-blur-lg shrink-0 z-10">
-                {/* Module identity */}
-                <div className="rmm-module-brand flex items-center gap-3 shrink-0">
-                    {/* <div className={`rmm-module-accent w-0.75 self-stretch ${accentBar}`}></div> */}
-                    <div className="rmm-module-copy py-2 px-3">
-                        <div className="rmm-module-title text-xl font-abril font-bold uppercase tracking-widest text-txt-primary leading-none">
-                            Stock Alerts
+            <article className="app-scope app-module">
+                <header className="app-module-header">
+                    <div className="app-module-brand">
+                        <div className="app-module-copy">
+                            <div className="app-module-title">Stock Alerts</div>
+                            <p className="app-module-subtitle">Resource Management</p>
                         </div>
-                        <p className="rmm-module-subtitle text-[9px] text-txt-muted uppercase tracking-wide mt-0.5">
-                            Resource Management
-                        </p>
                     </div>
-                </div>
 
-                {/* Horizontal tab nav */}
-                <nav className="rmm-module-tabs flex items-stretch flex-1 justify-end">
-                    {tabs.map((tab, ) => (
+                    <nav className="app-module-tabs">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.key}
+                                onClick={() => { setActiveTab(tab.key); setPage(1); }}
+                                className={`app-module-tab ${activeTab === tab.key ? "app-module-tab--active" : ""}`}
+                            >
+                                {activeTab === tab.key && <div className="app-module-tab-indicator" />}
+                                <span className="app-module-tab-icon">{tab.icon}</span>
+                                <div className="app-module-tab-copy">
+                                    <div className="app-module-tab-label">{tab.label}</div>
+                                </div>
+                            </button>
+                        ))}
+                    </nav>
+
+                    <div className="app-module-actions">
                         <button
-                            key={tab.key}
-                            onClick={() => {
-                                setActiveTab(tab.key);
-                                setPage(1);
-                            }}
-                            className={`rmm-module-tab relative flex items-center gap-2.5 px-5 border-r border-border-subtle transition-all group ${
-                                activeTab === tab.key
-                                    ? `rmm-module-tab--active bg-bg-app/60 ${accentColor}`
-                                    : "text-txt-muted hover:bg-bg-secondary/40 hover:text-txt-primary"
-                            }`}
+                            onClick={handleSync}
+                            className="app-btn app-btn--primary app-btn--sm"
+                            disabled={isSyncing || currentQuery.isLoading}
                         >
-                            {activeTab === tab.key && (
-                                <div className={`rmm-module-tab-indicator absolute bottom-0 left-0 right-0 h-0.5 ${accentBar}`} />
-                            )}
-                            {/* <span className={`rmm-module-tab-index font-mono text-[9px] opacity-40 ${activeTab === tab.key ? `${accentColor} opacity-60` : ""}`}>
-                                {String(i + 1).padStart(2, "0")}
-                            </span> */}
-                            <span className={`rmm-module-tab-icon ${activeTab === tab.key ? accentColor : "text-txt-disabled group-hover:text-txt-secondary"}`}>
-                                {tab.icon}
-                            </span>
-                            <div className="rmm-module-tab-copy text-left">
-                                <div className="rmm-module-tab-label font-mono text-[10px] font-bold uppercase tracking-widest">
-                                    {tab.label}
-                                </div>
-                                {/* <div className="rmm-module-tab-description font-mono text-[8px] text-txt-disabled uppercase tracking-wide">
-                                    {tab.description}
-                                </div> */}
-                            </div>
+                            <RefreshCw size={12} className={isSyncing || currentQuery.isLoading ? "animate-spin" : ""} />
+                            SYNC
                         </button>
-                    ))}
-                </nav>
-
-                {/* Sync button */}
-                <div className="rmm-module-actions flex items-center px-4 border-l border-border-default shrink-0 gap-3">
-                    <button
-                        onClick={handleSync}
-                        className={`rmm-module-action-btn flex items-center gap-2 px-3 py-1.5 ${accentBg} border ${accentBorder} ${accentColor} font-mono text-[10px] font-bold uppercase tracking-widest hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
-                        disabled={isSyncing || currentQuery.isLoading}
-                    >
-                        <RefreshCw size={12} className={isSyncing || currentQuery.isLoading ? "animate-spin" : ""} />
-                        SYNC
-                    </button>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col min-h-0 overflow-hidden p-4 gap-3">
-                <section className="flex flex-col bg-black/50 backdrop-blur-lg border border-border-default overflow-hidden shadow-sm flex-1 min-h-0">
-                    {/* <header className="flex items-center justify-between px-4 py-3 border-b border-border-default bg-bg-secondary/30 shrink-0">
-                        <h3 className="text-[11px] font-mono font-bold text-txt-primary uppercase tracking-wide flex items-center gap-2">
-                            <div className={`w-1 h-3 ${accentBar}`} />
-                            {activeTab === "active" ? "Critical Asset Monitoring" : "Resolved Incidents Archive"}
-                        </h3>
-                        {pagination.total > 0 && (
-                            <span className={`text-[11px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 ${accentColor} ${accentBg}`}>
-                                COUNT: {String(pagination.total).padStart(4, "0")}
-                            </span>
-                        )}
-                    </header> */}
-
-                    <div className="flex-1 overflow-auto">
-                        {currentQuery.isLoading ? (
-                            <div className="flex h-full items-center justify-center">
-                                <div className="flex flex-col items-center gap-2">
-                                    <div className={`h-5 w-5 border-2 ${activeTab === "active" ? "border-status-critical" : "border-status-ok"} border-t-transparent animate-spin`} />
-                                    <span className="font-mono text-[10px] text-txt-muted uppercase tracking-[0.3em]">Querying Database...</span>
-                                </div>
-                            </div>
-                        ) : currentAlerts.length > 0 ? (
-                            <AlertsTable
-                                alerts={currentAlerts}
-                                onRowDoubleClick={handleRowDoubleClick}
-                            />
-                        ) : (
-                            <div className="flex h-full flex-col items-center justify-center text-center p-20 opacity-40 grayscale">
-                                <CheckCircle size={48} className="text-txt-disabled mb-4" />
-                                <div className="font-mono text-[12px] font-bold text-txt-primary uppercase tracking-widest mb-1">
-                                    {activeTab === "active" ? "No active alerts" : "No resolved alerts"}
-                                </div>
-                                <div className="font-mono text-[10px] text-txt-disabled uppercase tracking-wider">
-                                    System status within normal operating parameters.
-                                </div>
-                            </div>
-                        )}
                     </div>
+                </header>
 
-                    {/* Pagination footer */}
-                    <footer className="flex items-center justify-between px-4 py-1.5 border-t border-border-default bg-bg-secondary/30 shrink-0">
-                        <div className="flex items-center gap-4 font-mono text-[11px] text-txt-muted uppercase tracking-widest">
-                            <span>Total: <span className={`${accentColor} font-bold`}>{String(pagination.total).padStart(4, "0")}</span></span>
-                            {/* <span className="opacity-30">|</span>
-                            <span className={`${accentColor} font-bold`}>{statusLabel}</span> */}
+                <main className="app-module-body" style={{ padding: "1rem", gap: "0.75rem" }}>
+                    <section className="app-split app-split--glass" style={{ flexDirection: "column" }}>
+                        <div className="app-table-region">
+                            {currentQuery.isLoading ? (
+                                <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+                                    <div className="app-spinner" />
+                                    <span className="app-eyebrow" style={{ letterSpacing: "0.3em" }}>Querying Database...</span>
+                                </div>
+                            ) : currentAlerts.length > 0 ? (
+                                <AlertsTable
+                                    alerts={currentAlerts}
+                                    onRowDoubleClick={handleRowDoubleClick}
+                                />
+                            ) : (
+                                <div className="app-empty-state">
+                                    <CheckCircle size={48} />
+                                    <div className="app-panel-title">
+                                        {activeTab === "active" ? "No active alerts" : "No resolved alerts"}
+                                    </div>
+                                    <div className="app-muted">
+                                        System status within normal operating parameters.
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">
-                            <button
-                                disabled={pagination.page <= 1}
-                                onClick={() => setPage(Math.max(1, pagination.page - 1))}
-                                className="px-2 py-1 border border-border-default text-txt-muted hover:border-accent hover:text-accent transition-all disabled:opacity-25 disabled:cursor-not-allowed"
-                            >◄ PREV</button>
-                            <span className="px-3 py-1 border border-border-subtle text-txt-secondary tabular-nums">
-                                {String(pagination.page).padStart(2, "0")}
-                                <span className="text-txt-muted opacity-40 mx-1">/</span>
-                                {String(pagination.totalPages).padStart(2, "0")}
-                            </span>
-                            <button
-                                disabled={pagination.page >= pagination.totalPages}
-                                onClick={() => setPage(Math.min(pagination.totalPages, pagination.page + 1))}
-                                className="px-2 py-1 border border-border-default text-txt-muted hover:border-accent hover:text-accent transition-all disabled:opacity-25 disabled:cursor-not-allowed"
-                            >NEXT ►</button>
-                        </div>
-                    </footer>
-                </section>
-            </main>
-        </article>
 
-        {/* Alert Detail Modal */}
-        {selectedAlert && (
-            <AlertDetailModal
-                alert={selectedAlert}
-                onClose={() => setSelectedAlert(null)}
-                onResolve={activeTab === "active" ? handleResolve : undefined}
-            />
-        )}
+                        <footer className="app-table-footer">
+                            <div className="app-table-footer-meta">
+                                <span>Total: <span className="app-eyebrow" style={{ color: activeTab === "active" ? "var(--color-status-critical)" : "var(--color-status-ok)" }}>{String(pagination.total).padStart(4, "0")}</span></span>
+                            </div>
+                            <div className="app-table-footer-controls">
+                                <button
+                                    disabled={pagination.page <= 1}
+                                    onClick={() => setPage(Math.max(1, pagination.page - 1))}
+                                    className="app-btn app-btn--outline app-btn--sm"
+                                >◄ PREV</button>
+                                <span className="app-page-counter">
+                                    {String(pagination.page).padStart(2, "0")}
+                                    <span style={{ opacity: 0.4, margin: "0 0.25rem" }}>/</span>
+                                    {String(pagination.totalPages).padStart(2, "0")}
+                                </span>
+                                <button
+                                    disabled={pagination.page >= pagination.totalPages}
+                                    onClick={() => setPage(Math.min(pagination.totalPages, pagination.page + 1))}
+                                    className="app-btn app-btn--outline app-btn--sm"
+                                >NEXT ►</button>
+                            </div>
+                        </footer>
+                    </section>
+                </main>
+            </article>
+
+            {selectedAlert && (
+                <AlertDetailModal
+                    alert={selectedAlert}
+                    onClose={() => setSelectedAlert(null)}
+                    onResolve={activeTab === "active" ? handleResolve : undefined}
+                />
+            )}
         </>
     );
 }

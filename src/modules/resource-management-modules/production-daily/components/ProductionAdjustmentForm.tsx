@@ -1,6 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save, RotateCcw } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { PersonSearchPicker } from "../../shared/components/PersonSearchPicker";
+import { ResourceSearchPicker } from "../../shared/components/ResourceSearchPicker";
+import { WarehouseSearchPicker } from "../../shared/components/WarehouseSearchPicker";
 import { productionRecordSchema, type ProductionRecordFormValues, EMPTY_PRODUCTION_RECORD } from "../schemas/production-record.schema";
 
 type Props = {
@@ -12,27 +15,31 @@ type Props = {
 };
 
 const fieldClass =
-    "bg-bg-tertiary border border-border-default px-3 py-2.5 font-mono text-xs text-txt-primary focus:border-accent outline-none transition-all placeholder:text-txt-disabled/30 w-full";
+    "app-input w-full";
 
 function Field({
     label,
     required,
-    error,
+    id,
     children,
 }: {
     label: string;
     required?: boolean;
     error?: string;
+    id?: string;
     children: React.ReactNode;
 }) {
     return (
-        <label className="flex flex-col gap-1.5">
-            <span className="flex items-center justify-between gap-3 text-[10px] font-mono font-bold uppercase tracking-widest">
-                <span className={required ? "text-status-critical" : "text-txt-disabled"}>{label}</span>
-                {error ? <span className="text-status-critical normal-case tracking-normal">{error}</span> : null}
-            </span>
+        <div className="flex flex-col gap-2">
+            <label className="app-label">
+                <span className="flex items-center gap-1.5">
+                    {required && <span className="text-accent">*</span>}
+                    {label}
+                </span>
+                {id && <span className="app-field-id">#{id}</span>}
+            </label>
             {children}
-        </label>
+        </div>
     );
 }
 
@@ -48,6 +55,9 @@ export function ProductionAdjustmentForm({
         defaultValues: EMPTY_PRODUCTION_RECORD,
     });
     const errors = form.formState.errors;
+    const selectedPersonId = useWatch({ control: form.control, name: "person_id" }) ?? 0;
+    const selectedWarehouseId = useWatch({ control: form.control, name: "warehouse_id" }) ?? 0;
+    const selectedResourceId = useWatch({ control: form.control, name: "resource_id" }) ?? 0;
 
     const handleSubmit = async (values: ProductionRecordFormValues) => {
         await onSubmit(values);
@@ -65,39 +75,39 @@ export function ProductionAdjustmentForm({
             className="flex flex-1 min-h-0 flex-col relative"
         >
 
-            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
-                <span className="rmm-section-title font-abril">Adjustment Record</span>
+            <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
+                <span className="app-section-title font-abril">Adjustment Record</span>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <Field label="Worker" required error={errors.person_id?.message}>
-                    <select {...form.register("person_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT WORKER ]</option>
-                        {personOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                <Field label="Worker:" required id="" error={errors.person_id?.message}>
+                    <input type="hidden" {...form.register("person_id", { valueAsNumber: true })} />
+                    <PersonSearchPicker
+                        selectedId={selectedPersonId}
+                        onChange={(id) => form.setValue("person_id", id, { shouldDirty: true, shouldValidate: true })}
+                        options={personOptions}
+                    />
                 </Field>
 
-                <Field label="Warehouse" required error={errors.warehouse_id?.message}>
-                    <select {...form.register("warehouse_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT WAREHOUSE ]</option>
-                        {warehouseOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                <Field label="Warehouse:" required id="" error={errors.warehouse_id?.message}>
+                    <input type="hidden" {...form.register("warehouse_id", { valueAsNumber: true })} />
+                    <WarehouseSearchPicker
+                        selectedId={selectedWarehouseId}
+                        onChange={(id) => form.setValue("warehouse_id", id, { shouldDirty: true, shouldValidate: true })}
+                        options={warehouseOptions}
+                    />
                 </Field>
 
-                <Field label="Resource" required error={errors.resource_id?.message}>
-                    <select {...form.register("resource_id", { valueAsNumber: true })} className={fieldClass}>
-                        <option value={0}>[ SELECT RESOURCE ]</option>
-                        {resourceOptions.map((opt) => (
-                            <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                    </select>
+                <Field label="Resource:" required id="" error={errors.resource_id?.message}>
+                    <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
+                    <ResourceSearchPicker
+                        selectedId={selectedResourceId}
+                        onChange={(id) => form.setValue("resource_id", id, { shouldDirty: true, shouldValidate: true })}
+                        options={resourceOptions}
+                    />
                 </Field>
 
-                <Field label="Actual Produced Quantity" required error={errors.amount?.message}>
+                <Field label="Actual Produced Quantity:" required id="" error={errors.amount?.message}>
                     <input
                         type="number"
                         {...form.register("amount", { valueAsNumber: true })}
@@ -107,7 +117,7 @@ export function ProductionAdjustmentForm({
                     />
                 </Field>
 
-                <Field label="Production Date" required error={errors.production_date?.message}>
+                <Field label="Production Date:" required id="" error={errors.production_date?.message}>
                     <input
                         type="date"
                         {...form.register("production_date")}
@@ -115,7 +125,7 @@ export function ProductionAdjustmentForm({
                     />
                 </Field>
 
-                <Field label="Adjustment Reason" error={errors.notes?.message}>
+                <Field label="Adjustment Reason:" id="" error={errors.notes?.message}>
                     <textarea
                         {...form.register("notes")}
                         placeholder="E.g.: Worker sick, lower quantity due to lack of materials, etc."
@@ -126,23 +136,23 @@ export function ProductionAdjustmentForm({
             </div>
 
 
-            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2">
+            <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex gap-2 shrink-0">
                 <button
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="flex-1 flex items-center justify-center gap-2 bg-bg-tertiary border border-border-default px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="app-btn app-btn--secondary"
                 >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    CLEAR
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    <span className="font-mono">CLEAR</span>
                 </button>
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 flex items-center justify-center gap-2 bg-status-warning border border-status-warning px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-bg-primary hover:bg-status-warning/90 transition-all disabled:opacity-50"
+                    className="app-btn app-btn--primary app-btn--full"
                 >
-                    <Save className="w-4 h-4" />
-                    {isSubmitting ? "..." : "SAVE"}
+                    <Save className="h-3.5 w-3.5" />
+                    <span className="font-mono">{isSubmitting ? "..." : "SAVE"}</span>
                 </button>
             </footer>
         </form>

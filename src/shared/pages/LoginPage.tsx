@@ -79,7 +79,7 @@ export function LoginPage() {
                     )}
 
                     <button
-                        className="mt-2 w-full bg-accent text-accent-fg font-mono font-bold text-sm uppercase tracking-label rounded-none px-5 py-2.5 hover:bg-accent-hover transition-colors duration-base cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="btn"
                         type="submit"
                         disabled={loading}
                     >

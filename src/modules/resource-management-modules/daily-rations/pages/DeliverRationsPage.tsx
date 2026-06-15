@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { PersonService } from "../../../../services/PersonService";
 import { useRationsQuery } from "../hooks/useRationsQuery";
@@ -10,8 +10,10 @@ import { CheckCircle2, Package } from "lucide-react";
 import PaginationFooter from "../../shared/components/PaginationFooter";
 import { useToast } from "../../../../shared/hooks/useToast";
 import CollapsibleSidePanel, { CollapsiblePanelHeader, getInitialSidePanelOpenState } from "../../shared/components/CollapsibleSidePanel";
+import type { RationFormValues } from "../schemas/ration.schema";
 
 const personService = new PersonService();
+const EMPTY_RATIONS: RationFormValues[] = [];
 
 export function DeliverRationsPage() {
     const { authContext } = useNavigation();
@@ -26,20 +28,14 @@ export function DeliverRationsPage() {
     const { toast } = useToast();
     const rationMutation = useRationMutation();
 
-    // Obtener raciones
     const { data: rationsResult, isLoading: isLoadingRations } = useRationsQuery(
         campId,
-        {
-            completed: statusFilter || undefined,
-            page,
-            limit: pageSize,
-        }
+        { completed: statusFilter || undefined, page, limit: pageSize },
     );
-    const rations = rationsResult?.items ?? [];
+    const rations = rationsResult?.items ?? EMPTY_RATIONS;
     const pagination = rationsResult?.pagination ?? { page, limit: pageSize, total: 0, totalPages: 1 };
     const facets = rationsResult?.facets;
 
-    // Obtener personas
     const { data: personsData } = useQuery({
         queryKey: ["persons", campId],
         queryFn: async () => {
@@ -54,28 +50,20 @@ export function DeliverRationsPage() {
         return new Map(personsData?.map((p) => [p.id, p.name]) ?? []);
     }, [personsData]);
 
-    const deliveredCount = facets?.delivered ?? (statusFilter === 'Y' ? pagination.total : rations.filter((ration) => ration.completed === 'Y').length);
-    const pendingCount = facets?.pending ?? (statusFilter === 'N' ? pagination.total : rations.filter((ration) => ration.completed === 'N').length);
-    const totalRecords = facets?.total ?? pagination.total;
-    const totalPages = pagination.totalPages;
+    const deliveredCount = facets?.delivered ?? (statusFilter === 'Y' ? pagination.total : rations.filter((r) => r.completed === 'Y').length);
+    const pendingCount   = facets?.pending   ?? (statusFilter === 'N' ? pagination.total : rations.filter((r) => r.completed === 'N').length);
+    const totalRecords   = facets?.total ?? pagination.total;
+    const totalPages     = pagination.totalPages;
     const selectedRation = useMemo(
-        () => rations.find((ration) => ration.id === selectedRationId) ?? null,
+        () => rations.find((r) => r.id === selectedRationId) ?? null,
         [rations, selectedRationId],
     );
     const isSavingDelivery = rationMutation.markAsDelivered.isPending;
 
-    useEffect(() => {
-        setDeliveryNotes(selectedRation?.notes ?? "");
-    }, [selectedRation?.id, selectedRation?.notes]);
-
     const handleConfirmDelivery = async () => {
         if (!selectedRation?.id) return;
-
         try {
-            await rationMutation.markAsDelivered.mutateAsync({
-                id: selectedRation.id,
-                notes: deliveryNotes,
-            });
+            await rationMutation.markAsDelivered.mutateAsync({ id: selectedRation.id, notes: deliveryNotes });
             toast({ tone: "success", title: "Ration delivered", message: "Delivery was confirmed by the resource manager." });
         } catch (error) {
             toast({
@@ -87,32 +75,28 @@ export function DeliverRationsPage() {
     };
 
     return (
-        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad overflow-hidden bg-transparent">
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
-                <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden">
-                    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-r border-border-default">
-                        <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                            <div className="rmm-panel-title flex-1 min-w-0">
-                                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
-                                    Daily Ration Delivery
-                                </div>
-                                <p className="font-mono text-[11px] text-txt-muted uppercase tracking-widest mt-0.5">
-                                    Select a pending ration to confirm delivery
-                                </p>
+        <article className="app-content-body">
+            <div className="app-split app-split--glass">
+                <div className="app-split__inner">
+                    <div className="app-split__main">
+                        <header className="app-panel-header">
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div className="app-panel-title">Daily Ration Delivery</div>
+                                <p className="app-panel-subtitle">Select a pending ration to confirm delivery</p>
                             </div>
-                            <label className="flex min-w-0 items-center overflow-hidden gap-2 w-full sm:w-56">
-                                <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-txt-disabled">
-                                    Status
-                                </span>
+                            <label style={{ display: "flex", minWidth: 0, alignItems: "center", overflow: "hidden", gap: "0.5rem", width: "100%", maxWidth: "14rem" }}>
+                                <span className="app-eyebrow">Status</span>
                                 <select
                                     value={statusFilter}
                                     onChange={(e) => {
                                         setStatusFilter(e.target.value as 'Y' | 'N' | '');
                                         setPage(1);
                                         setSelectedRationId(null);
+                                        setDeliveryNotes("");
                                         setIsDetailOpen(false);
                                     }}
-                                    className="rmm-input min-w-0 text-xs"
+                                    className="app-input"
+                                    style={{ minWidth: 0, fontSize: "12px" }}
                                 >
                                     <option value="">All</option>
                                     <option value="Y">Delivered</option>
@@ -121,24 +105,24 @@ export function DeliverRationsPage() {
                             </label>
                         </header>
 
-                        <div className="grid shrink-0 gap-3 border-b border-border-default p-3 sm:grid-cols-3">
-                            <div className="rmm-kpi-card bg-bg-secondary border border-border-default">
-                                <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Total Rations</div>
-                                <div className="rmm-kpi-value font-mono font-bold text-txt-primary">{totalRecords}</div>
+                        <div className="app-kpi-stripe">
+                            <div className="app-kpi-card">
+                                <div className="app-kpi-label">Total Rations</div>
+                                <div className="app-kpi-value">{totalRecords}</div>
                             </div>
-                            <div className="rmm-kpi-card bg-bg-secondary border border-status-success">
-                                <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Delivered</div>
-                                <div className="rmm-kpi-value font-mono font-bold text-status-success">{deliveredCount}</div>
+                            <div className="app-kpi-card" style={{ borderColor: "var(--color-status-ok)" }}>
+                                <div className="app-kpi-label">Delivered</div>
+                                <div className="app-kpi-value" style={{ color: "var(--color-status-ok)" }}>{deliveredCount}</div>
                             </div>
-                            <div className="rmm-kpi-card bg-bg-secondary border border-status-warning">
-                                <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Pending</div>
-                                <div className="rmm-kpi-value font-mono font-bold text-status-warning">{pendingCount}</div>
+                            <div className="app-kpi-card" style={{ borderColor: "var(--color-status-warning)" }}>
+                                <div className="app-kpi-label">Pending</div>
+                                <div className="app-kpi-value" style={{ color: "var(--color-status-warning)" }}>{pendingCount}</div>
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-auto p-3">
+                        <div className="app-table-region app-table-frame">
                             {isLoadingRations ? (
-                                <div className="flex items-center justify-center h-full text-txt-disabled font-mono text-xs">
+                                <div className="app-loading-state">
                                     Loading rations...
                                 </div>
                             ) : (
@@ -148,6 +132,7 @@ export function DeliverRationsPage() {
                                     selectedRationId={selectedRationId}
                                     onRationSelect={(id) => {
                                         setSelectedRationId(id);
+                                        setDeliveryNotes(rations.find((r) => r.id === id)?.notes ?? "");
                                         if (id) setIsDetailOpen(true);
                                     }}
                                 />
@@ -175,61 +160,56 @@ export function DeliverRationsPage() {
                             subtitle={selectedRation ? `Ration #${selectedRation.id}` : "Select a ration"}
                             onClose={() => setIsDetailOpen(false)}
                         />
-                        <div className="flex-1 overflow-y-auto p-3">
-                        {selectedRationId && selectedRation ? (
-                            <div className="space-y-4">
-                                <RationResourcesDetail rationId={selectedRationId} />
+                        <div className="app-panel-body">
+                            {selectedRationId && selectedRation ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                    <RationResourcesDetail rationId={selectedRationId} />
 
-                                <div className="border-t border-border-default pt-4 space-y-3">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">
-                                            Delivery Control
-                                        </span>
-                                        <span className={`table-system-badge ${selectedRation.completed === "Y" ? "table-system-badge--online" : "table-system-badge--pending"}`}>
-                                            {selectedRation.completed === "Y" ? "DELIVERED" : "PENDING"}
-                                        </span>
-                                    </div>
-
-                                    <label className="block">
-                                        <span className="block font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest mb-2">
-                                            Delivery notes
-                                        </span>
-                                        <textarea
-                                            value={deliveryNotes}
-                                            onChange={(event) => setDeliveryNotes(event.target.value)}
-                                            className="rmm-input min-h-24 w-full resize-none text-[11px]!"
-                                            placeholder="Optional operational note"
-                                            disabled={isSavingDelivery || selectedRation.completed === "Y"}
-                                        />
-                                    </label>
-
-                                    {selectedRation.completed === "Y" ? (
-                                        <div className="border border-status-success/40 bg-status-success/10 p-3 font-mono text-[10px] uppercase tracking-widest text-status-success">
-                                            Delivery has been confirmed and cannot be moved back to pending.
+                                    <div style={{ borderTop: "1px solid var(--color-border-default)", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem" }}>
+                                            <span className="app-eyebrow">Delivery Control</span>
+                                            <span className={`app-table-badge ${selectedRation.completed === "Y" ? "app-table-badge--ok" : "app-table-badge--warn"}`}>
+                                                {selectedRation.completed === "Y" ? "DELIVERED" : "PENDING"}
+                                            </span>
                                         </div>
-                                    ) : (
-                                        <div className="grid grid-cols-1 gap-2">
+
+                                        <div className="app-field">
+                                            <label className="app-label">Delivery notes</label>
+                                            <textarea
+                                                value={deliveryNotes}
+                                                onChange={(event) => setDeliveryNotes(event.target.value)}
+                                                className="app-input"
+                                                style={{ minHeight: "6rem", resize: "none", fontSize: "11px" }}
+                                                placeholder="Optional operational note"
+                                                disabled={isSavingDelivery || selectedRation.completed === "Y"}
+                                            />
+                                        </div>
+
+                                        {selectedRation.completed === "Y" ? (
+                                            <div className="app-alert app-alert--ok">
+                                                Delivery has been confirmed and cannot be moved back to pending.
+                                            </div>
+                                        ) : (
                                             <button
                                                 type="button"
                                                 onClick={() => void handleConfirmDelivery()}
                                                 disabled={isSavingDelivery}
-                                                className="rmm-btn rmm-btn-accent justify-center disabled:opacity-50"
+                                                className="app-btn app-btn--primary app-btn--full"
                                             >
                                                 <CheckCircle2 size={13} />
-                                                <span className="font-mono text-[10px]">Confirm Delivery</span>
+                                                Confirm Delivery
                                             </button>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center h-full gap-2 text-txt-disabled">
-                                <Package size={20} className="opacity-30" />
-                                <span className="font-mono text-[10px] uppercase tracking-widest text-center">
-                                    Select a ration to view resources
-                                </span>
-                            </div>
-                        )}
+                            ) : (
+                                <div className="app-empty-state">
+                                    <Package size={20} style={{ opacity: 0.3 }} />
+                                    <span className="app-eyebrow" style={{ textAlign: "center" }}>
+                                        Select a ration to view resources
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </CollapsibleSidePanel>
                 </div>

@@ -21,6 +21,7 @@ const ROUTE_TREE = {
     CAMP_ADMIN: {
         USERS:            "/app/users",
         DASHBOARD:        "/app/dashboard",
+        TASK_MANAGEMENT:  "/app/admin/tasks",
     },
     WORKER: {
         PROFILE:          "/app/worker/profile",
@@ -84,11 +85,12 @@ export const ROUTES = flattenTree(ROUTE_TREE) as {
     CATALOG_PROFESSIONS:   "/app/catalog/professions";
     CATALOG_ACHIEVEMENTS:  "/app/catalog/achievements";
     RESOURCE_DASHBOARD:    "/app/resource/dashboard";
-    RESOURCE_INVENTORY:    "/app/resource/inventory";
-    RESOURCE_STOCK_ALERTS: "/app/resource/stock-alerts";
-    RESOURCE_PRODUCTION:   "/app/resource/production";
-    RESOURCE_RATIONS:      "/app/resource/rations";
-    RESOURCE_INTER_CAMP:   "/app/resource/inter-camp";
+    RESOURCE_INVENTORY:        "/app/resource/inventory";
+    RESOURCE_STOCK_ALERTS:     "/app/resource/stock-alerts";
+    RESOURCE_PRODUCTION:       "/app/resource/production";
+    RESOURCE_RATIONS:          "/app/resource/rations";
+    RESOURCE_INTER_CAMP:       "/app/resource/inter-camp";
+    CAMP_ADMIN_TASK_MANAGEMENT: "/app/admin/tasks";
 };
 
 // Tipo auxiliar para navegación type-safe: solo acepta rutas válidas del árbol.

@@ -45,12 +45,12 @@ export function CollapsibleSidePanel({
         <>
             <button
                 type="button"
-                className={`rmm-form-backdrop${isOpen ? " is-visible" : ""}`}
+                className={`app-side-panel-backdrop${isOpen ? " is-visible" : ""}`}
                 aria-label={`Close ${label}`}
                 onClick={onClose}
             />
             <aside
-                className={`rmm-form-panel ${isOpen ? "is-open" : "is-collapsed"} ${widthClassName}`}
+                className={`app-side-panel ${isOpen ? "is-open" : "is-collapsed"} ${widthClassName}`}
                 aria-label={label}
             >
                 {isOpen ? (
@@ -58,13 +58,13 @@ export function CollapsibleSidePanel({
                 ) : (
                     <button
                         type="button"
-                        className="rmm-form-rail"
+                        className="app-side-panel-rail"
                         title={`Expand ${label}`}
                         aria-label={`Expand ${label}`}
                         onClick={onOpen}
                     >
-                        <ChevronLeft className="rmm-form-rail-icon rmm-form-rail-icon--desktop" size={16} aria-hidden="true" />
-                        <PanelRightOpen className="rmm-form-rail-icon rmm-form-rail-icon--mobile" size={16} aria-hidden="true" />
+                        <ChevronLeft className="app-side-panel-rail-icon app-side-panel-rail-icon--desktop" size={16} aria-hidden="true" />
+                        <PanelRightOpen className="app-side-panel-rail-icon app-side-panel-rail-icon--mobile" size={16} aria-hidden="true" />
                         <span>{collapsedLabel}</span>
                     </button>
                 )}
@@ -83,17 +83,17 @@ export function CollapsiblePanelHeader({
     onClose: () => void;
 }) {
     return (
-        <header className="rmm-form-panel-header">
+        <header className="app-side-panel-header">
             <div className="min-w-0">
-                <div className="rmm-form-panel-title">{title}</div>
+                <div className="app-side-panel-title">{title}</div>
                 {subtitle ? (
-                    <p className="rmm-form-panel-subtitle">{subtitle}</p>
+                    <p className="app-side-panel-subtitle">{subtitle}</p>
                 ) : null}
             </div>
             <button
                 type="button"
                 onClick={onClose}
-                className="rmm-form-panel-close"
+                className="app-side-panel-close"
                 title="Collapse form"
                 aria-label="Collapse form"
             >

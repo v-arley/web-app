@@ -1,0 +1,451 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE db_project1.camps (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  admin_id integer,
+  code character varying NOT NULL UNIQUE,
+  description text,
+  capacity integer NOT NULL CHECK (capacity > 0),
+  location_x double precision CHECK (location_x IS NULL OR location_x >= '-180'::integer::double precision AND location_x <= 180::double precision),
+  location_y double precision CHECK (location_y IS NULL OR location_y >= '-90'::integer::double precision AND location_y <= 90::double precision),
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT camps_pkey PRIMARY KEY (id),
+  CONSTRAINT camps_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.persons (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  camp_id integer,
+  dni character varying NOT NULL UNIQUE,
+  name character varying NOT NULL,
+  surname character varying NOT NULL,
+  date_of_birth date NOT NULL CHECK (date_of_birth <= CURRENT_DATE),
+  sex character varying NOT NULL CHECK (sex::text = ANY (ARRAY['M'::character varying, 'F'::character varying, 'O'::character varying]::text[])),
+  photo text,
+  id_card_url text,
+  description text,
+  conditions character varying,
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT persons_pkey PRIMARY KEY (id),
+  CONSTRAINT persons_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.users (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  person_id integer NOT NULL UNIQUE,
+  username character varying NOT NULL UNIQUE,
+  password_hash character varying NOT NULL,
+  profession character varying CHECK (profession IS NULL OR profession::text = upper(profession::text)),
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT users_pkey PRIMARY KEY (id),
+  CONSTRAINT users_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id)
+);
+CREATE TABLE db_project1.roles (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  name character varying NOT NULL UNIQUE,
+  description text,
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT roles_pkey PRIMARY KEY (id)
+);
+CREATE TABLE db_project1.permissions (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  code character varying NOT NULL UNIQUE,
+  name character varying NOT NULL UNIQUE,
+  description text,
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT permissions_pkey PRIMARY KEY (id)
+);
+CREATE TABLE db_project1.resources (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  code character varying NOT NULL UNIQUE,
+  name character varying NOT NULL UNIQUE,
+  description text,
+  unit_of_measure character varying,
+  consumable character varying NOT NULL CHECK (consumable::text = ANY (ARRAY['Y'::character varying, 'N'::character varying]::text[])),
+  category character varying,
+  status character varying CHECK (status IS NULL OR (status::text = ANY (ARRAY['C'::character varying, 'M'::character varying, 'O'::character varying]::text[]))),
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT resources_pkey PRIMARY KEY (id)
+);
+CREATE TABLE db_project1.tasks (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  camp_id integer NOT NULL,
+  name character varying NOT NULL,
+  description text,
+  type character varying,
+  priority character varying CHECK (priority IS NULL OR (priority::text = ANY (ARRAY['L'::character varying, 'M'::character varying, 'H'::character varying]::text[]))),
+  difficulty character varying CHECK (difficulty IS NULL OR (difficulty::text = ANY (ARRAY['L'::character varying, 'M'::character varying, 'H'::character varying]::text[]))),
+  estimated_minutes integer CHECK (estimated_minutes IS NULL OR estimated_minutes > 0),
+  updated_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT tasks_pkey PRIMARY KEY (id),
+  CONSTRAINT tasks_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.explorations (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  camp_id integer NOT NULL,
+  code character varying NOT NULL UNIQUE,
+  name character varying NOT NULL,
+  departure_date timestamp with time zone NOT NULL,
+  estimated_return_date timestamp with time zone,
+  duration_days integer CHECK (duration_days IS NULL OR duration_days >= 0),
+  state character varying CHECK (state IS NULL OR (state::text = ANY (ARRAY['P'::character varying, 'A'::character varying, 'F'::character varying, 'C'::character varying]::text[]))),
+  objective text,
+  notes text,
+  risk_level character varying CHECK (risk_level IS NULL OR (risk_level::text = ANY (ARRAY['L'::character varying, 'M'::character varying, 'H'::character varying]::text[]))),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT explorations_pkey PRIMARY KEY (id),
+  CONSTRAINT explorations_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.warehouses (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  camp_id integer NOT NULL,
+  admin_id integer,
+  name character varying NOT NULL,
+  location_details text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT warehouses_pkey PRIMARY KEY (id),
+  CONSTRAINT warehouses_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES db_project1.users(id),
+  CONSTRAINT warehouses_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.rations (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  person_id integer NOT NULL,
+  camp_id integer NOT NULL,
+  completed character varying NOT NULL DEFAULT 'N'::character varying CHECK (completed::text = ANY (ARRAY['Y'::character varying, 'N'::character varying]::text[])),
+  ration_date date NOT NULL DEFAULT CURRENT_DATE,
+  notes text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT rations_pkey PRIMARY KEY (id),
+  CONSTRAINT rations_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id),
+  CONSTRAINT rations_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.camp_rules (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  camp_id integer NOT NULL,
+  name character varying NOT NULL,
+  description text,
+  condition text NOT NULL,
+  status character varying NOT NULL DEFAULT 'A'::character varying CHECK (status::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT camp_rules_pkey PRIMARY KEY (id),
+  CONSTRAINT camp_rules_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.professions (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  code character varying NOT NULL UNIQUE,
+  name character varying NOT NULL,
+  description text,
+  default_resource_id integer,
+  default_production_amount integer CHECK (default_production_amount IS NULL OR default_production_amount > 0),
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT professions_pkey PRIMARY KEY (id),
+  CONSTRAINT professions_default_resource_id_fkey FOREIGN KEY (default_resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.person_professions (
+  person_id integer NOT NULL,
+  profession_id integer NOT NULL,
+  assigned_at timestamp with time zone NOT NULL DEFAULT now(),
+  is_temporary character varying NOT NULL DEFAULT 'N'::character varying CHECK (is_temporary::text = ANY (ARRAY['Y'::character varying, 'N'::character varying]::text[])),
+  temporary_until date,
+  assigned_by integer,
+  CONSTRAINT person_professions_pkey PRIMARY KEY (person_id, profession_id),
+  CONSTRAINT person_professions_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id),
+  CONSTRAINT person_professions_profession_id_fkey FOREIGN KEY (profession_id) REFERENCES db_project1.professions(id),
+  CONSTRAINT person_professions_assigned_by_fkey FOREIGN KEY (assigned_by) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.camp_production_rules (
+  camp_id integer NOT NULL,
+  profession_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  expected_amount integer NOT NULL CHECK (expected_amount > 0),
+  effective_date date NOT NULL,
+  end_date date,
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT camp_production_rules_pkey PRIMARY KEY (camp_id, profession_id, resource_id, effective_date),
+  CONSTRAINT camp_production_rules_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id),
+  CONSTRAINT camp_production_rules_profession_id_fkey FOREIGN KEY (profession_id) REFERENCES db_project1.professions(id),
+  CONSTRAINT camp_production_rules_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.exploration_rations (
+  exploration_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  planned_amount integer NOT NULL CHECK (planned_amount > 0),
+  consumed_amount integer NOT NULL DEFAULT 0 CHECK (consumed_amount >= 0),
+  notes text,
+  CONSTRAINT exploration_rations_pkey PRIMARY KEY (exploration_id, resource_id),
+  CONSTRAINT exploration_rations_exploration_id_fkey FOREIGN KEY (exploration_id) REFERENCES db_project1.explorations(id),
+  CONSTRAINT exploration_rations_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.achievements (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  code character varying NOT NULL UNIQUE,
+  name character varying NOT NULL,
+  description text,
+  icon_url text,
+  condition_logic jsonb,
+  points integer NOT NULL DEFAULT 0 CHECK (points >= 0),
+  category character varying,
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT achievements_pkey PRIMARY KEY (id)
+);
+CREATE TABLE db_project1.user_achievements (
+  user_id integer NOT NULL,
+  achievement_id integer NOT NULL,
+  unlocked_at timestamp with time zone NOT NULL DEFAULT now(),
+  unlocked_by integer,
+  CONSTRAINT user_achievements_pkey PRIMARY KEY (user_id, achievement_id),
+  CONSTRAINT user_achievements_user_id_fkey FOREIGN KEY (user_id) REFERENCES db_project1.users(id),
+  CONSTRAINT user_achievements_achievement_id_fkey FOREIGN KEY (achievement_id) REFERENCES db_project1.achievements(id),
+  CONSTRAINT user_achievements_unlocked_by_fkey FOREIGN KEY (unlocked_by) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.user_points (
+  user_id integer NOT NULL,
+  total_points integer NOT NULL DEFAULT 0 CHECK (total_points >= 0),
+  level integer NOT NULL DEFAULT 1 CHECK (level > 0),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT user_points_pkey PRIMARY KEY (user_id),
+  CONSTRAINT user_points_user_id_fkey FOREIGN KEY (user_id) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.user_roles (
+  user_id integer NOT NULL,
+  role_id integer NOT NULL,
+  status character varying NOT NULL DEFAULT 'A'::character varying CHECK (status::text = ANY (ARRAY['A'::character varying, 'I'::character varying]::text[])),
+  assignment_date timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT user_roles_pkey PRIMARY KEY (user_id, role_id),
+  CONSTRAINT user_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES db_project1.users(id),
+  CONSTRAINT user_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES db_project1.roles(id)
+);
+CREATE TABLE db_project1.role_permissions (
+  role_id integer NOT NULL,
+  permission_id integer NOT NULL,
+  CONSTRAINT role_permissions_pkey PRIMARY KEY (role_id, permission_id),
+  CONSTRAINT role_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES db_project1.roles(id),
+  CONSTRAINT role_permissions_permission_id_fkey FOREIGN KEY (permission_id) REFERENCES db_project1.permissions(id)
+);
+CREATE TABLE db_project1.task_persons (
+  task_id integer NOT NULL,
+  person_id integer NOT NULL,
+  state character varying NOT NULL DEFAULT 'A'::character varying CHECK (state::text = ANY (ARRAY['A'::character varying, 'I'::character varying, 'C'::character varying]::text[])),
+  completed_at timestamp with time zone,
+  assigned_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT task_persons_pkey PRIMARY KEY (task_id, person_id),
+  CONSTRAINT task_persons_task_id_fkey FOREIGN KEY (task_id) REFERENCES db_project1.tasks(id),
+  CONSTRAINT task_persons_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id)
+);
+CREATE TABLE db_project1.person_explorations (
+  exploration_id integer NOT NULL,
+  person_id integer NOT NULL,
+  role_name character varying,
+  assigned_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT person_explorations_pkey PRIMARY KEY (exploration_id, person_id),
+  CONSTRAINT person_explorations_exploration_id_fkey FOREIGN KEY (exploration_id) REFERENCES db_project1.explorations(id),
+  CONSTRAINT person_explorations_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id)
+);
+CREATE TABLE db_project1.task_resources (
+  task_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  amount integer NOT NULL CHECK (amount > 0),
+  CONSTRAINT task_resources_pkey PRIMARY KEY (task_id, resource_id),
+  CONSTRAINT task_resources_task_id_fkey FOREIGN KEY (task_id) REFERENCES db_project1.tasks(id),
+  CONSTRAINT task_resources_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.ration_resources (
+  ration_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  amount integer NOT NULL CHECK (amount > 0),
+  CONSTRAINT ration_resources_pkey PRIMARY KEY (ration_id, resource_id),
+  CONSTRAINT ration_resources_ration_id_fkey FOREIGN KEY (ration_id) REFERENCES db_project1.rations(id),
+  CONSTRAINT ration_resources_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.resource_warehouses (
+  warehouse_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  amount integer NOT NULL CHECK (amount >= 0),
+  min_quantity integer NOT NULL CHECK (min_quantity >= 0),
+  date_last_movement timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT resource_warehouses_pkey PRIMARY KEY (warehouse_id, resource_id),
+  CONSTRAINT resource_warehouses_warehouse_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.warehouses(id),
+  CONSTRAINT resource_warehouses_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.resource_explorations (
+  exploration_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  amount_collected integer NOT NULL CHECK (amount_collected >= 0),
+  amount_consumed integer NOT NULL CHECK (amount_consumed >= 0),
+  observations text,
+  CONSTRAINT resource_explorations_pkey PRIMARY KEY (exploration_id, resource_id),
+  CONSTRAINT resource_explorations_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id),
+  CONSTRAINT resource_explorations_exploration_id_fkey FOREIGN KEY (exploration_id) REFERENCES db_project1.explorations(id)
+);
+CREATE TABLE db_project1.admission_requests (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  person_id integer NOT NULL,
+  camp_id integer NOT NULL,
+  request_status character varying NOT NULL DEFAULT 'P'::character varying CHECK (request_status::text = ANY (ARRAY['P'::character varying, 'A'::character varying, 'R'::character varying]::text[])),
+  observations text,
+  requested_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT admission_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT admission_requests_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id),
+  CONSTRAINT admission_requests_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);
+CREATE TABLE db_project1.ai_decisions (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  admission_request_id integer NOT NULL UNIQUE,
+  decision_status character varying NOT NULL CHECK (decision_status::text = ANY (ARRAY['A'::character varying, 'R'::character varying]::text[])),
+  explanation text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT ai_decisions_pkey PRIMARY KEY (id),
+  CONSTRAINT ai_decisions_admission_request_id_fkey FOREIGN KEY (admission_request_id) REFERENCES db_project1.admission_requests(id)
+);
+CREATE TABLE db_project1.ai_prompts (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  admission_request_id integer NOT NULL,
+  prompt text NOT NULL,
+  response text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT ai_prompts_pkey PRIMARY KEY (id),
+  CONSTRAINT ai_prompts_admission_request_id_fkey FOREIGN KEY (admission_request_id) REFERENCES db_project1.admission_requests(id)
+);
+CREATE TABLE db_project1.resource_movements (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  resource_id integer NOT NULL,
+  warehouse_id integer NOT NULL,
+  movement_type character varying NOT NULL CHECK (movement_type::text = ANY (ARRAY['E'::character varying, 'S'::character varying, 'A'::character varying]::text[])),
+  adjustment_sign character varying CHECK (adjustment_sign IS NULL OR (adjustment_sign::text = ANY (ARRAY['+'::character varying, '-'::character varying]::text[]))),
+  amount integer NOT NULL CHECK (amount > 0),
+  reason text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT resource_movements_pkey PRIMARY KEY (id),
+  CONSTRAINT resource_movements_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id),
+  CONSTRAINT resource_movements_warehouse_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.warehouses(id),
+  CONSTRAINT resource_movements_warehouse_id_resource_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.resource_warehouses(warehouse_id),
+  CONSTRAINT resource_movements_warehouse_id_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resource_warehouses(resource_id)
+);
+CREATE TABLE db_project1.camp_requests (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  origin_camp_id integer NOT NULL,
+  destination_camp_id integer NOT NULL,
+  request_type character varying NOT NULL CHECK (request_type::text = ANY (ARRAY['R'::character varying, 'P'::character varying]::text[])),
+  status character varying NOT NULL DEFAULT 'P'::character varying CHECK (status::text = ANY (ARRAY['P'::character varying, 'A'::character varying, 'R'::character varying]::text[])),
+  origin_approval_status character varying CHECK (origin_approval_status IS NULL OR (origin_approval_status::text = ANY (ARRAY['P'::character varying, 'A'::character varying, 'R'::character varying]::text[]))),
+  destination_approval_status character varying CHECK (destination_approval_status IS NULL OR (destination_approval_status::text = ANY (ARRAY['P'::character varying, 'A'::character varying, 'R'::character varying]::text[]))),
+  approved_by_origin_user_id integer,
+  approved_by_destination_user_id integer,
+  approved_at timestamp with time zone,
+  description text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  resolved_at timestamp with time zone,
+  CONSTRAINT camp_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT camp_requests_origin_camp_id_fkey FOREIGN KEY (origin_camp_id) REFERENCES db_project1.camps(id),
+  CONSTRAINT camp_requests_destination_camp_id_fkey FOREIGN KEY (destination_camp_id) REFERENCES db_project1.camps(id),
+  CONSTRAINT camp_requests_approved_by_origin_user_id_fkey FOREIGN KEY (approved_by_origin_user_id) REFERENCES db_project1.users(id),
+  CONSTRAINT camp_requests_approved_by_destination_user_id_fkey FOREIGN KEY (approved_by_destination_user_id) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.request_resources (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  request_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  amount integer NOT NULL CHECK (amount > 0),
+  CONSTRAINT request_resources_pkey PRIMARY KEY (id),
+  CONSTRAINT request_resources_request_id_fkey FOREIGN KEY (request_id) REFERENCES db_project1.camp_requests(id),
+  CONSTRAINT request_resources_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id)
+);
+CREATE TABLE db_project1.request_persons (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  request_id integer NOT NULL,
+  person_id integer NOT NULL,
+  CONSTRAINT request_persons_pkey PRIMARY KEY (id),
+  CONSTRAINT request_persons_request_id_fkey FOREIGN KEY (request_id) REFERENCES db_project1.camp_requests(id),
+  CONSTRAINT request_persons_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id)
+);
+CREATE TABLE db_project1.shipments (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  request_id integer NOT NULL,
+  departure_date timestamp with time zone NOT NULL,
+  arrival_date timestamp with time zone,
+  status character varying NOT NULL CHECK (status::text = ANY (ARRAY['P'::character varying, 'I'::character varying, 'D'::character varying, 'C'::character varying]::text[])),
+  observations text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT shipments_pkey PRIMARY KEY (id),
+  CONSTRAINT shipments_request_id_fkey FOREIGN KEY (request_id) REFERENCES db_project1.camp_requests(id)
+);
+CREATE TABLE db_project1.resource_alerts (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  resource_id integer NOT NULL,
+  warehouse_id integer NOT NULL,
+  current_amount integer NOT NULL CHECK (current_amount >= 0),
+  min_quantity integer NOT NULL CHECK (min_quantity >= 0),
+  alert_date timestamp with time zone NOT NULL DEFAULT now(),
+  resolved character varying NOT NULL DEFAULT 'N'::character varying CHECK (resolved::text = ANY (ARRAY['Y'::character varying, 'N'::character varying]::text[])),
+  resolved_at timestamp with time zone,
+  CONSTRAINT resource_alerts_pkey PRIMARY KEY (id),
+  CONSTRAINT resource_alerts_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id),
+  CONSTRAINT resource_alerts_warehouse_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.warehouses(id),
+  CONSTRAINT resource_alerts_warehouse_id_resource_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.resource_warehouses(warehouse_id),
+  CONSTRAINT resource_alerts_warehouse_id_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resource_warehouses(resource_id)
+);
+CREATE TABLE db_project1.resource_production (
+  id integer GENERATED ALWAYS AS IDENTITY NOT NULL,
+  person_id integer NOT NULL,
+  warehouse_id integer NOT NULL,
+  resource_id integer NOT NULL,
+  amount integer NOT NULL CHECK (amount > 0),
+  production_date date NOT NULL CHECK (production_date <= CURRENT_DATE),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT resource_production_pkey PRIMARY KEY (id),
+  CONSTRAINT resource_production_person_id_fkey FOREIGN KEY (person_id) REFERENCES db_project1.persons(id),
+  CONSTRAINT resource_production_warehouse_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.warehouses(id),
+  CONSTRAINT resource_production_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resources(id),
+  CONSTRAINT resource_production_warehouse_id_resource_id_fkey FOREIGN KEY (warehouse_id) REFERENCES db_project1.resource_warehouses(warehouse_id),
+  CONSTRAINT resource_production_warehouse_id_resource_id_fkey FOREIGN KEY (resource_id) REFERENCES db_project1.resource_warehouses(resource_id)
+);
+CREATE TABLE db_project1.audit_logs (
+  id bigint NOT NULL DEFAULT nextval('db_project1.audit_logs_id_seq'::regclass),
+  table_name character varying NOT NULL,
+  record_id integer,
+  action character varying NOT NULL CHECK (action::text = ANY (ARRAY['INSERT'::character varying, 'UPDATE'::character varying, 'DELETE'::character varying]::text[])),
+  performed_by integer,
+  old_values jsonb,
+  new_values jsonb,
+  ip_address inet,
+  user_agent text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT audit_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT audit_logs_performed_by_fkey FOREIGN KEY (performed_by) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.user_sessions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id integer NOT NULL,
+  token character varying NOT NULL UNIQUE,
+  ip_address inet,
+  started_at timestamp with time zone NOT NULL DEFAULT now(),
+  last_activity_at timestamp with time zone NOT NULL DEFAULT now(),
+  expired_at timestamp with time zone,
+  is_active character varying NOT NULL DEFAULT 'Y'::character varying CHECK (is_active::text = ANY (ARRAY['Y'::character varying, 'N'::character varying]::text[])),
+  CONSTRAINT user_sessions_pkey PRIMARY KEY (id),
+  CONSTRAINT user_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES db_project1.users(id)
+);
+CREATE TABLE db_project1.notifications (
+  id integer NOT NULL DEFAULT nextval('db_project1.notifications_id_seq'::regclass),
+  user_id integer NOT NULL,
+  type character varying NOT NULL,
+  title character varying NOT NULL,
+  body text,
+  payload jsonb,
+  priority character varying DEFAULT 'NORMAL'::character varying CHECK (priority::text = ANY (ARRAY['LOW'::character varying, 'NORMAL'::character varying, 'HIGH'::character varying, 'CRITICAL'::character varying]::text[])),
+  read_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  camp_id integer,
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES db_project1.users(id),
+  CONSTRAINT notifications_camp_id_fkey FOREIGN KEY (camp_id) REFERENCES db_project1.camps(id)
+);

@@ -1,5 +1,6 @@
 import { CheckCircle, Search, UserCheck, Users, X, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useCampRequestByIdQuery } from "../hooks/useCampRequestsQuery";
 import { useRequestPersonsQuery } from "../hooks/useRequestPersonsQuery";
 import { PersonSelector } from "./PersonSelector";
@@ -59,7 +60,7 @@ export function PersonRequestDetailModal({
     if (!isLoading) onClose();
   }
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-stretch justify-center bg-black/70 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={(event) => { if (event.target === event.currentTarget) handleClose(); }}
@@ -198,7 +199,8 @@ export function PersonRequestDetailModal({
           </div>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

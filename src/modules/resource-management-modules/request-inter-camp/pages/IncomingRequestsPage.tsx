@@ -8,9 +8,7 @@ import { IncomingRequestsTable } from "../components/IncomingRequestsTable";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 import type { Camp } from "../../../../models/Camp";
-import { FilterBar } from "../../shared/components/FilterBar";
 import PaginationFooter from "../../shared/components/PaginationFooter";
-import PageHeader from "../../shared/components/PageHeader";
 
 const campService = new CampService();
 
@@ -75,57 +73,51 @@ export function IncomingRequestsPage() {
 
   return (
     <article className="flex h-full flex-col overflow-hidden bg-transparent">
-      {/* <div className="relative flex-1 flex flex-col overflow-hidden bg-bg-tertiary/90 backdrop-blur-lg border border-border-strong shadow-2xl"> */}
-      <PageHeader
-        icon={null}
-        title="RECEIVED FROM"
-        subtitle={undefined}
-        rightContent={<span className="font-mono text-[12px] uppercase tracking-widest">TOTAL: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span>}
-      />
+      <section className="app-split app-split--glass" style={{ flexDirection: "column" }}>
+        <header className="app-panel-header">
+          <div>
+            <div className="app-panel-title">Received From</div>
+          </div>
 
-      <FilterBar wrapperClassName="px-3 py-2 sm:px-4">
-        <div className="grid w-full grid-cols-1 gap-2 border border-border-default bg-bg-secondary/80 p-3 sm:grid-cols-[auto_minmax(9rem,13rem)] sm:items-center sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-2">
-          <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'A' | 'R' | ''); setPage(1); }}
-            className="rmm-input min-h-9 text-[11px]!"
-          >
-            <option value="">All</option>
-            <option value="P">Pending</option>
-            <option value="A">Approved</option>
-            <option value="R">Rejected</option>
-          </select>
+          <div className="app-panel-actions">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'A' | 'R' | ''); setPage(1); }}
+              className="app-input-default"
+              aria-label="Filter by status"
+            >
+              <option value="">STATUS: ALL</option>
+              <option value="P">STATUS: PENDING</option>
+              <option value="A">STATUS: APPROVED</option>
+              <option value="R">STATUS: REJECTED</option>
+            </select>
+          </div>
+        </header>
+
+        <div className="app-table-region app-table-frame">
+          {isLoading ? (
+            <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+              <div className="app-spinner app-spinner--lg" />
+              <span className="app-eyebrow" style={{ letterSpacing: "0.35em" }}>Loading Requests...</span>
+            </div>
+          ) : (
+            <IncomingRequestsTable
+              requests={pagedRequests}
+              campMap={campMap}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              actionLoading={approveAsDestination.isPending || rejectAsDestination.isPending}
+            />
+          )}
         </div>
 
-      </FilterBar>
-
-      <section className="flex-1 overflow-auto rmm-content-pad">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
-            <p className="font-mono text-[12px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING REQUESTS...</p>
-          </div>
-        ) : (
-          <IncomingRequestsTable
-            requests={pagedRequests}
-            campMap={campMap}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            actionLoading={approveAsDestination.isPending || rejectAsDestination.isPending}
-          />
-        )}
-      </section>
-
-      <PaginationFooter
-        page={page}
-        setPage={setPage}
-        totalPages={totalPages}
-        leftContent={<div className="flex items-center gap-4 font-mono text-[11px] text-txt-muted uppercase tracking-widest">
-          <span>Total: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span></div>}
+        <PaginationFooter
+          page={page}
+          setPage={setPage}
+          totalPages={totalPages}
           totalRecords={totalRecords}
-      />
-      {/* </div> */}
+        />
+      </section>
     </article>
   );
 }

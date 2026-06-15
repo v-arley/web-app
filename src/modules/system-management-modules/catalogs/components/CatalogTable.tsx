@@ -27,23 +27,24 @@ export function CatalogTable<TRecord extends { id?: number | null }>({
 }: CatalogTableProps<TRecord>) {
     if (isLoading) {
         return (
-            <div className="flex flex-1 items-center justify-center gap-2 p-6 text-txt-disabled font-mono text-xs uppercase tracking-wide">
-                <Loader2 className="animate-spin" size={18} />
+            <div className="app-loading-state app-animate-fade">
+                <Loader2 className="animate-spin" size={18} style={{ marginRight: "0.5rem" }} />
+                Loading...
             </div>
         );
     }
 
     if (records.length === 0) {
         return (
-            <div className="flex flex-1 items-center justify-center p-6 text-txt-disabled font-mono text-xs uppercase tracking-wide">
-                {emptyMessage}
+            <div className="app-empty-state app-animate-fade">
+                <span>{emptyMessage}</span>
             </div>
         );
     }
 
     return (
-        <div className="flex-1 min-h-0 overflow-auto">
-            <table className="rmm-table">
+        <div className="flex-1 min-h-0 overflow-auto app-table-frame">
+            <table className="app-table">
                 <thead>
                     <tr>
                         {columns.map((column) => (
@@ -53,7 +54,7 @@ export function CatalogTable<TRecord extends { id?: number | null }>({
                         ))}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="app-stagger-rows">
                     {records.map((record) => {
                         const id = record.id ?? null;
                         const selected = id != null && id === selectedId;
@@ -69,14 +70,10 @@ export function CatalogTable<TRecord extends { id?: number | null }>({
                                         onSelect(id);
                                     }
                                 }}
-                                className={`cursor-pointer select-none transition-colors ${
-                                    selected
-                                        ? "bg-accent/10 border-l-2 border-l-accent"
-                                        : "hover:bg-bg-secondary/50 border-l-2 border-l-transparent"
-                                }`}
+                                className={`app-table-row ${selected ? "app-table-row--selected" : ""}`}
                             >
                                 {columns.map((column) => (
-                                    <td key={column.key} className="font-mono text-txt-primary">
+                                    <td key={column.key}>
                                         {column.render(record)}
                                     </td>
                                 ))}

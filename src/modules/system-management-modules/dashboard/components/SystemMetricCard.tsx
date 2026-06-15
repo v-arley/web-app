@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 type SystemMetricCardProps = {
     label: string;
@@ -8,42 +8,35 @@ type SystemMetricCardProps = {
     tone?: "default" | "success" | "warning" | "critical" | "info";
 };
 
-const TONE_CLASS: Record<NonNullable<SystemMetricCardProps["tone"]>, string> = {
-    default: "border-border-default bg-[#000000]/50",
-    success: "border-status-ok/30 bg-status-ok/5",
-    warning: "border-status-warning/30 bg-status-warning/5",
-    critical: "border-status-critical/30 bg-status-critical/5",
-    info: "border-status-info/30 bg-status-info/5",
+const TONE_STYLE: Record<NonNullable<SystemMetricCardProps["tone"]>, CSSProperties> = {
+    default:  {},
+    success:  { borderColor: "color-mix(in srgb, var(--color-status-ok) 35%, transparent)",       background: "color-mix(in srgb, var(--color-status-ok) 6%, transparent)" },
+    warning:  { borderColor: "color-mix(in srgb, var(--color-status-warning) 35%, transparent)",  background: "color-mix(in srgb, var(--color-status-warning) 6%, transparent)" },
+    critical: { borderColor: "color-mix(in srgb, var(--color-status-critical) 35%, transparent)", background: "color-mix(in srgb, var(--color-status-critical) 6%, transparent)" },
+    info:     { borderColor: "color-mix(in srgb, var(--color-status-info) 35%, transparent)",     background: "color-mix(in srgb, var(--color-status-info) 6%, transparent)" },
 };
 
-const ICON_CLASS: Record<NonNullable<SystemMetricCardProps["tone"]>, string> = {
-    default: "text-accent",
-    success: "text-status-ok",
-    warning: "text-status-warning",
-    critical: "text-status-critical",
-    info: "text-status-info",
+const ICON_COLOR: Record<NonNullable<SystemMetricCardProps["tone"]>, string> = {
+    default:  "var(--color-accent)",
+    success:  "var(--color-status-ok)",
+    warning:  "var(--color-status-warning)",
+    critical: "var(--color-status-critical)",
+    info:     "var(--color-status-info)",
 };
 
 export function SystemMetricCard({ label, value, subtitle, icon, tone = "default" }: SystemMetricCardProps) {
     return (
-        <div className={`relative border ${TONE_CLASS[tone]} rmm-kpi-card shadow-lg overflow-hidden backdrop-blur-sm`}>
-            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50" />
-            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50" />
+        <div className="app-kpi-card app-hud-frame" style={TONE_STYLE[tone]}>
+            <div className="app-bracket app-bracket--tl" />
+            <div className="app-bracket app-bracket--br" />
 
-            <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                    <div className="text-[10px] font-mono font-bold text-txt-disabled uppercase tracking-wide mb-2">
-                        {label}
-                    </div>
-                    <div className="text-xl font-mono font-bold text-txt-primary mb-1">
-                        {value}
-                    </div>
-                    <div className="text-[10px] font-mono text-txt-secondary tracking-wide opacity-80 uppercase">
-                        {subtitle}
-                    </div>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "0.75rem" }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                    <div className="app-kpi-label">{label}</div>
+                    <div className="app-kpi-value" style={{ marginBlock: "0.4rem 0.25rem" }}>{value}</div>
+                    <div className="app-kpi-sub">{subtitle}</div>
                 </div>
-
-                <div className={`${ICON_CLASS[tone]} opacity-80 shrink-0`}>
+                <div style={{ color: ICON_COLOR[tone], opacity: 0.85, flexShrink: 0 }}>
                     {icon}
                 </div>
             </div>

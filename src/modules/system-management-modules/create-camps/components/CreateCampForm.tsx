@@ -2,6 +2,8 @@ import { Save, Trash2, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "../../../../models/User";
 import SystemConfirmModal from "../../shared/components/SystemConfirmModal";
+import { MapLocationPicker } from "../../shared/components/MapLocationPicker";
+import { UserSearchPicker } from "../../shared/components/UserSearchPicker";
 import { EMPTY_CAMP_FORM, type CampFormValues, type CampRecord, type CampUpdateValues } from "../schemas/camp.schema";
 
 type PendingAction = "save" | "delete" | null;
@@ -16,7 +18,7 @@ type CreateCampFormProps = {
     onClear: () => void;
 };
 
-const REQUIRED_FIELDS: Array<keyof CampFormValues> = ["code", "description", "capacity", "location_x", "location_y"];
+const REQUIRED_FIELDS: Array<keyof CampFormValues> = ["code", "description", "capacity"];
 
 function hasRequiredFields(values: CampFormValues) {
     return REQUIRED_FIELDS.every((field) => String(values[field] ?? "").trim().length > 0);
@@ -51,17 +53,18 @@ export function CreateCampForm({ selectedRecord, adminOptions, isSaving, onSave,
     const isCreateMode = selectedId == null;
     const canSave = hasRequiredFields(values) && !isSaving;
     const adminLabel = adminOptions.find((user) => user.id === values.admin_id)?.username ?? "None";
+    const hasLocation = values.location_x !== 0 || values.location_y !== 0;
     const changeSummary = useMemo(
         () => [
             `Code: ${values.code || "Pending"}`,
             `Description: ${values.description || "Pending"}`,
             `Capacity: ${values.capacity}`,
-            `Coordinates: ${values.location_x}, ${values.location_y}`,
+            `Location: ${hasLocation ? `${values.location_y}, ${values.location_x}` : "Not set"}`,
             `Admin: ${adminLabel}`,
             `State: ${values.state}`,
             `Initial warehouse: ${isCreateMode ? values.warehouse_name || "None" : "Only available on create"}`,
         ],
-        [adminLabel, isCreateMode, values],
+        [adminLabel, hasLocation, isCreateMode, values],
     );
 
     const persist = async () => {
@@ -70,13 +73,13 @@ export function CreateCampForm({ selectedRecord, adminOptions, isSaving, onSave,
             return;
         }
 
+        const locationSet = values.location_x !== 0 || values.location_y !== 0;
         await onUpdate(selectedId, {
             code: values.code,
             description: values.description,
             capacity: Number(values.capacity),
-            location_x: Number(values.location_x),
-            location_y: Number(values.location_y),
-            active: values.active,
+            location_x: locationSet ? Number(values.location_x) : undefined,
+            location_y: locationSet ? Number(values.location_y) : undefined,
             state: values.state,
             admin_id: values.admin_id,
         });
@@ -92,48 +95,42 @@ export function CreateCampForm({ selectedRecord, adminOptions, isSaving, onSave,
         >
             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
                 <div>
-                    <h2 className="rmm-section-title font-abril">Camp Detail</h2>
-                    <p className="rmm-field-id mt-1 inline-flex">ID: {selectedId ?? "AUTO-GENERATED"}</p>
+                    <h2 className="app-section-title font-abril">Camp Detail</h2>
+                    {/* <p className="app-field-id mt-1 inline-flex">ID: {selectedId ?? "AUTO-GENERATED"}</p> */}
                 </div>
-                <div className="sa-section-line mt-3" />
+                {/* <div className="app-section-line mt-3" /> */}
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Code *</span>
-                        <input className="rmm-input w-full" value={values.code} onChange={(event) => setValues({ ...values, code: event.target.value })} />
+                        <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Code:</span></span>
+                        <input className="app-input w-full" value={values.code} onChange={(event) => setValues({ ...values, code: event.target.value })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Capacity *</span>
-                        <input className="rmm-input w-full" type="number" min={0} value={values.capacity} onChange={(event) => setValues({ ...values, capacity: Number(event.target.value) })} />
+                        <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Capacity:</span></span>
+                        <input className="app-input w-full" type="number" min={0} value={values.capacity} onChange={(event) => setValues({ ...values, capacity: Number(event.target.value) })} />
                     </label>
+                    <div className="flex flex-col gap-2 sm:col-span-2">
+                        <span className="app-label">Location (Lat, Lng):</span>
+                        <MapLocationPicker
+                            location_x={values.location_x}
+                            location_y={values.location_y}
+                            onChange={(coords) => setValues({ ...values, ...coords })}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <span className="app-label">Admin:</span>
+                        <UserSearchPicker
+                            selectedId={values.admin_id}
+                            users={adminOptions}
+                            onChange={(id) => setValues({ ...values, admin_id: id })}
+                            allowClear
+                        />
+                    </div>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Location X *</span>
-                        <input className="rmm-input w-full" type="number" step="any" value={values.location_x} onChange={(event) => setValues({ ...values, location_x: Number(event.target.value) })} />
-                    </label>
-                    <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Location Y *</span>
-                        <input className="rmm-input w-full" type="number" step="any" value={values.location_y} onChange={(event) => setValues({ ...values, location_y: Number(event.target.value) })} />
-                    </label>
-                    <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Admin</span>
-                        <select
-                            className="rmm-input w-full"
-                            value={values.admin_id ?? ""}
-                            onChange={(event) => setValues({ ...values, admin_id: event.target.value ? Number(event.target.value) : undefined })}
-                        >
-                            <option value="">No admin assigned</option>
-                            {adminOptions.map((user) => (
-                                <option key={user.id} value={user.id}>
-                                    {user.username ?? user.name ?? `User #${user.id}`}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className="flex flex-col gap-2">
-                        <span className="rmm-label">State</span>
-                        <select className="rmm-input w-full" value={values.state ?? "A"} onChange={(event) => setValues({ ...values, state: event.target.value })}>
+                        <span className="app-label">State:</span>
+                        <select className="app-input w-full" value={values.state ?? "A"} onChange={(event) => setValues({ ...values, state: event.target.value })}>
                             <option value="A">Active</option>
                             <option value="I">Inactive</option>
                         </select>
@@ -141,8 +138,8 @@ export function CreateCampForm({ selectedRecord, adminOptions, isSaving, onSave,
                 </div>
 
                 <label className="flex flex-col gap-2">
-                    <span className="rmm-label">Description *</span>
-                    <textarea className="rmm-input w-full min-h-20 resize-none" value={values.description} onChange={(event) => setValues({ ...values, description: event.target.value })} />
+                    <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Description:</span></span>
+                    <textarea className="app-input w-full min-h-20 resize-none" value={values.description} onChange={(event) => setValues({ ...values, description: event.target.value })} />
                 </label>
 
                 {isCreateMode ? (
@@ -153,13 +150,13 @@ export function CreateCampForm({ selectedRecord, adminOptions, isSaving, onSave,
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <label className="flex flex-col gap-2">
-                                <span className="rmm-label">Warehouse Name</span>
-                                <input className="rmm-input w-full" value={values.warehouse_name ?? ""} onChange={(event) => setValues({ ...values, warehouse_name: event.target.value })} />
+                                <span className="app-label">Warehouse Name:</span>
+                                <input className="app-input w-full" value={values.warehouse_name ?? ""} onChange={(event) => setValues({ ...values, warehouse_name: event.target.value })} />
                             </label>
                             <label className="flex flex-col gap-2">
-                                <span className="rmm-label">Warehouse Location</span>
+                                <span className="app-label">Warehouse Location:</span>
                                 <input
-                                    className="rmm-input w-full"
+                                    className="app-input w-full"
                                     value={values.warehouse_location_details ?? ""}
                                     onChange={(event) => setValues({ ...values, warehouse_location_details: event.target.value })}
                                 />
@@ -170,15 +167,15 @@ export function CreateCampForm({ selectedRecord, adminOptions, isSaving, onSave,
             </div>
 
             <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex flex-wrap gap-2">
-                <button type="button" className="rmm-btn rmm-btn-outline" onClick={onClear}>
+<button type="button" className="app-btn app-btn--outline" onClick={onClear}>
                     <XCircle size={14} />
                     Clear
                 </button>
-                <button type="button" className="rmm-btn rmm-btn-outline" disabled={selectedId == null || isSaving} onClick={() => setPendingAction("delete")}>
+<button type="button" className="app-btn app-btn--outline" disabled={selectedId == null || isSaving} onClick={() => setPendingAction("delete")}>
                     <Trash2 size={14} />
                     Delete
                 </button>
-                <button type="submit" className="rmm-btn rmm-btn-accent" disabled={!canSave}>
+<button type="submit" className="app-btn app-btn--primary" disabled={!canSave}>
                     <Save size={14} />
                     Save
                 </button>

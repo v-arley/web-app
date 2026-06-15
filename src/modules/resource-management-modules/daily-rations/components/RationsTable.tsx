@@ -10,8 +10,8 @@ type Props = {
 export function RationsTable({ rations, personMap, selectedRationId, onRationSelect }: Props) {
     if (rations.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                There are no rations to show
+            <div className="app-empty-state app-animate-fade h-full min-h-64">
+                <span>There are no rations to show</span>
             </div>
         );
     }
@@ -22,18 +22,18 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
 
     return (
         <>
-        <div className="hidden min-w-0 overflow-x-auto md:block">
-            <table className="rmm-table w-full">
-                <thead className="">
+        <div className="app-table-wrap hidden md:block">
+            <table className="app-table">
+                <thead>
                     <tr>
-                        <th className="">Id</th>
-                        <th className="">Person</th>
-                        <th className="">Date</th>
-                        <th className="">Status</th>
-                        <th className="">Notes</th>
+                        <th>Id</th>
+                        <th>Person</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="app-stagger-rows">
                     {rations.map((ration) => {
                         const personName = personMap.get(ration.person_id) || `ID ${ration.person_id}`;
                         const isDelivered = ration.completed === 'Y';
@@ -42,7 +42,7 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                         return (
                             <tr
                                 key={ration.id}
-                                className={`transition-colors border-l-2 cursor-pointer select-none ${
+                                className={`app-table-row select-none border-l-2 ${
                                     isSelected
                                         ? "bg-accent/10 border-l-accent"
                                         : isDelivered
@@ -51,29 +51,19 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                                 }`}
                                 onClick={() => ration.id && handleRowClick(ration.id)}
                             >
-                                <td>
-                                    <div className="flex items-center justify-center gap-2 uppercase">
-                                        {ration.id}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div className="flex items-center justify-center gap-2 uppercase">
-                                        {personName}
-                                    </div>
-                                </td>
-                                <td>
+                                <td className="app-table-cell--number">{ration.id}</td>
+                                <td className="app-table-cell--primary">{personName}</td>
+                                <td className="app-table-cell--time">
                                     {new Date(ration.ration_date + 'T00:00:00').toLocaleDateString('en-US')}
                                 </td>
                                 <td>
                                     {isDelivered ? (
-                                        <span className="table-system-badge table-system-badge--online">DELIVERED</span>
+                                        <span className="app-table-badge app-table-badge--ok">DELIVERED</span>
                                     ) : (
-                                        <span className="table-system-badge table-system-badge--pending">PENDING</span>
+                                        <span className="app-table-badge app-table-badge--warn">PENDING</span>
                                     )}
                                 </td>
-                                <td>
-                                    {ration.notes || '-'}
-                                </td>
+                                <td>{ration.notes || '-'}</td>
                             </tr>
                         );
                     })}
@@ -104,14 +94,14 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                                 <div className="font-mono text-[10px] text-txt-disabled uppercase tracking-widest">
                                     Ration #{ration.id}
                                 </div>
-                                <div className="mt-1 break-words font-mono text-xs font-bold uppercase text-txt-primary">
+                                <div className="mt-1 wrap-break-word font-mono text-xs font-bold uppercase text-txt-primary">
                                     {personName}
                                 </div>
                             </div>
                             {isDelivered ? (
-                                <span className="table-system-badge table-system-badge--online shrink-0">DELIVERED</span>
+                                <span className="app-table-badge app-table-badge--ok shrink-0">DELIVERED</span>
                             ) : (
-                                <span className="table-system-badge table-system-badge--pending shrink-0">PENDING</span>
+                                <span className="app-table-badge app-table-badge--warn shrink-0">PENDING</span>
                             )}
                         </div>
                         <div className="mt-3 grid gap-2 font-mono text-[11px] text-txt-secondary">
@@ -121,7 +111,7 @@ export function RationsTable({ rations, personMap, selectedRationId, onRationSel
                             </div>
                             <div className="border-t border-border-default pt-2">
                                 <span className="block text-txt-disabled uppercase">Notes</span>
-                                <span className="mt-1 block break-words text-txt-secondary">{ration.notes || '-'}</span>
+                                <span className="mt-1 block wrap-break-word text-txt-secondary">{ration.notes || '-'}</span>
                             </div>
                         </div>
                     </button>

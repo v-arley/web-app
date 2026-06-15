@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Play, Settings2, X } from "lucide-react";
+import { Play, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ProfessionService } from "../../../../services/ProfessionService";
 import { ResourceService } from "../../../../services/ResourceService";
@@ -37,7 +37,6 @@ export function ProductionRulesPage() {
     const { execute: executeProduction } = useExecuteDailyProduction();
     const { toast } = useToast();
 
-    // Almacenes del campamento
     const { data: warehousesData } = useQuery({
         queryKey: ["warehouses", campId],
         queryFn: async () => {
@@ -47,7 +46,6 @@ export function ProductionRulesPage() {
         enabled: campId > 0,
     });
 
-    // Obtener recursos globales
     const { data: resourcesData } = useQuery({
         queryKey: ["resources"],
         queryFn: async () => {
@@ -56,7 +54,6 @@ export function ProductionRulesPage() {
         },
     });
 
-    // Obtener profesiones desde el backend
     const { data: professionsData } = useQuery({
         queryKey: ["professions"],
         queryFn: async () => {
@@ -67,9 +64,7 @@ export function ProductionRulesPage() {
 
     const warehouseOptions = useMemo(() => {
         if (!warehousesData) return [];
-        return warehousesData
-            .filter((w) => w.camp_id === campId)
-            .map((w) => ({ id: w.id, label: w.name }));
+        return warehousesData.filter((w) => w.camp_id === campId).map((w) => ({ id: w.id, label: w.name }));
     }, [warehousesData, campId]);
 
     const professionOptions = useMemo(() => {
@@ -79,17 +74,11 @@ export function ProductionRulesPage() {
 
     const resourceOptions = useMemo(() => {
         if (!resourcesData) return [];
-        return resourcesData.map((r) => ({
-            id: r.id,
-            label: `${r.code} - ${r.name}`,
-        }));
+        return resourcesData.map((r) => ({ id: r.id, label: `${r.code} - ${r.name}` }));
     }, [resourcesData]);
 
-    const professionMap = useMemo(() => {
-        return new Map(professionOptions.map((p) => [p.id, p.label]));
-    }, [professionOptions]);
-
-    const resourceMap = useMemo(() => {
+    const professionMap = useMemo(() => new Map(professionOptions.map((p) => [p.id, p.label])), [professionOptions]);
+    const resourceMap   = useMemo(() => {
         if (!resourcesData) return new Map();
         return new Map(resourcesData.map((r) => [r.id, `${r.code} - ${r.name}`]));
     }, [resourcesData]);
@@ -105,11 +94,7 @@ export function ProductionRulesPage() {
             }
             setSelectedRule(undefined);
         } catch (error) {
-            toast({
-                tone: "error",
-                title: "Save failed",
-                message: error instanceof Error ? error.message : "Failed to save the production rule.",
-            });
+            toast({ tone: "error", title: "Save failed", message: error instanceof Error ? error.message : "Failed to save the production rule." });
         }
     };
 
@@ -120,54 +105,41 @@ export function ProductionRulesPage() {
 
     const handleDelete = async (rule: ProductionRuleFormValues) => {
         if (!confirm("Are you sure you want to delete this production rule?")) return;
-
         try {
             await ruleMutation.remove.mutateAsync(rule);
             toast({ tone: "success", title: "Rule deleted", message: "Production rule removed successfully." });
         } catch (error) {
-            toast({
-                tone: "error",
-                title: "Delete failed",
-                message: error instanceof Error ? error.message : "Failed to delete the production rule.",
-            });
+            toast({ tone: "error", title: "Delete failed", message: error instanceof Error ? error.message : "Failed to delete the production rule." });
         }
     };
 
     const handleExecute = async (data: Parameters<typeof executeProduction.mutateAsync>[0]) => {
-        const result = await executeProduction.mutateAsync(data);
-        return result;
-    };
-
-    const handleClear = () => {
-        setSelectedRule(undefined);
+        return executeProduction.mutateAsync(data);
     };
 
     return (
-        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad bg-transparent">
-            <div className="flex min-h-0 flex-1 overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
-
-                <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden">
-                    {/* Rules table panel */}
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                            <div className="flex items-center gap-2">
-                                <Settings2 className="h-4 w-4 text-accent" />
-                                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
-                                    Production Rules
-                                </div>
+        <>
+        <div className="app-split app-split--glass" style={{ flex: 1, minHeight: 0 }}>
+            <div className="app-split__inner">
+                    <div className="app-split__main">
+                        <header className="app-panel-header">
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <span className="app-panel-title">Production Rules</span>
                             </div>
                             <button
                                 onClick={() => setShowExecutePanel(true)}
-                                className="rmm-btn rmm-btn-accent text-[9px] px-3 py-1.5 flex items-center gap-1.5 w-full sm:w-auto"
+                                className="app-btn app-btn--primary app-btn--sm"
                             >
-                                <Play className="h-3 w-3" />
+                                <Play style={{ width: "0.75rem", height: "0.75rem" }} />
                                 EXECUTE DAILY PRODUCTION
                             </button>
                         </header>
-                        <div className="flex-1 overflow-auto p-4">
+
+                        <div className="app-table-region app-table-frame">
                             {isLoading ? (
-                                <div className="flex items-center justify-center h-64 text-txt-disabled font-mono text-xs">
-                                    Loading production rules...
+                                <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+                                    <div className="app-spinner app-spinner--lg" />
+                                    <span className="app-eyebrow" style={{ letterSpacing: "0.35em" }}>Loading Rules...</span>
                                 </div>
                             ) : (
                                 <ProductionRulesTable
@@ -179,21 +151,20 @@ export function ProductionRulesPage() {
                                 />
                             )}
                         </div>
+
                         <PaginationFooter
                             page={pagination.page}
                             setPage={setPage}
                             totalPages={pagination.totalPages}
                             totalRecords={pagination.total}
-                            className="px-4 py-1.5 border-border-default"
                             leftContent={
                                 <span>
-                                    Total: <span className="text-accent font-bold">{String(pagination.total).padStart(4, "0")}</span>
-                                    {/* <span className="opacity-30 mx-4">|</span>
-                                    Scope: <span className="text-status-ok font-bold">[RULES]</span> */}
+                                    Total: <span style={{ color: "var(--color-accent)", fontWeight: 700 }}>{String(pagination.total).padStart(4, "0")}</span>
                                 </span>
                             }
                         />
                     </div>
+
                     <CollapsibleSidePanel
                         isOpen={isFormOpen}
                         label="Production rule form"
@@ -213,32 +184,29 @@ export function ProductionRulesPage() {
                             initialData={selectedRule}
                             isSubmitting={ruleMutation.create.isPending || ruleMutation.update.isPending}
                             onSubmit={handleSubmit}
-                            onClear={handleClear}
+                            onClear={() => setSelectedRule(undefined)}
                             onDelete={handleDelete}
                         />
                     </CollapsibleSidePanel>
                 </div>
-            </div>
+        </div>
 
-            {/* Execute Daily Production Modal */}
-            {showExecutePanel && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-                    <div className="relative bg-bg-tertiary/90 backdrop-blur-lg border border-border-default w-full max-w-lg shadow-2xl">
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle bg-bg-secondary/50">
-                            <div className="flex items-center gap-2">
-                                <Play className="h-4 w-4 text-accent" />
-                                <span className="font-mono text-[10px] font-bold text-txt-primary uppercase tracking-widest">
-                                    Daily Production Execution
-                                </span>
+        {showExecutePanel && (
+                <div className="app-overlay">
+                    <div className="app-modal app-card--glass" style={{ display: "flex", flexDirection: "column" }}>
+                        <div className="app-panel-header">
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <Play style={{ width: "1rem", height: "1rem", color: "var(--color-accent)" }} />
+                                <span className="app-panel-title">Daily Production Execution</span>
                             </div>
                             <button
                                 onClick={() => setShowExecutePanel(false)}
-                                className="p-1.5 hover:bg-bg-secondary border border-transparent hover:border-border-default transition-all text-txt-muted hover:text-txt-primary"
+                                className="app-btn app-btn--ghost app-btn--icon app-btn--sm"
                             >
-                                <X className="h-4 w-4" />
+                                <X style={{ width: "1rem", height: "1rem" }} />
                             </button>
                         </div>
-                        <div className="p-5">
+                        <div className="app-panel-body">
                             <ProductionExecutionPanel
                                 campId={campId}
                                 warehouseOptions={warehouseOptions}
@@ -248,6 +216,6 @@ export function ProductionRulesPage() {
                     </div>
                 </div>
             )}
-        </article>
+        </>
     );
 }

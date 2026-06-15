@@ -83,37 +83,37 @@ export function AchievementCatalogForm({ selectedRecord, isSaving, onSave, onDel
         >
             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
                 <div>
-                    <h2 className="rmm-section-title font-abril">Achievement Detail</h2>
-                    <p className="rmm-field-id mt-1 inline-flex">ID: {selectedId ?? "AUTO-GENERATED"}</p>
+                    <h2 className="app-section-title font-abril">Achievement Detail</h2>
+                    {/* <p className="app-field-id mt-1 inline-flex">ID: {selectedId ?? "AUTO-GENERATED"}</p> */}
                 </div>
-                <div className="sa-section-line mt-3" />
+                {/* <div className="app-section-line mt-3" /> */}
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Code *</span>
-                        <input className="rmm-input w-full" value={values.code} onChange={(event) => setValues({ ...values, code: event.target.value })} />
+                        <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Code:</span></span>
+                        <input className="app-input w-full" value={values.code} onChange={(event) => setValues({ ...values, code: event.target.value })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Name *</span>
-                        <input className="rmm-input w-full" value={values.name} onChange={(event) => setValues({ ...values, name: event.target.value })} />
+                        <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Name:</span></span>
+                        <input className="app-input w-full" value={values.name} onChange={(event) => setValues({ ...values, name: event.target.value })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Category</span>
-                        <input className="rmm-input w-full" value={values.category ?? ""} onChange={(event) => setValues({ ...values, category: event.target.value })} />
+                        <span className="app-label">Category:</span>
+                        <input className="app-input w-full" value={values.category ?? ""} onChange={(event) => setValues({ ...values, category: event.target.value })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Points</span>
-                        <input className="rmm-input w-full" type="number" min={0} value={values.points ?? 0} onChange={(event) => setValues({ ...values, points: Number(event.target.value) })} />
+                        <span className="app-label">Points:</span>
+                        <input className="app-input w-full" type="number" min={0} value={values.points ?? 0} onChange={(event) => setValues({ ...values, points: Number(event.target.value) })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Icon URL</span>
-                        <input className="rmm-input w-full" value={values.iconUrl ?? ""} onChange={(event) => setValues({ ...values, iconUrl: event.target.value })} />
+                        <span className="app-label">Icon URL:</span>
+                        <input className="app-input w-full" value={values.iconUrl ?? ""} onChange={(event) => setValues({ ...values, iconUrl: event.target.value })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">State</span>
-                        <select className="rmm-input w-full" value={values.state ?? "A"} onChange={(event) => setValues({ ...values, state: event.target.value as "A" | "I" })}>
+                        <span className="app-label">State:</span>
+                        <select className="app-input w-full" value={values.state ?? "A"} onChange={(event) => setValues({ ...values, state: event.target.value as "A" | "I" })}>
                             <option value="A">Active</option>
                             <option value="I">Inactive</option>
                         </select>
@@ -121,27 +121,27 @@ export function AchievementCatalogForm({ selectedRecord, isSaving, onSave, onDel
                 </div>
 
                 <label className="flex flex-col gap-2">
-                    <span className="rmm-label">Description</span>
-                    <textarea className="rmm-input w-full min-h-20 resize-none" value={values.description ?? ""} onChange={(event) => setValues({ ...values, description: event.target.value })} />
+                    <span className="app-label">Description:</span>
+                    <textarea className="app-input w-full min-h-20 resize-none" value={values.description ?? ""} onChange={(event) => setValues({ ...values, description: event.target.value })} />
                 </label>
 
                 <label className="flex flex-col gap-2">
-                    <span className="rmm-label">Condition Logic JSON</span>
-                    <textarea className="rmm-input w-full min-h-40 resize-none font-mono text-[10px]" value={conditionText} onChange={(event) => updateCondition(event.target.value)} />
-                    {conditionError ? <span className="text-status-critical sa-muted">{conditionError}</span> : null}
+                    <span className="app-label">Condition Logic JSON:</span>
+                    <textarea className="app-input w-full min-h-40 resize-none font-mono text-[10px]" value={conditionText} onChange={(event) => updateCondition(event.target.value)} />
+                    {conditionError ? <span className="text-status-critical app-muted">{conditionError}</span> : null}
                 </label>
             </div>
 
             <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex flex-wrap gap-2">
-                <button type="button" className="rmm-btn rmm-btn-outline" onClick={onClear}>
+<button type="button" className="app-btn app-btn--outline" onClick={onClear}>
                     <XCircle size={14} />
                     Clear
                 </button>
-                <button type="button" className="rmm-btn rmm-btn-outline" disabled={selectedId == null || isSaving} onClick={() => setPendingAction("delete")}>
+<button type="button" className="app-btn app-btn--outline" disabled={selectedId == null || isSaving} onClick={() => setPendingAction("delete")}>
                     <Trash2 size={14} />
                     Delete
                 </button>
-                <button type="submit" className="rmm-btn rmm-btn-accent" disabled={!canSave}>
+<button type="submit" className="app-btn app-btn--primary" disabled={!canSave}>
                     <Save size={14} />
                     Save
                 </button>

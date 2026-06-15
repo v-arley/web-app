@@ -83,6 +83,22 @@ export class RationExecutionService extends AxiosBaseService {
         }
     }
 
+    async completePendingRations(campId: number, date: string): Promise<{ completed_now: number; still_pending: number }> {
+        try {
+            const { data } = await this.client.post<BackendResponse<{ item: unknown }> | unknown>(
+                "/rations/complete-pending",
+                { camp_id: campId, date },
+            );
+            const result = (this.extractItem<unknown>(data) ?? {}) as Partial<{ completed_now: number; still_pending: number }>;
+            return {
+                completed_now: result.completed_now ?? 0,
+                still_pending: result.still_pending ?? 0,
+            };
+        } catch (error) {
+            throw new Error(this.resolveError(error));
+        }
+    }
+
     private normalizeResult(input: unknown): RationExecutionResult {
         const source = (input ?? {}) as Record<string, unknown>;
         return rationExecutionResultSchema.parse({
@@ -90,9 +106,14 @@ export class RationExecutionService extends AxiosBaseService {
             total_rations: source.total_rations ?? 0,
             total_resources_assigned: source.total_resources_assigned ?? 0,
             total_errors: source.total_errors ?? 0,
+            delivered_rations: source.delivered_rations ?? 0,
+            pending_rations: source.pending_rations ?? 0,
+            stock_exhausted: source.stock_exhausted ?? false,
             insufficient_stock: source.insufficient_stock ?? [],
             errors: source.errors ?? [],
             rations_created: source.rations_created ?? undefined,
+            already_existing_rations: source.already_existing_rations ?? 0,
+            newly_created_rations: source.newly_created_rations ?? 0,
         });
     }
 

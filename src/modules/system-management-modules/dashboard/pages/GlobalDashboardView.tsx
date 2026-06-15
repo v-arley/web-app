@@ -1,13 +1,20 @@
 import { AlertTriangle, Boxes, BriefcaseBusiness, Map as MapIcon, RefreshCw, ShieldCheck, Users } from "lucide-react";
-import { useMemo } from "react";
-import SystemFeedback from "../../shared/components/SystemFeedback";
+import { useEffect, useMemo } from "react";
+import { useToast } from "../../../../shared/hooks/useToast";
 import SystemModuleShell from "../../shared/components/SystemModuleShell";
 import SystemMetricCard from "../components/SystemMetricCard";
 import { useSystemDashboard } from "../hooks/useSystemDashboard";
 
 export function GlobalDashboardView() {
     const dashboard = useSystemDashboard();
+    const { toast } = useToast();
     const data = dashboard.data;
+
+    useEffect(() => {
+        if (dashboard.isError) {
+            toast({ tone: "error", title: "Dashboard", message: dashboard.error.message });
+        }
+    }, [dashboard.error, dashboard.isError, toast]);
 
     const metrics = useMemo(() => {
         const camps = data?.camps ?? [];
@@ -45,135 +52,183 @@ export function GlobalDashboardView() {
             title="Global Dashboard"
             subtitle="System Management"
             rightContent={
-                <button type="button" className="rmm-btn rmm-btn-outline px-3 py-1.5 text-[10px]" onClick={() => void dashboard.refetch()} disabled={dashboard.isFetching}>
+                <button
+                    type="button"
+                    className="app-btn app-btn--outline app-btn--sm"
+                    onClick={() => void dashboard.refetch()}
+                    disabled={dashboard.isFetching}
+                >
                     <RefreshCw size={13} className={dashboard.isFetching ? "animate-spin" : ""} />
                     Sync
                 </button>
             }
         >
-            <div className="flex-1 min-h-0 overflow-y-auto rmm-content-pad space-y-3">
-                {dashboard.isError ? <SystemFeedback tone="error" message={dashboard.error.message} /> : null}
-
-                <section className="rmm-kpi-stack">
+            <div className="app-content-body app-content-body--gap" style={{ overflowY: "auto" }}>
+                <section className="app-kpi-stack app-stagger">
                     <SystemMetricCard
                         label="Active Camps"
                         value={metrics.activeCamps}
                         subtitle={`${metrics.inactiveCamps} inactive`}
-                        icon={<MapIcon size={22} />}
+                        icon={<MapIcon size={20} />}
                         tone={metrics.inactiveCamps > 0 ? "warning" : "success"}
                     />
                     <SystemMetricCard
                         label="Registered Users"
                         value={metrics.totalUsers}
                         subtitle={`${metrics.usersWithoutRoles} without roles`}
-                        icon={<Users size={22} />}
+                        icon={<Users size={20} />}
                         tone={metrics.usersWithoutRoles > 0 ? "warning" : "info"}
                     />
                     <SystemMetricCard
                         label="Resources"
                         value={metrics.resources}
                         subtitle={`${metrics.inactiveResources} inactive`}
-                        icon={<Boxes size={22} />}
+                        icon={<Boxes size={20} />}
                         tone={metrics.inactiveResources > 0 ? "warning" : "success"}
                     />
                     <SystemMetricCard
                         label="Professions"
                         value={metrics.professions}
-                        subtitle={`${metrics.professionsWithoutResource} without default resource`}
-                        icon={<BriefcaseBusiness size={22} />}
+                        subtitle={`${metrics.professionsWithoutResource} without resource`}
+                        icon={<BriefcaseBusiness size={20} />}
                         tone={metrics.professionsWithoutResource > 0 ? "warning" : "success"}
                     />
                 </section>
 
-                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)] gap-3">
-                    <section className="flex flex-col bg-transparent border border-border-default overflow-hidden shadow-sm">
-                        <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                            <h2 className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide flex items-center gap-2">
-                                <ShieldCheck size={15} className="text-accent" />
-                                Camp Integrity
-                            </h2>
-                            <span className="font-mono text-[9px] text-txt-muted uppercase tracking-tighter">Latest records</span>
+                <div className="app-responsive-columns app-responsive-columns--two">
+                    <section className="app-panel">
+                        <header className="app-panel-header">
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <ShieldCheck size={14} style={{ color: "var(--color-accent)", flexShrink: 0 }} />
+                                <span className="app-panel-title">Camp Integrity</span>
+                            </div>
+                            <span className="app-panel-subtitle">Latest records</span>
                         </header>
                         <div className="flex-1 min-h-0 overflow-auto">
-                            <table className="rmm-table">
-                                <thead>
-                                    <tr>
-                                        <th>Code</th>
-                                        <th>Description</th>
-                                        <th>Capacity</th>
-                                        <th>Coordinates</th>
-                                        <th>State</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {dashboard.isLoading ? (
-                                        <tr><td colSpan={5}>Loading system data...</td></tr>
-                                    ) : recentCamps.length === 0 ? (
-                                        <tr><td colSpan={5}>No camp data available.</td></tr>
-                                    ) : (
-                                        recentCamps.map((camp) => (
-                                            <tr key={camp.id ?? camp.code}>
-                                                <td className="font-mono font-bold uppercase text-txt-primary">{camp.code}
-                                                    
-                                                </td>
-                                                <td className="font-mono text-txt-primary">{camp.description}
-                                                    
-                                                </td>
-                                                <td className="font-mono text-txt-primary">{camp.capacity}
-                                                    
-                                                </td>
-                                                <td className="font-mono text-txt-primary">{camp.location_x}, {camp.location_y}
-                                                    
-                                                </td>
-                                                <td className="font-mono text-txt-primary">{camp.state ?? (camp.active ? "A" : "I")}
-                                                    
+                            {/* Mobile card view */}
+                            <div className="sm:hidden">
+                                {dashboard.isLoading ? (
+                                    <div className="app-loading-state p-8" style={{ justifyContent: "center" }}>Loading system data...</div>
+                                ) : recentCamps.length === 0 ? (
+                                    <div className="app-empty-state p-8" style={{ height: "auto" }}>No camp data available.</div>
+                                ) : (
+                                    <div className="divide-y divide-border-default">
+                                        {recentCamps.map((camp) => (
+                                            <div key={camp.id ?? camp.code} className="flex flex-col gap-1.5 p-4">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="app-table-cell--primary font-mono text-[11px] font-bold">{camp.code}</span>
+                                                    <span className={`app-table-badge ${camp.state === "I" ? "app-table-badge--error" : "app-table-badge--ok"}`}>
+                                                        {camp.state ?? (camp.active ? "A" : "I")}
+                                                    </span>
+                                                </div>
+                                                <p className="font-mono text-[11px] text-txt-secondary">{camp.description}</p>
+                                                <span className="font-mono text-[10px] text-txt-muted">Capacity: {camp.capacity}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Desktop table view */}
+                            <div className="hidden sm:block app-table-frame">
+                                <table className="app-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Description</th>
+                                            <th>Capacity</th>
+                                            <th>Coordinates</th>
+                                            <th>State</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="app-stagger-rows">
+                                        {dashboard.isLoading ? (
+                                            <tr>
+                                                <td colSpan={5} style={{ padding: "2rem", textAlign: "center" }}>
+                                                    <div className="app-loading-state" style={{ justifyContent: "center" }}>Loading system data...</div>
                                                 </td>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+                                        ) : recentCamps.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={5} style={{ padding: "2rem", textAlign: "center" }}>
+                                                    <div className="app-empty-state" style={{ height: "auto" }}>No camp data available.</div>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            recentCamps.map((camp) => (
+                                                <tr key={camp.id ?? camp.code}>
+                                                    <td className="app-table-cell--primary">{camp.code}</td>
+                                                    <td>{camp.description}</td>
+                                                    <td className="app-table-cell--number">{camp.capacity}</td>
+                                                    <td className="app-table-cell--code">{camp.location_x}, {camp.location_y}</td>
+                                                    <td>
+                                                        <span className={`app-table-badge ${camp.state === "I" ? "app-table-badge--error" : "app-table-badge--ok"}`}>
+                                                            {camp.state ?? (camp.active ? "A" : "I")}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
 
-                    <aside className="flex min-w-0 flex-col gap-3">
-                        <section className="flex flex-col bg-transparent border border-border-default overflow-hidden shadow-sm">
-                            <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                                <div className="flex items-center gap-2">
-                                    <AlertTriangle size={15} className="text-status-warning" />
-                                    <h2 className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
-                                    Integrity Signals
-                                    </h2>
+                    <aside style={{ display: "flex", flexDirection: "column", gap: "0.75rem", minWidth: 0 }}>
+                        <section className="app-panel">
+                            <header className="app-panel-header">
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                    <AlertTriangle size={14} style={{ color: "var(--color-status-warning)", flexShrink: 0 }} />
+                                    <span className="app-panel-title">Integrity Signals</span>
                                 </div>
                             </header>
-                            <div className="flex flex-col">
-                                <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3 font-mono text-[11px] uppercase tracking-wide text-txt-secondary last:border-b-0">
-                                    <span>Users without roles</span>
-                                    <strong className="text-accent font-bold">{metrics.usersWithoutRoles}</strong>
-                                </div>
-                                <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3 font-mono text-[11px] uppercase tracking-wide text-txt-secondary last:border-b-0">
-                                    <span>Inactive resources</span>
-                                    <strong className="text-accent font-bold">{metrics.inactiveResources}</strong>
-                                </div>
-                                <div className="flex items-center justify-between gap-3 border-b border-border-subtle px-4 py-3 font-mono text-[11px] uppercase tracking-wide text-txt-secondary last:border-b-0">
-                                    <span>Professions without resource</span>
-                                    <strong className="text-accent font-bold">{metrics.professionsWithoutResource}</strong>
-                                </div>
+                            <div>
+                                {[
+                                    { label: "Users without roles", value: metrics.usersWithoutRoles },
+                                    { label: "Inactive resources",  value: metrics.inactiveResources },
+                                    { label: "Professions without resource", value: metrics.professionsWithoutResource },
+                                ].map(({ label, value }) => (
+                                    <div
+                                        key={label}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            gap: "0.75rem",
+                                            padding: "0.75rem 1rem",
+                                            borderBottom: "1px solid var(--color-border-subtle)",
+                                        }}
+                                    >
+                                        <span className="app-muted">{label}</span>
+                                        <strong style={{ color: "var(--color-accent)", fontWeight: 700 }}>{value}</strong>
+                                    </div>
+                                ))}
                             </div>
                         </section>
 
-                        <section className="flex flex-col bg-transparent border border-border-default overflow-hidden shadow-sm">
-                            <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                                <h2 className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">Resource Categories</h2>
+                        <section className="app-panel">
+                            <header className="app-panel-header">
+                                <span className="app-panel-title">Resource Categories</span>
                             </header>
-                            <div className="flex flex-col p-3 gap-2">
+                            <div className="app-panel-body" style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                                 {resourceCategories.length === 0 ? (
-                                    <div className="flex flex-1 items-center justify-center p-6 text-txt-disabled font-mono text-xs uppercase tracking-wide">No resource categories.</div>
+                                    <div className="app-empty-state">No resource categories.</div>
                                 ) : (
                                     resourceCategories.map(([category, count]) => (
-                                        <div key={category} className="flex items-center justify-between gap-3 border border-border-subtle bg-bg-secondary/20 px-3 py-2">
-                                            <span className="min-w-0 truncate font-mono text-[11px] uppercase tracking-wide text-txt-secondary">{category}</span>
-                                            <span className="sa-badge sa-badge--accent">{count}</span>
+                                        <div
+                                            key={category}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "space-between",
+                                                gap: "0.75rem",
+                                                padding: "0.5rem 0.75rem",
+                                                border: "1px solid var(--color-border-subtle)",
+                                                background: "color-mix(in srgb, var(--color-bg-secondary) 20%, transparent)",
+                                            }}
+                                        >
+                                            <span className="app-code">{category}</span>
+                                            <span className="app-badge app-badge--accent">{count}</span>
                                         </div>
                                     ))
                                 )}

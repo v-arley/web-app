@@ -1,3 +1,4 @@
+import { Boxes, BriefcaseBusiness, Trophy } from "lucide-react";
 import { useState } from "react";
 import SystemModuleShell, { type SystemTab } from "../../shared/components/SystemModuleShell";
 import { AchievementsPage } from "./achievements-page";
@@ -7,9 +8,9 @@ import { ResourcesPage } from "./resources-page";
 type CatalogTab = "resources" | "professions" | "achievements";
 
 const TABS: Array<SystemTab<CatalogTab>> = [
-    { key: "resources", label: "Resources", description: "Global supply catalog", icon: null },
-    { key: "professions", label: "Professions", description: "Production roles", icon: null },
-    { key: "achievements", label: "Achievements", description: "Points and badges", icon: null },
+    { key: "resources",    label: "Resources",    description: "Global supply catalog", icon: <Boxes size={16} /> },
+    { key: "professions",  label: "Professions",  description: "Production roles",      icon: <BriefcaseBusiness size={16} /> },
+    { key: "achievements", label: "Achievements", description: "Points and badges",     icon: <Trophy size={16} /> },
 ];
 
 export function CatalogsMainPage() {

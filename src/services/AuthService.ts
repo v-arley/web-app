@@ -57,6 +57,20 @@ export class AuthService {
         // El backend invalida la sesión y limpia las cookies httpOnly.
     }
 
+    async refreshSession(): Promise<void> {
+        const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+        const response = await fetch(`${baseUrl.replace(/\/+$/, "")}/auth/refresh`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: "{}",
+        });
+
+        if (!response.ok) {
+            throw new Error("No se pudo renovar la sesión");
+        }
+    }
+
     async register(usernameOrPayload: string | RegisterUserPayload, password?: string): Promise<void> {
         const request = new Request("/auth/register");
         const payload =

@@ -28,6 +28,9 @@ export const rationExecutionResultSchema = z.object({
   total_rations: z.number(),
   total_resources_assigned: z.number(),
   total_errors: z.number(),
+  delivered_rations: z.number().optional(),
+  pending_rations: z.number().optional(),
+  stock_exhausted: z.boolean().optional(),
   insufficient_stock: z.array(z.object({
     resource_id: z.number(),
     resource_name: z.string(),
@@ -36,6 +39,8 @@ export const rationExecutionResultSchema = z.object({
   })),
   errors: z.array(z.string()),
   rations_created: z.array(z.number()).optional(),
+  already_existing_rations: z.number().optional(),
+  newly_created_rations: z.number().optional(),
 });
 
 export type RationExecutionResult = z.infer<typeof rationExecutionResultSchema>;

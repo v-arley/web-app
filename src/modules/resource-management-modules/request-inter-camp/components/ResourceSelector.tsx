@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { ResourceService } from "../../../../services/ResourceService";
+import { ResourceSearchPicker } from "../../shared/components/ResourceSearchPicker";
 
 const resourceService = new ResourceService();
 
@@ -9,6 +10,12 @@ interface ResourceItem {
   resource_id: number;
   amount: number;
   name?: string;
+}
+
+interface AvailableResource {
+  id: number;
+  name: string;
+  unit_of_measure?: string;
 }
 
 interface ResourceSelectorProps {
@@ -24,9 +31,17 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
     queryKey: ["resources-list"],
     queryFn: async () => {
       const res = await resourceService.findAll();
-      return res.getResultado<any[]>("registros") ?? [];
+      return res.getResultado<AvailableResource[]>("registros") ?? [];
     }
   });
+  const resourceOptions = useMemo(() => {
+    return availableResources.map((resource) => ({
+      id: resource.id,
+      label: `${resource.name} (${resource.unit_of_measure})`,
+      name: resource.name,
+      unit: resource.unit_of_measure,
+    }));
+  }, [availableResources]);
 
   const handleAdd = () => {
     if (resourceId > 0 && amount > 0) {
@@ -55,25 +70,18 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2 items-end">
         <div className="min-w-[min(100%,12rem)] flex-1">
-          <label htmlFor="resource-id" className="rmm-label mb-1.5">
+          <label htmlFor="resource-id" className="app-label mb-1.5">
             RESOURCE
           </label>
-          <select
-            id="resource-id"
-            value={resourceId}
-            onChange={(e) => setResourceId(Number(e.target.value))}
-            className="rmm-input w-full"
-          >
-            <option value={0}>SELECT_RESOURCE...</option>
-            {availableResources.map((r: any) => (
-              <option key={r.id} value={r.id}>
-                {r.name} ({r.unit_of_measure})
-              </option>
-            ))}
-          </select>
+          <ResourceSearchPicker
+            selectedId={resourceId}
+            onChange={setResourceId}
+            options={resourceOptions}
+            placeholder="SELECT_RESOURCE..."
+          />
         </div>
         <div className="min-w-[5rem] flex-1 sm:flex-none">
-          <label htmlFor="amount" className="rmm-label mb-1.5">
+          <label htmlFor="amount" className="app-label mb-1.5">
             QTY
           </label>
           <input
@@ -82,14 +90,14 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
             min="1"
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
-            className="rmm-input w-full"
+            className="app-input w-full"
           />
         </div>
         <button
           type="button"
           onClick={handleAdd}
           disabled={resourceId === 0}
-          className="rmm-btn border border-accent/30 bg-accent/5 text-accent hover:bg-accent/15 min-h-8 px-3 disabled:opacity-30 w-full sm:w-auto"
+          className="app-btn app-btn--primary app-btn--sm"
         >
           <Plus className="h-3.5 w-3.5" />
           ADD
@@ -122,10 +130,10 @@ export function ResourceSelector({ resources, onChange }: ResourceSelectorProps)
                   <button
                     type="button"
                     onClick={() => handleRemove(index)}
-                    className="p-1.5 hover:bg-status-critical/10 border border-status-critical/30 transition-all"
+                    className="app-btn app-btn--icon app-btn--sm app-btn--danger"
                     title="Quitar recurso"
                   >
-                    <Trash2 className="h-3 w-3 text-status-critical" />
+                    <Trash2 className="h-3 w-3" />
                   </button>
                 </div>
               </div>

@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { PackagePlus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ResourceService } from "../../../../services/ResourceService";
 import { WarehouseService } from "../../../../services/WarehouseService";
@@ -109,37 +108,35 @@ export function MovementsPage() {
     };
 
     return (
-        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad bg-transparent gap-4">
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
-                {/* <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
-                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" /> */}
-                <div className="flex min-h-0 flex-1 flex-col lg:flex-row overflow-hidden">
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
+            <section className="app-split app-split--glass">
+                <div className="app-split__inner">
                     {/* Stock table — click a row to pre-fill the form */}
-                    <div className="flex-1 flex flex-col overflow-hidden border-r border-border-default">
-                        <header className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
-                            <PackagePlus className="h-4 w-4 text-accent shrink-0" />
-                            <div className="rmm-panel-title flex-1 min-w-0">
-                                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">
-                                    Current Stock
+                    <div className="app-split__main">
+                        <header className="app-panel-header">
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <div>
+                                    <div className="app-panel-title">Current Stock</div>
+                                    <div className="app-panel-subtitle">Select a row to pre-fill the movement form</div>
                                 </div>
-                                <p className="font-mono text-[11px] text-txt-muted uppercase tracking-widest mt-0.5">
-                                    Select a row to pre-fill the movement form
-                                </p>
                             </div>
-                            <div className="relative min-w-0 w-full sm:w-40">
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                                    placeholder="Search resource..."
-                                    className="rmm-input pl-6 py-1 text-[11px]"
-                                />
+                            <div className="app-panel-actions">
+                                <div style={{ position: "relative", minWidth: 0, width: "12rem" }}>
+                                    <input
+                                        type="search"
+                                        value={search}
+                                        onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                                        placeholder="Search resource..."
+                                        className="app-input-default"
+                                    />
+                                </div>
                             </div>
                         </header>
-                        <div className="flex-1 overflow-auto">
+                        <div className="app-table-region app-table-frame">
                             {stockQuery.isLoading ? (
-                                <div className="flex items-center justify-center h-full text-txt-disabled font-mono text-xs">
-                                    Loading stock...
+                                <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+                                    <div className="app-spinner app-spinner--lg" />
+                                    <span className="app-eyebrow" style={{ letterSpacing: "0.35em" }}>Loading Stock...</span>
                                 </div>
                             ) : (
                                 <StockTable
@@ -181,7 +178,7 @@ export function MovementsPage() {
                         />
                     </CollapsibleSidePanel>
                 </div>
-            </div>
-        </article>
+            </section>
+        </div>
     );
 }

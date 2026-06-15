@@ -5,8 +5,6 @@ import Header from "../components/Header";
 import { NavigationProvider } from "../app/NavigationContext";
 import { InactivityGuard } from "../app/InactivityGuard";
 
-import '../../system-aspect.css';
-
 //  Fallback de carga :::
 function SectionLoader() {
     return (

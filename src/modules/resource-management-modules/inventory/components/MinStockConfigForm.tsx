@@ -14,12 +14,11 @@ type Props = {
 };
 
 const fieldClass =
-    "rmm-input w-full";
+    "app-input w-full";
 
 function Field({
     label,
     required,
-    error,
     id,
     children,
 }: {
@@ -31,13 +30,12 @@ function Field({
 }) {
     return (
         <div className="flex flex-col gap-2">
-            <label className="rmm-label">
+            <label className="app-label">
                 <span className="flex items-center gap-1.5">
                     {required && <span className="text-accent">*</span>}
                     {label}
                 </span>
-                {id && <span className="rmm-field-id">#{id}</span>}
-                {error && <span className="text-accent lowercase font-normal italic">!! {error}</span>}
+                {id && <span className="app-field-id">#{id}</span>}
             </label>
             {children}
         </div>
@@ -87,11 +85,11 @@ export function MinStockConfigForm({
             className="flex flex-1 min-h-0 flex-col relative"
         >
             <header className="px-4 py-3 sm:px-6 sm:py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
-                <span className="rmm-section-title font-abril">Safety Stock</span>
+                <span className="app-section-title font-abril">Safety Stock</span>
             </header>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
-                <Field label="Warehouse Node" required id="" error={errors.warehouse_id?.message}>
+                <Field label="Warehouse:" required id="" error={errors.warehouse_id?.message}>
                     <input type="hidden" {...form.register("warehouse_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -101,7 +99,7 @@ export function MinStockConfigForm({
                     />
                 </Field>
 
-                <Field label="Base Resource" required id="" error={errors.resource_id?.message}>
+                <Field label="Resource Name:" required id="" error={errors.resource_id?.message}>
                     <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -133,7 +131,7 @@ export function MinStockConfigForm({
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="rmm-btn min-w-0 border border-border-default bg-bg-tertiary text-txt-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="app-btn app-btn--secondary"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="font-mono">CLEAR</span>
@@ -142,7 +140,7 @@ export function MinStockConfigForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="rmm-btn rmm-btn-accent min-w-0 justify-center transition-all disabled:opacity-50"
+                    className="app-btn app-btn--primary app-btn--full"
                 >
                     <Save className="h-3.5 w-3.5" />
                     <span className="font-mono">{isSubmitting ? "..." : "SAVE"}</span>

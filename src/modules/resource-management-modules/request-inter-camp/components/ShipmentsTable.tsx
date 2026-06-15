@@ -6,11 +6,11 @@ interface ShipmentsTableProps {
   isLoading?: boolean;
 }
 
-const STATUS_META: Record<string, { label: string; style: string }> = {
-  P: { label: "PENDING", style: "text-status-warning" },
-  I: { label: "IN TRANSIT", style: "text-accent" },
-  D: { label: "DELIVERED", style: "text-status-ok" },
-  C: { label: "CANCELLED", style: "text-status-critical" },
+const STATUS_META: Record<string, { label: string; badgeClass: string }> = {
+  P: { label: "PENDING",    badgeClass: "app-table-badge--warn" },
+  I: { label: "IN TRANSIT", badgeClass: "app-table-badge--warn" },
+  D: { label: "DELIVERED",  badgeClass: "app-table-badge--ok" },
+  C: { label: "CANCELLED",  badgeClass: "app-table-badge--error" },
 };
 
 function getShipmentCampLabel(
@@ -30,94 +30,76 @@ export function ShipmentsTable({
 }: ShipmentsTableProps) {
   if (shipments.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary">
-          NO SHIPMENTS HAVE BEEN REGISTERED YET
-        </p>
+      <div className="app-empty-state app-animate-fade h-full min-h-64">
+        <span>No shipments have been registered yet</span>
       </div>
     );
   }
 
   return (
-    <table className="rmm-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Request</th>
-          <th>Sender</th>
-          <th>Receiver</th>
-          <th>Status</th>
-          <th>Departure</th>
-          <th>Arrival</th>
-        </tr>
-      </thead>
+    <div className="app-table-wrap">
+      <table className="app-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Request</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Status</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        {shipments.map((shipment) => {
-          const meta = STATUS_META[shipment.status] ?? STATUS_META.P;
+        <tbody className="app-stagger-rows">
+          {shipments.map((shipment) => {
+            const meta = STATUS_META[shipment.status] ?? STATUS_META.P;
 
-          return (
-            <tr
-              key={shipment.id}
-              className="cursor-pointer select-none border-l-2 border-l-status-critical bg-status-critical/5 transition-colors hover:bg-status-critical/10"
-              onDoubleClick={() => onViewDetail(shipment)}
-              title="Double-click to view detail"
-            >
-              <td>
-                <span className="font-mono text-[12px] font-bold text-txt-primary">
+            return (
+              <tr
+                key={shipment.id}
+                className="app-table-row select-none border-l-2 border-l-status-critical bg-status-critical/5 hover:bg-status-critical/10"
+                onDoubleClick={() => onViewDetail(shipment)}
+                title="Double-click to view detail"
+              >
+                <td className="app-table-cell--primary">
                   {String(shipment.id ?? "")}
-                </span>
-              </td>
+                </td>
 
-              <td>
-                <span className="font-mono text-[12px] text-txt-secondary">
+                <td className="app-table-cell--time">
                   REQ-{shipment.request_id}
-                </span>
-              </td>
+                </td>
 
-              <td>
-                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                <td className="app-table-cell--primary">
                   {getShipmentCampLabel(shipment, "sender")}
-                </span>
-              </td>
+                </td>
 
-              <td>
-                <span className="font-mono text-[12px] font-bold text-txt-primary">
+                <td className="app-table-cell--primary">
                   {getShipmentCampLabel(shipment, "receiver")}
-                </span>
-              </td>
+                </td>
 
-              <td>
-                <span
-                  className={`px-2 py-1 font-mono text-[12px] font-bold uppercase tracking-widest ${meta.style}`}
-                >
-                  {meta.label}
-                </span>
-              </td>
+                <td>
+                  <span className={`app-table-badge ${meta.badgeClass}`}>
+                    {meta.label}
+                  </span>
+                </td>
 
-              <td>
-                <span className="font-mono text-[12px] text-txt-secondary">
+                <td className="app-table-cell--time">
                   {shipment.departure_date
-                    ? new Date(shipment.departure_date).toLocaleDateString(
-                        "es-ES",
-                      )
+                    ? new Date(shipment.departure_date).toLocaleDateString("es-ES")
                     : "—"}
-                </span>
-              </td>
+                </td>
 
-              <td>
-                <span className="font-mono text-[12px] text-txt-secondary">
+                <td className="app-table-cell--time">
                   {shipment.arrival_date
-                    ? new Date(shipment.arrival_date).toLocaleDateString(
-                        "es-ES",
-                      )
+                    ? new Date(shipment.arrival_date).toLocaleDateString("es-ES")
                     : "—"}
-                </span>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

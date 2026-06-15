@@ -5,9 +5,7 @@ import { ShipmentsTable } from "../components/ShipmentsTable";
 import { ShipmentDetailModal } from "../components/ShipmentDetailModal";
 import { useToast } from "../../../../shared/hooks/useToast";
 import type { ShipmentFormValues } from "../schemas/shipment.schema";
-import { FilterBar } from "../../shared/components/FilterBar";
 import PaginationFooter from "../../shared/components/PaginationFooter";
-import PageHeader from "../../shared/components/PageHeader";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 
 export function ShipmentsPage() {
@@ -73,58 +71,56 @@ export function ShipmentsPage() {
 
   return (
     <article className="flex h-full flex-col overflow-hidden bg-transparent">
-      <PageHeader
-        icon={null}
-        title="SHIPMENTS"
-        subtitle={undefined}
-        rightContent={<div className="flex items-center gap-4 font-mono text-[12px] text-txt-muted uppercase tracking-widest"><span>Total: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span></div>}
-      />
-      <FilterBar wrapperClassName="px-3 py-2 sm:px-4">
-        <div className="grid w-full grid-cols-1 gap-2 border border-border-default bg-bg-secondary/80 p-3 sm:grid-cols-[auto_minmax(9rem,13rem)] sm:items-center sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-2">
-          <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'I' | 'D' | 'C' | ''); setPage(1); }}
-            className="rmm-input min-h-9 text-[11px]!"
-          >
-            <option value="">All</option>
-            <option value="P">Pending</option>
-            <option value="I">In Transit</option>
-            <option value="D">Delivered</option>
-            <option value="C">Cancelled</option>
-          </select>
-        </div>
-      </FilterBar>
-      <section className="flex-1 overflow-auto rmm-content-pad">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
-            <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING SHIPMENTS...</p>
+      <section className="app-split app-split--glass" style={{ flexDirection: "column" }}>
+        <header className="app-panel-header">
+          <div>
+            <div className="app-panel-title">Shipments</div>
           </div>
-        ) : (
-         <ShipmentsTable
-          shipments={pagedShipments}
-          onViewDetail={(shipment) => {
-            setSelectedShipment(shipment);
-          }}
-          isLoading={
-            startTransit.isPending ||
-            confirmDelivery.isPending ||
-            cancelShipment.isPending
-          }
+
+          <div className="app-panel-actions">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'I' | 'D' | 'C' | ''); setPage(1); }}
+              className="app-input-default"
+              aria-label="Filter by shipment status"
+            >
+              <option value="">STATUS: ALL</option>
+              <option value="P">STATUS: PENDING</option>
+              <option value="I">STATUS: IN_TRANSIT</option>
+              <option value="D">STATUS: DELIVERED</option>
+              <option value="C">STATUS: CANCELLED</option>
+            </select>
+          </div>
+        </header>
+
+        <div className="app-table-region app-table-frame">
+          {isLoading ? (
+            <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+              <div className="app-spinner app-spinner--lg" />
+              <span className="app-eyebrow" style={{ letterSpacing: "0.35em" }}>Loading Shipments...</span>
+            </div>
+          ) : (
+            <ShipmentsTable
+              shipments={pagedShipments}
+              onViewDetail={(shipment) => {
+                setSelectedShipment(shipment);
+              }}
+              isLoading={
+                startTransit.isPending ||
+                confirmDelivery.isPending ||
+                cancelShipment.isPending
+              }
+            />
+          )}
+        </div>
+
+        <PaginationFooter
+          page={page}
+          setPage={setPage}
+          totalPages={totalPages}
+          totalRecords={totalRecords}
         />
-        )}
       </section>
-      <PaginationFooter
-        page={page}
-        setPage={setPage}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        leftContent={<div className="flex items-center gap-4 font-mono text-[11px] text-txt-muted uppercase tracking-widest">
-          <span>Total: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span></div>}
-        compact
-        className="px-4"
-      />
 
       {selectedShipment && (
         <ShipmentDetailModal

@@ -13,9 +13,6 @@ type Props = {
 const GRID_COLS =
   "grid-cols-[50px_90px_minmax(220px,1.6fr)_90px_140px_100px_100px_90px]";
 
-const actionButtonClass =
-  "inline-flex items-center justify-center rounded-md border border-[#FF6600] p-2 text-[#FF6600] transition-colors hover:bg-[#FF6600] hover:text-black";
-
 function getCoordinates(camp: Camp) {
   return camp.location_x !== undefined && camp.location_y !== undefined
     ? `${camp.location_x}, ${camp.location_y}`
@@ -28,8 +25,8 @@ function getStateLabel(active?: boolean) {
 
 function getStateBadgeClass(active?: boolean) {
   return active
-    ? "bg-green-500/15 text-green-600"
-    : "bg-red-500/15 text-red-500";
+    ? "tbl-badge tbl-badge--online"
+    : "tbl-badge tbl-badge--offline";
 }
 
 export default function CampsTable({
@@ -55,7 +52,7 @@ export default function CampsTable({
           <button
             type="button"
             onClick={onReload}
-            className="mt-6 rounded-lg border border-black bg-black px-4 py-2 text-sm uppercase tracking-[0.2em] text-white transition-colors hover:border-[#FF6600] hover:bg-[#FF6600] hover:text-black"
+            className="btn btn--secondary mt-6"
           >
             Reintentar
           </button>
@@ -85,10 +82,10 @@ export default function CampsTable({
                 <div
                   key={camp.id}
                   onClick={() => onSelectCamp(camp)}
-                  className={`mt-4 cursor-pointer rounded-xl border px-4 py-5 transition-all duration-250 ease-out ${
+                  className={`mt-4 cursor-pointer border px-4 py-5 transition-all duration-250 ease-out ${
                     selectedCamp?.id === camp.id
-                      ? "border-[#FF6600] bg-[#1f1f1f] text-white shadow-[0_8px_18px_rgba(0,0,0,0.25)]"
-                      : "border-[#c7c7c7] bg-[#f7f7f7] text-[#222] hover:-translate-y-[1px] hover:border-[#FF6600]"
+                      ? "border-accent bg-[#1f1f1f] text-white shadow-[0_8px_18px_rgba(0,0,0,0.25)]"
+                      : "border-[#c7c7c7] bg-[#f7f7f7] text-[#222] hover:-translate-y-[1px] hover:border-accent"
                   }`}
                 >
                   <div
@@ -99,7 +96,7 @@ export default function CampsTable({
                     <div className="text-sm font-bold">{camp.code}</div>
 
                     <div className="min-w-0">
-                      <p className="break-words text-sm leading-relaxed">
+                      <p className="wrap-break-word text-sm leading-relaxed">
                         {camp.description || "Sin descripción"}
                       </p>
                     </div>
@@ -109,11 +106,7 @@ export default function CampsTable({
                     <div className="text-sm">{getCoordinates(camp)}</div>
 
                     <div>
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${getStateBadgeClass(
-                          camp.active,
-                        )}`}
-                      >
+                      <span className={getStateBadgeClass(camp.active)}>
                         {getStateLabel(camp.active)}
                       </span>
                     </div>
@@ -127,7 +120,7 @@ export default function CampsTable({
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        className={actionButtonClass}
+                        className="btn btn--outline btn--icon btn--sm"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Eye className="h-4 w-4" />
@@ -135,7 +128,7 @@ export default function CampsTable({
 
                       <button
                         type="button"
-                        className={actionButtonClass}
+                        className="btn btn--outline btn--icon btn--sm"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Pencil className="h-4 w-4" />
@@ -185,11 +178,7 @@ export default function CampsTable({
                         <p className="text-[10px] uppercase tracking-[0.22em] text-[#7c8794]">
                           Estado
                         </p>
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-[11px] uppercase tracking-widest ${getStateBadgeClass(
-                            camp.active,
-                          )}`}
-                        >
+                        <span className={getStateBadgeClass(camp.active)}>
                           {getStateLabel(camp.active)}
                         </span>
                       </div>
@@ -205,12 +194,12 @@ export default function CampsTable({
               Found: {camps.length.toString().padStart(4, "0")}
             </p>
 
-            <div className="flex gap-3">
-              <button className="min-w-[150px] bg-[#e5c0ae] px-6 py-3 text-[12px] font-bold uppercase tracking-[0.3em] text-[#9c9c9c]">
+            <div className="btn-group">
+              <button type="button" className="btn btn--secondary btn--sm" disabled>
                 Previous
               </button>
 
-              <button className="min-w-[150px] bg-[#ababab] px-6 py-3 text-[12px] font-bold uppercase tracking-[0.3em] text-white">
+              <button type="button" className="btn btn--secondary btn--sm" disabled>
                 Next
               </button>
             </div>

@@ -10,23 +10,26 @@ type CatalogToolbarProps = {
 
 export function CatalogToolbar({ search, total, isLoading, onSearchChange, onRefresh }: CatalogToolbarProps) {
     return (
-        <div className="rmm-panel-header border-b border-border-default bg-bg-secondary/30 shrink-0">
+        <div className="app-panel-header">
             <div>
-                <div className="font-mono text-[11px] font-bold text-txt-primary uppercase tracking-wide">Registry Control</div>
-                <div className="font-mono text-[11px] text-txt-muted uppercase tracking-widest mt-0.5">{total} records in current scope</div>
+                <div className="app-panel-title">Registry Control</div>
             </div>
 
-            <div className="rmm-panel-actions">
-                <label className="relative min-w-0 w-full sm:w-48">
-                    <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-txt-muted" size={14} />
+            <div className="app-panel-actions">
+                <label style={{ position: "relative", minWidth: 0, width: "12rem" }}>
+                    <Search
+                        size={13}
+                        style={{ position: "absolute", left: "0.5rem", top: "50%", transform: "translateY(-50%)", color: "var(--color-txt-disabled)", pointerEvents: "none" }}
+                    />
                     <input
-                        className="rmm-input pl-7 py-1 text-[11px]"
+                        className="app-input-default"
+                        style={{ paddingLeft: "1.75rem" }}
                         value={search}
                         placeholder="Search catalog"
                         onChange={(event) => onSearchChange(event.target.value)}
                     />
                 </label>
-                <button type="button" className="rmm-btn rmm-btn-outline px-3 py-1.5 text-[10px]" onClick={onRefresh} disabled={isLoading}>
+                <button type="button" className="app-btn app-btn--outline app-btn--sm" onClick={onRefresh} disabled={isLoading}>
                     <RefreshCw size={13} className={isLoading ? "animate-spin" : ""} />
                     Refresh
                 </button>

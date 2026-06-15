@@ -2,6 +2,7 @@ import { Save, Trash2, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Resource } from "../../../../models/Resource";
 import SystemConfirmModal from "../../shared/components/SystemConfirmModal";
+import { ResourceSearchPicker } from "../../../resource-management-modules/shared/components/ResourceSearchPicker";
 import { EMPTY_PROFESSION_FORM, type ProfessionCatalogFormValues, type ProfessionCatalogRecord } from "../schemas/profession.schema";
 
 type PendingAction = "save" | "delete" | null;
@@ -65,41 +66,34 @@ export function ProfessionCatalogForm({ selectedRecord, resources, isSaving, onS
         >
             <header className="px-6 py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg">
                 <div>
-                    <h2 className="rmm-section-title font-abril">Profession Detail</h2>
-                    <p className="rmm-field-id mt-1 inline-flex">ID: {selectedId ?? "AUTO-GENERATED"}</p>
+                    <h2 className="app-section-title font-abril">Profession Detail</h2>
+                    {/* <p className="app-field-id mt-1 inline-flex">ID: {selectedId ?? "AUTO-GENERATED"}</p> */}
                 </div>
-                <div className="sa-section-line mt-3" />
+                {/* <div className="app-section-line mt-3" /> */}
             </header>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Code *</span>
-                        <input className="rmm-input w-full" value={values.code} onChange={(event) => setValues({ ...values, code: event.target.value })} />
+                        <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Code:</span></span>
+                        <input className="app-input w-full" value={values.code} onChange={(event) => setValues({ ...values, code: event.target.value })} />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Name *</span>
-                        <input className="rmm-input w-full" value={values.name} onChange={(event) => setValues({ ...values, name: event.target.value })} />
+                        <span className="app-label"><span className="flex items-center gap-1.5"><span className="text-accent">*</span>Name:</span></span>
+                        <input className="app-input w-full" value={values.name} onChange={(event) => setValues({ ...values, name: event.target.value })} />
                     </label>
+                    <div className="flex flex-col gap-2">
+                        <span className="app-label">Default Resource:</span>
+                        <ResourceSearchPicker
+                            selectedId={values.default_resource_id ?? 0}
+                            onChange={(id) => setValues({ ...values, default_resource_id: id === 0 ? null : id })}
+                            allowClear
+                        />
+                    </div>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Default Resource</span>
-                        <select
-                            className="rmm-input w-full"
-                            value={values.default_resource_id ?? ""}
-                            onChange={(event) => setValues({ ...values, default_resource_id: event.target.value ? Number(event.target.value) : null })}
-                        >
-                            <option value="">None</option>
-                            {resources.map((resource) => (
-                                <option key={resource.id} value={resource.id}>
-                                    {resource.code} - {resource.name}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label className="flex flex-col gap-2">
-                        <span className="rmm-label">Production Amount</span>
+                        <span className="app-label">Production Amount:</span>
                         <input
-                            className="rmm-input w-full"
+                            className="app-input w-full"
                             type="number"
                             min={0}
                             value={values.default_production_amount ?? ""}
@@ -107,8 +101,8 @@ export function ProfessionCatalogForm({ selectedRecord, resources, isSaving, onS
                         />
                     </label>
                     <label className="flex flex-col gap-2">
-                        <span className="rmm-label">State</span>
-                        <select className="rmm-input w-full" value={values.state ?? "A"} onChange={(event) => setValues({ ...values, state: event.target.value as "A" | "I" })}>
+                        <span className="app-label">State:</span>
+                        <select className="app-input w-full" value={values.state ?? "A"} onChange={(event) => setValues({ ...values, state: event.target.value as "A" | "I" })}>
                             <option value="A">Active</option>
                             <option value="I">Inactive</option>
                         </select>
@@ -116,21 +110,21 @@ export function ProfessionCatalogForm({ selectedRecord, resources, isSaving, onS
                 </div>
 
                 <label className="flex flex-col gap-2">
-                    <span className="rmm-label">Description</span>
-                    <textarea className="rmm-input w-full min-h-28 resize-none" value={values.description ?? ""} onChange={(event) => setValues({ ...values, description: event.target.value })} />
+                    <span className="app-label">Description:</span>
+                    <textarea className="app-input w-full min-h-28 resize-none" value={values.description ?? ""} onChange={(event) => setValues({ ...values, description: event.target.value })} />
                 </label>
             </div>
 
             <footer className="px-6 py-6 border-t border-border-default bg-bg-secondary/10 flex flex-wrap gap-2">
-                <button type="button" className="rmm-btn rmm-btn-outline" onClick={onClear}>
+<button type="button" className="app-btn app-btn--outline" onClick={onClear}>
                     <XCircle size={14} />
                     Clear
                 </button>
-                <button type="button" className="rmm-btn rmm-btn-outline" disabled={selectedId == null || isSaving} onClick={() => setPendingAction("delete")}>
+<button type="button" className="app-btn app-btn--outline" disabled={selectedId == null || isSaving} onClick={() => setPendingAction("delete")}>
                     <Trash2 size={14} />
                     Delete
                 </button>
-                <button type="submit" className="rmm-btn rmm-btn-accent" disabled={!canSave}>
+<button type="submit" className="app-btn app-btn--primary" disabled={!canSave}>
                     <Save size={14} />
                     Save
                 </button>

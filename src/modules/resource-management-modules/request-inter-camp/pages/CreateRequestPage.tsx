@@ -8,6 +8,7 @@ import { CampService } from "../../../../services/CampService";
 import { useToast } from "../../../../shared/hooks/useToast";
 import { Camp } from "../../../../models/Camp";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
+import { CampSearchPicker } from "../../shared/components/CampSearchPicker";
 
 const campService = new CampService();
 
@@ -36,6 +37,11 @@ export function CreateRequestPage() {
     camps.find(c => c.id === originCampId)?.code ||
     (activeCampStatus === "loading" ? "Resolving..." : "No camp assigned");
   const availableDestinations = camps.filter(c => c.id !== originCampId);
+  const destinationOptions = availableDestinations.map((camp) => ({
+    id: camp.id ?? 0,
+    label: camp.code || camp.description || `Camp #${camp.id ?? 0}`,
+    description: camp.description ?? "",
+  }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,18 +135,12 @@ export function CreateRequestPage() {
                         LOADING CAMPS...
                       </div>
                     ) : (
-                      <select
-                        id="destination-camp"
-                        value={destinationCampId}
-                        onChange={(e) => setDestinationCampId(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-bg-primary border border-border-default font-mono text-[11px] text-txt-primary focus:outline-none focus:border-accent"
-                        required
-                      >
-                        <option value={0}>Select destination...</option>
-                        {availableDestinations.map(c => (
-                          <option key={c.id ?? 0} value={c.id ?? 0}>{c.code}</option>
-                        ))}
-                      </select>
+                      <CampSearchPicker
+                        selectedId={destinationCampId}
+                        onChange={setDestinationCampId}
+                        options={destinationOptions}
+                        placeholder="Select destination..."
+                      />
                     )}
                   </div>
                 </div>

@@ -67,9 +67,9 @@ export function AchievementsPage() {
     };
 
     return (
-        <div className="flex flex-1 min-h-0 flex-col rmm-content-pad bg-transparent gap-4">
-            <div className="relative flex min-h-0 flex-1 overflow-hidden bg-black/50 backdrop-blur-lg border border-border-default">
-                <section className="flex-1 flex min-w-0 min-h-0 flex-col overflow-hidden border-r border-border-default">
+        <div className="app-content-body">
+            <div className="app-split app-split--glass">
+                <section className="app-split__main">
                     <CatalogToolbar
                         search={search}
                         total={filteredRecords.length}
@@ -100,8 +100,8 @@ export function AchievementsPage() {
                         leftContent={
                             <span>
                                 Total: <span className="text-accent font-bold">{String(pagination.totalRecords).padStart(4, "0")}</span>
-                                <span className="opacity-30 mx-4">|</span>
-                                Scope: <span className="text-status-ok font-bold">[ACHIEVEMENTS]</span>
+                                {/* <span className="opacity-30 mx-4">|</span> */}
+                                {/* Scope: <span className="text-status-ok font-bold">[ACHIEVEMENTS]</span> */}
                             </span>
                         }
                     />

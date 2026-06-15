@@ -14,12 +14,11 @@ type Props = {
 };
 
 const fieldClass =
-    "rmm-input w-full";
+    "app-input w-full";
 
 function Field({
     label,
     required,
-    error,
     id,
     children,
 }: {
@@ -31,13 +30,12 @@ function Field({
 }) {
     return (
         <div className="flex flex-col gap-2">
-            <label className="rmm-label">
+            <label className="app-label">
                 <span className="flex items-center gap-1.5">
                     {required && <span className="text-accent">*</span>}
                     {label}
                 </span>
-                {id && <span className="rmm-field-id">#{id}</span>}
-                {error && <span className="text-accent lowercase font-normal italic">!! {error}</span>}
+                {id && <span className="app-field-id">#{id}</span>}
             </label>
             {children}
         </div>
@@ -84,11 +82,11 @@ export function MovementForm({
             
 
             <header className="px-4 py-3 sm:px-6 sm:py-4 border-b border-border-default bg-bg-secondary/20 backdrop-blur-lg shrink-0">
-                <span className="rmm-section-title font-abril">Movement Record</span>
+                <span className="app-section-title font-abril">Movement Record</span>
             </header>
 
             <div className="flex-1 overflow-y-auto px-4 py-4 sm:p-6 space-y-4 sm:space-y-6">
-                <Field label="Origin Node" required id="" error={errors.warehouse_id?.message}>
+                <Field label="Warehouse:" required id="" error={errors.warehouse_id?.message}>
                     <input type="hidden" {...form.register("warehouse_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -98,7 +96,7 @@ export function MovementForm({
                     />
                 </Field>
 
-                <Field label="Resource Identifier" required id="" error={errors.resource_id?.message}>
+                <Field label="Resource name:" required id="" error={errors.resource_id?.message}>
                     <input type="hidden" {...form.register("resource_id", { valueAsNumber: true })} />
                     <input
                         type="text"
@@ -109,7 +107,7 @@ export function MovementForm({
                 </Field>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Operation" required id="" error={errors.movement_type?.message}>
+                    <Field label="Operation:" required id="" error={errors.movement_type?.message}>
                         <select {...form.register("movement_type")} className={fieldClass}>
                             <option value="E">IN</option>
                             <option value="S">OUT</option>
@@ -128,7 +126,7 @@ export function MovementForm({
                     )}
                 </div>
 
-                <Field label="Load Volume" required id="" error={errors.amount?.message}>
+                <Field label="Quantity:" required id="" error={errors.amount?.message}>
                     <input
                         type="number"
                         step="0.01"
@@ -139,7 +137,7 @@ export function MovementForm({
                     />
                 </Field>
 
-                <Field label="Log / Justification" id="" error={errors.reason?.message}>
+                <Field label="Justification" id="" error={errors.reason?.message}>
                     <textarea
                         {...form.register("reason")}
                         rows={3}
@@ -154,7 +152,7 @@ export function MovementForm({
                     type="button"
                     onClick={handleClear}
                     disabled={isSubmitting}
-                    className="rmm-btn min-w-0 border border-border-default bg-bg-tertiary text-txt-secondary hover:bg-bg-secondary hover:text-txt-primary transition-all disabled:opacity-50"
+                    className="app-btn app-btn--secondary"
                 >
                     <RotateCcw className="h-3.5 w-3.5" />
                     <span className="font-mono">CLEAR</span>
@@ -163,7 +161,7 @@ export function MovementForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="rmm-btn rmm-btn-accent min-w-0 justify-center transition-all disabled:opacity-50"
+                    className="app-btn app-btn--primary app-btn--full"
                 >
                     <Save className="h-3.5 w-3.5" />
                     <span className="font-mono">{isSubmitting ? "..." : "SAVE"}</span>

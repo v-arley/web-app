@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle } from "lucide-react";
+import { createPortal } from "react-dom";
 import type { ResourceAlertFormValues } from "../schemas/resource-alert.schema";
 
 type Props = {
@@ -27,7 +28,7 @@ export function AlertDetailModal({ alert, onClose, onResolve }: Props) {
             ? { label: "LOW STOCK", color: "text-status-warning", bar: "bg-status-warning", border: "border-status-warning" }
             : { label: "NORMAL", color: "text-status-ok", bar: "bg-status-ok", border: "border-status-ok" };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
             <div className="relative bg-bg-tertiary/90 backdrop-blur-lg w-full max-w-md border border-border-default shadow-2xl flex flex-col">
                 <header className="px-5 py-4 border-b border-border-subtle bg-bg-secondary/50 shrink-0 flex items-center justify-between">
@@ -57,12 +58,12 @@ export function AlertDetailModal({ alert, onClose, onResolve }: Props) {
                         <div className="flex items-end gap-4 mb-3">
                             <div>
                                 <div className="font-mono text-[11px] text-txt-disabled uppercase mb-1">Current</div>
-                                <div className={`rmm-kpi-value font-mono font-bold ${stockStatus.color}`}>{alert.current_amount}</div>
+                                <div className={`app-kpi-value font-mono font-bold ${stockStatus.color}`}>{alert.current_amount}</div>
                             </div>
                             <div className="text-txt-disabled font-mono text-xl mb-1">/</div>
                             <div>
                                 <div className="font-mono text-[11px] text-txt-disabled uppercase mb-1">Min. Required</div>
-                                <div className="rmm-kpi-value font-mono font-bold text-txt-secondary">{alert.min_quantity}</div>
+                                <div className="app-kpi-value font-mono font-bold text-txt-secondary">{alert.min_quantity}</div>
                             </div>
                         </div>
                         <div className="h-2 bg-bg-secondary border border-border-default overflow-hidden">
@@ -99,7 +100,7 @@ export function AlertDetailModal({ alert, onClose, onResolve }: Props) {
                                     await onResolve(alert.id!);
                                     onClose();
                                 }}
-                                className="flex items-center gap-2 px-4 py-2 bg-status-ok/10 border border-status-ok/40 font-mono text-[10px] font-bold text-status-ok uppercase tracking-widest hover:bg-status-ok/20 transition-all"
+                                className="btn"
                             >
                                 <CheckCircle size={13} />
                                 MARK AS RESOLVED
@@ -108,12 +109,13 @@ export function AlertDetailModal({ alert, onClose, onResolve }: Props) {
                     </div>
                     <button
                         onClick={onClose}
-                        className="px-6 py-2 bg-bg-secondary/50 border border-border-default font-mono text-[10px] font-bold text-txt-primary uppercase tracking-widest hover:border-status-critical hover:text-status-critical transition-all"
+                        className="btn"
                     >
                         CLOSE
                     </button>
                 </footer>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 }

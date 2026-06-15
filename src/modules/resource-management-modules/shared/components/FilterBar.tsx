@@ -7,8 +7,8 @@ interface Props {
 
 export function FilterBar({ children, wrapperClassName = "" }: Props) {
   return (
-    <div className={`rmm-filter-shell shrink-0 ${wrapperClassName}`}>
-      <div className="rmm-filter-row">
+    <div className={`app-filter-shell shrink-0 ${wrapperClassName}`}>
+      <div className="app-filter-row">
         {children}
       </div>
     </div>

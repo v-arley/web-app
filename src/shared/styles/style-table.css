@@ -1,0 +1,579 @@
+/* ==========================================================================
+   TABLE SYSTEM — Clases reutilizables de tablas
+   Sin dependencia de Tailwind. Usa variables CSS del tema global.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Contenedor — scroll horizontal si la tabla es ancha
+   -------------------------------------------------------------------------- */
+.tbl-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Tabla base
+   -------------------------------------------------------------------------- */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--rmm-font-ui, "IBMplex", "Courier New", monospace);
+  font-size: 12px;
+  line-height: 1.45;
+  min-width: max-content;
+}
+
+/* Header de la tabla (thead) */
+.tbl thead {
+  background: color-mix(in srgb, var(--color-bg-secondary, #242424) 90%, black);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Celdas de cabecera */
+.tbl th {
+  padding: clamp(0.55rem, 1.5vw, 0.85rem);
+  border-bottom: 1px solid var(--color-border-default, #3a3a3a);
+  color: var(--color-txt-secondary, #C0C0C0);
+  font-size: clamp(0.5625rem, 0.52rem + 0.18vw, 0.625rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Celdas de datos */
+.tbl td {
+  padding: clamp(0.55rem, 1.5vw, 0.85rem);
+  border-bottom: 1px solid var(--color-border-subtle, #252525);
+  color: var(--color-txt-primary, #ffffff);
+  vertical-align: middle;
+  max-width: clamp(9rem, 24vw, 18rem);
+  overflow-wrap: anywhere;
+}
+
+/* Filas — hover y focus */
+.tbl tbody tr {
+  transition: background-color var(--duration-base, 150ms), border-color var(--duration-base, 150ms);
+}
+
+.tbl tbody tr:hover {
+  background: color-mix(in srgb, var(--color-bg-secondary, #242424) 68%, transparent);
+}
+
+.tbl tbody tr:focus-within {
+  background: color-mix(in srgb, var(--color-accent, #E85D04) 8%, var(--color-bg-secondary, #242424));
+}
+
+/* Última fila sin borde */
+.tbl tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* --------------------------------------------------------------------------
+   Variantes de fila
+   -------------------------------------------------------------------------- */
+
+.tbl-row {
+  cursor: pointer;
+}
+
+.tbl-row--selected {
+  background: color-mix(in srgb, var(--color-accent, #E85D04) 12%, transparent) !important;
+  border-left: 2px solid var(--color-accent, #E85D04);
+}
+
+.tbl-row--dim {
+  opacity: 0.45;
+}
+
+.tbl-row--dim:hover {
+  opacity: 0.7;
+}
+
+/* --------------------------------------------------------------------------
+   Variantes de celda
+   -------------------------------------------------------------------------- */
+
+.tbl-cell--primary {
+  color: var(--color-txt-primary, #ffffff);
+  font-weight: 600;
+}
+
+.tbl-cell--code {
+  color: var(--color-txt-secondary, #C0C0C0);
+  font-family: var(--rmm-font-code, "IBMplex", "Courier New", monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tbl-cell--time {
+  color: var(--color-txt-disabled, #6B7280);
+  font-size: 11px;
+  font-family: var(--rmm-font-code, "IBMplex", "Courier New", monospace);
+}
+
+.tbl-cell--number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tbl-cell--action {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Badges de estado — indicadores para celdas de tabla
+   -------------------------------------------------------------------------- */
+
+.tbl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: var(--rmm-font-ui, "IBMplex", "Courier New", monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tbl-badge::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Online / Activo / Completado */
+.tbl-badge--online {
+  color: var(--color-status-ok, #F59E0B);
+}
+.tbl-badge--online::before {
+  background: var(--color-status-ok, #F59E0B);
+  box-shadow: 0 0 5px var(--color-status-ok, #F59E0B);
+}
+
+/* Pending / Pendiente */
+.tbl-badge--pending {
+  color: var(--color-status-warning, #FACC15);
+}
+.tbl-badge--pending::before {
+  background: var(--color-status-warning, #FACC15);
+}
+
+/* Offline / Inactivo / Error */
+.tbl-badge--offline {
+  color: var(--color-status-critical, #E85D04);
+}
+.tbl-badge--offline::before {
+  background: var(--color-status-critical, #E85D04);
+}
+
+/* Warning / Alerta */
+.tbl-badge--warn {
+  color: var(--color-accent-hover, #FF6A10);
+}
+.tbl-badge--warn::before {
+  background: var(--color-accent-hover, #FF6A10);
+}
+
+/* Info */
+.tbl-badge--info {
+  color: var(--color-status-info, #38BDF8);
+}
+.tbl-badge--info::before {
+  background: var(--color-status-info, #38BDF8);
+}
+
+/* --------------------------------------------------------------------------
+   Header de panel (común sobre tablas)
+   -------------------------------------------------------------------------- */
+
+.tbl-header {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.625rem, 1.4vw, 1rem);
+  padding: clamp(0.75rem, 1.5vw, 1rem);
+  border-bottom: 1px solid var(--color-border-default, #3a3a3a);
+  background: color-mix(in srgb, var(--color-bg-secondary, #242424) 30%, transparent);
+}
+
+.tbl-header-title {
+  font-family: var(--rmm-font-ui, "IBMplex", "Courier New", monospace);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-txt-primary, #ffffff);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tbl-header-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Footer de tabla (paginación)
+   -------------------------------------------------------------------------- */
+
+.tbl-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.625rem, 1.5vw, 1rem);
+  min-width: 0;
+  padding: clamp(0.5rem, 1.4vw, 0.875rem) clamp(0.75rem, 1.8vw, 1rem);
+  border-top: 1px solid var(--color-border-default, #3a3a3a);
+  background: color-mix(in srgb, var(--color-bg-secondary, #242424) 30%, transparent);
+}
+
+.tbl-footer-meta {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.tbl-footer-controls {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Aliases .app-table — mantiene compatibilidad con componentes existentes
+   ========================================================================== */
+
+.app-table-wrap,
+.app-table-frame {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.app-table-region {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.app-table-region--pad {
+  padding: 0.75rem;
+}
+
+.app-table-region > .app-table-wrap,
+.app-table-region > .app-table-frame,
+.app-table-region > .app-table-wrap > .app-table,
+.app-table-region > .app-table-frame > .app-table {
+  min-height: 100%;
+}
+
+.app-table-frame {
+  background: #111111cb;
+  box-shadow: inset 0 0 0 1px rgba(44, 68, 84, 0.3);
+}
+
+.app-table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+  font-family: var(--rmm-font-ui, "IBMplex", "Courier New", monospace);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.app-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--color-bg-secondary) 90%, black);
+}
+
+.app-table-head {
+  background: color-mix(in srgb, var(--color-bg-secondary) 90%, black);
+}
+
+.app-table-header {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.625rem, 1.4vw, 1rem);
+  padding: clamp(0.75rem, 1.5vw, 1rem);
+  border-bottom: 1px solid var(--color-border-default);
+  background: color-mix(in srgb, var(--color-bg-secondary) 30%, transparent);
+}
+
+.app-table-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-txt-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.app-table-header-actions {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-table th {
+  padding: clamp(0.55rem, 1.5vw, 0.85rem);
+  border-bottom: 1px solid var(--color-border-default);
+  color: var(--color-txt-secondary);
+  font-size: clamp(0.5625rem, 0.52rem + 0.18vw, 0.625rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.app-table td {
+  max-width: clamp(9rem, 24vw, 18rem);
+  overflow-wrap: anywhere;
+  padding: clamp(0.55rem, 1.5vw, 0.85rem);
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-txt-primary);
+  vertical-align: middle;
+}
+
+.app-table tbody tr {
+  transition: background-color var(--duration-base, 150ms), border-color var(--duration-base, 150ms);
+}
+
+.app-table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-bg-secondary) 68%, transparent);
+}
+
+.app-table tbody tr:focus-within {
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-bg-secondary));
+}
+
+.app-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.app-table-row {
+  cursor: pointer;
+}
+
+.app-table-row--selected {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent) !important;
+  border-left: 2px solid var(--color-accent);
+}
+
+.app-table-row--dim {
+  opacity: 0.45;
+}
+
+.app-table-row--dim:hover {
+  opacity: 0.7;
+}
+
+.app-table-cell--primary {
+  color: var(--color-txt-primary);
+  font-weight: 600;
+}
+
+.app-table-cell--code {
+  color: var(--color-txt-secondary);
+  font-family: var(--rmm-font-code, "IBMplex", "Courier New", monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.app-table-cell--time {
+  color: var(--color-txt-disabled);
+  font-family: var(--rmm-font-code, "IBMplex", "Courier New", monospace);
+  font-size: 11px;
+}
+
+.app-table-cell--number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-table-cell--action {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.app-table-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.app-table-badge::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.app-table-badge--ok,
+.app-table-badge--online {
+  color: var(--color-status-ok);
+}
+
+.app-table-badge--ok::before,
+.app-table-badge--online::before {
+  background: var(--color-status-ok);
+  box-shadow: 0 0 5px var(--color-status-ok);
+}
+
+.app-table-badge--warn,
+.app-table-badge--pending {
+  color: var(--color-status-warning);
+}
+
+.app-table-badge--warn::before,
+.app-table-badge--pending::before {
+  background: var(--color-status-warning);
+}
+
+.app-table-badge--error,
+.app-table-badge--offline {
+  color: var(--color-status-critical);
+}
+
+.app-table-badge--error::before,
+.app-table-badge--offline::before {
+  background: var(--color-status-critical);
+}
+
+.app-table-badge--info {
+  color: var(--color-status-info);
+}
+
+.app-table-badge--info::before {
+  background: var(--color-status-info);
+}
+
+.app-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.625rem, 1.5vw, 1rem);
+  min-width: 0;
+  padding: clamp(0.5rem, 1.4vw, 0.875rem) clamp(0.75rem, 1.8vw, 1rem);
+  border-top: 1px solid var(--color-border-default);
+  background: color-mix(in srgb, var(--color-bg-secondary) 30%, transparent);
+}
+
+.app-table-footer-meta,
+.app-table-footer-controls {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-table-footer-controls {
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Paginación (.app-pagination-footer)
+   -------------------------------------------------------------------------- */
+
+.app-pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--color-border-subtle);
+  background: color-mix(in srgb, var(--color-bg-secondary) 30%, transparent);
+}
+
+.app-pagination-footer--compact {
+  padding-block: 0.5rem;
+}
+
+.app-pagination-footer__meta,
+.app-pagination-footer__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex-wrap: wrap;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.app-pagination-footer__controls {
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.app-page-button,
+.app-page-counter {
+  min-height: 2rem;
+}
+
+.app-page-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.5rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-txt-secondary);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 640px) {
+  .app-pagination-footer,
+  .app-table-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

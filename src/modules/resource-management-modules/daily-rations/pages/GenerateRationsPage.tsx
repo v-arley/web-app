@@ -26,13 +26,13 @@ export function GenerateRationsPage() {
     }, [resourcesData]);
 
     return (
-        <article className="flex flex-1 min-h-0 flex-col rmm-content-pad bg-bg-app gap-4">
+        <article className="flex flex-1 min-h-0 flex-col app-content-pad bg-bg-app gap-4">
 
             <div className="relative flex min-h-0 flex-1 overflow-hidden bg-bg-secondary border border-border-default shadow-2xl">
                 <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-accent/50 z-10" />
                 <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-accent/50 z-10" />
                 
-                <div className="flex-1 overflow-y-auto rmm-content-pad">
+                <div className="flex-1 overflow-y-auto app-content-pad">
                     <div className="max-w-4xl mx-auto space-y-6">
                 {/* Header */}
                 {/* <div className="flex items-center gap-3 mb-2">

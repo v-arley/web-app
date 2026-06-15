@@ -12,8 +12,8 @@ interface Props {
 
 export function PaginationFooter({ page, setPage, totalPages, totalRecords, leftContent, compact = false, className = "" }: Props) {
   return (
-    <footer className={`rmm-pagination-footer ${compact ? "rmm-pagination-footer--compact" : ""} bg-bg-secondary/30 border-t border-border-subtle shrink-0 ${className}`}>
-      <div className="rmm-pagination-footer__meta font-mono text-txt-muted uppercase">
+    <footer className={`app-pagination-footer ${compact ? "app-pagination-footer--compact" : ""} bg-bg-secondary/30 border-t border-border-subtle shrink-0 ${className}`}>
+      <div className="app-pagination-footer__meta font-mono text-txt-muted uppercase">
         {leftContent ? (
           leftContent
         ) : (
@@ -23,16 +23,16 @@ export function PaginationFooter({ page, setPage, totalPages, totalRecords, left
         )}
       </div>
 
-      <div className="rmm-pagination-footer__controls font-mono uppercase">
+      <div className="app-pagination-footer__controls font-mono uppercase">
         <button
           disabled={page <= 1}
           onClick={() => setPage(Math.max(1, page - 1))}
-          className="rmm-page-button bg-bg-secondary/50 border border-border-default font-mono font-bold text-txt-primary uppercase hover:border-accent hover:text-accent transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+          className="app-btn app-btn--secondary app-btn--sm"
         >
           PREV
         </button>
 
-        <span className="rmm-page-counter border border-border-subtle text-txt-secondary tabular-nums">
+        <span className="app-page-counter border border-border-subtle text-txt-secondary tabular-nums">
           {String(page).padStart(2, "0")}
           <span className="text-txt-muted opacity-40 mx-1">/</span>
           {String(totalPages).padStart(2, "0")}
@@ -41,7 +41,7 @@ export function PaginationFooter({ page, setPage, totalPages, totalRecords, left
         <button
           disabled={page >= totalPages}
           onClick={() => setPage(Math.min(totalPages, page + 1))}
-          className="rmm-page-button bg-bg-secondary/50 border border-border-default font-mono font-bold text-txt-primary uppercase hover:border-accent hover:text-accent transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+          className="app-btn app-btn--secondary app-btn--sm"
         >
           NEXT
         </button>

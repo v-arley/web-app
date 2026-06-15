@@ -31,7 +31,7 @@ export function SystemFloatingFormPanel({
             <div className="flex min-h-0 flex-1 flex-col relative">
                 <button
                     type="button"
-                    className="rmm-form-panel-close absolute right-3 top-3 z-10"
+                    className="app-side-panel-close absolute right-3 top-3 z-10"
                     onClick={onClose}
                     title={`Collapse ${label}`}
                     aria-label={`Collapse ${label}`}

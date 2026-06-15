@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-// import { ArrowUpRight } from "lucide-react";
 import { CampService } from "../../../../services/CampService";
 import { useCampRequestMutation } from "../hooks/useCampRequestMutation";
 import { useCampRequestsQuery } from "../hooks/useCampRequestsQuery";
@@ -8,9 +7,7 @@ import { OutgoingRequestsTable } from "../components/OutgoingRequestsTable";
 import { useNavigation } from "../../../../shared/app/NavigationContext";
 import { useToast } from "../../../../shared/hooks/useToast";
 import type { Camp } from "../../../../models/Camp";
-import { FilterBar } from "../../shared/components/FilterBar";
 import PaginationFooter from "../../shared/components/PaginationFooter";
-import PageHeader from "../../shared/components/PageHeader";
 
 const campService = new CampService();
 
@@ -84,71 +81,63 @@ export function OutgoingRequestsPage() {
 
   return (
     <article className="flex h-full flex-col overflow-hidden bg-transparent">
+      <section className="app-split app-split--glass" style={{ flexDirection: "column" }}>
+        <header className="app-panel-header">
+          <div>
+            <div className="app-panel-title">My Requests</div>
+          </div>
 
-      <PageHeader
-        icon={null}
-        title="MY REQUESTS"
-        subtitle={undefined}
-        rightContent={<span className="font-mono text-[12px] uppercase tracking-widest">TOTAL: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span>}
-      />
+          <div className="app-panel-actions">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'A' | 'R' | ''); setPage(1); }}
+              className="app-input-default"
+              aria-label="Filter by status"
+            >
+              <option value="">STATUS: ALL</option>
+              <option value="P">STATUS: PENDING</option>
+              <option value="A">STATUS: APPROVED</option>
+              <option value="R">STATUS: REJECTED</option>
+            </select>
 
-      {/* Filter bar — styled as part of the body */}
-      <FilterBar wrapperClassName="px-3 py-2 sm:px-4">
-        <div className="grid w-full grid-cols-1 gap-2 border border-border-default bg-bg-secondary/80 p-3 sm:grid-cols-[auto_minmax(9rem,13rem)_auto_minmax(10rem,1fr)] sm:items-center sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-2">
-          <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value as 'P' | 'A' | 'R' | ''); setPage(1); }}
-            className="rmm-input min-h-9 text-[11px]!"
-          >
-            <option value="">All</option>
-            <option value="P">Pending</option>
-            <option value="A">Approved</option>
-            <option value="R">Rejected</option>
-          </select>
+            {/* <select
+              value={destinationFilter}
+              onChange={(e) => { setDestinationFilter(e.target.value ? Number(e.target.value) : ''); setPage(1); }}
+              className="app-input-default"
+              aria-label="Filter by destination"
+            >
+              <option value="">DESTINATION: ALL_CAMPS</option>
+              {campOptions.map((c, idx) => (
+                <option key={c.id ?? `camp-${idx}`} value={c.id ?? ""}>{c.description}</option>
+              ))}
+            </select> */}
+          </div>
+        </header>
 
-          <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest shrink-0">Destination</label>
-          <select
-            value={destinationFilter}
-            onChange={(e) => { setDestinationFilter(e.target.value ? Number(e.target.value) : ''); setPage(1); }}
-            className="rmm-input min-h-9 text-[11px]!"
-          >
-            <option value="">All camps</option>
-            {campOptions.map((c, idx) => (
-              <option key={c.id ?? `camp-${idx}`} value={c.id ?? ""}>{c.description}</option>
-            ))}
-          </select>
+        <div className="app-table-region app-table-frame">
+          {isLoading ? (
+            <div className="app-loading-state" style={{ flexDirection: "column", gap: "0.5rem" }}>
+              <div className="app-spinner app-spinner--lg" />
+              <span className="app-eyebrow" style={{ letterSpacing: "0.35em" }}>Loading Requests...</span>
+            </div>
+          ) : (
+            <OutgoingRequestsTable
+              requests={pagedRequests}
+              campMap={campMap}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              actionLoading={approveAsOrigin.isPending || rejectAsOrigin.isPending}
+            />
+          )}
         </div>
 
-      </FilterBar>
-
-      {/* Body */}
-      <section className="flex-1 overflow-auto rmm-content-pad">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="h-10 w-10 border-4 border-accent/30 border-t-accent animate-spin" />
-            <p className="font-mono text-[10px] uppercase tracking-wide text-txt-secondary animate-pulse">LOADING REQUESTS...</p>
-          </div>
-        ) : (
-          <OutgoingRequestsTable
-            requests={pagedRequests}
-            campMap={campMap}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            actionLoading={approveAsOrigin.isPending || rejectAsOrigin.isPending}
-          />
-        )}
+        <PaginationFooter
+          page={page}
+          setPage={setPage}
+          totalPages={totalPages}
+          totalRecords={totalRecords}
+        />
       </section>
-
-      {/* Pagination footer — modal footer style */}
-      <PaginationFooter
-        page={page}
-        setPage={setPage}
-        totalPages={totalPages}
-        leftContent={<div className="flex items-center gap-4 font-mono text-[11px] text-txt-muted uppercase tracking-widest">
-          <span>Total: <span className="text-accent font-bold">{String(totalRecords).padStart(4, "0")}</span></span></div>}
-        totalRecords={totalRecords}
-      />
     </article>
   );
 }

@@ -14,13 +14,13 @@ function assertResponse<T>(response: Awaited<ReturnType<CampService["findAll"]>>
 }
 
 function toCampPayload(values: CampFormValues): CampUpdateValues {
+    const hasLocation = values.location_x !== 0 || values.location_y !== 0;
     return {
         code: values.code,
         description: values.description,
         capacity: Number(values.capacity),
-        location_x: Number(values.location_x),
-        location_y: Number(values.location_y),
-        active: values.active,
+        location_x: hasLocation ? Number(values.location_x) : undefined,
+        location_y: hasLocation ? Number(values.location_y) : undefined,
         state: values.state,
         admin_id: values.admin_id,
     };

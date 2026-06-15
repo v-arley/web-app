@@ -68,11 +68,11 @@ function SharedModalView({
 				</div>
 				<div className="modal-actions">
 					{modal.mode === 'confirm' ? (
-						<button className="ghost-btn" type="button" onClick={onCancel} ref={cancelButtonRef}>
+						<button className="btn btn--ghost" type="button" onClick={onCancel} ref={cancelButtonRef}>
 							{modal.cancelLabel}
 						</button>
 					) : null}
-					<button className={modal.tone === 'error' ? 'danger-btn' : 'primary-btn'} type="button" onClick={onConfirm}>
+					<button className={modal.tone === 'error' ? 'btn btn--danger' : 'btn btn--primary'} type="button" onClick={onConfirm}>
 						{modal.confirmLabel}
 					</button>
 				</div>

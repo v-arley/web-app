@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
     createContext,
     useCallback,
@@ -6,8 +7,10 @@ import {
     useState,
     type ReactNode,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { AuthContext as UserInfo } from "../utils/authAccess";
 import { AuthService } from "../../services/AuthService";
+import { INACTIVITY_TIMEOUT_MS, USER_ACTIVITY_EVENTS } from "../hooks/useInactivityTimeout";
 
 // Types :::
 
@@ -31,6 +34,7 @@ type AuthContextValue = AuthState & {
  * pero sí persiste al refrescar la misma pestaña.
  */
 const TAB_SESSION_KEY = "tab:session";
+const SESSION_KEEPALIVE_INTERVAL_MS = 14 * 60 * 1_000;
 
 // Context :::
 
@@ -41,6 +45,8 @@ const authService = new AuthService();
 // Provider :::
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+    const queryClient = useQueryClient();
+
     // isLoading se inicializa en true solo si esta pestaña tiene marcador de sesión.
     // Así evitamos llamar a /auth/me cuando ya sabemos que no hay sesión en esta pestaña,
     // y eliminamos el setState síncrono dentro del effect.
@@ -73,12 +79,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Expiración de sesión emitida por axiosClient :::
     useEffect(() => {
         const handleSessionExpired = () => {
+            void queryClient.cancelQueries();
+            queryClient.clear();
             sessionStorage.removeItem(TAB_SESSION_KEY);
             setState({ user: null, isAuthenticated: false, isLoading: false });
         };
         window.addEventListener("auth:session-expired", handleSessionExpired);
         return () => window.removeEventListener("auth:session-expired", handleSessionExpired);
-    }, []);
+    }, [queryClient]);
+
+    useEffect(() => {
+        if (!state.isAuthenticated) return;
+
+        let lastUiActivityAt = Date.now();
+        const markUiActivity = () => {
+            lastUiActivityAt = Date.now();
+        };
+
+        USER_ACTIVITY_EVENTS.forEach((event) =>
+            window.addEventListener(event, markUiActivity, { passive: true }),
+        );
+
+        const intervalId = window.setInterval(() => {
+            const isRecentlyActive = Date.now() - lastUiActivityAt < INACTIVITY_TIMEOUT_MS;
+            if (!isRecentlyActive) return;
+
+            authService.refreshSession().catch(() => {
+                window.dispatchEvent(new CustomEvent("auth:session-expired"));
+            });
+        }, SESSION_KEEPALIVE_INTERVAL_MS);
+
+        return () => {
+            window.clearInterval(intervalId);
+            USER_ACTIVITY_EVENTS.forEach((event) =>
+                window.removeEventListener(event, markUiActivity),
+            );
+        };
+    }, [state.isAuthenticated]);
 
     const login = useCallback(async (username: string, password: string) => {
         const user = await authService.login(username, password);
@@ -90,13 +127,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = useCallback(async () => {
         try {
+            await queryClient.cancelQueries();
             await authService.logout();
         } finally {
             // Asegura expulsión local incluso si el backend no responde.
+            queryClient.clear();
             sessionStorage.removeItem(TAB_SESSION_KEY);
             setState({ user: null, isAuthenticated: false, isLoading: false });
         }
-    }, []);
+    }, [queryClient]);
 
     return (
         <AuthContext.Provider value={{ ...state, login, logout }}>

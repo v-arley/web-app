@@ -7,17 +7,16 @@ import { RationHistoryTable } from "../components/RationHistoryTable";
 import PaginationFooter from "../../shared/components/PaginationFooter";
 
 const personService = new PersonService();
+const TODAY_STR = new Date().toISOString().split("T")[0];
+const SEVEN_DAYS_AGO_STR = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
 export function RationHistoryPage() {
     const { authContext } = useNavigation();
     const campId = authContext.campId ?? 0;
-    
-    const todayStr = new Date().toISOString().split("T")[0];
-    const sevenDaysAgoStr = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
     const [statusFilter, setStatusFilter] = useState<'Y' | 'N' | ''>('');
-    const [dateFrom, setDateFrom] = useState(sevenDaysAgoStr);
-    const [dateTo, setDateTo] = useState(todayStr);
+    const [dateFrom, setDateFrom] = useState(SEVEN_DAYS_AGO_STR);
+    const [dateTo, setDateTo] = useState(TODAY_STR);
     const [page, setPage] = useState(1);
     const pageSize = 30;
 
@@ -62,14 +61,14 @@ export function RationHistoryPage() {
     return (
         <article className="flex flex-1 min-h-0 flex-col bg-transparent overflow-hidden">
             {/* Filter bar */}
-            <div className="rmm-filter-shell shrink-0 px-4 pt-4 pb-0">
-                <div className="rmm-filter-row bg-bg-secondary border border-border-default px-4 py-3">
+            <div className="app-filter-shell shrink-0 px-4 pt-4 pb-0">
+                <div className="app-filter-row bg-bg-secondary border border-border-default px-4 py-3">
                     <div className="flex items-center gap-2">
                         <label className="font-mono text-[10px] font-bold text-txt-disabled uppercase tracking-widest">Status</label>
                         <select
                             value={statusFilter}
                             onChange={(e) => { setStatusFilter(e.target.value as 'Y' | 'N' | ''); setPage(1); }}
-                            className="rmm-input text-[11px]!"
+                            className="app-input text-[11px]!"
                         >
                             <option value="">All</option>
                             <option value="Y">Delivered</option>
@@ -83,7 +82,7 @@ export function RationHistoryPage() {
                             type="date"
                             value={dateFrom}
                             onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
-                            className="rmm-input text-[11px]!"
+                            className="app-input text-[11px]!"
                         />
                     </div>
                     <div className="flex items-center gap-2">
@@ -92,42 +91,42 @@ export function RationHistoryPage() {
                             type="date"
                             value={dateTo}
                             onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
-                            className="rmm-input text-[11px]!"
+                            className="app-input text-[11px]!"
                         />
                     </div>
                 </div>
             </div>
 
             {/* Main area: stats | table */}
-            <div className="rmm-responsive-columns rmm-responsive-columns--two flex-1">
+            <div className="app-responsive-columns app-responsive-columns--two flex-1">
                 {/* Stats column */}
-                <div className="rmm-responsive-aside rmm-kpi-stack">
-                    <div className="rmm-kpi-card bg-bg-secondary border border-border-default">
+                <div className="app-responsive-aside app-kpi-stack">
+                    <div className="app-kpi-card bg-bg-secondary border border-border-default">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Total Rations</div>
-                        <div className="rmm-kpi-value font-mono font-bold text-txt-primary">{totalRations}</div>
+                        <div className="app-kpi-value font-mono font-bold text-txt-primary">{totalRations}</div>
                     </div>
-                    <div className="rmm-kpi-card bg-bg-secondary border border-status-success">
+                    <div className="app-kpi-card bg-bg-secondary border border-status-success">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Delivered</div>
-                        <div className="rmm-kpi-value font-mono font-bold text-status-success">{deliveredCount}</div>
+                        <div className="app-kpi-value font-mono font-bold text-status-success">{deliveredCount}</div>
                     </div>
-                    <div className="rmm-kpi-card bg-bg-secondary border border-status-warning">
+                    <div className="app-kpi-card bg-bg-secondary border border-status-warning">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Pending</div>
-                        <div className="rmm-kpi-value font-mono font-bold text-status-warning">{pendingCount}</div>
+                        <div className="app-kpi-value font-mono font-bold text-status-warning">{pendingCount}</div>
                     </div>
-                    <div className="rmm-kpi-card bg-bg-secondary border border-accent">
+                    <div className="app-kpi-card bg-bg-secondary border border-accent">
                         <div className="font-mono text-[9px] font-bold text-txt-disabled uppercase tracking-widest mb-2">Rate</div>
-                        <div className="rmm-kpi-value font-mono font-bold text-accent">{deliveryRate}%</div>
+                        <div className="app-kpi-value font-mono font-bold text-accent">{deliveryRate}%</div>
                     </div>
                 </div>
 
                 {/* Table + footer */}
-                <div className="rmm-responsive-main flex flex-col">
+                <div className="app-responsive-main flex min-h-0 flex-col overflow-hidden">
                     {isLoadingRations ? (
                         <div className="flex-1 flex items-center justify-center text-txt-disabled font-mono text-xs">
                             Loading history...
                         </div>
                     ) : (
-                        <div className="flex-1 overflow-auto">
+                        <div className="app-table-region app-table-frame">
                             <RationHistoryTable rations={rations} personMap={personMap} />
                         </div>
                     )}
