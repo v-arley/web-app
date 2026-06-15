@@ -39,6 +39,17 @@ type AdmissionRequestCardProps = {
 };
 
 const professionNameMap: Record<string, string> = {
+  AGRI: "Agriculture",
+  LOGIS: "Logistics",
+  EXPLO: "Exploration",
+  MEDI: "Medicine",
+  SEGUR: "Security",
+  TELE: "Communication",
+  INGEN: "Engineering",
+  COCIN: "Cooking",
+  MANTE: "Maintenance",
+  CUARENTENA: "Quarantine",
+
   "PROF-AGR": "Agriculture",
   "PROF-LOG": "Logistics",
   "PROF-EXP": "Exploration",
@@ -84,6 +95,13 @@ function formatRisk(value?: string | null) {
   return riskMap[normalizedValue] ?? value;
 }
 
+function formatAiDecision(apto?: boolean) {
+  if (apto === true) return "Accept";
+  if (apto === false) return "Reject";
+
+  return "Not evaluated";
+}
+
 function formatPersonName(admission: AdmissionRequestExtended) {
   const person = admission.person;
 
@@ -119,11 +137,22 @@ function MiniBox({
   label,
   value,
   accent = false,
+  variant = "default",
 }: {
   label: string;
   value: ReactNode;
   accent?: boolean;
+  variant?: "default" | "success" | "danger";
 }) {
+  const valueColor =
+    variant === "success"
+      ? "text-status-ok"
+      : variant === "danger"
+        ? "text-status-critical"
+        : accent
+          ? "text-accent"
+          : "text-txt-primary";
+
   return (
     <div className="border border-border-default bg-bg-primary px-4 py-3">
       <p className="text-[12px] font-bold uppercase tracking-[0.13em] text-txt-disabled">
@@ -131,9 +160,7 @@ function MiniBox({
       </p>
 
       <div
-        className={`mt-2 text-[15px] font-bold leading-relaxed tracking-[0.03em] ${
-          accent ? "text-accent" : "text-txt-primary"
-        }`}
+        className={`mt-2 text-[15px] font-bold leading-relaxed tracking-[0.03em] ${valueColor}`}
       >
         {value}
       </div>
@@ -148,6 +175,15 @@ export function AdmissionRequestCard({
   onAccept,
   onReject,
 }: AdmissionRequestCardProps) {
+  const aiDecision = formatAiDecision(evaluation?.apto);
+
+  const decisionVariant =
+    evaluation?.apto === true
+      ? "success"
+      : evaluation?.apto === false
+        ? "danger"
+        : "default";
+
   return (
     <article className="border border-border-default bg-bg-secondary p-5">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -166,32 +202,37 @@ export function AdmissionRequestCard({
         </div>
 
         <div className="flex gap-3">
-          <button
+         <button
             type="button"
             onClick={() => onAccept(admission)}
             disabled={isUpdating}
-            className="flex h-10 items-center justify-center gap-2 border border-status-ok/50 bg-status-ok/10 px-4 text-[12px] font-bold uppercase tracking-[0.14em] text-status-ok transition-colors hover:bg-status-ok hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="users-system-action-btn admission-toolbar-btn admission-toolbar-btn--accept"
           >
             <Check size={14} />
             Accept
           </button>
-
-          <button
-            type="button"
-            onClick={() => onReject(admission.id)}
-            disabled={isUpdating}
-            className="flex h-10 items-center justify-center gap-2 border border-status-critical/50 bg-status-critical/10 px-4 text-[12px] font-bold uppercase tracking-[0.14em] text-status-critical transition-colors hover:bg-status-critical hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <X size={14} />
-            Reject
-          </button>
+            <button
+              type="button"
+              onClick={() => onReject(admission.id)}
+              disabled={isUpdating}
+              className="users-system-action-btn admission-toolbar-btn admission-toolbar-btn--reject"
+            >
+              <X size={14} />
+              Reject
+            </button>
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-4">
         <MiniBox
           label="DNI"
           value={admission.person?.dni ?? `Person #${admission.person_id}`}
+        />
+
+        <MiniBox
+          label="AI Decision"
+          value={aiDecision}
+          variant={decisionVariant}
         />
 
         <MiniBox
@@ -210,7 +251,7 @@ export function AdmissionRequestCard({
       <div className="mt-4 border border-border-default bg-bg-primary p-4">
         <div className="mb-3 flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-accent">
           <BrainCircuit size={14} />
-          AI Evaluation
+          AI Evaluation Reason
         </div>
 
         <p className="text-[13px] font-bold leading-relaxed tracking-[0.04em] text-txt-secondary">

@@ -102,7 +102,7 @@ export function AdmissionRequestsPanel({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-bg-app">
+     <div className="users-system-scope flex min-h-0 flex-1 flex-col overflow-hidden bg-bg-app">
         <div className="flex shrink-0 items-center justify-between border-b border-border-default bg-bg-secondary px-5 py-3">
           <div className="flex items-center gap-3">
             <ClipboardList size={18} className="text-accent" />
@@ -124,14 +124,14 @@ export function AdmissionRequestsPanel({
             </span>
 
             {onBackToStaff ? (
-              <button
-                type="button"
-                onClick={onBackToStaff}
-                className="flex h-9 items-center justify-center gap-2 border border-border-default bg-bg-primary px-3 text-[12px] font-bold uppercase tracking-[0.12em] text-txt-primary transition-colors hover:border-accent hover:text-accent"
-              >
-                <ArrowLeft size={14} />
-                Back
-              </button>
+           <button
+              type="button"
+              onClick={onBackToStaff}
+              className="users-system-action-btn users-system-action-btn--secondary admission-toolbar-btn"
+            >
+              <ArrowLeft size={14} />
+              Back
+            </button>
             ) : null}
           </div>
         </div>
@@ -153,7 +153,7 @@ export function AdmissionRequestsPanel({
                   admission={admission}
                   evaluation={
                     admission.id
-                      ? evaluationsByAdmissionId[admission.id]
+                      ? evaluationsByAdmissionId[Number(admission.id)]?.evaluation
                       : undefined
                   }
                   isUpdating={updatingId === admission.id}
@@ -169,6 +169,11 @@ export function AdmissionRequestsPanel({
       {selectedAdmission ? (
         <AdmissionApprovalModal
           admission={selectedAdmission}
+          aiEvaluation={
+            selectedAdmission.id
+              ? evaluationsByAdmissionId[Number(selectedAdmission.id)]
+              : undefined
+          }
           onClose={() => setSelectedAdmission(null)}
           onConfirm={handleConfirmApproval}
         />

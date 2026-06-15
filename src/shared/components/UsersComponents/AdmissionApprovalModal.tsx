@@ -69,6 +69,64 @@ function normalize(value?: string | null) {
   );
 }
 
+function getProfessionEnglishName(value?: string | null) {
+  const normalizedValue = value?.trim().toUpperCase() ?? "";
+
+  const map: Record<string, string> = {
+    AGRI: "Farmer",
+    MEDI: "Doctor",
+    INGEN: "Engineer",
+    EXPLO: "Explorer",
+    LOGIS: "Logistics",
+    SEGUR: "Security Agent",
+    TELE: "Communications Technician",
+    COCIN: "Cook",
+    MANTE: "Maintenance Technician",
+    CUARENTENA: "Quarantine",
+
+    "PROF-AGR": "Farmer",
+    "PROF-MED": "Doctor",
+    "PROF-ENG": "Engineer",
+    "PROF-EXP": "Explorer",
+    "PROF-LOG": "Logistics",
+    "PROF-SEC": "Security Agent",
+    "PROF-COM": "Communications Technician",
+    "PROF-COC": "Cook",
+    "PROF-COOK": "Cook",
+  };
+
+  return map[normalizedValue] ?? value ?? "";
+}
+
+function getProfessionCode(value?: string | null) {
+  const normalizedValue = value?.trim().toUpperCase() ?? "";
+
+  const map: Record<string, string> = {
+    AGRI: "AGRI",
+    MEDI: "MEDI",
+    INGEN: "INGEN",
+    EXPLO: "EXPLO",
+    LOGIS: "LOGIS",
+    SEGUR: "SEGUR",
+    TELE: "TELE",
+    COCIN: "COCIN",
+    MANTE: "MANTE",
+    CUARENTENA: "CUARENTENA",
+
+    "PROF-AGR": "AGRI",
+    "PROF-MED": "MEDI",
+    "PROF-ENG": "INGEN",
+    "PROF-EXP": "EXPLO",
+    "PROF-LOG": "LOGIS",
+    "PROF-SEC": "SEGUR",
+    "PROF-COM": "TELE",
+    "PROF-COC": "COCIN",
+    "PROF-COOK": "COCIN",
+  };
+
+  return map[normalizedValue] ?? normalizedValue;
+}
+
 function getRoleText(role: Role) {
   const rawRole = role as Role & {
     code?: string;
@@ -136,9 +194,9 @@ function getProfessionLabel(profession: Profession) {
   };
 
   const code = rawProfession.code ?? `PROF-${profession.id}`;
-  const name = rawProfession.name ?? rawProfession.description ?? "";
+  const englishName = getProfessionEnglishName(code);
 
-  return name ? `${code} · ${name}` : code;
+  return englishName ? `${code} · ${englishName}` : code;
 }
 
 function getProfessionSearchText(profession: Profession) {
@@ -159,16 +217,21 @@ function findRecommendedProfessionId(
   professions: Profession[],
   recommendedProfession: string,
 ) {
-  const recommendedText = normalize(recommendedProfession);
+  const recommendedCode = getProfessionCode(recommendedProfession);
 
-  if (!recommendedText) return "";
+  if (!recommendedCode) return "";
 
-  const exactMatch = professions.find((profession) => {
-    const professionText = getProfessionSearchText(profession);
-    return professionText === recommendedText;
+  const codeMatch = professions.find((profession) => {
+    const rawProfession = profession as Profession & {
+      code?: string;
+    };
+
+    return getProfessionCode(rawProfession.code) === recommendedCode;
   });
 
-  if (exactMatch?.id) return String(exactMatch.id);
+  if (codeMatch?.id) return String(codeMatch.id);
+
+  const recommendedText = normalize(recommendedProfession);
 
   const partialMatch = professions.find((profession) => {
     const professionText = getProfessionSearchText(profession);
@@ -181,6 +244,8 @@ function findRecommendedProfessionId(
 
   return partialMatch?.id ? String(partialMatch.id) : "";
 }
+
+
 
 export function AdmissionApprovalModal({
   admission,
@@ -204,18 +269,14 @@ export function AdmissionApprovalModal({
   const [loadingCatalogs, setLoadingCatalogs] = useState(true);
   const [localError, setLocalError] = useState("");
 
-  const recommendedProfession =
-    aiEvaluation?.evaluation.asignacion_recomendada ?? "";
+const recommendedProfessionCode =
+  aiEvaluation?.evaluation.asignacion_recomendada ?? "";
 
-  const selectedRole = useMemo(() => {
-    return roles.find((role) => role.id === Number(roleId));
-  }, [roles, roleId]);
-
-  const selectedProfession = useMemo(() => {
-    return professions.find(
-      (profession) => profession.id === Number(professionId),
-    );
-  }, [professions, professionId]);
+const recommendedProfession = recommendedProfessionCode
+  ? `${getProfessionCode(recommendedProfessionCode)} · ${getProfessionEnglishName(
+      recommendedProfessionCode,
+    )}`
+  : "";
 
   useEffect(() => {
     let mounted = true;
@@ -378,16 +439,6 @@ export function AdmissionApprovalModal({
                 <span className="text-status-critical">*</span> Required fields
               </p>
             </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close admission approval modal"
-              title="Close admission approval modal"
-              className="flex h-11 w-11 items-center justify-center border border-border-strong text-txt-primary transition-colors hover:border-accent hover:bg-accent hover:text-accent-fg"
-            >
-              <X className="h-5 w-5" />
-            </button>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 md:px-8">
@@ -423,35 +474,33 @@ export function AdmissionApprovalModal({
             />
           </div>
 
-          <div className="flex shrink-0 flex-col gap-3 border-t border-border-default bg-bg-secondary px-6 py-4 sm:flex-row sm:items-center sm:justify-between md:px-8">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="border border-border-strong bg-bg-primary px-7 py-3 text-[14px] font-bold uppercase tracking-[0.12em] text-txt-primary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Cancel
-            </button>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
+         <div className="flex shrink-0 flex-col gap-3 border-t border-border-default bg-bg-secondary px-6 py-4 sm:flex-row sm:items-center sm:justify-end md:px-8">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
               {step === 2 ? (
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  disabled={isSubmitting}
-                  className="flex items-center justify-center gap-2 border border-border-strong bg-bg-primary px-7 py-3 text-[14px] font-bold uppercase tracking-[0.12em] text-txt-primary transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <ChevronLeft size={15} />
-                  Back
-                </button>
+             <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="users-system-action-btn"
+              >
+                <ChevronLeft size={14} />
+                Back
+              </button>
               ) : null}
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="users-system-action-btn"
+              >
+                Cancel
+              </button>
 
               {step === 1 ? (
                 <button
                   type="button"
                   onClick={handleNext}
                   disabled={loadingCatalogs || isSubmitting || roles.length === 0}
-                  className="flex items-center justify-center gap-2 border border-accent bg-accent px-7 py-3 text-[14px] font-bold uppercase tracking-[0.12em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-60"
+                  className="users-system-action-btn users-system-action-btn--primary"
                 >
                   Next
                   <ChevronRight size={15} />
@@ -461,7 +510,7 @@ export function AdmissionApprovalModal({
                   type="button"
                   onClick={() => void handleConfirm()}
                   disabled={isSubmitting}
-                  className="flex items-center justify-center gap-2 border border-accent bg-accent px-7 py-3 text-[14px] font-bold uppercase tracking-[0.12em] text-accent-fg transition-colors hover:bg-accent-hover disabled:cursor-not-allowed disabled:border-border-default disabled:bg-bg-tertiary disabled:text-txt-disabled disabled:opacity-60"
+                  className="users-system-action-btn users-system-action-btn--primary"
                 >
                   {isSubmitting ? (
                     "Processing..."

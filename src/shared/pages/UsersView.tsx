@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AlertTriangle, ClipboardList, Download, FilterX, RefreshCw, Search, UserPlus, Users as UsersIcon,} from "lucide-react";
+import "../../users-system.css";
 
 import { UserCard } from "../components/UsersComponents/UserCard";
 import { UserProfileModal } from "../components/UsersComponents/UserProfileModal";
@@ -245,26 +246,24 @@ export function UsersView() {
     );
   }
 
-  return (
-    <div className="flex h-full min-h-0 w-full flex-col bg-bg-app">
-      <div className="shrink-0 border-b border-border-default bg-bg-secondary px-6 py-4">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-txt-disabled">
-              Camp population
-            </p>
+ return (
+    <div className="users-system-scope flex h-full min-h-0 w-full flex-col bg-bg-app">
+      <div className="users-system-header">
+        <div className="users-system-header-inner">
+         <div className="users-system-header-copy">
+            <p className="users-system-eyebrow">Camp population</p>
 
-            <h1 className="mt-1 flex items-center gap-3 text-[24px] font-black uppercase tracking-[0.12em] text-txt-primary">
-              <UsersIcon size={24} className="text-accent" />
+            <h1 className="users-system-title">
+              <UsersIcon size={24} className="users-system-title-icon" />
               Users
             </h1>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="users-system-actions">
             <button
               type="button"
               onClick={() => setShowAdmissions(true)}
-              className="flex items-center gap-2 border border-border-default bg-bg-tertiary px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-txt-secondary transition-colors hover:border-accent hover:text-accent"
+              className="users-system-action-btn"
             >
               <ClipboardList size={14} />
               Admissions
@@ -291,7 +290,7 @@ export function UsersView() {
             <button
               type="button"
               onClick={() => setIsRegistrationPanelOpen(true)}
-              className="flex items-center gap-2 border border-accent bg-accent px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-accent-fg transition-colors hover:bg-accent-hover"
+             className="users-system-action-btn users-system-action-btn--primary"
             >
               <UserPlus size={14} />
               New user

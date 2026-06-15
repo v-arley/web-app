@@ -16,7 +16,7 @@ type Props = {
 };
 
 const selectClass =
-    "h-11 border border-[#3a3a3a] bg-[#111111] px-4 text-[11px] font-mono uppercase tracking-label text-[#C0C0C0] outline-none transition-colors hover:border-[#E85D04]/70 focus:border-[#E85D04]";
+    "h-11 border border-[#555555] bg-[#2b2b2b] px-4 text-[11px] font-mono uppercase tracking-label text-[#E5E7EB] outline-none transition-colors hover:border-[#E85D04]/70 focus:border-[#E85D04]";
 
 export default function ExplorationFilters({
     search,
@@ -28,26 +28,26 @@ export default function ExplorationFilters({
     onCreateClick,
 }: Props) {
     return (
-        <section className="border border-[#3a3a3a] bg-[#1a1a1a] p-4 shadow-[0_0_18px_rgba(0,0,0,0.35)]">
-            <div className="mb-4 flex flex-col gap-1 border-b border-[#3a3a3a] pb-3">
+        <section className="border border-[#4a4a4a] bg-[#242424] p-4 shadow-[0_0_18px_rgba(0,0,0,0.28)]">
+            <div className="mb-4 flex flex-col gap-1 border-b border-[#4a4a4a] pb-3">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-label text-[#E85D04]">
                     Search panel
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-label text-[#6B7280]">
+                <span className="text-[10px] font-mono uppercase tracking-label text-[#9CA3AF]">
                     Filter explorations by code, name, risk, or status
                 </span>
             </div>
 
             <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center">
-                <div className="flex h-11 w-full overflow-hidden border border-[#3a3a3a] bg-[#111111] transition-colors focus-within:border-[#E85D04] lg:flex-1">
-                    <div className="flex h-full w-11 shrink-0 items-center justify-center border-r border-[#3a3a3a] bg-[#242424]">
+                <div className="flex h-11 w-full overflow-hidden border border-[#555555] bg-[#2b2b2b] transition-colors focus-within:border-[#E85D04] lg:flex-1">
+                    <div className="flex h-full w-11 shrink-0 items-center justify-center border-r border-[#555555] bg-[#303030]">
                         <Search className="h-4 w-4 text-[#E85D04]" />
                     </div>
 
                     <input
                         type="text"
                         placeholder="Search by code, name, or objective..."
-                        className="h-full w-full bg-transparent px-4 text-[12px] font-mono text-white outline-none placeholder:text-[#6B7280]"
+                        className="h-full w-full bg-transparent px-4 text-[12px] font-mono text-white outline-none placeholder:text-[#9CA3AF]"
                         value={search}
                         onChange={(event) => onSearchChange(event.target.value)}
                     />
@@ -84,7 +84,7 @@ export default function ExplorationFilters({
                     <button
                         type="button"
                         onClick={onCreateClick}
-                        className="flex h-11 w-full items-center justify-center gap-2 border border-[#E85D04] bg-[#E85D04] px-5 text-[11px] font-mono font-bold uppercase tracking-label text-[#111111] transition-colors hover:bg-[#FF6A10] disabled:cursor-not-allowed disabled:opacity-60 lg:w-[220px]"
+                        className="flex h-11 w-full items-center justify-center gap-2 border border-[#E85D04] !bg-[#E85D04] px-5 text-[11px] font-mono font-bold uppercase tracking-label !text-[#111111] transition-colors hover:!bg-[#FF6A10] hover:!border-[#FF6A10] disabled:cursor-not-allowed disabled:opacity-60 lg:w-[220px]"
                     >
                         <Plus className="h-4 w-4" />
                         <span>New exploration</span>
