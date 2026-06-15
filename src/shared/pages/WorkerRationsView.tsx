@@ -22,7 +22,7 @@ export function WorkerRationsView() {
         <button
           type="button"
           onClick={() => void reload()}
-          className="flex items-center gap-2 border border-white/10 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono text-[#C0C0C0] hover:text-[#E85D04] hover:border-[#E85D04]/40 uppercase tracking-[0.14em] transition-colors shrink-0"
+          className="flex items-center gap-2 border-2 border-[#E85D04]/70 bg-black/70 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono font-bold text-white uppercase tracking-[0.14em] shadow-[0_0_0_1px_rgba(232,93,4,0.25)] hover:bg-[#E85D04]/10 hover:text-[#E85D04] hover:border-[#E85D04] hover:shadow-[0_0_18px_rgba(232,93,4,0.55)] transition-all shrink-0"
         >
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
           {loading ? "Loading..." : "Refresh"}

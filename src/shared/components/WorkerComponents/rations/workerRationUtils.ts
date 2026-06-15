@@ -22,7 +22,7 @@ export function isDelivered(ration?: Ration | null) {
   return ration?.completed === "Y";
 }
 
-export function getRationResources(ration?: Ration | null) {
+export function getRationResources(ration?: Ration | null): RationResource[] {
   return ration?.sources ?? ration?.rationResources ?? ration?.resources ?? [];
 }
 

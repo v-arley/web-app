@@ -1,13 +1,14 @@
 import { Calendar, ChevronLeft, ChevronRight, Package } from "lucide-react";
 import type { Ration } from "../../../../models/Ration";
+import type { RationResource } from "../../../../models/RationResource";
 import {
   formatDate,
   getRationDate,
   getRationResources,
   getResourceName,
   getResourceUnit,
-} from "../workerRationUtils";
-import { WorkerRationStatusBadge } from "../WorkerRationStatusBadge";
+} from "./workerRationUtils";
+import { WorkerRationStatusBadge } from "./WorkerRationStatusBadge";
 
 type WorkerRationHistoryPanelProps = {
   history: {
@@ -82,7 +83,7 @@ export function WorkerRationHistoryPanel({
                     No resources
                   </span>
                 ) : (
-                  resources.map((resource, index) => (
+                  resources.map((resource: RationResource, index: number) => (
                     <span
                       key={`${resource.resourceId ?? resource.resource_id ?? resource.id}-${index}`}
                       className="px-2 py-1 bg-black/70 border border-white/10 text-[#D0D0D0] text-[11px] uppercase break-words"
@@ -115,7 +116,7 @@ export function WorkerRationHistoryPanel({
             type="button"
             onClick={() => setPage(Math.max(1, page - 1))}
             disabled={page <= 1}
-            className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
+            className="px-3 py-1.5 text-xs border-2 border-[#38BDF8]/55 bg-black/80 text-white ring-1 ring-[#38BDF8]/25 shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] hover:text-[#38BDF8] hover:border-[#38BDF8] hover:bg-[#38BDF8]/12 hover:ring-[#38BDF8]/45 hover:shadow-[inset_0_0_14px_rgba(56,189,248,0.18),0_0_22px_rgba(56,189,248,0.45)] disabled:opacity-40 disabled:hover:border-[#38BDF8]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#38BDF8]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
           >
             <ChevronLeft size={13} />
             Previous
@@ -125,7 +126,7 @@ export function WorkerRationHistoryPanel({
             type="button"
             onClick={() => setPage(Math.min(safeTotalPages, page + 1))}
             disabled={page >= safeTotalPages}
-            className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
+            className="px-3 py-1.5 text-xs border-2 border-[#22C55E]/55 bg-black/80 text-white ring-1 ring-[#22C55E]/25 shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] hover:text-[#22C55E] hover:border-[#22C55E] hover:bg-[#22C55E]/12 hover:ring-[#22C55E]/45 hover:shadow-[inset_0_0_14px_rgba(34,197,94,0.18),0_0_22px_rgba(34,197,94,0.45)] disabled:opacity-40 disabled:hover:border-[#22C55E]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#22C55E]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
           >
             Next
             <ChevronRight size={13} />
