@@ -63,10 +63,10 @@ export function WorkerAchievementsPanel({
           <button
             type="button"
             onClick={() => setPanelTab("UNLOCKED")}
-            className={`px-4 py-1.5 transition uppercase tracking-[0.14em] font-semibold whitespace-nowrap flex-1 sm:flex-none ${
+            className={`px-4 py-2 border-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] transition-all ring-1 ${
               panelTab === "UNLOCKED"
-                ? "bg-[#22C55E] text-[#111111]"
-                : "text-[#A0A0A0] hover:text-[#22C55E]"
+                ? "border-[#22C55E] bg-[#22C55E]/20 text-[#22C55E] ring-[#22C55E]/40 shadow-[inset_0_0_12px_rgba(34,197,94,0.18),0_0_18px_rgba(34,197,94,0.35)]"
+                : "border-[#22C55E]/45 bg-black/80 text-[#D0D0D0] ring-[#22C55E]/20 shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_10px_rgba(34,197,94,0.18)] hover:border-[#22C55E] hover:text-[#22C55E] hover:bg-[#22C55E]/12 hover:ring-[#22C55E]/45 hover:shadow-[inset_0_0_14px_rgba(34,197,94,0.18),0_0_22px_rgba(34,197,94,0.45)]"
             }`}
           >
             Unlocked ({unlockedTotal})
@@ -75,10 +75,10 @@ export function WorkerAchievementsPanel({
           <button
             type="button"
             onClick={() => setPanelTab("PENDING")}
-            className={`px-4 py-1.5 transition uppercase tracking-[0.14em] font-semibold whitespace-nowrap flex-1 sm:flex-none ${
+            className={`px-4 py-2 border-2 font-mono text-[10px] font-bold uppercase tracking-[0.14em] transition-all ring-1 ${
               panelTab === "PENDING"
-                ? "bg-[#E85D04] text-[#111111]"
-                : "text-[#A0A0A0] hover:text-[#E85D04]"
+                ? "border-[#FACC15] bg-[#FACC15]/20 text-[#FACC15] ring-[#FACC15]/40 shadow-[inset_0_0_12px_rgba(250,204,21,0.18),0_0_18px_rgba(250,204,21,0.35)]"
+                : "border-[#FACC15]/45 bg-black/80 text-[#D0D0D0] ring-[#FACC15]/20 shadow-[inset_0_0_10px_rgba(250,204,21,0.10),0_0_10px_rgba(250,204,21,0.18)] hover:border-[#FACC15] hover:text-[#FACC15] hover:bg-[#FACC15]/12 hover:ring-[#FACC15]/45 hover:shadow-[inset_0_0_14px_rgba(250,204,21,0.18),0_0_22px_rgba(250,204,21,0.45)]"
             }`}
           >
             Pending ({pendingTotal})
@@ -139,7 +139,7 @@ export function WorkerAchievementsPanel({
               type="button"
               onClick={() => setUnlockedPage(Math.max(1, unlockedPage - 1))}
               disabled={unlockedPage <= 1}
-              className="px-3 py-1.5 text-xs border border-white/10 bg-black/40 hover:border-[#22C55E]/40 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#22C55E] transition font-mono uppercase tracking-[0.14em] whitespace-nowrap"
+              className="px-3 py-1.5 text-xs border-2 border-[#38BDF8]/55 bg-black/80 text-white ring-1 ring-[#38BDF8]/25 shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] hover:text-[#38BDF8] hover:border-[#38BDF8] hover:bg-[#38BDF8]/12 hover:ring-[#38BDF8]/45 hover:shadow-[inset_0_0_14px_rgba(56,189,248,0.18),0_0_22px_rgba(56,189,248,0.45)] disabled:opacity-40 disabled:hover:border-[#38BDF8]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#38BDF8]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
             >
               <ChevronLeft size={13} className="inline mr-1" />
               Previous
@@ -151,7 +151,7 @@ export function WorkerAchievementsPanel({
                 setUnlockedPage(Math.min(unlockedTotalPages, unlockedPage + 1))
               }
               disabled={unlockedPage >= unlockedTotalPages}
-              className="px-3 py-1.5 text-xs border border-white/10 bg-black/40 hover:border-[#22C55E]/40 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#22C55E] transition font-mono uppercase tracking-[0.14em] whitespace-nowrap"
+              className="px-3 py-1.5 text-xs border-2 border-[#22C55E]/50 bg-black/70 text-white ring-1 ring-[#22C55E]/20 shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] hover:text-[#22C55E] hover:border-[#22C55E] hover:bg-[#22C55E]/10 hover:ring-[#22C55E]/40 hover:shadow-[inset_0_0_14px_rgba(34,197,94,0.18),0_0_22px_rgba(34,197,94,0.45)] disabled:opacity-40 disabled:hover:border-[#22C55E]/50 disabled:hover:text-white disabled:hover:bg-black/70 disabled:hover:shadow-none transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
             >
               Next
               <ChevronRight size={13} className="inline ml-1" />
