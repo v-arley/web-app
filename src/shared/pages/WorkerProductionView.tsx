@@ -1,6 +1,5 @@
 import {
   AlertTriangle,
-  Award,
   Calendar,
   CheckCircle,
   ChevronLeft,
@@ -8,91 +7,27 @@ import {
   Database,
   RefreshCw,
   Scale,
-  Sparkles,
   Terminal,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useResourceProduction } from "../hooks/useResourceProduction";
-import type { CampProductionRule } from "../../models/CampProductionRule";
-import type { WorkerProductionHistoryItem } from "../../models/ResourceProduction";
-
-function getTodayDate() {
-  return new Date().toISOString().split("T")[0];
-}
-
-function formatDate(value?: string | Date | null) {
-  if (!value) return "N/A";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "N/A";
-
-  return date.toLocaleDateString("es-CR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-function getExpectedAmount(rule?: CampProductionRule | null) {
-  return rule?.expectedAmount ?? rule?.expected_amount ?? 0;
-}
-
-function getEffectiveDate(rule?: CampProductionRule | null) {
-  return rule?.effectiveDate ?? rule?.effective_date;
-}
-
-function getResourceId(rule?: CampProductionRule | null) {
-  return rule?.resourceId ?? rule?.resource_id ?? rule?.resource?.id ?? 0;
-}
-
-function getResourceName(rule?: CampProductionRule | null) {
-  return rule?.resource?.name ?? `Recurso #${getResourceId(rule) || "N/A"}`;
-}
-
-function getResourceCode(rule?: CampProductionRule | null) {
-  return rule?.resource?.code ?? `RES-${getResourceId(rule) || "N/A"}`;
-}
-
-function getResourceUnit(rule?: CampProductionRule | null) {
-  return (
-    rule?.resource?.unitOfMeasure ??
-    rule?.resource?.unit_of_measure ??
-    rule?.resource?.unitName ??
-    rule?.resource?.unit_name ??
-    rule?.resource?.unit ??
-    "u"
-  );
-}
-
-function getProfessionName(rule?: CampProductionRule | null) {
-  return (
-    rule?.profession?.name ??
-    `Profesión #${rule?.professionId ?? rule?.profession_id ?? "N/A"}`
-  );
-}
-
-function getProductionDate(item: WorkerProductionHistoryItem) {
-  return item.productionDate ?? item.production_date;
-}
-
-function getHistoryResource(
-  item: WorkerProductionHistoryItem,
-  rule?: CampProductionRule | null,
-) {
-  return (
-    item.resource?.name ??
-    rule?.resource?.name ??
-    `Recurso #${item.resourceId ?? item.resource_id ?? "N/A"}`
-  );
-}
-
-function getHistoryExpected(
-  item: WorkerProductionHistoryItem,
-  rule?: CampProductionRule | null,
-) {
-  return item.expectedAmount ?? item.expected_amount ?? getExpectedAmount(rule);
-}
+import { WorkerProductionResultAlert } from "../components/WorkerComponents/production/WorkerProductionResultAlert";
+import { WorkerProductionRulesPanel } from "../components/WorkerComponents/production/WorkerProductionRulesPanel";
+import {
+  formatDate,
+  getEffectiveDate,
+  getExpectedAmount,
+  getHistoryExpected,
+  getHistoryResource,
+  getProductionDate,
+  getProfessionName,
+  getResourceCode,
+  getResourceId,
+  getResourceName,
+  getResourceUnit,
+  getTodayDate,
+} from "../components/WorkerComponents/production/workerProductionUtils";
 
 export function WorkerProductionView() {
   const {
@@ -160,7 +95,7 @@ export function WorkerProductionView() {
         <button
           type="button"
           onClick={() => void reload()}
-          className="flex items-center gap-2 border border-white/10 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono text-[#C0C0C0] hover:text-[#E85D04] hover:border-[#E85D04]/40 uppercase tracking-[0.14em] transition-colors shrink-0"
+          className="flex items-center gap-2 border-2 border-[#E85D04]/70 bg-black/70 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono font-bold text-white uppercase tracking-[0.14em] shadow-[0_0_0_1px_rgba(232,93,4,0.25)] hover:bg-[#E85D04]/10 hover:text-[#E85D04] hover:border-[#E85D04] hover:shadow-[0_0_18px_rgba(232,93,4,0.55)] transition-all shrink-0"
         >
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
           {loading ? "Loading..." : "Refresh"}
@@ -177,161 +112,20 @@ export function WorkerProductionView() {
           )}
 
           {lastResult && (
-            <div className="p-4 bg-black/70 backdrop-blur-sm border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs space-y-2">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-start sm:items-center gap-2 min-w-0">
-                  <Sparkles
-                    size={17}
-                    className="text-[#FACC15] shrink-0 mt-0.5 sm:mt-0"
-                  />
-                  <span className="font-bold uppercase tracking-[0.14em] break-words">
-                    Production recorded successfully
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={clearLastResult}
-                  className="text-[#9A9A9A] hover:text-[#22C55E] uppercase tracking-[0.14em] self-end sm:self-auto shrink-0"
-                >
-                  Close
-                </button>
-              </div>
-
-              <p className="text-[#D0D0D0] break-words">
-                Recorded{" "}
-                <strong className="text-[#FACC15]">{lastResult.amount}</strong>{" "}
-                {unit}.
-              </p>
-
-              {lastResult.pointsAwarded !== undefined && (
-                <p className="text-[#D0D0D0] break-words">
-                  Points awarded:{" "}
-                  <strong className="text-[#FACC15]">
-                    +{lastResult.pointsAwarded}
-                  </strong>
-                </p>
-              )}
-
-              {lastResult.points && (
-                <p className="text-[#D0D0D0] break-words">
-                  Current total:{" "}
-                  <strong className="text-[#FACC15]">
-                    {lastResult.points.totalPoints ??
-                      lastResult.points.total_points ??
-                      0}
-                  </strong>{" "}
-                  | Level:{" "}
-                  <strong className="text-[#FACC15]">
-                    {lastResult.points.level ?? "N/A"}
-                  </strong>
-                </p>
-              )}
-
-              {!!lastResult.unlockedAchievements?.length && (
-                <div className="border border-[#FACC15]/40 bg-black/65 p-3 text-[#FACC15]">
-                  <div className="flex items-center gap-2 font-bold uppercase tracking-[0.14em]">
-                    <Award size={15} className="shrink-0" />
-                    <span className="break-words">Unlocked achievements</span>
-                  </div>
-
-                  <p className="mt-1 text-[#D0D0D0] break-words">
-                    Unlocked {lastResult.unlockedAchievements.length} new
-                    achievement(s).
-                  </p>
-                </div>
-              )}
-            </div>
+            <WorkerProductionResultAlert
+              lastResult={lastResult}
+              unit={unit}
+              clearLastResult={clearLastResult}
+            />
           )}
 
-          <section className="border border-[#38BDF8]/35 bg-black/65 backdrop-blur-sm p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <div className="min-w-0">
-                <span className="text-[10px] text-[#9A9A9A] font-mono uppercase tracking-[0.14em] break-words">
-                  Available production rules
-                </span>
-                <h3 className="text-sm text-white font-mono font-bold uppercase tracking-[0.14em] break-words">
-                  Select the resource you will produce
-                </h3>
-              </div>
-
-              <span className="text-[#38BDF8] border border-[#38BDF8]/50 bg-black/60 px-3 py-1 text-[10px] font-mono uppercase font-bold w-full sm:w-auto text-center shrink-0">
-                {rules.length} rule(s)
-              </span>
-            </div>
-
-            {loading ? (
-              <div className="text-[#9A9A9A] font-mono text-xs uppercase tracking-[0.14em]">
-                Loading production rules...
-              </div>
-            ) : rules.length === 0 ? (
-              <div className="border border-[#FACC15]/40 bg-black/70 p-4 text-[#FACC15] font-mono text-xs uppercase tracking-[0.14em]">
-                No production rules assigned.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                {rules.map((item, index) => {
-                  const selected = selectedRuleIndex === index;
-
-                  return (
-                    <button
-                      key={`${getResourceId(item)}-${String(getEffectiveDate(item))}-${index}`}
-                      type="button"
-                      onClick={() => {
-                        setSelectedRuleIndex(index);
-                        setAmountValue("");
-                      }}
-                      className={`text-left border-2 p-3 transition-all font-mono min-w-0 ${
-                        selected
-                          ? "border-[#E85D04] bg-[#E85D04]/10 text-white shadow-[0_0_0_1px_rgba(232,93,4,0.45)] hover:shadow-[0_0_18px_rgba(232,93,4,0.55)]"
-                          : "border-[#38BDF8] bg-[#111111] text-[#C0C0C0] shadow-[0_0_0_1px_rgba(56,189,248,0.45)] hover:shadow-[0_0_18px_rgba(56,189,248,0.55)]"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-[#9A9A9A] uppercase tracking-[0.14em] break-all">
-                          {getResourceCode(item)}
-                        </span>
-
-                        <span
-                          className={`text-[9px] border px-2 py-0.5 uppercase whitespace-nowrap shrink-0 ${
-                            selected
-                              ? "text-[#E85D04] border-[#E85D04]/60 bg-black/60"
-                              : "text-[#38BDF8] border-[#38BDF8]/40 bg-black/60"
-                          }`}
-                        >
-                          {selected ? "Selected" : "Available"}
-                        </span>
-                      </div>
-
-                      <div className="mt-2 text-sm font-bold uppercase tracking-[0.14em] break-words">
-                        {getResourceName(item)}
-                      </div>
-
-                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
-                        <div className="min-w-0">
-                          <span className="block text-[#9A9A9A] uppercase">
-                            Quota
-                          </span>
-                          <strong className="text-[#FACC15] break-words">
-                            {getExpectedAmount(item)} {getResourceUnit(item)}
-                          </strong>
-                        </div>
-
-                        <div className="min-w-0">
-                          <span className="block text-[#9A9A9A] uppercase">
-                            From
-                          </span>
-                          <strong className="text-white break-words">
-                            {formatDate(getEffectiveDate(item))}
-                          </strong>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          <WorkerProductionRulesPanel
+            rules={rules}
+            loading={loading}
+            selectedRuleIndex={selectedRuleIndex}
+            setSelectedRuleIndex={setSelectedRuleIndex}
+            setAmountValue={setAmountValue}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <section className="lg:col-span-5 border border-[#E85D04]/35 bg-black/65 backdrop-blur-sm p-4 sm:p-5 min-w-0">
@@ -557,7 +351,7 @@ export function WorkerProductionView() {
                 <button
                   type="submit"
                   disabled={!selectedRule || saving || amount <= 0}
-                  className="w-full py-3 bg-[#E85D04] hover:bg-[#FF6A10] disabled:bg-black/70 disabled:text-[#7C7C7C] text-[#111111] font-bold uppercase tracking-[0.14em] transition-colors font-mono"
+                  className="w-full py-3 border-2 border-[#22C55E]/70 bg-black/80 text-[#22C55E] ring-1 ring-[#22C55E]/30 shadow-[inset_0_0_12px_rgba(34,197,94,0.12),0_0_16px_rgba(34,197,94,0.28)] hover:bg-[#22C55E]/15 hover:border-[#22C55E] hover:text-white hover:ring-[#22C55E]/50 hover:shadow-[inset_0_0_16px_rgba(34,197,94,0.2),0_0_24px_rgba(34,197,94,0.5)] disabled:border-white/10 disabled:bg-black/70 disabled:text-[#7C7C7C] disabled:ring-white/10 disabled:shadow-none disabled:hover:bg-black/70 disabled:hover:border-white/10 disabled:hover:text-[#7C7C7C] font-bold uppercase tracking-[0.14em] transition-all font-mono"
                 >
                   {saving ? "Recording..." : "Record production"}
                 </button>
@@ -668,7 +462,7 @@ export function WorkerProductionView() {
                   type="button"
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page <= 1}
-                  className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
+                  className="px-3 py-1.5 text-xs border-2 border-[#38BDF8]/55 bg-black/80 text-white ring-1 ring-[#38BDF8]/25 shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] hover:text-[#38BDF8] hover:border-[#38BDF8] hover:bg-[#38BDF8]/12 hover:ring-[#38BDF8]/45 hover:shadow-[inset_0_0_14px_rgba(56,189,248,0.18),0_0_22px_rgba(56,189,248,0.45)] disabled:opacity-40 disabled:hover:border-[#38BDF8]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#38BDF8]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
                 >
                   <ChevronLeft size={13} />
                   Previous
@@ -680,7 +474,7 @@ export function WorkerProductionView() {
                     setPage(Math.min(history.totalPages || 1, page + 1))
                   }
                   disabled={page >= (history.totalPages || 1)}
-                  className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
+                 className="px-3 py-1.5 text-xs border-2 border-[#22C55E]/55 bg-black/80 text-white ring-1 ring-[#22C55E]/25 shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] hover:text-[#22C55E] hover:border-[#22C55E] hover:bg-[#22C55E]/12 hover:ring-[#22C55E]/45 hover:shadow-[inset_0_0_14px_rgba(34,197,94,0.18),0_0_22px_rgba(34,197,94,0.45)] disabled:opacity-40 disabled:hover:border-[#22C55E]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#22C55E]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
                 >
                   Next
                   <ChevronRight size={13} />
