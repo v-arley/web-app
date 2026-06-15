@@ -1,0 +1,218 @@
+.settings-system-scope {
+  --settings-ring: 0 0 0 1px rgba(232, 93, 4, 0.45),
+    0 0 0 3px rgba(232, 93, 4, 0.12);
+
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-bg-app);
+  color: var(--color-txt-primary);
+  font-family: var(--font-ibmplex, "IBMplex", "Courier New", monospace);
+}
+
+/* Menú superior */
+.settings-system-header {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-default);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px);
+}
+
+.settings-system-title {
+  color: var(--color-txt-secondary);
+  font-family: var(--font-ibmplex, "IBMplex", "Courier New", monospace);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.settings-system-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border-default);
+  background: color-mix(in srgb, var(--color-bg-tertiary) 88%, black);
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.settings-system-tab {
+  position: relative;
+  min-height: 2.35rem;
+  padding: 0.55rem 1.35rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-txt-secondary);
+  font-family: var(--font-ibmplex, "IBMplex", "Courier New", monospace);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-base, 150ms),
+    background-color var(--duration-base, 150ms),
+    border-color var(--duration-base, 150ms),
+    box-shadow var(--duration-base, 150ms);
+}
+
+.settings-system-tab:hover {
+  border-color: var(--color-border-strong);
+  background: color-mix(in srgb, var(--color-bg-secondary) 80%, transparent);
+  color: var(--color-txt-primary);
+}
+
+.settings-system-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--settings-ring);
+}
+
+.settings-system-tab--active {
+  border-color: color-mix(in srgb, var(--color-accent) 50%, black);
+  background: color-mix(in srgb, var(--color-accent) 16%, var(--color-bg-secondary));
+  color: var(--color-accent);
+}
+
+.settings-system-tab--active::after {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  right: 0.6rem;
+  bottom: 0.25rem;
+  height: 2px;
+  background: var(--color-accent);
+}
+
+/* Contenido */
+.settings-system-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.settings-system-scope button {
+  font-family: var(--font-ibmplex, "IBMplex", "Courier New", monospace);
+}
+
+/* Botones normales.
+   Solo excluye las filas/listados que son botones con grid + border-b.
+*/
+.settings-system-content button:not(.settings-system-tab):not([class*="grid"][class*="border-b"]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  border: 1px solid var(--color-border-default);
+  background: color-mix(in srgb, var(--color-bg-tertiary) 92%, black);
+  color: var(--color-txt-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-base, 150ms),
+    background-color var(--duration-base, 150ms),
+    border-color var(--duration-base, 150ms),
+    box-shadow var(--duration-base, 150ms),
+    opacity var(--duration-base, 150ms);
+}
+
+.settings-system-content button:not(.settings-system-tab):not([class*="grid"][class*="border-b"]):hover {
+  border-color: var(--color-border-strong);
+  background: color-mix(in srgb, var(--color-bg-secondary) 96%, black);
+  color: var(--color-txt-primary);
+}
+
+.settings-system-content button:not(.settings-system-tab):focus-visible {
+  outline: none;
+  box-shadow: var(--settings-ring);
+}
+
+.settings-system-content button:disabled,
+.settings-system-content button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Botones principales */
+.settings-system-content button.bg-accent:not([class*="grid"][class*="border-b"]),
+.settings-system-content button[class*="bg-accent"]:not([class*="grid"][class*="border-b"]) {
+  border-color: color-mix(in srgb, var(--color-accent) 55%, black);
+  background: var(--color-accent);
+  color: var(--color-accent-fg, #0d0d0d);
+}
+
+.settings-system-content button.bg-accent:not([class*="grid"][class*="border-b"]):hover,
+.settings-system-content button[class*="bg-accent"]:not([class*="grid"][class*="border-b"]):hover {
+  border-color: color-mix(in srgb, var(--color-accent-hover) 60%, black);
+  background: var(--color-accent-hover);
+  color: var(--color-accent-fg, #0d0d0d);
+}
+
+/* Botones danger */
+.settings-system-content button.text-status-critical:not([class*="grid"][class*="border-b"]),
+.settings-system-content button[class*="text-status-critical"]:not([class*="grid"][class*="border-b"]) {
+  border-color: color-mix(in srgb, var(--color-status-critical) 35%, transparent);
+  background: color-mix(in srgb, var(--color-status-critical) 8%, transparent);
+  color: var(--color-status-critical);
+}
+
+.settings-system-content button.text-status-critical:not([class*="grid"][class*="border-b"]):hover,
+.settings-system-content button[class*="text-status-critical"]:not([class*="grid"][class*="border-b"]):hover {
+  background: color-mix(in srgb, var(--color-status-critical) 16%, transparent);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .settings-system-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 0.75rem 1rem;
+  }
+
+  .settings-system-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .settings-system-tab {
+    flex: 1 0 auto;
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .settings-system-tab {
+    min-height: 2.15rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .settings-system-title {
+    font-size: 11px;
+  }
+}

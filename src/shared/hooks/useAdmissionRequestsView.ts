@@ -11,6 +11,13 @@ const admissionRequestService = new AdmissionRequestService();
 const aiDecisionService = new AiDecisionService();
 const aiPromptService = new AiPromptService();
 
+type AiEvaluationResponse = Partial<{
+  apto: boolean;
+  riesgo: string;
+  razon: string;
+  asignacion_recomendada: string;
+}>;
+
 type AiEvaluationView = {
   evaluation: {
     apto: boolean;
@@ -29,8 +36,12 @@ type ApprovalData = {
   password: string;
 };
 
-function safeParseAiResponse(response?: string) {
+function safeParseAiResponse(response?: string | AiEvaluationResponse | null) {
   if (!response) return null;
+
+  if (typeof response === "object") {
+    return response;
+  }
 
   try {
     const cleanResponse = response
@@ -38,25 +49,126 @@ function safeParseAiResponse(response?: string) {
       .replace(/```/g, "")
       .trim();
 
-    return JSON.parse(cleanResponse) as Partial<{
-      apto: boolean;
-      riesgo: string;
-      razon: string;
-      asignacion_recomendada: string;
-    }>;
-  } catch {
+    return JSON.parse(cleanResponse) as AiEvaluationResponse;
+  } catch (error) {
+    console.error("No se pudo parsear la respuesta de IA:", response, error);
     return null;
   }
 }
 
-function getItems<T>(response: any): T[] {
-  const registros = response?.getResultado?.("registros");
-  const items = response?.getResultado?.("items");
+function responseIsOk(response: any) {
+  if (typeof response?.getEstado === "function") {
+    return response.getEstado();
+  }
 
-  if (Array.isArray(registros)) return registros as T[];
-  if (Array.isArray(items)) return items as T[];
+  if (typeof response?.estado === "boolean") {
+    return response.estado;
+  }
+
+  if (typeof response?.data?.estado === "boolean") {
+    return response.data.estado;
+  }
+
+  return true;
+}
+
+function getItems<T>(response: any): T[] {
+  const possiblePayloads = [
+    response?.getResultado?.("items"),
+    response?.getResultado?.("registros"),
+    response?.getResultado?.("item"),
+    response?.getResultado?.("registro"),
+    response?.getResultadoObjeto?.(),
+
+    response?.resultado,
+    response?.data,
+    response?.data?.resultado,
+
+    response?.items,
+    response?.registros,
+    response?.data?.items,
+    response?.data?.registros,
+    response?.resultado?.items,
+    response?.resultado?.registros,
+    response?.data?.resultado?.items,
+    response?.data?.resultado?.registros,
+  ];
+
+  for (const payload of possiblePayloads) {
+    if (Array.isArray(payload)) {
+      return payload as T[];
+    }
+
+    if (Array.isArray(payload?.items)) {
+      return payload.items as T[];
+    }
+
+    if (Array.isArray(payload?.registros)) {
+      return payload.registros as T[];
+    }
+  }
 
   return [];
+}
+
+function normalizeAiProfessionCode(value?: string | null) {
+  if (!value) return "No especificada";
+
+  const normalizedValue = value.trim().toUpperCase();
+
+  const map: Record<string, string> = {
+    "PROF-MED": "MEDI",
+    "PROF-COOK": "COCIN",
+    "PROF-COC": "COCIN",
+    "PROF-AGR": "AGRI",
+    "PROF-LOG": "LOGIS",
+    "PROF-EXP": "EXPLO",
+    "PROF-SEC": "SEGUR",
+    "PROF-COM": "TELE",
+    "PROF-ENG": "INGEN",
+    "PROF-SCI": "CIEN",
+    CUARENTENA: "CUARENTENA",
+  };
+
+  return map[normalizedValue] ?? normalizedValue;
+}
+
+function normalizeDecisionStatus(value?: string | null) {
+  const normalizedValue = value?.trim().toUpperCase();
+
+  if (normalizedValue === "A" || normalizedValue === "ACCEPT") return true;
+  if (normalizedValue === "R" || normalizedValue === "REJECT") return false;
+
+  return undefined;
+}
+
+function getLatestPromptForAdmission(prompts: AiPrompt[], admissionId: number) {
+  return prompts
+    .filter((item) => Number(item.admission_request_id) === admissionId)
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.created_at ?? 0).getTime();
+      const dateB = new Date(b.created_at ?? 0).getTime();
+
+      if (dateA !== dateB) return dateB - dateA;
+
+      return Number(b.id ?? 0) - Number(a.id ?? 0);
+    })[0];
+}
+
+function getLatestDecisionForAdmission(
+  decisions: AiDecision[],
+  admissionId: number,
+) {
+  return decisions
+    .filter((item) => Number(item.admission_request_id) === admissionId)
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.created_at ?? 0).getTime();
+      const dateB = new Date(b.created_at ?? 0).getTime();
+
+      if (dateA !== dateB) return dateB - dateA;
+
+      return Number(b.id ?? 0) - Number(a.id ?? 0);
+    })[0];
 }
 
 export function useAdmissionRequestsView() {
@@ -74,7 +186,7 @@ export function useAdmissionRequestsView() {
   const pendingAdmissions = useMemo(() => {
     return admissions.filter(
       (admission) =>
-        admission.camp_id === authContext.campId &&
+        Number(admission.camp_id) === Number(authContext.campId) &&
         admission.request_status === "P",
     );
   }, [admissions, authContext.campId]);
@@ -87,50 +199,63 @@ export function useAdmissionRequestsView() {
       ]);
 
       const decisions =
-        decisionResult.status === "fulfilled" && decisionResult.value.getEstado()
+        decisionResult.status === "fulfilled" &&
+        responseIsOk(decisionResult.value)
           ? getItems<AiDecision>(decisionResult.value)
           : [];
 
       const prompts =
-        promptResult.status === "fulfilled" && promptResult.value.getEstado()
+        promptResult.status === "fulfilled" && responseIsOk(promptResult.value)
           ? getItems<AiPrompt>(promptResult.value)
           : [];
+
+      console.log("AI DEBUG - decisions:", decisions);
+      console.log("AI DEBUG - prompts:", prompts);
 
       const nextEvaluations: Record<number, AiEvaluationView> = {};
 
       for (const admission of admissionItems) {
         if (!admission.id) continue;
 
-        const prompt = prompts.find(
-          (item) => item.admission_request_id === admission.id,
-        );
+        const admissionId = Number(admission.id);
 
-        const decision = decisions.find(
-          (item) => item.admission_request_id === admission.id,
-        );
+        const prompt = getLatestPromptForAdmission(prompts, admissionId);
+        const decision = getLatestDecisionForAdmission(decisions, admissionId);
+        const parsedResponse = safeParseAiResponse(prompt?.response as any);
 
-        const parsedResponse = safeParseAiResponse(prompt?.response);
+        console.log("AI DEBUG - admission:", admissionId, {
+          prompt,
+          decision,
+          parsedResponse,
+        });
 
         if (parsedResponse || decision || prompt) {
-          nextEvaluations[admission.id] = {
+          const aiApto =
+            parsedResponse?.apto ?? normalizeDecisionStatus(decision?.decision_status);
+
+          nextEvaluations[admissionId] = {
             evaluation: {
-              apto:
-                parsedResponse?.apto ??
-                decision?.decision_status === "A",
+              apto: aiApto ?? false,
+
               riesgo: parsedResponse?.riesgo ?? "No especificado",
+
               razon:
                 parsedResponse?.razon ??
                 decision?.explanation ??
+                prompt?.response ??
                 "Sin explicación registrada.",
-              asignacion_recomendada:
-                parsedResponse?.asignacion_recomendada ??
-                "No especificada",
+
+              asignacion_recomendada: normalizeAiProfessionCode(
+                parsedResponse?.asignacion_recomendada ?? "",
+              ),
             },
             decision,
             prompt,
           };
         }
       }
+
+      console.log("AI DEBUG - evaluationsByAdmissionId:", nextEvaluations);
 
       setEvaluationsByAdmissionId(nextEvaluations);
     } catch (err) {
@@ -145,9 +270,9 @@ export function useAdmissionRequestsView() {
 
       const admissionResp = await admissionRequestService.findAll();
 
-      if (!admissionResp.getEstado()) {
+      if (!responseIsOk(admissionResp)) {
         setError(
-          admissionResp.getMensaje() || "No se pudieron cargar las admisiones.",
+          admissionResp.getMensaje() || "Admissions could not be loaded.",
         );
         setAdmissions([]);
         return;
@@ -156,10 +281,10 @@ export function useAdmissionRequestsView() {
       const admissionItems = getItems<AdmissionRequest>(admissionResp);
       setAdmissions(admissionItems);
 
-      void loadAiEvaluations(admissionItems);
+      await loadAiEvaluations(admissionItems);
     } catch (err) {
       console.error(err);
-      setError("Error inesperado al cargar admisiones.");
+      setError("Unexpected error loading admissions.");
       setAdmissions([]);
     } finally {
       setLoading(false);
@@ -180,8 +305,10 @@ export function useAdmissionRequestsView() {
         ...(request_status === "A" && approvalData ? approvalData : {}),
       });
 
-      if (!response.getEstado()) {
-        setError(response.getMensaje() || "No se pudo actualizar la admisión.");
+      if (!responseIsOk(response)) {
+       setError(
+          response.getMensaje() || "The admission could not be updated.",
+        );
         return false;
       }
 
@@ -189,7 +316,7 @@ export function useAdmissionRequestsView() {
       return true;
     } catch (err) {
       console.error(err);
-      setError("Error inesperado al actualizar admisión.");
+      setError("The admission could not be updated");
       return false;
     } finally {
       setUpdatingId(null);

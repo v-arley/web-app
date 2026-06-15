@@ -5,52 +5,53 @@ import { RulesView } from "./RulesView";
 import { CampSettingsView } from "./CampSettingsView";
 
 const TABS = [
-    { key: "General",  label: "General"     },
-    { key: "Roles",    label: "Roles"       },
-    { key: "Perms",    label: "Permissions" },
-    { key: "Rules",    label: "Rules"       },
+  { key: "General", label: "General" },
+  { key: "Roles", label: "Roles" },
+  { key: "Perms", label: "Permissions" },
+  { key: "Rules", label: "Rules" },
 ];
 
 export function SettingsView() {
-    const [activeTab, setActiveTab] = useState("Roles");
+  const [activeTab, setActiveTab] = useState("Roles");
 
-    const renderContent = () => {
-        switch (activeTab) {
-            case "Roles":   return <RolesView />;
-            case "Perms":   return <PermsView />;
-            case "Rules":   return <RulesView />;
-            case "General": default: return <CampSettingsView />;
-        }
-    };
+  const renderContent = () => {
+    switch (activeTab) {
+      case "Roles":
+        return <RolesView />;
+      case "Perms":
+        return <PermsView />;
+      case "Rules":
+        return <RulesView />;
+      case "General":
+      default:
+        return <CampSettingsView />;
+    }
+  };
 
-    return (
-        <div className="w-full h-full flex flex-col bg-bg-app overflow-hidden">
+  return (
+    <div className="settings-system-scope">
+      {/* Menú superior */}
+      <div className="settings-system-header">
+        <div className="settings-system-title">Settings</div>
 
-            {/* Top bar navigation */}
-            <div className="w-full bg-bg-secondary border-b border-border-default px-6 py-3 flex items-center justify-between shrink-0">
-                <div className="text-[12px] font-mono tracking-[0.2em] text-txt-secondary uppercase font-bold">
-                    Settings
-                </div>
-                <div className="flex bg-bg-tertiary p-1 border border-border-default gap-1">
-                    {TABS.map(tab => (
-                        <button
-                            key={tab.key}
-                            onClick={() => setActiveTab(tab.key)}
-                            className={`px-6 text-[11px] font-bold uppercase font-mono tracking-widest transition-colors cursor-pointer
-                                ${activeTab === tab.key
-                                    ? "bg-bg-selected text-accent shadow-sm"
-                                    : "text-txt-secondary hover:bg-bg-selected"}`}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Content area */}
-            <div className="flex-1 overflow-hidden flex flex-col">
-                {renderContent()}
-            </div>
+        <div className="settings-system-tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`settings-system-tab ${
+                activeTab === tab.key ? "settings-system-tab--active" : ""
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-    );
+      </div>
+
+      {/* Contenido */}
+      <div className="settings-system-content">{renderContent()}</div>
+    </div>
+  );
 }
