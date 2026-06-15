@@ -10,6 +10,13 @@ type MeResponse = {
     profession?: string;
 };
 
+export class SessionExpiredError extends Error {
+    constructor() {
+        super("Sesión expirada");
+        this.name = "SessionExpiredError";
+    }
+}
+
 export type RegisterUserPayload = {
     username: string;
     password: string;
@@ -65,6 +72,10 @@ export class AuthService {
             headers: { "Content-Type": "application/json" },
             body: "{}",
         });
+
+        if (response.status === 401 || response.status === 403) {
+            throw new SessionExpiredError();
+        }
 
         if (!response.ok) {
             throw new Error("No se pudo renovar la sesión");

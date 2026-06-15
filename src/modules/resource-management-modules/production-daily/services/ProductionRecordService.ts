@@ -57,15 +57,17 @@ export class ProductionRecordService extends AxiosBaseService {
 
     private normalizeRecord(input: unknown): ProductionRecordFormValues {
         const source = (input ?? {}) as Record<string, unknown>;
+        const rawId = Number(source.id);
+        const rawCreatedBy = Number(source.created_by);
         return productionRecordSchema.parse({
-            id: source.id ?? null,
+            ...(Number.isFinite(rawId) && rawId > 0 ? { id: rawId } : {}),
             person_id: source.person_id ?? 0,
             warehouse_id: source.warehouse_id ?? 0,
             resource_id: source.resource_id ?? 0,
             amount: source.amount ?? 0,
             production_date: source.production_date ?? "",
             notes: source.notes ?? null,
-            created_by: source.created_by ?? null,
+            ...(Number.isFinite(rawCreatedBy) && rawCreatedBy > 0 ? { created_by: rawCreatedBy } : {}),
         });
     }
 

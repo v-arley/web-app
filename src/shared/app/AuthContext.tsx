@@ -9,7 +9,7 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AuthContext as UserInfo } from "../utils/authAccess";
-import { AuthService } from "../../services/AuthService";
+import { AuthService, SessionExpiredError } from "../../services/AuthService";
 import { INACTIVITY_TIMEOUT_MS, USER_ACTIVITY_EVENTS } from "../hooks/useInactivityTimeout";
 
 // Types :::
@@ -104,8 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const isRecentlyActive = Date.now() - lastUiActivityAt < INACTIVITY_TIMEOUT_MS;
             if (!isRecentlyActive) return;
 
-            authService.refreshSession().catch(() => {
-                window.dispatchEvent(new CustomEvent("auth:session-expired"));
+            authService.refreshSession().catch((error) => {
+                if (error instanceof SessionExpiredError) {
+                    window.dispatchEvent(new CustomEvent("auth:session-expired"));
+                }
             });
         }, SESSION_KEEPALIVE_INTERVAL_MS);
 

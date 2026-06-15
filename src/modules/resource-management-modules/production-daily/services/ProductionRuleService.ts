@@ -65,8 +65,9 @@ export class ProductionRuleService extends AxiosBaseService {
 
     private normalizeRule(input: unknown): ProductionRuleFormValues {
         const source = (input ?? {}) as Record<string, unknown>;
+        const rawId = Number(source.id);
         return productionRuleSchema.parse({
-            id: source.id ?? null,
+            ...(Number.isFinite(rawId) && rawId > 0 ? { id: rawId } : {}),
             camp_id: source.camp_id ?? 0,
             profession_id: source.profession_id ?? 0,
             resource_id: source.resource_id ?? 0,
