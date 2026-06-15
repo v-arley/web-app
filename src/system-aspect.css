@@ -1624,7 +1624,7 @@ button:disabled {
 }
 
 .sidebar {
-  background-color: rgba(8, 13, 18, 0.336);
+  background-color: rgba(73, 56, 35, 0.425);
   backdrop-filter: blur(6px);
   display: flex;
   flex-direction: column;
@@ -1649,32 +1649,37 @@ button:disabled {
   align-items: center;
   gap: clamp(0.5rem, 1vw, 0.625rem);
   /* padding derecho deja espacio al chevron dentro del clip-path */
-  padding: clamp(0.625rem, 1.2vw, 0.75rem) clamp(2.25rem, 3.8vw, 3rem) clamp(0.625rem, 1.2vw, 0.75rem) clamp(0.875rem, 1.8vw, 1.125rem);
-  border-right: 8px solid #efefef80;
+  padding: clamp(0.625rem, 1.2vw, 0.75rem) clamp(2rem, 3.2vw, 2.5rem) clamp(0.625rem, 1.2vw, 0.75rem) clamp(0.875rem, 1.8vw, 1.125rem);
+  border: 1px solid rgba(232, 93, 4, 0.08);
+  border-left: 3px solid transparent;
   outline: none;
   cursor: pointer;
 
   /* rectángulo con corte diagonal en esquina inferior-derecha */
   /* clip-path: polygon(0 0, 100% 0, 100% calc(100% - 13px), calc(100% - 13px) 100%, 0 100%); */
 
-  background: #122435;
-  color: #6E7B87;
+  background: rgba(12, 14, 15, 0.74);
+  color: #8D99A5;
   font-family: "IBMplex", "Courier New", monospace;
   font-size: clamp(0.6875rem, 0.95vw, 0.75rem);
   font-weight: 700;
-  letter-spacing: clamp(0.1em, 0.7vw, 0.22em);
+  letter-spacing: clamp(0.08em, 0.55vw, 0.16em);
   text-transform: uppercase;
   text-align: left;
 
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
   transition:
     background 130ms ease,
+    border-color 130ms ease,
+    box-shadow 130ms ease,
     color 130ms ease,
     transform 130ms ease;
-  margin-bottom: clamp(0.25rem, 0.6vw, 0.375rem);
+  margin: 0;
+  min-height: 2.75rem;
 }
 
 /* capa eco/profundidad debajo — usa filter en el padre para ser visible fuera del clip */
-.sidebar-button::before {
+/* .sidebar-button::before {
   content: "";
   position: absolute;
   top: 6px;
@@ -1688,13 +1693,13 @@ button:disabled {
   z-index: -1;
   pointer-events: none;
   transition: background 130ms ease;
-}
+} */
 
 /* chevron › en el extremo derecho */
 .sidebar-button::after {
   content: "▶";
   position: absolute;
-  right: 30px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 10px;
@@ -1705,7 +1710,7 @@ button:disabled {
 }
 
 .sidebar-button-icon {
-  color: #2E3D4A;
+  color: #53616E;
   transition: color 130ms ease;
   flex-shrink: 0;
 }
@@ -1719,15 +1724,17 @@ button:disabled {
 
 /* ── idle (borde visible siguiendo el clip-path vía drop-shadow) ── */
 .sidebar-button.is-idle {
-  filter: drop-shadow(0 0 0.6px rgba(72, 90, 105, 0.75));
+  filter: none;
 }
 
 /* ── idle hover ── */
 .sidebar-button.is-idle:hover {
-  background: #224766;
+  background: rgba(25, 28, 30, 0.9);
+  border-color: rgba(232, 93, 4, 0.24);
+  border-left-color: rgba(232, 93, 4, 0.72);
   color: #EFEFEF;
-  transform: translateX(4px);
-  filter: drop-shadow(0 0 1px rgba(100, 120, 138, 0.9));
+  transform: translateX(2px);
+  box-shadow: inset 0 0 0 1px rgba(232, 93, 4, 0.08);
 }
 
 .sidebar-button.is-idle:hover::before {
@@ -1735,24 +1742,26 @@ button:disabled {
 }
 
 .sidebar-button.is-idle:hover::after {
-  color: #9AAAB8;
-  right: 26px;
+  color: #E85D04;
+  right: 18px;
 }
 
 .sidebar-button.is-idle:hover .sidebar-button-icon {
-  color: #7A8D9A;
+  color: #E85D04;
 }
 
 /* ── focus-visible ── */
 .sidebar-button:focus-visible {
   outline: none;
-  background: rgba(18, 28, 38, 0.92);
+  background: rgba(25, 28, 30, 0.94);
+  border-color: rgba(232, 93, 4, 0.52);
+  border-left-color: #E85D04;
   color: #E8EEF4;
 }
 
 .sidebar-button:focus-visible::after {
   color: #E85D04;
-  right: 26px;
+  right: 18px;
 }
 
 .sidebar-button:focus-visible .sidebar-button-icon {
@@ -1761,9 +1770,14 @@ button:disabled {
 
 /* ── active ── */
 .sidebar-button.is-active {
-  background: rgba(210, 222, 232, 0.94);
-  color: #070E15;
+  background: rgba(232, 93, 4, 0.12);
+  border-color: rgba(232, 93, 4, 0.58);
+  border-left-color: #E85D04;
+  color: #FFFFFF;
   transform: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(232, 93, 4, 0.12),
+    0 0 16px rgba(232, 93, 4, 0.06);
 }
 
 .sidebar-button.is-active::before {
@@ -1773,12 +1787,12 @@ button:disabled {
 .sidebar-button.is-active::after {
   content: "▶";
   font-size: 10px;
-  color: #1A2530;
-  right: 28px;
+  color: #E85D04;
+  right: 18px;
 }
 
 .sidebar-button.is-active .sidebar-button-icon {
-  color: #1A2530;
+  color: #E85D04;
 }
 
 /* aberración cromática (glitch) en el label del botón activo */
@@ -1797,17 +1811,18 @@ button:disabled {
 .sidebar-content {
   flex: 1;
   min-height: 0;
-  padding: clamp(0.375rem, 0.9vw, 0.625rem) 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
+  gap: clamp(0.25rem, 0.6vw, 0.375rem);
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .sidebar-footer {
   flex-shrink: 0;
-  padding: clamp(0.5rem, 1vw, 0.75rem) 0 0;
-  border-top: 1px solid rgba(58, 58, 58, 0.7);
+  padding: clamp(0.375rem, 0.8vw, 0.5rem) 0 0;
+  border-top: 1px solid rgba(232, 93, 4, 0.18);
 }
 
 .sidebar-logout-btn {
@@ -1815,29 +1830,37 @@ button:disabled {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: clamp(0.5rem, 1vw, 0.625rem);
   padding: clamp(0.625rem, 1.2vw, 0.75rem) clamp(0.875rem, 1.8vw, 1.125rem);
-  border: 1px solid rgba(232, 93, 4, 0.42);
-  background: rgba(18, 36, 53, 0.88);
-  color: #C0C0C0;
+  border: 1px solid rgba(232, 93, 4, 0.28);
+  border-left: 3px solid rgba(232, 93, 4, 0.58);
+  background: rgba(20, 13, 10, 0.78);
+  color: #D7C7BE;
   font-family: "IBMplex", "Courier New", monospace;
   font-size: clamp(0.6875rem, 0.95vw, 0.75rem);
   font-weight: 700;
-  letter-spacing: clamp(0.1em, 0.7vw, 0.18em);
+  letter-spacing: clamp(0.08em, 0.55vw, 0.16em);
   text-transform: uppercase;
+  min-height: 2.75rem;
   cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(232, 93, 4, 0.04);
   transition:
     background 130ms ease,
     border-color 130ms ease,
-    color 130ms ease;
+    box-shadow 130ms ease,
+    color 130ms ease,
+    transform 130ms ease;
 }
 
 .sidebar-logout-btn:hover,
 .sidebar-logout-btn:focus-visible {
   border-color: rgba(232, 93, 4, 0.78);
-  background: rgba(72, 32, 20, 0.92);
+  border-left-color: #E85D04;
+  background: rgba(55, 25, 16, 0.92);
   color: #FFFFFF;
+  transform: translateX(2px);
+  box-shadow: inset 0 0 0 1px rgba(232, 93, 4, 0.12);
   outline: none;
 }
 

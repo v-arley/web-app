@@ -12,12 +12,16 @@ interface CurrentAssignmentsTableProps {
 }
 
 const STATE_LABELS: Record<TaskAssignmentState, string> = {
+    A: "Active",
+    C: "Completed",
     assigned: "Active",
     in_progress: "In Progress",
     completed: "Completed",
 };
 
 const STATE_BADGE: Record<TaskAssignmentState, string> = {
+    A: "app-badge--ok",
+    C: "app-badge--muted",
     assigned: "app-badge--ok",
     in_progress: "app-badge--warn",
     completed: "app-badge--muted",
@@ -67,7 +71,7 @@ export function CurrentAssignmentsTable({
             <tbody>
                 {assignments.map((assignment) => {
                     const worker = workerMap.get(assignment.person_id);
-                    const stateKey = (assignment.state as TaskAssignmentState) ?? "assigned";
+                    const stateKey = (assignment.state as TaskAssignmentState) ?? "A";
                     return (
                         <tr key={`${assignment.task_id}-${assignment.person_id}`}>
                             <td>{worker ? `${worker.name} ${worker.last_name}` : `Person #${assignment.person_id}`}</td>

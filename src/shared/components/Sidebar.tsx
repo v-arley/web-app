@@ -6,16 +6,27 @@ import { useAuth } from "../app/AuthContext";
 import { useNavigation } from "../app/NavigationContext";
 import { SidebarButton } from "./SidebarButton";
 
-const SECTION_GROUPS: Array<{ label: string; keys: string[] }> = [
-    { label: "",   keys: [] },
-    //{ label: "OPERACIONES", keys: ["dashboard", "users", "requests", "camp", "explorations"] },
-    { label: "", keys: ["dashboard", "users", "task-management"] },
-    // { label: "RECURSOS",    keys: ["inventory", "warehouse"] },
-    { label: "",    keys: ["explorations"] },
-    { label: "", keys: ["resource-dashboard", "inventory-main", "stock-alerts", "production", "rations", "inter-camp"] },
-    // { label: "CATALOGOS",   keys: ["catalog-resources", "catalog-professions", "catalog-achievements"] },
-    { label: "",       keys: ["global-dashboard", "create-camp", "catalogs-main", "settings"] },
-    { label: "",   keys: ["worker-profile", "worker-achievements", "worker-tasks", "worker-production", "worker-rations", "worker-explorations"] },
+const SIDEBAR_KEYS = [
+    "dashboard",
+    "users",
+    "task-management",
+    "explorations",
+    "resource-dashboard",
+    "inventory-main",
+    "stock-alerts",
+    "production",
+    "rations",
+    "inter-camp",
+    "global-dashboard",
+    "create-camp",
+    "catalogs-main",
+    "settings",
+    "worker-profile",
+    "worker-achievements",
+    "worker-tasks",
+    "worker-production",
+    "worker-rations",
+    "worker-explorations",
 ];
 
 type SidebarProps = {
@@ -29,6 +40,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const routerNavigate = useNavigate();
 
     const sectionMap = new Map(sections.map((s) => [s.key, s]));
+    const sidebarSections = SIDEBAR_KEYS
+        .map((key) => sectionMap.get(key))
+        .filter((section): section is (typeof sections)[number] => Boolean(section));
 
     const handleLogout = async () => {
         await logout();
@@ -52,33 +66,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
             </div> */}
 
-            <div className="sidebar-content">
-                {SECTION_GROUPS.map((group, idx) => {
-                    const groupSections = group.keys
-                        .map((key) => sectionMap.get(key))
-                        .filter(Boolean) as typeof sections;
-
-                    if (groupSections.length === 0) return null;
-
-                    return (
-                        <nav key={idx} className="nav-group">
-                            <p className="eyebrow">{group.label}</p>
-                            {groupSections.map((section) => (
-                                <SidebarButton
-                                    key={section.key}
-                                    label={section.label}
-                                    icon={section.icon}
-                                    active={activeKey === section.key}
-                                    onClick={() => {
-                                        navigate(section.key);
-                                        onClose();
-                                    }}
-                                />
-                            ))}
-                        </nav>
-                    );
-                })}
-            </div>
+            <nav className="sidebar-content" aria-label="Accesos principales">
+                {sidebarSections.map((section) => (
+                    <SidebarButton
+                        key={section.key}
+                        label={section.label}
+                        icon={section.icon}
+                        active={activeKey === section.key}
+                        onClick={() => {
+                            navigate(section.key);
+                            onClose();
+                        }}
+                    />
+                ))}
+            </nav>
             <div className="sidebar-footer">
                 <button
                     type="button"

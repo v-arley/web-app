@@ -64,17 +64,20 @@ export function TaskManagementPage() {
 
         let successCount = 0;
         let errorCount = 0;
+        const errorMessages: string[] = [];
 
         for (const personId of toAssign) {
             const result = await assign.mutateAsync({
                 task_id: selectedTaskId,
                 person_id: personId,
-                state: "assigned",
+                state: "A",
             });
             if (result.getEstado()) {
                 successCount++;
             } else {
                 errorCount++;
+                const message = result.getMensaje();
+                if (message) errorMessages.push(message);
             }
         }
 
@@ -84,7 +87,13 @@ export function TaskManagementPage() {
             refetchAssignments();
         }
         if (errorCount > 0) {
-            toast({ tone: "error", message: `${errorCount} assignment(s) failed.` });
+            const uniqueMessages = Array.from(new Set(errorMessages));
+            toast({
+                tone: "error",
+                message: uniqueMessages.length > 0
+                    ? uniqueMessages.join(" ")
+                    : `${errorCount} assignment(s) failed.`,
+            });
         }
     }
 
