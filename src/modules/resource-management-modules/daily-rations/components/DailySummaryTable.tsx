@@ -77,21 +77,21 @@ export function DailySummaryTable() {
             if (result.completed_now > 0) {
                 toast({
                     tone: "success",
-                    title: "Asignación completada",
-                    message: `${result.completed_now} raciones entregadas.${result.still_pending > 0 ? ` ${result.still_pending} aún pendientes por stock insuficiente.` : ""}`,
+                    title: "Assignment completed",
+                    message: `${result.completed_now} rations delivered.${result.still_pending > 0 ? ` ${result.still_pending} still pending due to insufficient stock.` : ""}`,
                 });
             } else {
                 toast({
                     tone: "warning",
-                    title: "Sin cambios",
-                    message: "El stock disponible no es suficiente para asignar raciones pendientes.",
+                    title: "No changes.",
+                    message: "The available stock is not sufficient to allocate pending rations.",
                 });
             }
         } catch (error) {
             toast({
                 tone: "error",
-                title: "Error en la asignación",
-                message: error instanceof Error ? error.message : "No se pudo ejecutar la asignación.",
+                title: "Assignment error.",
+                message: error instanceof Error ? error.message : "The assignment could not be executed.",
             });
         }
     };
@@ -164,10 +164,6 @@ export function DailySummaryTable() {
                                     {summary.pending}
                                 </div>
                             </div>
-                            <div className="app-kpi-card">
-                                <div className="app-kpi-label">Delivery Rate</div>
-                                <div className="app-kpi-value">{summary.delivery_rate}</div>
-                            </div>
                         </div>
 
                         {/* ── Admin action panel (always visible when there are pending rations) ── */}
@@ -186,20 +182,20 @@ export function DailySummaryTable() {
                                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                                     <AlertTriangle size={14} style={{ color: "var(--color-status-warning)", flexShrink: 0 }} />
                                     <span style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "0.04em" }}>
-                                        RACIONES PENDIENTES — {date}
+                                        PENDING RATIONS — {date}
                                     </span>
                                 </div>
 
                                 <p style={{ margin: 0, fontSize: "12px", opacity: 0.8, lineHeight: 1.5 }}>
-                                    <strong>{summary.pending}</strong> persona(s) tienen ración pendiente por stock agotado.
-                                    Reponga el inventario y ejecute la asignación para entregar las raciones restantes.
-                                    El proceso se detendrá nuevamente si el stock se agota.
+                                    <strong>{summary.pending}</strong> One or more people have outstanding rations due to stock depletion.
+Replenish the inventory and execute the allocation to deliver the remaining rations.
+The process will stop again if the stock runs out.
                                 </p>
 
                                 {/* Resources consumed so far */}
                                 {summary.resources_consumed.length > 0 && (
                                     <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center" }}>
-                                        <span className="app-eyebrow" style={{ flexShrink: 0 }}>Stock consumido:</span>
+                                        <span className="app-eyebrow" style={{ flexShrink: 0 }}>Stock consumed:</span>
                                         {summary.resources_consumed.map((r) => (
                                             <span key={r.resource_id} className="app-table-badge app-table-badge--neutral">
                                                 {r.resource_name}: {r.total_consumed} {r.unit_of_measure}
@@ -217,8 +213,8 @@ export function DailySummaryTable() {
                                     >
                                         <Play size={12} fill="currentColor" />
                                         {completePending.isPending
-                                            ? "Ejecutando asignación..."
-                                            : "Ejecutar asignación pendiente"}
+                                            ? "Executing assignment..."
+                                            : "Execute pending assignment"}
                                     </button>
 
                                     {/* Inline result after execution */}
@@ -236,7 +232,7 @@ export function DailySummaryTable() {
                                         ) : (
                                             <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "12px" }}>
                                                 <PackageOpen size={13} style={{ color: "var(--color-status-warning)", flexShrink: 0 }} />
-                                                <span style={{ opacity: 0.8 }}>Stock insuficiente — sin cambios</span>
+                                                <span style={{ opacity: 0.8 }}>Insufficient stock — no changes</span>
                                             </div>
                                         )
                                     )}

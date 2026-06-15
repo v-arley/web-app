@@ -287,9 +287,7 @@
 }
 
 .app-table-region > .app-table-wrap,
-.app-table-region > .app-table-frame,
-.app-table-region > .app-table-wrap > .app-table,
-.app-table-region > .app-table-frame > .app-table {
+.app-table-region > .app-table-frame {
   min-height: 100%;
 }
 
@@ -350,7 +348,7 @@
 }
 
 .app-table th {
-  padding: clamp(0.55rem, 1.5vw, 0.85rem);
+  padding: clamp(0.42rem, 0.9vw, 0.62rem) clamp(0.55rem, 1.2vw, 0.8rem);
   border-bottom: 1px solid var(--color-border-default);
   color: var(--color-txt-secondary);
   font-size: clamp(0.5625rem, 0.52rem + 0.18vw, 0.625rem);
@@ -364,7 +362,7 @@
 .app-table td {
   max-width: clamp(9rem, 24vw, 18rem);
   overflow-wrap: anywhere;
-  padding: clamp(0.55rem, 1.5vw, 0.85rem);
+  padding: clamp(0.45rem, 0.95vw, 0.65rem) clamp(0.55rem, 1.2vw, 0.8rem);
   border-bottom: 1px solid var(--color-border-subtle);
   color: var(--color-txt-primary);
   vertical-align: middle;
