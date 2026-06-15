@@ -1,6 +1,5 @@
 import {
   AlertTriangle,
-  Award,
   Calendar,
   CheckCircle,
   ChevronLeft,
@@ -8,91 +7,27 @@ import {
   Database,
   RefreshCw,
   Scale,
-  Sparkles,
   Terminal,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useResourceProduction } from "../hooks/useResourceProduction";
-import type { CampProductionRule } from "../../models/CampProductionRule";
-import type { WorkerProductionHistoryItem } from "../../models/ResourceProduction";
-
-function getTodayDate() {
-  return new Date().toISOString().split("T")[0];
-}
-
-function formatDate(value?: string | Date | null) {
-  if (!value) return "N/A";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "N/A";
-
-  return date.toLocaleDateString("es-CR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-function getExpectedAmount(rule?: CampProductionRule | null) {
-  return rule?.expectedAmount ?? rule?.expected_amount ?? 0;
-}
-
-function getEffectiveDate(rule?: CampProductionRule | null) {
-  return rule?.effectiveDate ?? rule?.effective_date;
-}
-
-function getResourceId(rule?: CampProductionRule | null) {
-  return rule?.resourceId ?? rule?.resource_id ?? rule?.resource?.id ?? 0;
-}
-
-function getResourceName(rule?: CampProductionRule | null) {
-  return rule?.resource?.name ?? `Recurso #${getResourceId(rule) || "N/A"}`;
-}
-
-function getResourceCode(rule?: CampProductionRule | null) {
-  return rule?.resource?.code ?? `RES-${getResourceId(rule) || "N/A"}`;
-}
-
-function getResourceUnit(rule?: CampProductionRule | null) {
-  return (
-    rule?.resource?.unitOfMeasure ??
-    rule?.resource?.unit_of_measure ??
-    rule?.resource?.unitName ??
-    rule?.resource?.unit_name ??
-    rule?.resource?.unit ??
-    "u"
-  );
-}
-
-function getProfessionName(rule?: CampProductionRule | null) {
-  return (
-    rule?.profession?.name ??
-    `Profesión #${rule?.professionId ?? rule?.profession_id ?? "N/A"}`
-  );
-}
-
-function getProductionDate(item: WorkerProductionHistoryItem) {
-  return item.productionDate ?? item.production_date;
-}
-
-function getHistoryResource(
-  item: WorkerProductionHistoryItem,
-  rule?: CampProductionRule | null,
-) {
-  return (
-    item.resource?.name ??
-    rule?.resource?.name ??
-    `Recurso #${item.resourceId ?? item.resource_id ?? "N/A"}`
-  );
-}
-
-function getHistoryExpected(
-  item: WorkerProductionHistoryItem,
-  rule?: CampProductionRule | null,
-) {
-  return item.expectedAmount ?? item.expected_amount ?? getExpectedAmount(rule);
-}
+import { WorkerProductionResultAlert } from "../components/WorkerComponents/WorkerProductionResultAlert";
+import { WorkerProductionRulesPanel } from "../components/WorkerComponents/WorkerProductionRulesPanel";
+import {
+  formatDate,
+  getEffectiveDate,
+  getExpectedAmount,
+  getHistoryExpected,
+  getHistoryResource,
+  getProductionDate,
+  getProfessionName,
+  getResourceCode,
+  getResourceId,
+  getResourceName,
+  getResourceUnit,
+  getTodayDate,
+} from "../components/WorkerComponents/workerProductionUtils";
 
 export function WorkerProductionView() {
   const {
@@ -177,161 +112,20 @@ export function WorkerProductionView() {
           )}
 
           {lastResult && (
-            <div className="p-4 bg-black/70 backdrop-blur-sm border border-[#22C55E]/50 text-[#22C55E] font-mono text-xs space-y-2">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-start sm:items-center gap-2 min-w-0">
-                  <Sparkles
-                    size={17}
-                    className="text-[#FACC15] shrink-0 mt-0.5 sm:mt-0"
-                  />
-                  <span className="font-bold uppercase tracking-[0.14em] break-words">
-                    Production recorded successfully
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={clearLastResult}
-                  className="text-[#9A9A9A] hover:text-[#22C55E] uppercase tracking-[0.14em] self-end sm:self-auto shrink-0"
-                >
-                  Close
-                </button>
-              </div>
-
-              <p className="text-[#D0D0D0] break-words">
-                Recorded{" "}
-                <strong className="text-[#FACC15]">{lastResult.amount}</strong>{" "}
-                {unit}.
-              </p>
-
-              {lastResult.pointsAwarded !== undefined && (
-                <p className="text-[#D0D0D0] break-words">
-                  Points awarded:{" "}
-                  <strong className="text-[#FACC15]">
-                    +{lastResult.pointsAwarded}
-                  </strong>
-                </p>
-              )}
-
-              {lastResult.points && (
-                <p className="text-[#D0D0D0] break-words">
-                  Current total:{" "}
-                  <strong className="text-[#FACC15]">
-                    {lastResult.points.totalPoints ??
-                      lastResult.points.total_points ??
-                      0}
-                  </strong>{" "}
-                  | Level:{" "}
-                  <strong className="text-[#FACC15]">
-                    {lastResult.points.level ?? "N/A"}
-                  </strong>
-                </p>
-              )}
-
-              {!!lastResult.unlockedAchievements?.length && (
-                <div className="border border-[#FACC15]/40 bg-black/65 p-3 text-[#FACC15]">
-                  <div className="flex items-center gap-2 font-bold uppercase tracking-[0.14em]">
-                    <Award size={15} className="shrink-0" />
-                    <span className="break-words">Unlocked achievements</span>
-                  </div>
-
-                  <p className="mt-1 text-[#D0D0D0] break-words">
-                    Unlocked {lastResult.unlockedAchievements.length} new
-                    achievement(s).
-                  </p>
-                </div>
-              )}
-            </div>
+            <WorkerProductionResultAlert
+              lastResult={lastResult}
+              unit={unit}
+              clearLastResult={clearLastResult}
+            />
           )}
 
-          <section className="border border-[#38BDF8]/35 bg-black/65 backdrop-blur-sm p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-              <div className="min-w-0">
-                <span className="text-[10px] text-[#9A9A9A] font-mono uppercase tracking-[0.14em] break-words">
-                  Available production rules
-                </span>
-                <h3 className="text-sm text-white font-mono font-bold uppercase tracking-[0.14em] break-words">
-                  Select the resource you will produce
-                </h3>
-              </div>
-
-              <span className="text-[#38BDF8] border border-[#38BDF8]/50 bg-black/60 px-3 py-1 text-[10px] font-mono uppercase font-bold w-full sm:w-auto text-center shrink-0">
-                {rules.length} rule(s)
-              </span>
-            </div>
-
-            {loading ? (
-              <div className="text-[#9A9A9A] font-mono text-xs uppercase tracking-[0.14em]">
-                Loading production rules...
-              </div>
-            ) : rules.length === 0 ? (
-              <div className="border border-[#FACC15]/40 bg-black/70 p-4 text-[#FACC15] font-mono text-xs uppercase tracking-[0.14em]">
-                No production rules assigned.
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                {rules.map((item, index) => {
-                  const selected = selectedRuleIndex === index;
-
-                  return (
-                    <button
-                      key={`${getResourceId(item)}-${String(getEffectiveDate(item))}-${index}`}
-                      type="button"
-                      onClick={() => {
-                        setSelectedRuleIndex(index);
-                        setAmountValue("");
-                      }}
-                      className={`text-left border-2 p-3 transition-all font-mono min-w-0 ${
-                        selected
-                          ? "border-[#E85D04] bg-[#E85D04]/10 text-white shadow-[0_0_0_1px_rgba(232,93,4,0.45)] hover:shadow-[0_0_18px_rgba(232,93,4,0.55)]"
-                          : "border-[#38BDF8] bg-[#111111] text-[#C0C0C0] shadow-[0_0_0_1px_rgba(56,189,248,0.45)] hover:shadow-[0_0_18px_rgba(56,189,248,0.55)]"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] text-[#9A9A9A] uppercase tracking-[0.14em] break-all">
-                          {getResourceCode(item)}
-                        </span>
-
-                        <span
-                          className={`text-[9px] border px-2 py-0.5 uppercase whitespace-nowrap shrink-0 ${
-                            selected
-                              ? "text-[#E85D04] border-[#E85D04]/60 bg-black/60"
-                              : "text-[#38BDF8] border-[#38BDF8]/40 bg-black/60"
-                          }`}
-                        >
-                          {selected ? "Selected" : "Available"}
-                        </span>
-                      </div>
-
-                      <div className="mt-2 text-sm font-bold uppercase tracking-[0.14em] break-words">
-                        {getResourceName(item)}
-                      </div>
-
-                      <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
-                        <div className="min-w-0">
-                          <span className="block text-[#9A9A9A] uppercase">
-                            Quota
-                          </span>
-                          <strong className="text-[#FACC15] break-words">
-                            {getExpectedAmount(item)} {getResourceUnit(item)}
-                          </strong>
-                        </div>
-
-                        <div className="min-w-0">
-                          <span className="block text-[#9A9A9A] uppercase">
-                            From
-                          </span>
-                          <strong className="text-white break-words">
-                            {formatDate(getEffectiveDate(item))}
-                          </strong>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          <WorkerProductionRulesPanel
+            rules={rules}
+            loading={loading}
+            selectedRuleIndex={selectedRuleIndex}
+            setSelectedRuleIndex={setSelectedRuleIndex}
+            setAmountValue={setAmountValue}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <section className="lg:col-span-5 border border-[#E85D04]/35 bg-black/65 backdrop-blur-sm p-4 sm:p-5 min-w-0">
