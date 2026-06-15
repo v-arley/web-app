@@ -1,310 +1,10 @@
-import {
-  AlertTriangle,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  Clock,
-  Compass,
-  Map,
-  RefreshCw,
-  Search,
-  ShieldAlert,
-  UserCheck,
-  X,
-} from "lucide-react";
+import { AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { useWorkerExplorations } from "../hooks/useWorkerExplorations";
-import type { Exploration } from "../../models/Exploration";
-
-function formatDate(value?: string | Date | null) {
-  if (!value) return "N/A";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "N/A";
-
-  return date.toLocaleDateString("es-CR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
-}
-
-function formatDateTime(value?: string | Date | null) {
-  if (!value) return "N/A";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "N/A";
-
-  return date.toLocaleString("es-CR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function getDepartureDate(exploration: Exploration) {
-  return exploration.departureDate ?? exploration.departure_date;
-}
-
-function getReturnDate(exploration: Exploration) {
-  return exploration.estimatedReturnDate ?? exploration.estimated_return_date;
-}
-
-function getDuration(exploration: Exploration) {
-  return exploration.durationDays ?? exploration.duration_days;
-}
-
-function getRiskLevel(exploration: Exploration) {
-  return exploration.riskLevel ?? exploration.risk_level;
-}
-
-function getCampId(exploration: Exploration) {
-  return exploration.campId ?? exploration.camp_id;
-}
-
-function getStateLabel(exploration: Exploration) {
-  if (exploration.stateLabel) return exploration.stateLabel;
-
-  if (exploration.state === "P") return "Pending";
-  if (exploration.state === "A") return "Active";
-  if (exploration.state === "F") return "Finished";
-  if (exploration.state === "C") return "Cancelled";
-
-  return "N/A";
-}
-
-function getRiskLabel(exploration: Exploration) {
-  if (exploration.riskLevelLabel) return exploration.riskLevelLabel;
-
-  const risk = getRiskLevel(exploration);
-
-  if (risk === "L") return "Low";
-  if (risk === "M") return "Medium";
-  if (risk === "H") return "High";
-
-  return "N/A";
-}
-
-function getStateStyle(state?: string) {
-  if (state === "A") {
-    return "bg-black/60 border-[#E85D04]/60 text-[#E85D04]";
-  }
-
-  if (state === "F") {
-    return "bg-black/60 border-[#22C55E]/50 text-[#22C55E]";
-  }
-
-  if (state === "C") {
-    return "bg-black/60 border-[#EF4444]/50 text-[#EF4444]";
-  }
-
-  return "bg-black/60 border-[#FACC15]/50 text-[#FACC15]";
-}
-
-function getRiskStyle(risk?: string) {
-  if (risk === "H") {
-    return "bg-black/60 border-[#EF4444]/60 text-[#EF4444]";
-  }
-
-  if (risk === "M") {
-    return "bg-black/60 border-[#FACC15]/50 text-[#FACC15]";
-  }
-
-  if (risk === "L") {
-    return "bg-black/60 border-[#22C55E]/50 text-[#22C55E]";
-  }
-
-  return "bg-black/60 border-white/10 text-[#9A9A9A]";
-}
-
-function ExplorationCard({
-  exploration,
-  expanded,
-  onToggle,
-}: {
-  exploration: Exploration;
-  expanded: boolean;
-  onToggle: () => void;
-}) {
-  const risk = getRiskLevel(exploration);
-  const duration = getDuration(exploration);
-
-  return (
-    <article className="border border-white/10 bg-black/70 backdrop-blur-sm overflow-hidden hover:border-[#E85D04]/50 transition-colors">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full p-4 sm:p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:bg-[#E85D04]/10 transition-colors text-left"
-      >
-        <div className="space-y-2 flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2 font-mono min-w-0">
-            <span className="text-[#E85D04] font-bold text-xs uppercase tracking-[0.16em] break-all">
-              {exploration.code || `EXP-${exploration.id}`}
-            </span>
-
-            <span className="text-[#7C7C7C] shrink-0">//</span>
-
-            <span className="text-white font-bold text-sm uppercase tracking-[0.16em] break-words min-w-0">
-              {exploration.name || "Nameless Exploration"}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#D0D0D0] font-mono">
-            <span className="flex items-center gap-1 min-w-0">
-              <UserCheck size={14} className="text-[#38BDF8] shrink-0" />
-              <span className="shrink-0">Role:</span>{" "}
-              <strong className="text-white font-medium break-words min-w-0">
-                {exploration.roleName || "N/A"}
-              </strong>
-            </span>
-
-            <span className="text-white/15 font-bold hidden sm:inline">
-              •
-            </span>
-
-            <span className="flex items-center gap-1 min-w-0">
-              <Clock size={14} className="text-[#FACC15] shrink-0" />
-              <span className="shrink-0">Duration:</span>{" "}
-              <strong className="text-white font-medium whitespace-nowrap">
-                {duration ? `${duration} day('s)` : "N/A"}
-              </strong>
-            </span>
-
-            <span className="text-white/15 font-bold hidden sm:inline">
-              •
-            </span>
-
-            <span className="flex items-center gap-1 min-w-0">
-              <Map size={14} className="text-[#E85D04] shrink-0" />
-              <span className="shrink-0">Camp:</span>{" "}
-              <strong className="text-[#38BDF8] font-medium break-words min-w-0">
-                {getCampId(exploration) ?? "N/A"}
-              </strong>
-            </span>
-          </div>
-        </div>
-
-        <div className="shrink-0 flex flex-wrap items-center gap-3 w-full md:w-auto justify-start md:justify-end">
-          <span
-            className={`px-2.5 py-0.5 tracking-[0.14em] font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getRiskStyle(
-              risk,
-            )}`}
-          >
-            Risk {getRiskLabel(exploration)}
-          </span>
-
-          <span
-            className={`px-2.5 py-0.5 tracking-[0.14em] font-mono text-[9px] border uppercase font-bold whitespace-nowrap ${getStateStyle(
-              exploration.state,
-            )}`}
-          >
-            {getStateLabel(exploration)}
-          </span>
-
-          <span className="p-1 text-[#C0C0C0] ml-auto md:ml-0">
-            {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </span>
-        </div>
-      </button>
-
-      {expanded && (
-        <div className="border-t border-white/10 bg-black/65 backdrop-blur-sm p-4 sm:p-5 font-mono text-xs text-[#D0D0D0] space-y-4">
-          <div className="p-3 bg-black/70 border border-white/10 leading-normal">
-            <span className="text-[#9A9A9A] text-[10px] uppercase block mb-1 font-bold tracking-[0.14em]">
-              Objective
-            </span>
-
-            <p className="text-white text-xs leading-relaxed break-words">
-              {exploration.objective || "No objective registered."}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-white/10 p-3 bg-black/70 min-w-0">
-              <span className="text-[#9A9A9A] text-[9px] block uppercase tracking-[0.14em]">
-                Calendar
-              </span>
-
-              <div className="mt-2 space-y-2 font-medium text-white">
-                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-white/10 pb-1">
-                  <span className="text-[#9A9A9A]">Assignment</span>
-                  <span className="text-[#38BDF8] break-words sm:text-right">
-                    {formatDateTime(exploration.assignedAt)}
-                  </span>
-                </p>
-
-                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 border-b border-white/10 pb-1">
-                  <span className="text-[#9A9A9A]">Departure date</span>
-                  <span className="break-words sm:text-right">
-                    {formatDateTime(getDepartureDate(exploration))}
-                  </span>
-                </p>
-
-                <p className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
-                  <span className="text-[#9A9A9A]">Return date</span>
-                  <span className="break-words sm:text-right">
-                    {formatDateTime(getReturnDate(exploration))}
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <div className="border border-white/10 p-3 bg-black/70 md:col-span-2 min-w-0">
-              <span className="text-[#9A9A9A] text-[9px] block uppercase tracking-[0.14em]">
-                Notes
-              </span>
-
-              <p className="mt-2 text-xs text-[#FACC15] bg-black/65 p-3 border border-[#FACC15]/30 leading-relaxed break-words">
-                {exploration.notes || "No notes registered."}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
-              <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                ID
-              </span>
-              <strong className="text-[#38BDF8] break-words">
-                #{exploration.id}
-              </strong>
-            </div>
-
-            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
-              <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                State
-              </span>
-              <strong className="text-white break-words">
-                {getStateLabel(exploration)}
-              </strong>
-            </div>
-
-            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
-              <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                Risk
-              </span>
-              <strong className="text-white break-words">
-                {getRiskLabel(exploration)}
-              </strong>
-            </div>
-
-            <div className="border border-white/10 bg-black/70 p-3 min-w-0">
-              <span className="text-[#9A9A9A] block text-[9px] uppercase">
-                Created
-              </span>
-              <strong className="text-white break-words">
-                {formatDate(exploration.createdAt)}
-              </strong>
-            </div>
-          </div>
-        </div>
-      )}
-    </article>
-  );
-}
+import { WorkerExplorationCard } from "../components/WorkerComponents/WorkerExplorationCard";
+import { WorkerExplorationsFilters } from "../components/WorkerComponents/WorkerExplorationsFilters";
+import { WorkerExplorationsPagination } from "../components/WorkerComponents/WorkerExplorationsPagination";
+import { WorkerExplorationsSummary } from "../components/WorkerComponents/WorkerExplorationsSummary";
 
 export function WorkerExplorationsView() {
   const {
@@ -354,97 +54,17 @@ export function WorkerExplorationsView() {
 
       <div className="flex-1 overflow-y-auto min-h-0 bg-transparent">
         <div className="p-3 sm:p-4 space-y-4">
-          <section className="border border-[#E85D04]/35 bg-black/65 backdrop-blur-sm p-4 sm:p-5">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="min-w-0">
-                <span className="text-[10px] text-[#9A9A9A] font-mono tracking-[0.14em] block uppercase break-words">
-                  Reconnaissance directory // expedition log
-                </span>
+          <WorkerExplorationsSummary total={data.total} />
 
-                <h2 className="text-lg font-mono font-bold text-white uppercase flex items-start sm:items-center gap-2 mt-1 min-w-0">
-                  <Compass className="text-[#E85D04] shrink-0 mt-0.5 sm:mt-0" size={20} />
-                  <span className="break-words">
-                    My external exploration missions
-                  </span>
-                </h2>
-              </div>
-
-              <div className="border border-[#38BDF8]/50 bg-black/60 px-4 py-2 text-[#38BDF8] font-mono text-xs uppercase tracking-[0.14em] font-bold w-full sm:w-auto text-center shrink-0">
-                Total assigned: {data.total}
-              </div>
-            </div>
-          </section>
-
-          <section className="border border-white/10 bg-black/65 backdrop-blur-sm p-4 font-mono text-xs">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2 min-w-0">
-                <label className="text-[#9A9A9A] block mb-1 uppercase text-[9px] tracking-[0.14em]">
-                  Search exploration
-                </label>
-
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Exploration name"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    className="w-full bg-black/70 border border-white/10 focus:border-[#E85D04]/70 p-3 pl-9 outline-none text-white text-xs placeholder:text-[#7C7C7C]"
-                  />
-
-                  <Search
-                    size={15}
-                    className="absolute left-3 top-3 text-[#7C7C7C]"
-                  />
-                </div>
-              </div>
-
-              <div className="min-w-0">
-                <label className="text-[#9A9A9A] block mb-1 uppercase text-[9px] tracking-[0.14em]">
-                  State
-                </label>
-
-                <select
-                  value={state}
-                  onChange={(event) => setState(event.target.value)}
-                  className="w-full bg-black/70 border border-white/10 focus:border-[#E85D04]/70 p-3 outline-none text-white text-xs"
-                >
-                  <option value="">All</option>
-                  <option value="P">Pending</option>
-                  <option value="A">Active</option>
-                  <option value="F">Finished</option>
-                  <option value="C">Cancelled</option>
-                </select>
-              </div>
-
-              <div className="min-w-0">
-                <label className="text-[#9A9A9A] block mb-1 uppercase text-[9px] tracking-[0.14em]">
-                  Risk
-                </label>
-
-                <select
-                  value={riskLevel}
-                  onChange={(event) => setRiskLevel(event.target.value)}
-                  className="w-full bg-black/70 border border-white/10 focus:border-[#E85D04]/70 p-3 outline-none text-white text-xs"
-                >
-                  <option value="">All</option>
-                  <option value="L">Low</option>
-                  <option value="M">Medium</option>
-                  <option value="H">High</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={clearFilters}
-                className="w-full sm:w-auto px-3 py-2 border border-white/10 bg-black/60 text-[#C0C0C0] hover:border-[#E85D04]/50 hover:text-[#E85D04] uppercase tracking-[0.14em] transition-colors"
-              >
-                <X size={13} className="inline mr-1" />
-                Clear filters
-              </button>
-            </div>
-          </section>
+          <WorkerExplorationsFilters
+            name={name}
+            setName={setName}
+            state={state}
+            setState={setState}
+            riskLevel={riskLevel}
+            setRiskLevel={setRiskLevel}
+            clearFilters={clearFilters}
+          />
 
           {error && (
             <div className="border border-[#E85D04]/50 bg-black/70 backdrop-blur-sm text-[#E85D04] px-4 py-3 font-mono text-xs uppercase tracking-[0.14em] flex items-start sm:items-center gap-2 break-words">
@@ -471,7 +91,7 @@ export function WorkerExplorationsView() {
 
             {!loading &&
               data.items.map((exploration) => (
-                <ExplorationCard
+                <WorkerExplorationCard
                   key={exploration.id}
                   exploration={exploration}
                   expanded={expandedId === exploration.id}
@@ -480,35 +100,12 @@ export function WorkerExplorationsView() {
               ))}
           </section>
 
-          <section className="p-4 border border-white/10 bg-black/65 backdrop-blur-sm flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 font-mono text-xs">
-            <span className="text-[10px] text-[#9A9A9A] uppercase tracking-[0.14em]">
-              Page {data.page} of {data.totalPages || 1} // Total: {data.total}
-            </span>
-
-            <div className="flex gap-2 justify-end">
-              <button
-                type="button"
-                onClick={() => setPage(Math.max(1, page - 1))}
-                disabled={page <= 1}
-                className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
-              >
-                <ChevronLeft size={13} />
-                Previous
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  setPage(Math.min(data.totalPages || 1, page + 1))
-                }
-                disabled={page >= (data.totalPages || 1)}
-                className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
-              >
-                Next
-                <ChevronRight size={13} />
-              </button>
-            </div>
-          </section>
+          <WorkerExplorationsPagination
+            page={page}
+            totalPages={data.totalPages || 1}
+            total={data.total}
+            setPage={setPage}
+          />
         </div>
       </div>
     </div>
