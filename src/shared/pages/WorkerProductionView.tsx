@@ -95,7 +95,7 @@ export function WorkerProductionView() {
         <button
           type="button"
           onClick={() => void reload()}
-          className="flex items-center gap-2 border border-white/10 bg-black/60 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono text-[#C0C0C0] hover:text-[#E85D04] hover:border-[#E85D04]/40 uppercase tracking-[0.14em] transition-colors shrink-0"
+          className="flex items-center gap-2 border-2 border-[#E85D04]/70 bg-black/70 backdrop-blur-sm px-3 py-1.5 text-[10px] font-mono font-bold text-white uppercase tracking-[0.14em] shadow-[0_0_0_1px_rgba(232,93,4,0.25)] hover:bg-[#E85D04]/10 hover:text-[#E85D04] hover:border-[#E85D04] hover:shadow-[0_0_18px_rgba(232,93,4,0.55)] transition-all shrink-0"
         >
           <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
           {loading ? "Loading..." : "Refresh"}
@@ -351,7 +351,7 @@ export function WorkerProductionView() {
                 <button
                   type="submit"
                   disabled={!selectedRule || saving || amount <= 0}
-                  className="w-full py-3 bg-[#E85D04] hover:bg-[#FF6A10] disabled:bg-black/70 disabled:text-[#7C7C7C] text-[#111111] font-bold uppercase tracking-[0.14em] transition-colors font-mono"
+                  className="w-full py-3 border-2 border-[#22C55E]/70 bg-black/80 text-[#22C55E] ring-1 ring-[#22C55E]/30 shadow-[inset_0_0_12px_rgba(34,197,94,0.12),0_0_16px_rgba(34,197,94,0.28)] hover:bg-[#22C55E]/15 hover:border-[#22C55E] hover:text-white hover:ring-[#22C55E]/50 hover:shadow-[inset_0_0_16px_rgba(34,197,94,0.2),0_0_24px_rgba(34,197,94,0.5)] disabled:border-white/10 disabled:bg-black/70 disabled:text-[#7C7C7C] disabled:ring-white/10 disabled:shadow-none disabled:hover:bg-black/70 disabled:hover:border-white/10 disabled:hover:text-[#7C7C7C] font-bold uppercase tracking-[0.14em] transition-all font-mono"
                 >
                   {saving ? "Recording..." : "Record production"}
                 </button>
@@ -462,7 +462,7 @@ export function WorkerProductionView() {
                   type="button"
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page <= 1}
-                  className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
+                  className="px-3 py-1.5 text-xs border-2 border-[#38BDF8]/55 bg-black/80 text-white ring-1 ring-[#38BDF8]/25 shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] hover:text-[#38BDF8] hover:border-[#38BDF8] hover:bg-[#38BDF8]/12 hover:ring-[#38BDF8]/45 hover:shadow-[inset_0_0_14px_rgba(56,189,248,0.18),0_0_22px_rgba(56,189,248,0.45)] disabled:opacity-40 disabled:hover:border-[#38BDF8]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#38BDF8]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(56,189,248,0.10),0_0_12px_rgba(56,189,248,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
                 >
                   <ChevronLeft size={13} />
                   Previous
@@ -474,7 +474,7 @@ export function WorkerProductionView() {
                     setPage(Math.min(history.totalPages || 1, page + 1))
                   }
                   disabled={page >= (history.totalPages || 1)}
-                  className="px-3 py-1.5 text-xs border border-white/10 bg-black/60 hover:border-[#E85D04]/50 disabled:opacity-40 disabled:hover:border-white/10 text-white hover:text-[#E85D04] transition-colors font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
+                 className="px-3 py-1.5 text-xs border-2 border-[#22C55E]/55 bg-black/80 text-white ring-1 ring-[#22C55E]/25 shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] hover:text-[#22C55E] hover:border-[#22C55E] hover:bg-[#22C55E]/12 hover:ring-[#22C55E]/45 hover:shadow-[inset_0_0_14px_rgba(34,197,94,0.18),0_0_22px_rgba(34,197,94,0.45)] disabled:opacity-40 disabled:hover:border-[#22C55E]/55 disabled:hover:text-white disabled:hover:bg-black/80 disabled:hover:ring-[#22C55E]/25 disabled:hover:shadow-[inset_0_0_10px_rgba(34,197,94,0.10),0_0_12px_rgba(34,197,94,0.22)] transition-all font-mono uppercase flex items-center gap-1 whitespace-nowrap tracking-[0.14em]"
                 >
                   Next
                   <ChevronRight size={13} />
